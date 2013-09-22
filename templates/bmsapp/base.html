@@ -1,0 +1,47 @@
+{% load staticfiles %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+
+    <head>
+        <title>ANTHC Remote Monitoring - {%block pagetitle %}{% endblock %}</title>
+        <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.min.css">
+        <link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/bmsapp.css' %}">
+        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
+        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
+        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <script>
+        $(function () {
+            $("#{% block this_nav_link %}{% endblock %}").addClass("selected-nav-link").removeAttr("href");
+        });
+        </script>
+        {% block head %}{% endblock %}
+    </head>
+
+    <body>
+
+        <div id="wrap">
+
+            <div id="header">ANTHC Remote Monitoring</div>
+
+            <div id="nav">
+                <ul>
+                    <li><a href="{% url 'bmsapp.views.map' %}" id="link_map">Map</a></li>
+                    <li><a href="{% url 'bmsapp.views.reports' %}" id="link_reports">Data Charts and Reports</a></li>
+                    <li><a href="{% url 'bmsapp.views.training' %}" id="link_training">Training Videos and Project Reports</a></li>
+                </ul>
+            </div>
+
+            <div id="content">
+                <h1>{% block title %}{% endblock %}</h1>
+                {% block content %}{% endblock %}
+                <hr>
+                <p><img src="{% static 'bmsapp/images/ahfc_logo.png' %}" width="75" height="58" border="0" alt="AHFC Logo"
+                style="vertical-align:middle">&nbsp;&nbsp;
+                Thanks to the Alaska Housing Finance Corporation for providing a substantial portion of the source code for this website.</p>
+            </div>
+
+        </div>
+
+    </body>
+
+</html>

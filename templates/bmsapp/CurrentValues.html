@@ -1,0 +1,18 @@
+<h2 id="report_title">{{ report_title }}</h2>
+<span id="ChartFunc" style="display:none">{{ chart_func }}</span>
+<p style="color: red; text-align: center">Alarm Messages will display here.</p>
+<table>
+    <thead><tr><th>Sensor</th><th>Value</th><th>Unit</th><th>When</th></tr></thead>
+    <tbody>
+    {% for group in sensor_list %}
+        <tr class="group_header"><td colspan="4">{{ group.0 }}</td></tr>
+        {% for sensor in group.1 %}
+            <tr><td class="indent"><a href="{% url 'reports-bldg-chart-sensor' bldg_id ts_chart_id sensor.sensor_id %}">{{ sensor.title }}</a></td>
+                <td class="number">{{ sensor.cur_value }}</td>
+                <td>{{ sensor.unit }}</td>
+                <td>{{ sensor.minutes_ago }} minutes ago</td>
+            </tr>
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>

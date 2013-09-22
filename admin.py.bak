@@ -1,0 +1,27 @@
+from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, Unit
+from django.contrib import admin
+
+class BldgToSensorInline(admin.TabularInline):
+    model = BldgToSensor
+    extra = 1
+
+class BuildingAdmin(admin.ModelAdmin):
+    inlines = (BldgToSensorInline,)
+
+class SensorAdmin(admin.ModelAdmin):
+    inlines = (BldgToSensorInline,)
+    search_fields = ['title', 'tran_calc_function']
+    list_filter = ['is_calculated', 'tran_calc_function']
+
+class SensorGroupAdmin(admin.ModelAdmin):
+    list_display = ('id', 'title', 'sort_order')
+    list_editable = ('title', 'sort_order')
+
+class UnitAdmin(admin.ModelAdmin):
+    list_display = ('id', 'label', 'measure_type')
+    list_editable = ('label', 'measure_type')
+
+admin.site.register(Building, BuildingAdmin)
+admin.site.register(Sensor, SensorAdmin)
+admin.site.register(SensorGroup, SensorGroupAdmin)
+admin.site.register(Unit, UnitAdmin)

@@ -1,0 +1,7 @@
+settings.py
+*.sqlite
+*.pyc
+*.log
+*.pdf
+*.swf
+*.gz

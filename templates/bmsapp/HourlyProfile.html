@@ -1,0 +1,12 @@
+{% extends "bmsapp/chart_base.html" %}
+
+{% block config %}
+<p>
+{% if select_sensor %}
+    Select Value to Plot: {{ select_sensor|safe }}&nbsp;&nbsp;
+{% endif %}
+<input type="checkbox" id="normalize" name="normalize"/>
+<label for="normalize" class="but_lbl">Scale Values to 0 - 100%</label></p>
+{% include "bmsapp/select_time_period.html" %}
+{% endblock config %}
+

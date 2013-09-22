@@ -1,0 +1,11 @@
+{% extends "bmsapp/chart_base.html" %}
+
+{% block config %}
+{% if select_sensor %}
+    <p>
+    Select Value to Plot: {{ select_sensor|safe }}
+    </p>
+{% endif %}
+{% include "bmsapp/select_time_period.html" %}
+{% endblock config %}
+
