@@ -126,6 +126,12 @@ class Building(models.Model):
     # name of the building displayed to users
     title = models.CharField(max_length=50, unique=True)
 
+    # latitude of facility
+    latitude = models.FloatField(default=62.0)
+
+    # longitude of facility
+    longitude = models.FloatField(default=-149.0)
+
     # the sensors and calculated values associated with this building
     sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True, null=True)
 
