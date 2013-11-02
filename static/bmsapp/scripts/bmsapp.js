@@ -453,11 +453,13 @@ AN.update_chart_html = function() {
 AN.update_chart_list = function() {
 
     // load the chart options from a AJAX query for the selected building
-    $("#select_chart").load("chart_list/" +  $("#select_bldg").val() + "/");
+    $("#select_chart").load("chart_list/" +  $("#select_bldg").val() + "/", function () {
 
-    // trigger the change event of the chart selector to get the 
-    // selected option to process.
-    $("#select_chart").trigger("change");
+        // trigger the change event of the chart selector to get the 
+        // selected option to process.
+        $("#select_chart").trigger("change");
+
+    });
     
 }
 
