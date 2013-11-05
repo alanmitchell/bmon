@@ -16,9 +16,9 @@ time.tzset()
 logger = logging.getLogger('bms.calc_readings')
 
 # get a BMSdata object for the sensor reading database and then make a Calculate
-# Readings object.  Only allow calculated readings within the last two hours (120 minutes).
+# Readings object.  Only allow calculated readings within the last eight hours (480 minutes).
 reading_db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
-calc = calculated_readings.CalculateReadings(reading_db, 120)
+calc = calculated_readings.CalculateReadings(reading_db, 480)
 
 # get a database connection and cursor to the Django project database that has the sensor
 # list.
