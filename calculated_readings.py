@@ -207,7 +207,7 @@ class CalculateReadings:
         """
         Insert records for the calculated reading using the function with the name
         'calcFuncName' and having the parameters 'calcParams'.  The inserted readings
-        have a senor ID of 'calc_id'.  The method returns the number of records inserted.
+        have a sensor ID of 'calc_id'.  The method returns the number of records inserted.
 
         'calcFuncName' is a string giving the name of a method of this class.  The method
         is used to calculate new readings for the sensor database.  'calcParams' is one string
@@ -216,7 +216,7 @@ class CalculateReadings:
         
         There are two categories of functions that can be named by 'calcFuncName':
             *  Functions that expect at least one of the parameters to be the ID of an 
-            sensor (or prior calculated field) that already existing in the sensor
+            sensor (or prior calculated field) that already exists in the sensor
             database.
             *  Functions that do not need to have existing sensor readings as inputs.
             An example is a function that acquires weather data from the Internet.

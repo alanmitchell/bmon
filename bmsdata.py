@@ -49,13 +49,19 @@ class BMSdata:
             self.conn.commit()
             self.last_commit = time.time()
 
-    def last_read(self, id):
+    def last_read(self, sensor_id):
         '''
-        Returns the last reading for a particular sensor.  The reading is returned as a row dictionary.
+        Returns the last reading for a particular sensor.  
+        The reading is returned as a row dictionary.
+        Returns None if no readings are available for the requested sensor.
         '''
-        self.cursor.execute('SELECT * FROM reading WHERE id=? ORDER BY ts DESC LIMIT 1', (id,))
+        # address case where sensor id does not exist
+        if sensor_id not in self.sensor_ids:
+            return None
+
+        self.cursor.execute('SELECT * FROM [%s] ORDER BY ts DESC LIMIT 1' % sensor_id)
         row = self.cursor.fetchone()
-        return dict(row) if row else {}
+        return dict(row) if row else None
 
     def rowsForOneID(self, sensor_id, start_tm=None, end_tm=None):
         '''
@@ -64,7 +70,11 @@ class BMSdata:
         'start_tm' and 'end_tm' are UNIX timestamps.  If either are not provided, no limit
         is imposed.  The rows are returned in timestamp order.
         '''
-        sql = 'SELECT ts, val FROM reading WHERE id="%s"' % sensor_id
+        # address case where sensor id does not exist
+        if sensor_id not in self.sensor_ids:
+            return []
+
+        sql = 'SELECT ts, val FROM [%s] WHERE 1' % sensor_id
         if start_tm is not None:
             sql += ' AND ts>=%s' % int(start_tm)
         if end_tm is not None:
@@ -79,5 +89,8 @@ class BMSdata:
         Returns the number of readings in the reading table inserted after the specified
         'startTime' (Unix seconds).
         """
-        self.cursor.execute('SELECT COUNT(*) FROM reading WHERE ts > ?', (startTime,))
-        return self.cursor.fetchone()[0]
+        rec_ct = 0
+        for id in self.sensor_ids:
+            self.cursor.execute('SELECT COUNT(*) FROM [%s] WHERE ts > ?' % id, (startTime,))
+            rec_ct += self.cursor.fetchone()[0]
+        return rec_ct
