@@ -2,27 +2,17 @@
 Class to encapsulate a BMS database.  Uses the SQLite database
 '''
 
-import os, sqlite3
+import sqlite3, time
 
 class BMSdata:
 
     def __init__(self, fname):
         '''
-        fname: full path to SQLite database file. If the file is not present, it will be created with
-            the proper structure.
+        fname: full path to SQLite database file. If the file is not present, 
+            it will be created.
         '''
 
-        # Open db file if it exists, or make the database if it doesn't exist.  Store
-        # the connection object as an object variable.
-        if os.path.exists(fname):
-            self.conn = sqlite3.connect(fname)
-        else:
-            # no file, so make the necessary table and indexes.
-            self.conn = sqlite3.connect(fname)
-            self.conn.execute("CREATE TABLE reading(ts integer not null, id varchar(15) not null, val real, primary key (ts, id))")
-            self.conn.execute("CREATE INDEX id_ix on reading(id)")
-            self.conn.execute("CREATE INDEX ts_ix on reading(ts)")
-            self.conn.commit()
+        self.conn = sqlite3.connect(fname)
 
         # use the SQLite Row row_factory for all Select queries
         self.conn.row_factory = sqlite3.Row
@@ -30,20 +20,34 @@ class BMSdata:
         # now create a cursor object
         self.cursor = self.conn.cursor()
         
-        # make a list of all of the tables (sensor IDs) in the database.
+        # make a set list of all of the tables (sensor IDs) in the database, so
+        # that it is fast to determine whether a sensor exists in the current
+        # database.
         recs = self.cursor.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'").fetchall()
         self.sensor_ids = set([rec['tbl_name'] for rec in recs])
-        print self.sensor_ids
+        
+        # track when the last commit() occurred.  Used to avoid frequent, 
+        # time-consuming commits when many new readings are arriving.
+        self.last_commit = time.time()
 
     def close(self):
+        self.conn.commit()  # may be lingering uncommitted sensor readings.
         self.conn.close()
 
     def insert_reading(self, ts, id, val):
         '''
-        Inserts a record into the database and commits it.
+        Inserts a record into the database.
         '''
-        self.cursor.execute("INSERT INTO reading (ts, id, val) VALUES (?, ?, ?)", (ts, id, val))
-        self.conn.commit()
+        # Check to see if sensor table exists.  If not, create it.
+        if id not in self.sensor_ids:
+            self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % id)
+            self.sensor_ids.add(id)
+        self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % id, (ts, val))
+        
+        # Commit if it has been more than 10 seconds since last commit.
+        if time.time() > self.last_commit + 10:
+            self.conn.commit()
+            self.last_commit = time.time()
 
     def last_read(self, id):
         '''
