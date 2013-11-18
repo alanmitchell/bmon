@@ -130,7 +130,9 @@ class CalculateReadings:
         """
         ts = []
         vals = []
-        for flds in self.db.rowsWhere('id="%s" AND ts>%d ORDER BY ts' % (sensorID, start_ts)):
+        # in statement below, need to add 1 second to start_ts because the
+        # 'rowsForOneID' method uses a >= test.
+        for flds in self.db.rowsForOneID(sensorID, start_tm=start_ts+1):
             ts.append(flds['ts'])
             vals.append(flds['val'])
         return np.array(ts), np.array(vals)
@@ -423,7 +425,7 @@ class CalculateReadings:
         # one state change prior to last_ts.  Put these in a Pandas series
         ts_state = []
         state = []
-        for rec in self.db.rowsWhere('id="%s" AND ts>%d' % (onOffID, last_ts - 7200)):
+        for rec in self.db.rowsForOneID(onOffID, start_tm=last_ts - 7200):
             ts_state.append(rec['ts'])
             state.append(rec['val'])
         states = pd.Series(state, index=ts_state)

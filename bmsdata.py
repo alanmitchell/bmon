@@ -2,8 +2,7 @@
 Class to encapsulate a BMS database.  Uses the SQLite database
 '''
 
-import os, sqlite3, time
-import pandas as pd
+import os, sqlite3
 
 class BMSdata:
 
@@ -30,6 +29,11 @@ class BMSdata:
 
         # now create a cursor object
         self.cursor = self.conn.cursor()
+        
+        # make a list of all of the tables (sensor IDs) in the database.
+        recs = self.cursor.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'").fetchall()
+        self.sensor_ids = set([rec['tbl_name'] for rec in recs])
+        print self.sensor_ids
 
     def close(self):
         self.conn.close()
@@ -48,14 +52,6 @@ class BMSdata:
         self.cursor.execute('SELECT * FROM reading WHERE id=? ORDER BY ts DESC LIMIT 1', (id,))
         row = self.cursor.fetchone()
         return dict(row) if row else {}
-
-    def rowsWhere(self, whereClause):
-        '''
-        Returns a list of row dictionaries matching the 'whereClause'.  The where clause
-        can include ORDER BY and other clauses that can appear after WHERE.
-        '''
-        self.cursor.execute('SELECT * FROM reading WHERE ' + whereClause)
-        return [dict(r) for r in self.cursor.fetchall()]
 
     def rowsForOneID(self, sensor_id, start_tm=None, end_tm=None):
         '''
