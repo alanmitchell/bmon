@@ -5,11 +5,12 @@ Module used to store incoming sensor readings in the database.
 import dateutil.parser, calendar, re, time
 import bmsdata, app_settings, transforms
 
-# open the database 
-_db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
 
 def store(query_params, transform_func='', transform_params=''):
 
+    # open the database 
+    _db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+    
     # parse the date into a datetime object and then into Unix seconds. Convert to
     # integer.
     if 'ts' in query_params:
@@ -38,3 +39,5 @@ def store(query_params, transform_func='', transform_params=''):
         ts, id, val = trans.transform_value(ts, id, val, transform_func, transform_params)
 
     _db.insert_reading(ts, id, val)
+    
+    _db.close()

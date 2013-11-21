@@ -343,8 +343,8 @@ class CurrentValues(BldgChart):
                 cur_group = b_to_sen.sensor_group.title
                 cur_group_sensor_list = []
             last_read = db.last_read(b_to_sen.sensor.sensor_id)
-            cur_value = formatCurVal(last_read['val']) if 'val' in last_read else ''
-            minutes_ago = '%.1f' % ((cur_time - last_read['ts'])/60.0) if 'ts' in last_read else ''
+            cur_value = formatCurVal(last_read['val']) if last_read else ''
+            minutes_ago = '%.1f' % ((cur_time - last_read['ts'])/60.0) if last_read else ''
             cur_group_sensor_list.append( {'title': b_to_sen.sensor.title, 
                                            'cur_value': cur_value, 
                                            'unit': b_to_sen.sensor.unit.label, 

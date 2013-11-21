@@ -23,8 +23,8 @@ class BMSdata:
         # make a set list of all of the tables (sensor IDs) in the database, so
         # that it is fast to determine whether a sensor exists in the current
         # database.
-        recs = self.cursor.execute("SELECT tbl_name FROM sqlite_master WHERE type='table'").fetchall()
-        self.sensor_ids = set([rec['tbl_name'] for rec in recs])
+        recs = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+        self.sensor_ids = set([rec['name'] for rec in recs])
         
         # track when the last commit() occurred.  Used to avoid frequent, 
         # time-consuming commits when many new readings are arriving.
@@ -44,10 +44,11 @@ class BMSdata:
             self.sensor_ids.add(id)
         self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % id, (ts, val))
         
+        self.conn.commit()
         # Commit if it has been more than 10 seconds since last commit.
-        if time.time() > self.last_commit + 10:
-            self.conn.commit()
-            self.last_commit = time.time()
+        #if time.time() > self.last_commit + 10:
+        #    self.conn.commit()
+        #    self.last_commit = time.time()
 
     def last_read(self, sensor_id):
         '''
