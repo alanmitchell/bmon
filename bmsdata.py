@@ -26,12 +26,7 @@ class BMSdata:
         recs = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
         self.sensor_ids = set([rec['name'] for rec in recs])
         
-        # track when the last commit() occurred.  Used to avoid frequent, 
-        # time-consuming commits when many new readings are arriving.
-        self.last_commit = time.time()
-
     def close(self):
-        self.conn.commit()  # may be lingering uncommitted sensor readings.
         self.conn.close()
 
     def insert_reading(self, ts, id, val):
@@ -43,12 +38,10 @@ class BMSdata:
             self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % id)
             self.sensor_ids.add(id)
         self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % id, (ts, val))
-        
+
+        # Commits take a lot of time, but Sqlite does not allow an open database reference to be
+        # shared across threads.  The web server uses multiple threads to handle requests.
         self.conn.commit()
-        # Commit if it has been more than 10 seconds since last commit.
-        #if time.time() > self.last_commit + 10:
-        #    self.conn.commit()
-        #    self.last_commit = time.time()
 
     def last_read(self, sensor_id):
         '''

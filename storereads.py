@@ -9,7 +9,7 @@ import bmsdata, app_settings, transforms
 def store(query_params, transform_func='', transform_params=''):
 
     # open the database 
-    _db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+    db = bmsdata.BMSdata(app_settings.DATAdb_FILENAME)
     
     # parse the date into a datetime object and then into Unix seconds. Convert to
     # integer.
@@ -35,9 +35,9 @@ def store(query_params, transform_func='', transform_params=''):
 
     # if there is a transform function passed, use it to convert the reading values
     if len(transform_func.strip()):
-        trans = transforms.Transformer(_db)
+        trans = transforms.Transformer(db)
         ts, id, val = trans.transform_value(ts, id, val, transform_func, transform_params)
 
-    _db.insert_reading(ts, id, val)
+    db.insert_reading(ts, id, val)
     
-    _db.close()
+    db.close()
