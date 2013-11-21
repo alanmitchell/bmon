@@ -9,7 +9,7 @@ import bmsdata, app_settings, transforms
 def store(query_params, transform_func='', transform_params=''):
 
     # open the database 
-    db = bmsdata.BMSdata(app_settings.DATAdb_FILENAME)
+    db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
     
     # parse the date into a datetime object and then into Unix seconds. Convert to
     # integer.
