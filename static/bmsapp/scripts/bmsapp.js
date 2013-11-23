@@ -123,7 +123,6 @@ AN.chart_makers.base_chart = function() {
     // form.
 
     $("#time_period").buttonset();
-    $("#averaging_time").buttonset();
 
     // Related to selecting the range of dates to chart
     $( "#start_date" ).datepicker({dateFormat: "mm/dd/yy"});
