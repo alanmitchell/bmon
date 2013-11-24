@@ -4,7 +4,7 @@ from django.shortcuts import render_to_response, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
-import models, storereads, app_settings, charts, view_util
+import models, storereads, global_vars, charts, view_util
 import sys, logging, json
 
 # Make a logger for this module
@@ -49,7 +49,7 @@ def show_log(request):
     '''
     Returns the application's log file, without formatting.
     '''
-    return HttpResponse('<pre>%s</pre>' % open(app_settings.LOG_FILE).read())
+    return HttpResponse('<pre>%s</pre>' % open(global_vars.LOG_FILE).read())
 
 @csrf_exempt    # needed to accept HTTP POST requests from the AHFC BAS system.
 def store_reading(request):

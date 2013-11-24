@@ -3,13 +3,13 @@ Module used to store incoming sensor readings in the database.
 '''
 
 import dateutil.parser, calendar, re, time
-import bmsdata, app_settings, transforms
+import bmsdata, global_vars, transforms
 
 
 def store(query_params, transform_func='', transform_params=''):
 
     # open the database 
-    db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+    db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
     
     # parse the date into a datetime object and then into Unix seconds. Convert to
     # integer.
