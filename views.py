@@ -1,21 +1,29 @@
 # Create your views here.
+import sys, logging, json
+
 from  django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
+from django.conf import settings
 import models, storereads, global_vars, charts, view_util
-import sys, logging, json
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
+
+# Some variables to include when rendering all templates
+TMPL_CONTEXT = {'bmsapp_title_text': getattr(settings, 'BMSAPP_TITLE_TEXT', 'Facility Monitoring'),
+                'bmsapp_header': getattr(settings, 'BMSAPP_HEADER', 'Facility Monitoring'),
+                'bmsapp_footer': getattr(settings, 'BMSAPP_FOOTER', 'Thanks to Alaska Housing Finance Corporation for providing most of the source code for this application.'),
+               }
 
 def index(request):
     '''
     The main home page for the site, which redirects to the desired page to show for the home page.
     '''
     #return redirect('/map/')
-    return redirect( reverse('bmsapp.views.map') )
+    return redirect( reverse('bmsapp.views.facility_map') )
 
 def reports(request, selected_bldg=None, selected_chart=None, selected_sensor=None):
     '''
@@ -43,7 +51,9 @@ def reports(request, selected_bldg=None, selected_chart=None, selected_sensor=No
     chart_obj = chart_class(chart, request.GET)                    # Make the chart object from the class
     chart_html = chart_obj.html(selected_sensor)
 
-    return render_to_response('bmsapp/reports.html', {'bldgs_html': bldgs_html, 'chart_list_html': chart_list_html, 'chart_html': chart_html})
+    ctx = TMPL_CONTEXT.copy()
+    ctx.update({'bldgs_html': bldgs_html, 'chart_list_html': chart_list_html, 'chart_html': chart_html})
+    return render_to_response('bmsapp/reports.html', ctx)
 
 def show_log(request):
     '''
@@ -138,11 +148,11 @@ def chart_info(request, bldg_group, chart_id, info_type):
         _logger.exception('Error in chart_info')
         return HttpResponse('Error in chart_info')
 
-def map(request):
+def facility_map(request):
     '''
     The map page.
     '''
-    return render_to_response('bmsapp/map.html', {}) 
+    return render_to_response('bmsapp/map.html', TMPL_CONTEXT) 
 
 
 def training(request):
@@ -150,7 +160,7 @@ def training(request):
     The training page.
     '''
 
-    return render_to_response('bmsapp/training.html', {})   #, {'building_list': bldgs})
+    return render_to_response('bmsapp/training.html', TMPL_CONTEXT)   #, {'building_list': bldgs})
 
 def show_video(request, filename, width, height):
     '''

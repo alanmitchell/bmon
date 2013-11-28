@@ -6,7 +6,7 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('bmsapp.views',
     url(r'^$', 'index'),
-    url(r'^map/$', 'map'),
+    url(r'^map/$', 'facility_map'),
     url(r'^reports/$', 'reports', name='reports'),
     url(r'^reports/(multi|\d+)/$', 'reports'),
     url(r'^reports/(multi|\d+)/(\d+)/$', 'reports'),
