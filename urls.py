@@ -6,7 +6,7 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('bmsapp.views',
     url(r'^store_(\w+)/', 'store_reading'),              # Permissions Key for storing data embedded in URL
-    url(r'^stB(\w+)/', 'store_reading_old'),             # Old URL pattern for storing.  Shouldn't be used for new sensors.
+    url(r'^st8(\w+)/', 'store_reading_old'),             # Old URL pattern for storing.  Shouldn't be used for new sensors.
     url(r'^$', 'index'),
     url(r'^reports/$', 'reports', name='reports'),
     url(r'^reports/(multi|\d+)/$', 'reports'),
