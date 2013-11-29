@@ -6,7 +6,6 @@ from django.conf.urls import patterns, url
 
 urlpatterns = patterns('bmsapp.views',
     url(r'^$', 'index'),
-    url(r'^map/$', 'facility_map'),
     url(r'^reports/$', 'reports', name='reports'),
     url(r'^reports/(multi|\d+)/$', 'reports'),
     url(r'^reports/(multi|\d+)/(\d+)/$', 'reports'),
@@ -17,6 +16,8 @@ urlpatterns = patterns('bmsapp.views',
     url(r'/chart_list/(multi)/$', 'chart_list'),
     url(r'/chart_list/(\d+)/$', 'chart_list'),
     url(r'/chart/(multi|one)/(\d+)/([a-zA-Z_]+)/', 'chart_info'),
-    url(r'^training/$', 'training'),
     url(r'^training/video/(\w+)/(\d+)/(\d+)/$', 'show_video', name='show-video'),
+
+    # catches URLs that don't match the above patterns.  Assumes they give a template name to render.
+    url(r'^(\w+)/$', 'wildcard'),      
 )

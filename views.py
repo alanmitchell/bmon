@@ -7,23 +7,40 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.conf import settings
+
 import models, storereads, global_vars, charts, view_util
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
 
-# Some variables to include when rendering all templates
+# Some context variables to include when rendering all templates
+DEFAULT_NAV_LINKS = ( ('Data Charts and Reports', 'reports', True),
+                      ('Training Videos and Project Reports', 'training_anthc'),
+                    )
+
 TMPL_CONTEXT = {'bmsapp_title_text': getattr(settings, 'BMSAPP_TITLE_TEXT', 'Facility Monitoring'),
                 'bmsapp_header': getattr(settings, 'BMSAPP_HEADER', 'Facility Monitoring'),
                 'bmsapp_footer': getattr(settings, 'BMSAPP_FOOTER', 'Thanks to Alaska Housing Finance Corporation for providing most of the source code for this application.'),
+                'bmsapp_nav_links': getattr(settings, 'BMSAPP_NAV_LINKS', DEFAULT_NAV_LINKS),
                }
+
+def base_context():
+    '''
+    Returns a Template rendering context with some basic variables.
+    Had to do this because I could not run the 'reverse' method from the module level.
+    '''
+    ctx = TMPL_CONTEXT.copy()
+    ctx['bmsapp_nav_link_base_url'] = reverse('bmsapp.views.index')
+    return ctx
 
 def index(request):
     '''
     The main home page for the site, which redirects to the desired page to show for the home page.
     '''
-    #return redirect('/map/')
-    return redirect( reverse('bmsapp.views.facility_map') )
+    # find the index page in the set of navigation links
+    for lnk in TMPL_CONTEXT['bmsapp_nav_links']:
+        if len(lnk)==3 and lnk[2]==True:
+            return redirect( reverse('bmsapp.views.wildcard', args=(lnk[1],)) )
 
 def reports(request, selected_bldg=None, selected_chart=None, selected_sensor=None):
     '''
@@ -51,7 +68,7 @@ def reports(request, selected_bldg=None, selected_chart=None, selected_sensor=No
     chart_obj = chart_class(chart, request.GET)                    # Make the chart object from the class
     chart_html = chart_obj.html(selected_sensor)
 
-    ctx = TMPL_CONTEXT.copy()
+    ctx = base_context()
     ctx.update({'bldgs_html': bldgs_html, 'chart_list_html': chart_list_html, 'chart_html': chart_html})
     return render_to_response('bmsapp/reports.html', ctx)
 
@@ -148,20 +165,6 @@ def chart_info(request, bldg_group, chart_id, info_type):
         _logger.exception('Error in chart_info')
         return HttpResponse('Error in chart_info')
 
-def facility_map(request):
-    '''
-    The map page.
-    '''
-    return render_to_response('bmsapp/map.html', TMPL_CONTEXT) 
-
-
-def training(request):
-    '''
-    The training page.
-    '''
-
-    return render_to_response('bmsapp/training.html', TMPL_CONTEXT)   #, {'building_list': bldgs})
-
 def show_video(request, filename, width, height):
     '''
     A Page to show a training video.  'filename' is the Flash file name of the video, without
@@ -170,6 +173,12 @@ def show_video(request, filename, width, height):
 
     return render_to_response('bmsapp/video.html', {'filename': filename, 'width': width, 'height': height}) 
 
+def wildcard(request, template_name):
+    '''
+    Used if a URL component doesn't match any of the predefied URL patterns.  Renders
+    the template indicated by template_name, adding an '.html' to the name.
+    '''
+    return render_to_response('bmsapp/%s.html' % template_name, base_context())
 
 @login_required
 def password_change_done(request):

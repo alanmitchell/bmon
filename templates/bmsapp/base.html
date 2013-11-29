@@ -25,9 +25,9 @@
 
             <div id="nav">
                 <ul>
-                    <li><a href="{% url 'bmsapp.views.facility_map' %}" id="link_map">Map</a></li>
-                    <li><a href="{% url 'bmsapp.views.reports' %}" id="link_reports">Data Charts and Reports</a></li>
-                    <li><a href="{% url 'bmsapp.views.training' %}" id="link_training">Training Videos and Project Reports</a></li>
+                    {% for nav_item in bmsapp_nav_links %}
+                        <li><a href="{{ bmsapp_nav_link_base_url }}{{ nav_item.1 }}/" id="link_{{ nav_item.1 }}">{{ nav_item.0 }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
 

@@ -3,6 +3,8 @@ Helper functions for the views in this BMS application.
 '''
 
 from django.template import Context, loader
+from django.core.urlresolvers import reverse
+
 import models
 
 def to_int(val):
