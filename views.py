@@ -1,5 +1,5 @@
 # Create your views here.
-import sys, logging, json
+import sys, logging, json, random
 
 from  django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
@@ -78,12 +78,16 @@ def show_log(request):
     '''
     return HttpResponse('<pre>%s</pre>' % open(global_vars.LOG_FILE).read())
 
-@csrf_exempt    # needed to accept HTTP POST requests from the AHFC BAS system.
-def store_reading(request):
+@csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
+def store_reading(request, store_key):
     '''
     Stores a sensor reading in the sensor reading database.  The sensor reading information is
     provided in the GET parameters of the request.
     '''
+
+    if store_key != settings.BMSAPP_STORE_KEY:
+        return HttpResponse('Invalid Key')
+
     try:
         # determine whether request was a GET or POST and extract data
         data = request.GET.dict() if request.method == 'GET' else request.POST.dict()
@@ -104,10 +108,32 @@ def store_reading(request):
         _logger.exception('Error Storing Reading: %s' % request.GET.dict())
         return HttpResponse('Error Storing: %s' % request.GET.dict())
 
-def store_test(request):
-    _logger.info('store_test GET Parameters: %s' % request.GET.dict())
-    return HttpResponse('%s' % request.GET.dict())
+@csrf_exempt
+def store_reading_old(request, store_key):
+    '''
+    Stores a reading that uses an older URL pattern.
+    '''
+    if store_key == settings.BMSAPP_STORE_KEY_OLD:
+        return store_reading(request, settings.BMSAPP_STORE_KEY)
+    else:
+        return HttpResponse('Invalid Key')
 
+def make_store_key(request):
+    '''
+    Makes a random 12 character store key
+    '''
+    k = ''
+    for i in range(12):
+        val = random.randint(0, 61)
+        if val > 35:
+            val += 61
+        elif val > 9:
+            val += 55
+        else:
+            val += 48
+        k += chr(val)
+
+    return HttpResponse(k)
 
 def chart_list(request, selected_bldg):
     '''
