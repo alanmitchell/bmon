@@ -2,6 +2,9 @@ settings.py
 *.sqlite
 *.pyc
 *.log
+*.log.*
 *.pdf
 *.swf
 *.gz
+*.bak
+

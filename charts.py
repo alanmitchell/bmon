@@ -2,7 +2,7 @@
 This module holds classes that create the HTML and supply the data for Charts and
 Reports.
 '''
-import models, bmsdata, app_settings, transforms, data_util, view_util
+import models, bmsdata, global_vars, transforms, data_util, view_util
 from django.template import Context, loader
 import time, pandas as pd, numpy as np, logging, xlwt
 
@@ -122,7 +122,7 @@ class TimeSeries(BldgChart):
         containing the dynamic data used to draw the chart.
         '''
         # open the database 
-        db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # determine the sensors to plot either from the chart configuration or from the
         # sensor selected by the user.  This creates a list of Sensor objects to plot
@@ -198,7 +198,7 @@ class HourlyProfile(BldgChart):
         containing the dynamic data used to draw the chart.
         '''
         # open the database 
-        db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # determine the sensor to plot either from the chart configuration or from the
         # sensor selected by the user.
@@ -274,7 +274,7 @@ class Histogram(BldgChart):
         containing the dynamic data used to draw the chart.
         '''
         # open the database 
-        db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # determine the sensor to plot either from the chart configuration or from the
         # sensor selected by the user.
@@ -327,7 +327,7 @@ class CurrentValues(BldgChart):
     def html(self, selected_sensor=None):
 
         # open the database 
-        db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # make a list with the major items being a sensor group and the 
         # minor items being a list of sensor info: 
@@ -343,8 +343,8 @@ class CurrentValues(BldgChart):
                 cur_group = b_to_sen.sensor_group.title
                 cur_group_sensor_list = []
             last_read = db.last_read(b_to_sen.sensor.sensor_id)
-            cur_value = formatCurVal(last_read['val']) if 'val' in last_read else ''
-            minutes_ago = '%.1f' % ((cur_time - last_read['ts'])/60.0) if 'ts' in last_read else ''
+            cur_value = formatCurVal(last_read['val']) if last_read else ''
+            minutes_ago = '%.1f' % ((cur_time - last_read['ts'])/60.0) if last_read else ''
             cur_group_sensor_list.append( {'title': b_to_sen.sensor.title, 
                                            'cur_value': cur_value, 
                                            'unit': b_to_sen.sensor.unit.label, 
@@ -405,7 +405,7 @@ class ExportData(BldgChart):
         binner = data_util.TsBin(float(self.get_params['averaging_time']))
 
         # open the database 
-        db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # walk through sensors, setting column titles and building a Pandas DataFrame
         # that aligns the averaged timestamps of the different sensors.
@@ -479,7 +479,7 @@ class NormalizedByDDbyFt2(BldgChart):
         '''
 
         # open the database 
-        db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # get the time range  used in the analysis
         st_ts, end_ts = self.get_ts_range()
@@ -563,7 +563,7 @@ class NormalizedByFt2(BldgChart):
         '''
 
         # open the database 
-        db = bmsdata.BMSdata(app_settings.DATA_DB_FILENAME)
+        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # get the time range  used in the analysis
         st_ts, end_ts = self.get_ts_range()

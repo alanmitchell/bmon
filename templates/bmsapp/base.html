@@ -3,7 +3,7 @@
 <html lang="en">
 
     <head>
-        <title>ANTHC Remote Monitoring - {%block pagetitle %}{% endblock %}</title>
+        <title>{{ bmsapp_title_text }} - {%block pagetitle %}{% endblock %}</title>
         <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.min.css">
         <link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/bmsapp.css' %}">
         <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
@@ -21,13 +21,13 @@
 
         <div id="wrap">
 
-            <div id="header">ANTHC Remote Monitoring</div>
+            <div id="header">{{ bmsapp_header|safe }}</div>
 
             <div id="nav">
                 <ul>
-                    <li><a href="{% url 'bmsapp.views.map' %}" id="link_map">Map</a></li>
-                    <li><a href="{% url 'bmsapp.views.reports' %}" id="link_reports">Data Charts and Reports</a></li>
-                    <li><a href="{% url 'bmsapp.views.training' %}" id="link_training">Training Videos and Project Reports</a></li>
+                    {% for nav_item in bmsapp_nav_links %}
+                        <li><a href="{{ bmsapp_nav_link_base_url }}{{ nav_item.1 }}/" id="link_{{ nav_item.1 }}">{{ nav_item.0 }}</a></li>
+                    {% endfor %}
                 </ul>
             </div>
 
@@ -35,9 +35,7 @@
                 <h1>{% block title %}{% endblock %}</h1>
                 {% block content %}{% endblock %}
                 <hr>
-                <p><img src="{% static 'bmsapp/images/ahfc_logo.png' %}" width="75" height="58" border="0" alt="AHFC Logo"
-                style="vertical-align:middle">&nbsp;&nbsp;
-                Thanks to the Alaska Housing Finance Corporation for providing a substantial portion of the source code for this website.</p>
+                <div id="footer">{{ bmsapp_footer|safe }}</div>
             </div>
 
         </div>

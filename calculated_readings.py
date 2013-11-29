@@ -130,7 +130,9 @@ class CalculateReadings:
         """
         ts = []
         vals = []
-        for flds in self.db.rowsWhere('id="%s" AND ts>%d ORDER BY ts' % (sensorID, start_ts)):
+        # in statement below, need to add 1 second to start_ts because the
+        # 'rowsForOneID' method uses a >= test.
+        for flds in self.db.rowsForOneID(sensorID, start_tm=start_ts+1):
             ts.append(flds['ts'])
             vals.append(flds['val'])
         return np.array(ts), np.array(vals)
@@ -205,7 +207,7 @@ class CalculateReadings:
         """
         Insert records for the calculated reading using the function with the name
         'calcFuncName' and having the parameters 'calcParams'.  The inserted readings
-        have a senor ID of 'calc_id'.  The method returns the number of records inserted.
+        have a sensor ID of 'calc_id'.  The method returns the number of records inserted.
 
         'calcFuncName' is a string giving the name of a method of this class.  The method
         is used to calculate new readings for the sensor database.  'calcParams' is one string
@@ -214,7 +216,7 @@ class CalculateReadings:
         
         There are two categories of functions that can be named by 'calcFuncName':
             *  Functions that expect at least one of the parameters to be the ID of an 
-            sensor (or prior calculated field) that already existing in the sensor
+            sensor (or prior calculated field) that already exists in the sensor
             database.
             *  Functions that do not need to have existing sensor readings as inputs.
             An example is a function that acquires weather data from the Internet.
@@ -423,7 +425,7 @@ class CalculateReadings:
         # one state change prior to last_ts.  Put these in a Pandas series
         ts_state = []
         state = []
-        for rec in self.db.rowsWhere('id="%s" AND ts>%d' % (onOffID, last_ts - 7200)):
+        for rec in self.db.rowsForOneID(onOffID, start_tm=last_ts - 7200):
             ts_state.append(rec['ts'])
             state.append(rec['val'])
         states = pd.Series(state, index=ts_state)
