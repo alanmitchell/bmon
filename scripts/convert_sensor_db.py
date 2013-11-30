@@ -6,8 +6,8 @@ is the ID of the sensor.  The table format is (ts, val).
 '''
 import sqlite3
 
-IN_DB = '../data/bms_data.sqlite'        # name of database in old format
-OUT_DB = '../data/bms_data2.sqlite'   # name of new database to create
+IN_DB = '/home/ahfc/webapps/django/bms/bmsapp/data/bms_data.sqlite'        # name of database in old format
+OUT_DB = '/home/ahfc/webapps/django/bms/bmsapp_new/data/bms_data.sqlite'   # name of new database to create
 
 conn_in = sqlite3.connect(IN_DB)
 c_in = conn_in.cursor()
