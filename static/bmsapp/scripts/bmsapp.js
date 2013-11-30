@@ -6,7 +6,7 @@ var AN = {
         chart_makers: {}   // holds chart classes
     };                    
 
-// Returns the part of the URL that identifies the char type (multi-building
+// Returns the part of the URL that identifies the chart type (multi-building
 // or one building) and the chart ID.
 AN.make_chart_id_url = function() {
 
