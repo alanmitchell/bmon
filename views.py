@@ -137,10 +137,10 @@ def make_store_key(request):
 
 def chart_list(request, selected_bldg):
     '''
-    Returns a JSON array of the charts that are available for the building with the pk ID
-    of 'bldg'.  If 'bldg' is the string 'multi', the list of multi-building charts is returned.
-    The return value is an array of objects, each object having an 'id' property, giving the pk ID
-    of the chart, and a 'title' property giving the title of the chart.
+    Returns a list of charts appropriate for a building identified by the primary key
+    ID of 'selected_bldg'.  'selected_bldg' could be the string 'multi', in which case
+    the list of multi-building charts is returned.
+    The return value is an html snippet of option elements, one for each chart.
     '''
 
     # try to convert the selected building value to an integer (might be the string 'multi') so that
