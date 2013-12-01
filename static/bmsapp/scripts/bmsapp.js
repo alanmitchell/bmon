@@ -16,13 +16,15 @@ AN.make_chart_id_url = function() {
     // get chart selected
     var chart = $("#select_chart").val();
 
-    // create a string to identify the chart: "one/" + chart ID for a chart associated
+    var base = $("#BaseURL").text() + "chart/";
+
+    // create a string to identify the chart: bldg ID + "/" + chart ID for a chart associated
     // with one building. If the chart is associated with multiple
     // buildings, the string is "multi/" + chart ID
     if (bldg=="multi") {
-        return "multi/" + chart;
+        return base + "multi/" + chart;
     } else {
-        return "one/" + chart;
+        return base + bldg + "/" + chart;
     }
 }
 
@@ -162,7 +164,7 @@ AN.chart_makers.base_chart = function() {
 
     var cht_obj = {
         chart_options: ch_opt,
-        data_url: "chart/" + AN.make_chart_id_url() + "/data/",
+        data_url: AN.make_chart_id_url() + "/data/",
         redraw: null     // need to override this to configure and draw chart
     };
 
@@ -364,7 +366,7 @@ AN.chart_makers.ExportData = function() {
     cht.get_data = function() {};
 
     $("#download_many").button().click( function() {
-        window.location.href = "chart/" + AN.make_chart_id_url() + "/download_many/?" +
+        window.location.href = AN.make_chart_id_url() + "/download_many/?" +
             $("#config_chart").serialize();
     });
 
@@ -439,7 +441,7 @@ AN.init_chart = function() {
 // Updates the main content HTML based on the chart selected.
 AN.update_chart_html = function() {
 
-    $.get("chart/" + AN.make_chart_id_url() + "/html/", function(chart_html) {
+    $.get(AN.make_chart_id_url() + "/html/", function(chart_html) {
 
         $("#chart_content").html(chart_html);
         AN.init_chart();
@@ -452,7 +454,7 @@ AN.update_chart_html = function() {
 AN.update_chart_list = function() {
 
     // load the chart options from a AJAX query for the selected building
-    $("#select_chart").load("chart_list/" +  $("#select_bldg").val() + "/", function () {
+    $("#select_chart").load($("#BaseURL").text() + "chart_list/" +  $("#select_bldg").val() + "/", function () {
 
         // trigger the change event of the chart selector to get the 
         // selected option to process.

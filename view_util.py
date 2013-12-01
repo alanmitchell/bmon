@@ -21,7 +21,7 @@ def to_int(val):
 def chart_from_id(chart_type, chart_id):
     '''
     Returns a chart object from the application models based on 'chart_type' ('multi' for multi-building charts
-    or anything else for one-building charts) and a chart ID 'chart_id'.
+    or anything else (usually a building pk ID) for one-building charts) and a chart ID 'chart_id'.
     '''
 
     if chart_type=='multi':

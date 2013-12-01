@@ -152,11 +152,12 @@ def chart_list(request, selected_bldg):
     return HttpResponse(charts_html)
 
 
-def chart_info(request, bldg_group, chart_id, info_type):
+def chart_info(request, bldg_id, chart_id, info_type):
     '''
     Returns the HTML or data needed to display a chart
-    'bldg_group' is either 'one' or 'multi', indicating whether the chart is for one 
-    building (one) or a group of buildings (multi). 'chart_id' is the pk ID of the chart requested.
+    'bldg_id' is either the primary key ID (pk) for a chart associated with one building,
+    or 'multi', indicating that the chart is for a group of buildings (multi). 
+    'chart_id' is the pk ID of the chart requested.
     'info_type' is the type of chart information requested: 'html' to request the HTML for
     the chart page, 'data' to request the data for the chart, or the name of a method on the 
     created chart class to call to return data.
@@ -164,7 +165,7 @@ def chart_info(request, bldg_group, chart_id, info_type):
 
     try:
         # get the chart object from the model
-        chart = view_util.chart_from_id(bldg_group, chart_id)
+        chart = view_util.chart_from_id(bldg_id, chart_id)
 
         # get the appropriate class to instantiate a chart object
         chart_class = getattr(charts, chart.chart_type.class_name)
