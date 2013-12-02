@@ -24,7 +24,6 @@ def store(reading_id, request_data):
         # Take first sensor in list ( should be only one ) and get transform function & parameters
         transform_func = sensors[0].tran_calc_function
         transform_params = sensors[0].function_parameters
-        storereads.store(reading_id, data, sensors[0].tran_calc_function, sensors[0].function_parameters)
     else:
         # no sensor with the requested ID was found.  Therefore, no transform function and parameters.
         transform_func = ''
