@@ -1,7 +1,7 @@
 # Create your views here.
 import sys, logging, json, random
 
-from  django.http import HttpResponse
+from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -79,44 +79,55 @@ def show_log(request):
     return HttpResponse('<pre>%s</pre>' % open(global_vars.LOG_FILE).read())
 
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
-def store_reading(request, store_key):
+def store_reading(request, reading_id):
     '''
-    Stores a sensor reading in the sensor reading database.  The sensor reading information is
-    provided in the GET parameters of the request.
+    Stores a sensor or calculated reading in the sensor reading database.  'reading_id' is the ID of the
+    reading to store.  Other information about the reading is in the GET parameter or POST data of the
+    request.
     '''
-
-    if store_key != settings.BMSAPP_STORE_KEY:
-        return HttpResponse('Invalid Key')
 
     try:
         # determine whether request was a GET or POST and extract data
-        data = request.GET.dict() if request.method == 'GET' else request.POST.dict()
+        req_data = request.GET.dict() if request.method == 'GET' else request.POST.dict()
 
-        # get the Sensor object, if available, to pass along a transform function
-        sensors = models.Sensor.objects.filter( sensor_id=data['id'] )
-        if len(sensors)>0:
-            # Take first sensor in list ( should be only one )
-            storereads.store(data, sensors[0].tran_calc_function, sensors[0].function_parameters)
-        else:
-            # no sensor with the requested ID was found.  Therefore, no transform function and parameters
-            # to pass.
-            storereads.store(data)
+        # Test for a valid key for storing readings.  Key should be unique for each
+        # installation.
+        storeKey = req_data['storeKey']
+        del req_data['storeKey']    # for safety, get the key out of the dictionary
+        if storeKey != settings.BMSAPP_STORE_KEY:
+            return HttpResponse('Invalid Key')
 
+        storereads.store(reading_id, req_data)
         return HttpResponse('OK')
 
     except:
-        _logger.exception('Error Storing Reading: %s' % request.GET.dict())
-        return HttpResponse('Error Storing: %s' % request.GET.dict())
+        _logger.exception('Error Storing Reading for ID=%s: %s' % (reading_id, req_data))
+        return HttpResponse('Error Storing Reading')
 
 @csrf_exempt
 def store_reading_old(request, store_key):
     '''
     Stores a reading that uses an older URL pattern.
     '''
-    if store_key == settings.BMSAPP_STORE_KEY_OLD:
-        return store_reading(request, settings.BMSAPP_STORE_KEY)
-    else:
-        return HttpResponse('Invalid Key')
+
+    try:
+        if store_key == settings.BMSAPP_STORE_KEY_OLD:
+
+            # determine whether request was a GET or POST and extract data
+            req_data = request.GET.dict() if request.method == 'GET' else request.POST.dict()
+
+            # pull the reading id out of the request parameters
+            reading_id = req_data['id']
+
+            storereads.store(reading_id, req_data)
+            return HttpResponse('OK')
+
+        else:
+            return HttpResponse('Invalid Key')
+
+    except:
+        _logger.exception('Error Storing Reading for: %s' %  data)
+        return HttpResponse('Error Storing Reading')
 
 def make_store_key(request):
     '''
