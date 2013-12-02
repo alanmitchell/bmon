@@ -39,7 +39,7 @@ def store(reading_id, request_data):
 
     # Determine the final value to store
     val = request_data['val']
-    if ('True' in val) or ('Closed' in val) or (val.startswith('Motion') or (val.startswith('Light'))):
+    if ('True' in val) or ('Closed' in val) or (val.startswith('Motion') or (val.startswith('Light')) or (val.startswith('Voltage'))):
         val = 1.0
     elif  ('False' in val) or ('Open' in val) or (val.startswith('No')):
         val = 0.0
