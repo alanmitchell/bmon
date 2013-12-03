@@ -1,0 +1,29 @@
+{"name":"ANTHC_Sites","type":"FeatureCollection"
+,"crs":{"type":"name","properties":{"name":"urn:ogc:def:crs:OGC:1.3:CRS83"}}
+,"features":[
+{"type":"Feature","geometry":{"type":"Point","coordinates":[-161.327551740308,61.7848442712321]},"properties":{"Community":"Russian Mission","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-170.483416499537,63.6895372306338]},"properties":{"Community":"Savoonga","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-160.360372986981,61.5114755548242]},"properties":{"Community":"Lower Kalskag","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-160.307518265371,61.5364705100918]},"properties":{"Community":"Upper Kalskag","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-156.883828752217,66.9066134498121]},"properties":{"Community":"Kobuk","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-157.854102987056,67.0854965620255]},"properties":{"Community":"Ambler","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-160.425532255009,66.9743521845997]},"properties":{"Community":"Kiana","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-161.035506894228,66.8376780084161]},"properties":{"Community":"Noorvik","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-160.009586205537,66.6032568872637]},"properties":{"Community":"Selawik","FacilityID":1,"Message":"South Loop Circulation has Stopped."}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-163.031635796445,64.5425428447876]},"properties":{"Community":"Golovin","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-163.55566812836,63.0333814508606]},"properties":{"Community":"Kotlik","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-165.588646344117,61.5269621345134]},"properties":{"Community":"Chevak","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-159.773728804582,62.1987139052234]},"properties":{"Community":"Holy Cross","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-157.314080763905,59.4520352025316]},"properties":{"Community":"New Stuyahok","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-154.899391469714,59.7192860957181]},"properties":{"Community":"Newhalen","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-161.590730678319,59.117810624579]},"properties":{"Community":"Goodnews Bay","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-165.104714284754,60.5294835663577]},"properties":{"Community":"Toksook Bay","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-158.52388085522,56.3528678359318]},"properties":{"Community":"Chignik Lagoon","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-158.749316223161,56.2627328995011]},"properties":{"Community":"Chignik Lake","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-149.330497302316,65.1557258590483]},"properties":{"Community":"Minto","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-151.139079011188,61.0674945387515]},"properties":{"Community":"Tyonek","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-162.041523036217,63.4772863172494]},"properties":{"Community":"Saint Michael","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-163.290107839227,62.0320126724877]},"properties":{"Community":"Pitkas Point","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-157.17204536555,61.7017953284101]},"properties":{"Community":"Sleetmute","FacilityID":1,"Message":""}}
+,{"type":"Feature","geometry":{"type":"Point","coordinates":[-157.000187662519,58.7148154769625]},"properties":{"Community":"South Naknek","FacilityID":1,"Message":""}}
+]}

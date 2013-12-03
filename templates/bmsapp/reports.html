@@ -1,0 +1,28 @@
+{% extends "bmsapp/base.html" %}
+{% load staticfiles %}
+
+{% block pagetitle %}Reports/Charts{% endblock %}
+{% block head %}
+<link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/jquery.multiselect.css' %}">
+<script src="http://code.highcharts.com/3/highcharts.js"></script>
+<script src="http://code.highcharts.com/3/modules/exporting.js"></script>
+<script src="{% static 'bmsapp/scripts/jquery.multiselect.min.js' %}"></script>
+<script src="{% static 'bmsapp/scripts/bmsapp-1.0.js' %}"></script>
+{% endblock %}
+
+{% block this_nav_link %}link_reports{% endblock %}
+
+{% block title %}Charts and Reports{% endblock %}
+
+{% block content %}
+
+<p>
+    Select Facility: <select id="select_bldg">
+        {{ bldgs_html }}
+    </select>
+
+    Select Chart/Report: <select id="select_chart">{{ chart_list_html }}</select>
+    &nbsp;&nbsp;&nbsp;<button id="refresh" type="button">Refresh Data</button>
+</p>
+<div id="chart_content">{{ chart_html }}</div>
+{% endblock %}

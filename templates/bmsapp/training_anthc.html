@@ -1,0 +1,95 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Training and Reports{% endblock %}
+
+{% block this_nav_link %}link_training_anthc{% endblock %}
+
+{% block title %}Training Material and Reports{% endblock %}
+
+{% block content %}
+
+<p>This page contains Reports, Presentations and a number of Videos that explain how to use the ANTHC Remote
+Monitoring website.  This website is based upon a website developed for the Alaska Housing Finance Corporation (AHFC)
+Building Monitoring System project.  Most of the reports and training material below come from that project.</p>
+
+<h2>Reports and Presentations</h2>
+
+<p><a href="http://bms.ahfconline.net/static/bmsapp/reports/deliverable_2_6_7.pdf"><b>Final Report for the Alaska Housing 
+Finance Corporation (AHFC) Building Monitoring System Project:</b></a> Design 
+of the Monitoring Systems, Benefits from Monitoring various System Types, Installation Tips, 
+Internet Access Issues.</p>
+
+<h2>Training Videos</h2>
+
+<p>Adobe Flash Player must be installed on your computer to view these videos.  Click on the image
+of the video's title page to start the video.</p>
+
+<table width="800">
+    <tbody>
+        <tr>
+            <td><a href="http://bms.ahfconline.net/training/video/overview/999/955/">
+            <img src="http://bms.ahfconline.net/static/bmsapp/images/overview.png" 
+            width="320" height="240" border="0" alt="Overview Video"></a></td>
+            <td>(10 minutes) This video gives a brief overview the AHFC Building Monitoring System project.  Much of
+            the content is also relevant to the ANTHC Remote Monitoring effort.</td>
+        </tr>
+        <tr>
+            <td><a href="http://bms.ahfconline.net/training/video/basic_features/974/941/">
+            <img src="http://bms.ahfconline.net/static/bmsapp/images/basic_features.png" 
+            width="320" height="240" border="0" alt="Basic Features Video"></a></td>
+            <td>(9 minutes) This video shows how to select various various reports and graphs for each facility.
+            The video also explains a number of graphing features, such as zooming, highlighting points, and hiding
+            data series on the graph.  These features are common to all the graphs on the web site, and this
+            video is an important one to watch prior to watching the videos below.</td>
+        </tr>
+        <tr>
+            <td><a href="http://bms.ahfconline.net/training/video/multiple/975/892/">
+            <img src="http://bms.ahfconline.net/static/bmsapp/images/multiple.png"
+            width="320" height="240" border="0" alt="Multiple Building Video"></a></td>
+            <td>(13 minutes) This video explains the graphs that are available to compare energy use across
+            multiple buildings, a feature not implemented for the ANTHC Remote Montioring project.  
+            However, it also describes the "Current Values" report, which is implemented in this site.  This
+            report shows the current sensor readings for any one facility.</td>
+        </tr>
+        <tr>
+            <td><a href="http://bms.ahfconline.net/training/video/time_series/972/935/">
+            <img src="http://bms.ahfconline.net/static/bmsapp/images/time_series.png"
+            width="320" height="240" border="0" alt="Plot over Time Video"></a></td>
+            <td>(8 minutes) This video explains the "Plot over Time" graph, also known as the "Time Series" plot.
+            This graph lets you graph how one or more sensor values change over time.  This is the
+            workhorse graph of the system, so this video is important.</td>
+        </tr>
+        <tr>
+            <td><a href="http://bms.ahfconline.net/training/video/hourly_profile/967/931/">
+            <img src="http://bms.ahfconline.net/static/bmsapp/images/hourly_profile.png"
+            width="320" height="240" border="0" alt="Hourly Profile Video"></a></td>
+            <td>(8 minutes) This video explains the "Hourly Profile" chart.
+            This graph lets you graph how a sensor's value changes across the hours in the day.  It also allows
+            you to select particular days to look at, such as Monday through Friday or just Saturday.</td>
+        </tr>
+        <tr>
+            <td><a href="http://bms.ahfconline.net/training/video/histogram/970/932/">
+            <img src="http://bms.ahfconline.net/static/bmsapp/images/histogram.png"
+            width="320" height="240" border="0" alt="Histogram Video"></a></td>
+            <td>(6 minutes) This video explains the Histogram chart.
+            This graph is good for learning about the range of values measured by a sensor.  It also shows you
+            the values are recorded most frequently and least frequently.</td>
+        </tr>
+        <tr>
+            <td><a href="http://bms.ahfconline.net/training/video/download/971/896/">
+            <img src="http://bms.ahfconline.net/static/bmsapp/images/download.png"
+            width="320" height="240" border="0" alt="Download to Excel Video"></a></td>
+            <td>(5 minutes) This video explains how to download sensor data into an Excel spreadsheet.</td>
+        </tr>
+        <tr>
+            <td><a href="http://bms.ahfconline.net/training/video/new_sensor/971/896/">
+            <img src="http://bms.ahfconline.net/static/bmsapp/images/new_sensor.png"
+            width="320" height="240" border="0" alt="Adding New Sensor Video"></a></td>
+            <td>(11 minutes) This video explains how to add a new Monnit Wireless Sensor to the monitoring
+            system.  This video is only appropriate for system administrators and is not meant for general
+            users of the monitoring system.</td>
+        </tr>
+    </tbody>
+</table>
+
+{% endblock %}
