@@ -43,8 +43,9 @@ BMSAPP_NAV_LINKS = ( ('Map', 'map'),
 
 #-------------- End of Settings Specific to the Monitoring App -------------------
 
-
-PROJ_NAME = 'bms'     # name of this Django project
+# Name of this Django project.  Note that if you change this from bms, you will also
+# have to change values in the manage.py, wsgi.py, and appache2/conf/httpd.conf files.
+PROJ_NAME = 'bms'     
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
