@@ -12,16 +12,8 @@ class BldgToSensorInline(admin.TabularInline):
     model = BldgToSensor
     extra = 1
 
-class BuildingChartInline(admin.TabularInline):
-    
-    model = BuildingChart
-    formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows':1, 'cols':60})},
-    }
-    extra = 1
-
 class BuildingAdmin(admin.ModelAdmin):
-    inlines = (BuildingChartInline, BldgToSensorInline)
+    inlines = (BldgToSensorInline, )
 
 class SensorAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline,)
@@ -35,10 +27,6 @@ class SensorGroupAdmin(admin.ModelAdmin):
 class UnitAdmin(admin.ModelAdmin):
     list_display = ('id', 'label', 'measure_type')
     list_editable = ('label', 'measure_type')
-
-class BuildingChartTypeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'title', 'class_name', 'sort_order')
-    list_editable = ('title', 'class_name', 'sort_order')
 
 class MultiBuildingChartTypeAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'class_name', 'sort_order')
@@ -61,6 +49,5 @@ admin.site.register(Building, BuildingAdmin)
 admin.site.register(Sensor, SensorAdmin)
 admin.site.register(SensorGroup, SensorGroupAdmin)
 admin.site.register(Unit, UnitAdmin)
-admin.site.register(BuildingChartType, BuildingChartTypeAdmin)
 admin.site.register(MultiBuildingChartType, MultiBuildingChartTypeAdmin)
 admin.site.register(MultiBuildingChart, MultiBuildingChartAdmin)
