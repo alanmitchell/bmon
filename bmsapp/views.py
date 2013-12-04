@@ -63,20 +63,12 @@ def reports(request, selected_bldg=None, selected_chart=None, selected_sensor=No
     chart_list_html, chart_id_selected = view_util.chart_list_html(bldg_id_selected, selected_chart)
 
     # get the html for configuring and displaying this particular chart
-    chart = view_util.chart_from_id(bldg_id_selected, chart_id_selected)
-    chart_class = getattr(charts, chart.chart_type.class_name)     # get the class name to instantiate a chart object
-    chart_obj = chart_class(chart, request.GET)                    # Make the chart object from the class
+    chart_obj = charts.get_chart_object(bldg_id_selected, chart_id_selected, request.GET)
     chart_html = chart_obj.html(selected_sensor)
 
     ctx = base_context()
     ctx.update({'bldgs_html': bldgs_html, 'chart_list_html': chart_list_html, 'chart_html': chart_html})
     return render_to_response('bmsapp/reports.html', ctx)
-
-def show_log(request):
-    '''
-    Returns the application's log file, without formatting.
-    '''
-    return HttpResponse('<pre>%s</pre>' % open(global_vars.LOG_FILE).read())
 
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
 def store_reading(request, reading_id):
@@ -175,14 +167,9 @@ def chart_info(request, bldg_id, chart_id, info_type):
     '''
 
     try:
-        # get the chart object from the model
-        chart = view_util.chart_from_id(bldg_id, chart_id)
 
-        # get the appropriate class to instantiate a chart object
-        chart_class = getattr(charts, chart.chart_type.class_name)
-
-        # Make the chart object from the class
-        chart_obj = chart_class(chart, request.GET)
+        # Make the chart object
+        chart_obj = charts.get_chart_object(view_util.to_int(bldg_id), view_util.to_int(chart_id), request.GET)
 
         # Return the type of data indicated by 'info_type'
         if info_type=='html':
@@ -202,6 +189,12 @@ def chart_info(request, bldg_id, chart_id, info_type):
     except:
         _logger.exception('Error in chart_info')
         return HttpResponse('Error in chart_info')
+
+def show_log(request):
+    '''
+    Returns the application's log file, without formatting.
+    '''
+    return HttpResponse('<pre>%s</pre>' % open(global_vars.LOG_FILE).read())
 
 def show_video(request, filename, width, height):
     '''

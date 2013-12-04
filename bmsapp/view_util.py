@@ -5,7 +5,7 @@ Helper functions for the views in this BMS application.
 from django.template import Context, loader
 from django.core.urlresolvers import reverse
 
-import models
+import models, charts
 
 def to_int(val):
     '''
@@ -16,19 +16,6 @@ def to_int(val):
         return int(val)
     except:
         return val
-
-
-def chart_from_id(chart_type, chart_id):
-    '''
-    Returns a chart object from the application models based on 'chart_type' ('multi' for multi-building charts
-    or anything else (usually a building pk ID) for one-building charts) and a chart ID 'chart_id'.
-    '''
-
-    if chart_type=='multi':
-        return models.MultiBuildingChart.objects.get(id=int(chart_id))
-    else:
-        return models.BuildingChart.objects.get(id=int(chart_id))
-
 
 def bldg_list_html(selected_bldg=None):
     '''
@@ -65,7 +52,7 @@ def chart_list_html(bldg, selected_chart=None):
         the first chart is selected.
     '''
     if bldg != 'multi':
-        cht_list = models.BuildingChart.objects.filter(building=bldg)
+        cht_list = charts.BLDG_CHART_TYPES
     else:
         cht_list = models.MultiBuildingChart.objects.all()
 

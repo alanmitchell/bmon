@@ -1,7 +1,7 @@
-'''
+"""
 This module holds classes that create the HTML and supply the data for Charts and
 Reports.
-'''
+"""
 import models, bmsdata, global_vars, transforms, data_util, view_util
 from django.template import Context, loader
 import time, pandas as pd, numpy as np, logging, xlwt
@@ -10,71 +10,143 @@ import time, pandas as pd, numpy as np, logging, xlwt
 _logger = logging.getLogger('bms.' + __name__)
 
 
+class BldgChartType:
+    """Class to provide descriptive information about a particular type of chart related
+    to one building.
+    """
+
+    def __init__(self, id, title, class_name, multi_sensor_select):
+        """Initializes the chart type.
+
+            Args:
+                id (int): ID number uniquely identifying this chart type.
+                title (string): Text that will be displayed in select controls and chart titles.
+                class_name (string): The name of the Python class in this charts.py used to create the chart.
+                multi_sensor_select (bool): True if chart allows selection of multiple sensors to plot.
+        """
+        self.id = id        
+        self.title = title  
+        self.class_name = class_name   
+        self.multi_sensor_select = multi_sensor_select
+
+# These are the possible chart types currently implemented, in the order they will be 
+# presented to the User.
+BLDG_CHART_TYPES = [
+    BldgChartType(1, 'Current Sensor Values', 'CurrentValues', False),
+    BldgChartType(2, 'Plot Sensor Values over Time', 'TimeSeries', True),
+    BldgChartType(3, 'Hourly Profile of a Sensor', 'HourlyProfile', False),
+    BldgChartType(4, 'Histogram of a Sensor', 'Histogram', False),
+    BldgChartType(5, 'Download Sensor Data to Excel', 'ExportData', True)
+]
+
+# The ID of the Time Series chart above, as it is needed in code below.
+TIME_SERIES_CHART_ID = 2
+
+def find_chart_type(chart_id):
+    """Returns the BldgChartType for a given ID.
+
+        Args:
+            chart_id (int): The ID number of the requested chart type.
+
+        Returns:
+            The BldgChartType having the requested ID.  Returns None if no match.
+    """
+    for ch in BLDG_CHART_TYPES:
+        if ch.id == chart_id:
+            return ch
+
+    return None
+
+def get_chart_object(bldg_id, chart_id, request_params):
+    """Returns the appropriate chart object identified by the arguments.
+
+        Args:
+            bldg_id (int or the string 'multi'): Identifies the building this chart will be used for.
+                If bldg_id == 'multi', the chart is a multiple-building chart.
+            chart_id (int): The ID number uniquely identifying the chart.
+            request_params: The parameters (request.GET) passed in by the user further qualifying the chart.
+
+        Returns:
+            A chart object descending from BldgChart.
+    """
+
+    if bldg_id=='multi':
+        chart_info = models.MultiBuildingChart.objects.get(id=chart_id)
+        class_name = chart_info.chart_type.class_name
+    else:
+        chart_info = find_chart_type(chart_id)
+        class_name = chart_info.class_name
+
+    # get a reference to the class referred to by class_name
+    chart_class = globals()[class_name]
+
+    # instantiate and return the chart from this class
+    return chart_class(chart_info, bldg_id, request_params)
+
+
 class BldgChart(object):
-    '''
-    Base class for all of the chart classes.
-    '''
+    """Base class for all of the chart classes.
+    """
 
-    def __init__(self, chart, get_params):
-        '''
-        'chart' is the models.BuildingChart object for the chart.  'get_params' are the parameters
+    def __init__(self, chart_info, bldg_id, request_params):
+        """
+        'chart' is the models.BuildingChart object for the chart.  'request_params' are the parameters
         passed in by the user through the Get http request.
-        '''
-        self.chart = chart
-        self.get_params = get_params
+        """
+        self.chart_info = chart_info
+        self.bldg_id = bldg_id
 
-        # the name of the class used to build and process this chart.
-        self.class_name = chart.chart_type.class_name 
+        # if this is a chart for a single building, get the associated building model object
+        if bldg_id != 'multi':
+            self.building = models.Building.objects.get(id=bldg_id)
 
-        # for the chart object, take the keyword parameter string and convert it to a dictionary.
-        chart_params = transforms.makeKeywordArgs(chart.parameters)
+        self.request_params = request_params
 
-        # for any parameter name that starts with "id_", strip the "id_" from the name and substitute
-        # the models.Sensor object that corresponds to the id value.
-        for nm, val in chart_params.items():
-            if nm.startswith('id_'):
-                del chart_params[nm]   # delete this item from the dictionary
-                # make a new item in the dictionary to hold the sensor identified by this id
-                chart_params[ nm[3:] ] = models.Sensor.objects.get(sensor_id=val)
-        self.chart_params = chart_params   # store results in object
+        # the name of this class as it determines templates to use and JavaScript functions to call.
+        self.class_name = self.__class__.__name__
+
+        # for the multi-building chart object, take the keyword parameter string 
+        # and convert it to a dictionary.
+        if bldg_id == 'multi':
+            self.chart_params = transforms.makeKeywordArgs(chart_info.parameters)
 
         # Make a context variable for use by templates including useful template
         # data.
         self.context = Context( {} )
 
-
     def html(self, selected_sensor=None):
-        '''
+        """
         Returns the HTML necessary to configure and display the chart.
-        '''
+        """
         template = loader.get_template('bmsapp/%s.html' % self.class_name)
         self.context['chart_func'] = self.class_name    # this is the name of a Javascript function to call in the browser
+        if self.bldg_id != 'multi':
+            self.context['select_sensor'] = self.make_sensor_select_html(selected_sensor)
         return template.render(self.context)
 
-
     def data(self):
-        '''
+        """
         This method should be overridden.  Returns the series data and any other
         data that is affected by user configuration of the chart.
-        '''
+        """
         return [1,2,3]
 
-    def make_sensor_select_html(self, multi_select=False, selected_sensor=None):
-        '''
+    def make_sensor_select_html(self, selected_sensor=None):
+        """
         Helper method that returns the HTML for a Select control that allows 
-        selection of a sensor associated with this building.  If 'multi_select'
-        is True, multi-select Select HTML is returned.  'selected_sensor' is the
-        ID of the sensor to select; if not provided, the first sensor is selected.
-        '''
+        selection of a sensor(s) associated with this building.  
+        'selected_sensor' is the ID of the sensor to select; if not provided, 
+        the first sensor is selected.
+        """
 
         # convert the selected sensor to an integer, if possible
         select_id = view_util.to_int(selected_sensor)
 
         grp = ''    # tracks the sensor group
         html = '<select id="select_sensor" name="select_sensor" '
-        html += 'multiple="multiple">' if multi_select else '>'
+        html += 'multiple="multiple">' if self.chart_info.multi_sensor_select else '>'
         first_sensor = True
-        for b_to_sen in self.chart.building.bldgtosensor_set.all():
+        for b_to_sen in self.building.bldgtosensor_set.all():
             if b_to_sen.sensor_group != grp:
                 if first_sensor == False:
                     # Unless this is the first group, close the prior group
@@ -89,18 +161,18 @@ class BldgChart(object):
         return html
 
     def get_ts_range(self):
-        '''
+        """
         Returns the start and stop timestamp as determined by the GET parameters that were posted
         from the "time_period" Select control.
-        '''
-        tm_per = self.get_params['time_period']
+        """
+        tm_per = self.request_params['time_period']
         if tm_per != "custom":
             st_ts = int(time.time()) - int(tm_per) * 24 * 3600
             end_ts = time.time() + 3600.0    # adding an hour to be sure all records are caught
         else:
-            st_date = self.get_params['start_date']
+            st_date = self.request_params['start_date']
             st_ts = data_util.datestr_to_ts(st_date) if len(st_date) else 0
-            end_date = self.get_params['end_date']
+            end_date = self.request_params['end_date']
             end_ts = data_util.datestr_to_ts(end_date + " 23:59:59") if len(end_date) else time.time() + 3600.0
 
         return st_ts, end_ts
@@ -108,35 +180,23 @@ class BldgChart(object):
 
 class TimeSeries(BldgChart):
 
-    def html(self, selected_sensor=None):
-        if 'sensor' in self.chart_params:
-            self.context['select_sensor'] = ''
-        else:
-            # provide sensor selection 
-            self.context['select_sensor'] = self.make_sensor_select_html(True, selected_sensor)
-        return super(TimeSeries, self).html()
-
     def data(self):
-        '''
+        """
         Returns the data for a Time Series chart.  Return value is a dictionary
         containing the dynamic data used to draw the chart.
-        '''
+        """
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
-        # determine the sensors to plot either from the chart configuration or from the
-        # sensor selected by the user.  This creates a list of Sensor objects to plot
-        if 'sensor' in self.chart_params:
-            sensor_list = [ self.chart_params['sensor'] ]   # the sensor to chart
-        else:
-            sensor_list = [ models.Sensor.objects.get(sensor_id=id) for id in self.get_params.getlist('select_sensor') ]
+        # Determine the sensors to plot. This creates a list of Sensor objects to plot.
+        sensor_list = [ models.Sensor.objects.get(sensor_id=id) for id in self.request_params.getlist('select_sensor') ]
 
         # determine the Y axes that will be needed to cover the the list of sensor, based on the labels
         # of the units
         y_axes_ids = list(set([sensor.unit.label for sensor in sensor_list]))
 
         # get the requested averaging interval in hours
-        averaging_hours = float(self.get_params['averaging_time'])
+        averaging_hours = float(self.request_params['averaging_time'])
 
         # determine the start time for selecting records and loop through the selected
         # records to get the needed dataset
@@ -183,29 +243,16 @@ class TimeSeries(BldgChart):
 
 class HourlyProfile(BldgChart):
 
-    def html(self, selected_sensor=None):
-        if 'sensor' in self.chart_params:
-            self.context['select_sensor'] = ''
-        else:
-            # provide sensor selection 
-            self.context['select_sensor'] = self.make_sensor_select_html(False, selected_sensor)
-        return super(HourlyProfile, self).html()
-
-
     def data(self):
-        '''
+        """
         Returns the data for an Hourly Profile chart.  Return value is a dictionary
         containing the dynamic data used to draw the chart.
-        '''
+        """
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
-        # determine the sensor to plot either from the chart configuration or from the
-        # sensor selected by the user.
-        if 'sensor' in self.chart_params:
-            the_sensor = self.chart_params['sensor']   # the sensor to chart
-        else:
-            the_sensor = models.Sensor.objects.get(sensor_id=self.get_params['select_sensor'])
+        # determine the sensor to plot from the sensor selected by the user.
+        the_sensor = models.Sensor.objects.get(sensor_id=self.request_params['select_sensor'])
 
         # determine the start time for selecting records and loop through the selected
         # records to get the needed dataset
@@ -242,7 +289,7 @@ class HourlyProfile(BldgChart):
 
         # if normalization was requested, scale values 0 - 100%, with 100% being the largest
         # value across all the day groups.
-        if 'normalize' in self.get_params:
+        if 'normalize' in self.request_params:
             yTitle = "%"
             # find maximum of each series
             maxes = [max(ser['data']) for ser in series]
@@ -259,29 +306,16 @@ class HourlyProfile(BldgChart):
 
 class Histogram(BldgChart):
 
-    def html(self, selected_sensor=None):
-        if 'sensor' in self.chart_params:
-            self.context['select_sensor'] = ''
-        else:
-            # provide sensor selection 
-            self.context['select_sensor'] = self.make_sensor_select_html(False, selected_sensor)
-        return super(Histogram, self).html()
-
-
     def data(self):
-        '''
+        """
         Returns the data for an Histogram chart.  Return value is a dictionary
         containing the dynamic data used to draw the chart.
-        '''
+        """
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
-        # determine the sensor to plot either from the chart configuration or from the
-        # sensor selected by the user.
-        if 'sensor' in self.chart_params:
-            the_sensor = self.chart_params['sensor']   # the sensor to chart
-        else:
-            the_sensor = models.Sensor.objects.get(sensor_id=self.get_params['select_sensor'])
+        # determine the sensor to plot from the sensor selected by the user.
+        the_sensor = models.Sensor.objects.get(sensor_id=self.request_params['select_sensor'])
 
         # determine the start time for selecting records and loop through the selected
         # records to get the needed dataset
@@ -313,10 +347,10 @@ class Histogram(BldgChart):
         return {"series": series, "x_label": the_sensor.unit.label}
 
 def formatCurVal(val):
-    '''
+    """
     Helper function for formatting current values to 3 significant digits, but 
     avoiding the use of scientific notation for display
-    '''
+    """
     if val >= 1000.0:
         return '{:,}'.format( int(float('%.3g' % val)))
     else:
@@ -336,7 +370,7 @@ class CurrentValues(BldgChart):
         cur_group_sensor_list = []
         sensor_list = []
         cur_time = time.time()   # needed for calculating how long ago reading occurred
-        for b_to_sen in self.chart.building.bldgtosensor_set.all():
+        for b_to_sen in self.building.bldgtosensor_set.all():
             if b_to_sen.sensor_group.title != cur_group:
                 if cur_group:
                     sensor_list.append( (cur_group, cur_group_sensor_list) )
@@ -358,30 +392,24 @@ class CurrentValues(BldgChart):
         self.context['sensor_list'] = sensor_list
 
         # create a report title
-        self.context['report_title'] = 'Current Values: %s' % self.chart.building.title
+        self.context['report_title'] = 'Current Values: %s' % self.building.title
 
         # template needs building ID.
-        bldg_id = self.chart.building.id
-        self.context['bldg_id'] = bldg_id
+        self.context['bldg_id'] = self.bldg_id
 
         # Get the ID of the first time series chart for this building
-        self.context['ts_chart_id'] = models.BuildingChart.objects.filter(building__id=bldg_id).filter(chart_type__class_name='TimeSeries')[0].id
+        self.context['ts_chart_id'] = TIME_SERIES_CHART_ID
 
         return super(CurrentValues, self).html()
 
 
 class ExportData(BldgChart):
 
-    def html(self, selected_sensor=None):
-        # provide sensor selection multi-select box
-        self.context['select_sensor'] = self.make_sensor_select_html(True, selected_sensor)
-        return super(ExportData, self).html()
-
     def download_many(self, resp_object):
-        '''
+        """
         Extracts the requested sensor data, averages it, and creates an Excel spreadsheet
         which is then written to the returned HttpResponse object 'resp_object'.
-        '''
+        """
 
         # determine a name for the spreadsheet and fill out the response object
         # headers.
@@ -402,7 +430,7 @@ class ExportData(BldgChart):
         ws.col(0).width = 4300
 
         # make a timestamp binning object
-        binner = data_util.TsBin(float(self.get_params['averaging_time']))
+        binner = data_util.TsBin(float(self.request_params['averaging_time']))
 
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -411,7 +439,7 @@ class ExportData(BldgChart):
         # that aligns the averaged timestamps of the different sensors.
         col = 1   # tracks spreadsheet column
         df = pd.DataFrame()
-        for id in self.get_params.getlist('select_sensor'):
+        for id in self.request_params.getlist('select_sensor'):
             sensor = models.Sensor.objects.get(sensor_id=id)
 
             # write column heading in spreadsheet
@@ -453,7 +481,7 @@ class ExportData(BldgChart):
 # **********************  Multi-Building Charts Below Here ***************************
 
 class NormalizedByDDbyFt2(BldgChart):
-    '''
+    """
     Chart that normalizes a quantity by degree-days and floor area.  Value being normalized
     must be a rate per hour quantity; the normalization integrates by the hour.  For example
     a Btu/hour value integrates to total Btus in this chart.
@@ -470,13 +498,13 @@ class NormalizedByDDbyFt2(BldgChart):
         'id_out_temp': the sensor ID of an outdoor temperature measurement used to calculate
             degree-days.
         'floor_area': the floor area in square feet of the building.
-    '''
+    """
     
     def data(self):
-        '''
+        """
         Returns the data for a chart that normalizes a value by degree-days and floor area.
         Return value is a dictionary containing the dynamic data needed to draw the chart.
-        '''
+        """
 
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -498,7 +526,7 @@ class NormalizedByDDbyFt2(BldgChart):
         values = []
 
         # loop through the buildings determining the Btu/ft2/dd for each building
-        for bldg_info in self.chart.chartbuildinginfo_set.all():
+        for bldg_info in self.chart_info.chartbuildinginfo_set.all():
 
             bldg_name = bldg_info.building.title   # get the building name
 
@@ -540,7 +568,7 @@ class NormalizedByDDbyFt2(BldgChart):
 
 class NormalizedByFt2(BldgChart):
     
-    '''
+    """
     Chart that normalizes a quantity by floor area.  The value being normalized is first averaged
     over the requested time period and then divided by floor area.  A scaling multiplier is optionally
     applied to the result.
@@ -554,13 +582,13 @@ class NormalizedByFt2(BldgChart):
     BUILDING PARAMETERS:
         'id_value': the sensor ID of the quantity to sum up and normalize.
         'floor_area': the floor area in square feet of the building.
-    '''
+    """
     
     def data(self):
-        '''
+        """
         Returns the data for a chart that normalizes a value by floor area.
         Return value is a dictionary containing the dynamic data needed to draw the chart.
-        '''
+        """
 
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -576,7 +604,7 @@ class NormalizedByFt2(BldgChart):
         values = []
 
         # loop through the buildings determining the value per ft2 for each building
-        for bldg_info in self.chart.chartbuildinginfo_set.all():
+        for bldg_info in self.chart_info.chartbuildinginfo_set.all():
 
             bldg_name = bldg_info.building.title   # get the building name
 
