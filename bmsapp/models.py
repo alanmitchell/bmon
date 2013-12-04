@@ -75,27 +75,6 @@ class Sensor(models.Model):
         ordering = ['sensor_id']
 
 
-class BuildingChartType(models.Model):
-    '''
-    A type of chart applicable to one building (not a group of buildings)
-    '''
-
-    # descriptive title of the Chart Type
-    title = models.CharField(max_length=50, unique=True)
-
-    # the name of the Javascript class used to render the chart.  Also the
-    # name of the Django template name used to create the HTML for the chart.
-    class_name = models.CharField(max_length=30, unique=True)
-
-    # determines order of Chart Type displayed in Admin interface
-    sort_order = models.IntegerField(default=999)
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        ordering = ['sort_order']
-
 class MultiBuildingChartType(models.Model):
     '''
     A type of chart that uses data from multiple buildings
@@ -159,35 +138,6 @@ class BldgToSensor(models.Model):
 
     class Meta:
         ordering = ('building__title', 'sensor_group__sort_order', 'sort_order')
-
-
-class BuildingChart(models.Model):
-    '''
-    One particular chart for a building.
-    '''
-
-    # the building that is associated with this chart
-    building = models.ForeignKey(Building)
-
-    # descriptive title of the Chart
-    title = models.CharField(max_length=60)
-
-    # the type of chart
-    chart_type = models.ForeignKey(BuildingChartType)
-
-    # the parameters for this building needed to draw the chart, if any, parameters are 
-    # entered as one comma-separated string in keyword style, 
-    # such as 'id_flow="124356", heat_capacity=40.2'
-    parameters = models.TextField("Chart Parameters in Keyword Form", blank=True)
-
-    # determines order of Chart displayed in Admin interface
-    sort_order = models.IntegerField(default=999)
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        ordering = ['sort_order']
 
 
 class MultiBuildingChart(models.Model):

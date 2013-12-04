@@ -2,7 +2,7 @@
 This file configures the Admin interface, which allows for editing of the Models.
 '''
 
-from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, Unit, BuildingChartType, BuildingChart
+from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, Unit
 from bmsapp.models import MultiBuildingChartType, MultiBuildingChart, ChartBuildingInfo
 from django.contrib import admin
 from django.forms import TextInput, Textarea
