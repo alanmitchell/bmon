@@ -1,3 +1,4 @@
+# base requirements for deployment
 Django==1.5.2
 South==0.8.4
 numexpr==2.2
