@@ -1,109 +1,14 @@
 """
 Code related to adding calculated fields to the sensor reading database.
 """
-import urllib2, time, logging, json, urllib
+import time, logging
 import numpy as np
 import pandas as pd
-from metar import Metar
 import transforms
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
 
-
-class Cache:
-    """
-    Implements a cache for an object identified by a key.  Allows for a timeout of the
-    cached object.
-    """
-    
-    def __init__(self, timeout=600):
-        self.timeout = timeout   # number of seconds before timeout of cache item
-        self.cache = {}
-        
-    def store(self, key, obj):
-        """
-        Stores an object 'obj' in the cache having a key of 'key'.
-        """
-        self.cache[key] = (time.time(), obj)
-        
-    def get(self, key):
-        """
-        Returns an object matching 'key' from the cache if it is present and hasn't 
-        timed out.  Returns None otherwise.
-        """
-        if key in self.cache:
-            tm, obj = self.cache[key]
-            if (time.time() - tm) < self.timeout:
-                return obj
-        
-        return None
-
-# cache for storing NWS observations
-_nws_cache = Cache()   
-
-def getWeatherObservation(stnCode):
-    """
-    Returns a current weather observation from an NWS weather station, using the metar 
-    library to parse and hold the values.  Uses the 'metar' python library.
-    """
-
-    URL = 'http://weather.noaa.gov/pub/data/observations/metar/stations/%s.TXT'
-
-    obs = _nws_cache.get(stnCode)   # try cache first
-
-    if obs is None:
-
-        # try 3 times in case of download errors.
-        for i in range(3):
-            try:
-                read_str = urllib2.urlopen(URL % stnCode).read()
-                break
-            except:
-                _logger.info('Retry required in getWeatherObservation.')
-                # wait before retrying
-                time.sleep(1)
-
-        if 'read_str' not in locals():
-            # retries must have failed if there is no 'read_str' variable.
-            raise Exception('Could not access %s.' % stnCode)
-
-        obs = Metar.Metar('\n'.join( read_str.splitlines()[1:] ))  # second line onward
-        _nws_cache.store(stnCode, obs)
-
-    return obs
-
-# cache for storing Weather Underground observations
-_wu_cache = Cache()
-
-def getWUobservation(stnList):
-    """
-    Returns a current weather observation (dictionary) retrieved from weather underground.
-    Google Weather Underground API for more info.  
-    'stnList' is a list of Weather Underground stations.  The first one to provide a valid
-    current observation is used.
-    """
-
-    for stn in stnList:
-        # ignore None stations
-        if stn is None:
-            continue
-        
-        # retrieve from cache, if there.
-        obs = _wu_cache.get(stn)
-    
-        if obs is None:
-            # not in cache; download from weather underground.
-            # strange characters after the api are my weather underground key
-            json_str = urllib2.urlopen('http://api.wunderground.com/api/52f395599cb1a086/conditions/q/%s.json' % urllib.quote(stn)).read()
-            obs = json.loads(json_str)
-            _wu_cache.store(stn, obs)
-
-        if 'current_observation' in obs:
-            return obs['current_observation']
-    
-    # No stations were successful
-    raise ValueError("No stations with data.")
 
 class CalculateReadings:
     """
@@ -336,12 +241,6 @@ class CalcReadingFuncs_base:
     """Base class for classes that contain functions for producing calculated
     readings.
 
-    Args:
-        db: A bmsdata.BMSdata object holding the sensor reading database.
-        
-        reach_back_secs (number): Calculated values will not be created more 
-        than this number of seconds into the past.
-        
     The functions are split into two categories: those for which at least one 
     of the parameters is a NumPy array of sensor readings, and those where none 
     of the input parameters are an array of sensor readings.
@@ -356,6 +255,12 @@ class CalcReadingFuncs_base:
     """
 
     def __init__(self, db, reach_back_secs):
+        """Args:
+            db: A bmsdata.BMSdata object holding the sensor reading database.
+            
+            reach_back_secs (number): Calculated values will not be created more 
+            than this number of seconds into the past.
+        """
         self.db = db
         self.reach_back = reach_back_secs
 
@@ -365,135 +270,4 @@ class CalcReadingFuncs_base:
         # past readings in the reading database.
         self.calc_id = None    
 
-
-class CalcReadingFuncs_01(CalcReadingFuncs_base):
-    """A set of functions that can be used to create calculated readings.  
-    """
-    
-    def fluidHeatFlow(self, flow, Thot, Tcold, heat_capacity, heat_recovery=0.0):
-        """** One or more parameters must be an array of sensor readings **
-
-        Heat flow (power) in a fluid.  Inputs are flow rate of fluid, hot and cold
-        temperatures and a heat capacity.  A heat_recovery fraction can also
-        be provided, which if greater than 0 will dimish the calculated heat flow.
-        Any of these parameters can be passed to 'processCalc' as sensor IDs, as 
-        array math is used in the calculation below.
-        """
-    
-        # return the records to insert
-        return flow * (Thot - Tcold) * heat_capacity * (1.0 - heat_recovery)
-
-    def linear(self, val, slope=1.0, offset=0.0):
-        """** One or more parameters must be an array of sensor readings **
-
-        Returns a new value, linearly related to input value, 'val'.  
-        Any parameters can be passed to 'processCalc' as sensor IDs.
-        """
-        return val * slope + offset
-    
-    def AminusB(self, A, B):
-        """** One or more parameters must be an array of sensor readings **
-
-        Subtracts the 'B' values from the 'A' values.
-        Any parameters can be passed to 'processCalc' as sensor IDs.
-        """
-        return A - B
-    
-    def AplusBplusCplusD(self, A, B, C=0.0, D=0.0):
-        """** One or more parameters must be an array of sensor readings **
-
-        Adds together A, B, C, and D values, with C and D being optional.
-        Any parameters can be passed to 'processCalc' as sensor IDs.
-        """
-        return A + B + C + D
-    
-    # ******** The following functions don't receive arrays of sensor values as
-    # The functions below must return two items: a list (or numpy array) of timestamps
-    # (Unix seconds) and a list/array of calculated values.
-
-    def getInternetTemp(self, stnCode):
-        """** No parameters are sensor reading arrays **
-
-        Returns an outdoor dry-bulb temperature from an NWS weather station in degrees F.
-        Returns just one record of information, timestamped with the current time.
-        """
-        obs = getWeatherObservation(stnCode)
-        return [int(time.time())], [obs.temp.value() * 1.8 + 32.0]
-    
-    def getInternetWindSpeed(self, stnCode):
-        """** No parameters are sensor reading arrays **
-
-        Returns a wind speed in mph from an NWS weather station.
-        Returns just one record of information, timestamped with the current time.
-        """
-        obs = getWeatherObservation(stnCode)
-        return [int(time.time())], [obs.wind_speed.value() * 1.1508]  # mph
-
-    def getWUtemperature(self, stn, stn2=None):
-        """** No parameters are sensor reading arrays **
-
-        Returns a temperature (deg F) from a Weather Underground station.
-        'stn' is the primary station to use.  'stn2' is a backup station.
-        """
-        obs = getWUobservation( [stn, stn2] )
-        return [int(time.time())], [float(obs['temp_f'])]
-
-    def getWUwindSpeed(self, stn, stn2=None):
-        """** No parameters are sensor reading arrays **
-
-        Returns a wind speed (mph) from a Weather Underground station.
-        'stn' is the primary station to use.  'stn2' is a backup station.
-        """
-        obs = getWUobservation( [stn, stn2] )
-        return [int(time.time())], [float(obs['wind_mph'])]
-    
-    def runtimeFromOnOff(self, onOffID, runtimeInterval=30):
-        """** No parameters are sensor reading arrays **
-
-        Calculates runtime fraction data for a sensor having the id of 'onOffID' that produces
-        On/Off state change values.  The state change values are either 0.0 (Turns Off) or 
-        1.0 (Turns On).  The calculated runtime fractions vary from 0.0 to 1.0, indicating the 
-        fraction of the time that the device was On in a particular time interval.  
-        'runtimeInterval' is the width of the runtime intervals produced in minutes.  The
-        timestamp returned for each interval is placed at the midpoint of the interval.  Records
-        are returned for times after the last stored runtime reading, subject to the reach_back
-        constraint established in the constructor of this class.
-        """
-        # determine the timestamp of the last entry in the database for this calculated field.
-        last_calc_rec = self.db.last_read(self.calc_id)
-        last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
-        
-        # constrain this value to greater or equal to 'reach_back'
-        last_ts = max(last_ts, int(time.time() - self.reach_back))
-        
-        # get the On/Off values starting two hours prior to this in order to capture at least
-        # one state change prior to last_ts.  Put these in a Pandas series
-        ts_state = []
-        state = []
-        for rec in self.db.rowsForOneID(onOffID, start_tm=last_ts - 7200):
-            ts_state.append(rec['ts'])
-            state.append(rec['val'])
-        states = pd.Series(state, index=ts_state)
-        
-        # must be at least two records to produce runtime data
-        if len(states) < 2:
-            return [], []
-        
-        # turn this into one second data spanning from first entry to last
-        new_index = range(states.index[0], states.index[-1] + 1)
-        ser_one_sec = states.reindex(new_index).ffill()
-        
-        # average into bins of runtime data
-        interval_seconds = runtimeInterval * 60
-        ser_runtime = ser_one_sec.groupby(lambda t: int(t / interval_seconds) * interval_seconds + interval_seconds / 2).mean()
-        
-        # Drop the last row, since it most always includes only a partial interval of data
-        ser_runtime = ser_runtime.drop( [ser_runtime.index[-1]] )
-        
-        # only keep runtime values for intervals greater than the last recorded calculated
-        # runtime.
-        ser_runtime = ser_runtime[ser_runtime.index > last_ts]
-        
-        # return the timestamps and runtime values
-        return ser_runtime.index.values, ser_runtime.values
     

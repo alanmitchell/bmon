@@ -8,7 +8,7 @@ os.chdir(os.path.dirname( os.path.abspath(sys.argv[0]) ))
 sys.path.insert(0, '../')   # add the parent directory to the Python path
 
 import global_vars, bmsdata
-from calcs import calculated_readings
+from calcs import calcreadings, calcfuncs01
 
 # make a logger object and set time zone so log readings are stamped with Alaska time.
 # Did this because Django sets time to AK time.
@@ -28,7 +28,7 @@ logger = logging.getLogger('bms.calc_readings')
 # can be added to the list and they will be search for matching function names.
 # Only allow calculated readings within the last eight hours (480 minutes).
 reading_db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
-calc = calculated_readings.CalculateReadings([calculated_readings.CalcReadingFuncs_01, ], reading_db, 480)
+calc = calcreadings.CalculateReadings([calcfuncs01.CalcReadingFuncs_01, ], reading_db, 480)
 
 # get a database connection and cursor to the Django project database that has the sensor
 # list.
