@@ -219,7 +219,7 @@ class CalculateReadings:
             vals = calc_func(**params)
             
             # make the list of records to add to the database.
-            recs = zip(ts_sync, len(ts_sync)*[self.calc_id], vals)
+            recs = zip(ts_sync, len(ts_sync)*[calc_id], vals)
 
         else:
             # There were no sensor IDs in the parameter list.  This calculate function must
