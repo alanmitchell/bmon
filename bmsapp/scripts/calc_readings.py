@@ -3,22 +3,32 @@
 import os, sys, sqlite3, logging, time
 
 # change into this directory
-os.chdir(os.path.dirname(sys.argv[0]))
+os.chdir(os.path.dirname( os.path.abspath(sys.argv[0]) ))
 
 sys.path.insert(0, '../')   # add the parent directory to the Python path
 
-import global_vars, bmsdata, calculated_readings
+import global_vars, bmsdata
+from calcs import calculated_readings
 
 # make a logger object and set time zone so log readings are stamped with Alaska time.
 # Did this because Django sets time to AK time.
 os.environ['TZ'] = 'US/Alaska'
-time.tzset()
+try:
+    time.tzset()
+except:
+    # the above command is not supported in Windows.
+    # Need to come up with another solution if running on Windows
+    # is necessary
+    pass
+
 logger = logging.getLogger('bms.calc_readings')
 
 # get a BMSdata object for the sensor reading database and then make a Calculate
-# Readings object.  Only allow calculated readings within the last eight hours (480 minutes).
+# Readings object.  Other calculated reading classes in addition to CalcReadingFuncs_01
+# can be added to the list and they will be search for matching function names.
+# Only allow calculated readings within the last eight hours (480 minutes).
 reading_db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
-calc = calculated_readings.CalculateReadings(reading_db, 480)
+calc = calculated_readings.CalculateReadings([calculated_readings.CalcReadingFuncs_01, ], reading_db, 480)
 
 # get a database connection and cursor to the Django project database that has the sensor
 # list.

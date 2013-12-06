@@ -1,11 +1,11 @@
 """
 Code related to adding calculated fields to the sensor reading database.
 """
+import urllib2, time, logging, json, urllib
 import numpy as np
 import pandas as pd
-import transforms
-import urllib2, time, logging, json, urllib
 from metar import Metar
+import transforms
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -113,15 +113,22 @@ class CalculateReadings:
     extensive documentation provided for that method.
     """
     
-    def __init__(self, db, reach_back_mins):
-        """
-        'db': a BMSdata object holding the sensor reading database.
-        'reach_back_mins': calculated values will not be created more than this number of minutes
-            into the past.
+    def __init__(self, calc_class_list, db, reach_back_mins):
+        """Args:
+            'calc_class_list': A list of classes (the actual class, not a string) 
+                that contain the functions to use to produce the calculated values.  
+                The list will be searched sequentially to find a matching function 
+                name.
+            'db': A bmsdata.BMSdata object holding the sensor reading database.
+            'reach_back_mins' (number): Calculated values will not be created more 
+                than this number of minutes into the past.
         """
         self.db = db
         self.reach_back = reach_back_mins * 60   # store as seconds
 
+        # instantiate each one of the calculation classes and save the list as 
+        # an object property
+        self.calc_objects = [cl(db, self.reach_back) for cl in calc_class_list]
         
     def dataForID(self, sensorID, start_ts=0):
         """
@@ -207,7 +214,8 @@ class CalculateReadings:
         """
         Insert records for the calculated reading using the function with the name
         'calcFuncName' and having the parameters 'calcParams'.  The inserted readings
-        have a sensor ID of 'calc_id'.  The method returns the number of records inserted.
+        are assigned the sensor ID of 'calc_id'.  The method returns the number of 
+        records inserted.
 
         'calcFuncName' is a string giving the name of a method of this class.  The method
         is used to calculate new readings for the sensor database.  'calcParams' is one string
@@ -250,10 +258,6 @@ class CalculateReadings:
         timestamps to synchronize to.
         """
         
-        # Save the calculated field ID as an object
-        # variable in case any of the calculation functions need to use it.
-        self.calc_id = calc_id
-
         # Get the function parameters as a dictionary
         params = transforms.makeKeywordArgs(calcParams)
         
@@ -281,10 +285,18 @@ class CalculateReadings:
                 # stored in the id_dict.
                 del params[nm]
         
+        # Find the function to call in the list of calculation objects
+        func_name = calcFuncName.strip()
+        for calc_obj in self.calc_objects:
+            if hasattr(calc_obj, func_name):
+                calc_obj.calc_id = calc_id   # calc object may need the calc_id
+                calc_func = getattr(calc_obj, func_name)
+                break
+
         if len(ids):
             # There are some sensors in the parameter list.  Get a DataFrame of 
             # synchronized readings for those sensors.
-            df = self.getDFofSyncedValues(ids, self.calc_id, time.time() - self.reach_back)
+            df = self.getDFofSyncedValues(ids, calc_id, time.time() - self.reach_back)
             
             # If there are no rows in the DataFrame, there are no records to add to the
             # database.
@@ -297,19 +309,19 @@ class CalculateReadings:
                 
             # Save the array of timestamps from the synchronized values
             ts_sync = df.index.values
-        
-            # call the function with the parameters
-            vals = getattr(self, calcFuncName.strip())(**params)
+
+            # call the calculation function with parameters
+            vals = calc_func(**params)
             
             # make the list of records to add to the database.
             recs = zip(ts_sync, len(ts_sync)*[self.calc_id], vals)
 
         else:
             # There were no sensor IDs in the parameter list.  This calculate function must
-            # return a list of timestamps and a list of values for the records it wants to 
-            # add to the database.
-            stamps, vals = getattr(self, calcFuncName.strip())(**params)
-            recs = zip(stamps, len(stamps)*[self.calc_id], vals)
+            # be the kind that returns a list of timestamps and a list of values for the 
+            # records it wants to add to the database.
+            stamps, vals = calc_func(**params)
+            recs = zip(stamps, len(stamps)*[calc_id], vals)
         
         # insert the records into the database.
         for ts, id, val in recs:
@@ -320,20 +332,47 @@ class CalculateReadings:
         return len(recs)
     
 
-    # ****************** Calculation Functions beyond Here **********************
+class CalcReadingFuncs_base:
+    """Base class for classes that contain functions for producing calculated
+    readings.
 
-    # ******* The following functions require that one of parameters be a sensor ID, i.e.
-    # at least one of the keyword arguments passed to the 'calcParams' argument of
-    # 'processCalc' must be prefaced by 'id_' and the value for that parameter is a 
-    # sensor ID.
-    # For all of those parameters that are passed to 'processCalc' as sensor IDs, the 
-    # functions below receive a numpy array of sensor values as the input parameter.
-    # These functions must return a list or numpy array of the calculated values, the
-    # length of that array being the same length as the input sensor value array(s).
-    # See the section below for functions that don't receive sensor values as inputs.
+    Args:
+        db: A bmsdata.BMSdata object holding the sensor reading database.
+        
+        reach_back_secs (number): Calculated values will not be created more 
+        than this number of seconds into the past.
+        
+    The functions are split into two categories: those for which at least one 
+    of the parameters is a NumPy array of sensor readings, and those where none 
+    of the input parameters are an array of sensor readings.
+
+    For the functions where one of the parameters is an array of sensor readings, 
+    the function must return a list or numpy array of the calculated values, the
+    length of that array being the same length as the input sensor value array(s).
+
+    For the functions with none of the parameters being an array of sensor readings,
+    the function must return two items: 1) a list (or numpy array) of timestamps
+    (Unix seconds) and 2) a list/array of calculated values.
+    """
+
+    def __init__(self, db, reach_back_secs):
+        self.db = db
+        self.reach_back = reach_back_secs
+
+        # This is the reading ID string that will be assigned to the calculated 
+        # readings. This attribute should be set by the routine calling one of 
+        # these functions as some functions need to know the id string to look up
+        # past readings in the reading database.
+        self.calc_id = None    
+
+
+class CalcReadingFuncs_01(CalcReadingFuncs_base):
+    """A set of functions that can be used to create calculated readings.  
+    """
     
     def fluidHeatFlow(self, flow, Thot, Tcold, heat_capacity, heat_recovery=0.0):
-        """
+        """** One or more parameters must be an array of sensor readings **
+
         Heat flow (power) in a fluid.  Inputs are flow rate of fluid, hot and cold
         temperatures and a heat capacity.  A heat_recovery fraction can also
         be provided, which if greater than 0 will dimish the calculated heat flow.
@@ -345,34 +384,36 @@ class CalculateReadings:
         return flow * (Thot - Tcold) * heat_capacity * (1.0 - heat_recovery)
 
     def linear(self, val, slope=1.0, offset=0.0):
-        """
+        """** One or more parameters must be an array of sensor readings **
+
         Returns a new value, linearly related to input value, 'val'.  
         Any parameters can be passed to 'processCalc' as sensor IDs.
         """
         return val * slope + offset
     
     def AminusB(self, A, B):
-        """
+        """** One or more parameters must be an array of sensor readings **
+
         Subtracts the 'B' values from the 'A' values.
         Any parameters can be passed to 'processCalc' as sensor IDs.
         """
         return A - B
     
     def AplusBplusCplusD(self, A, B, C=0.0, D=0.0):
-        """
+        """** One or more parameters must be an array of sensor readings **
+
         Adds together A, B, C, and D values, with C and D being optional.
         Any parameters can be passed to 'processCalc' as sensor IDs.
         """
         return A + B + C + D
     
     # ******** The following functions don't receive arrays of sensor values as
-    # inputs; none of the parameters are passed to 'processCalc' prefaced with 'id_'.
-    # Since there are no sensor timestamps to synchronize the calculated values with,
-    # the functions below must return two items: a list (or numpy array) of timestamps
+    # The functions below must return two items: a list (or numpy array) of timestamps
     # (Unix seconds) and a list/array of calculated values.
 
     def getInternetTemp(self, stnCode):
-        """
+        """** No parameters are sensor reading arrays **
+
         Returns an outdoor dry-bulb temperature from an NWS weather station in degrees F.
         Returns just one record of information, timestamped with the current time.
         """
@@ -380,7 +421,8 @@ class CalculateReadings:
         return [int(time.time())], [obs.temp.value() * 1.8 + 32.0]
     
     def getInternetWindSpeed(self, stnCode):
-        """
+        """** No parameters are sensor reading arrays **
+
         Returns a wind speed in mph from an NWS weather station.
         Returns just one record of information, timestamped with the current time.
         """
@@ -388,7 +430,8 @@ class CalculateReadings:
         return [int(time.time())], [obs.wind_speed.value() * 1.1508]  # mph
 
     def getWUtemperature(self, stn, stn2=None):
-        """
+        """** No parameters are sensor reading arrays **
+
         Returns a temperature (deg F) from a Weather Underground station.
         'stn' is the primary station to use.  'stn2' is a backup station.
         """
@@ -396,7 +439,8 @@ class CalculateReadings:
         return [int(time.time())], [float(obs['temp_f'])]
 
     def getWUwindSpeed(self, stn, stn2=None):
-        """
+        """** No parameters are sensor reading arrays **
+
         Returns a wind speed (mph) from a Weather Underground station.
         'stn' is the primary station to use.  'stn2' is a backup station.
         """
@@ -404,7 +448,8 @@ class CalculateReadings:
         return [int(time.time())], [float(obs['wind_mph'])]
     
     def runtimeFromOnOff(self, onOffID, runtimeInterval=30):
-        """
+        """** No parameters are sensor reading arrays **
+
         Calculates runtime fraction data for a sensor having the id of 'onOffID' that produces
         On/Off state change values.  The state change values are either 0.0 (Turns Off) or 
         1.0 (Turns On).  The calculated runtime fractions vary from 0.0 to 1.0, indicating the 
@@ -451,5 +496,4 @@ class CalculateReadings:
         
         # return the timestamps and runtime values
         return ser_runtime.index.values, ser_runtime.values
-        
     

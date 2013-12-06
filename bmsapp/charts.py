@@ -2,9 +2,11 @@
 This module holds classes that create the HTML and supply the data for Charts and
 Reports.
 """
-import models, bmsdata, global_vars, transforms, data_util, view_util
+import time, logging
 from django.template import Context, loader
-import time, pandas as pd, numpy as np, logging, xlwt
+import pandas as pd, numpy as np, xlwt
+import models, bmsdata, global_vars, data_util, view_util
+from calcs import transforms
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)

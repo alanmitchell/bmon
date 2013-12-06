@@ -3,7 +3,8 @@ Module used to store incoming sensor readings in the database.
 '''
 
 import dateutil.parser, calendar, re, time
-import bmsdata, models, global_vars, transforms
+import bmsdata, models, global_vars
+from calcs import transforms
 
 def store(reading_id, request_data):
     '''
