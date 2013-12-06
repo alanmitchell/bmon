@@ -2,6 +2,7 @@
 """
 
 import time
+import pandas as pd
 import calcreadings, internetwx
 
 class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
