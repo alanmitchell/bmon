@@ -7,7 +7,8 @@ os.chdir(os.path.dirname( os.path.abspath(sys.argv[0]) ))
 
 sys.path.insert(0, '../')   # add the parent directory to the Python path
 
-import global_vars, bmsdata
+import global_vars
+from readingdb import bmsdata
 from calcs import calcreadings, calcfuncs01
 
 # make a logger object and set time zone so log readings are stamped with Alaska time.

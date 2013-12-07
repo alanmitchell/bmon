@@ -163,15 +163,3 @@ def test_kw():
     print makeKeywordArgs("abc=Yes, xyz=23.3, jlk='Hello'")
     print makeKeywordArgs("abc=Yes, xyz=23.3, jlk=Hello")
 
-def test_transform():
-    import bmsdata, time
-#    t = Transformer()
-#    print t.transform_value(10, 'linear', 'slope=2.0, offset=5')
-#    print t.transform_value(10, 'linear', 'slope=2.0')
-#    print t.transform_value(10, 'linear', 'offset=5')
-    t = Transformer(bmsdata.BMSdata('data/bms_data.sqlite'), time.time(), '25236')
-    print t.transform_value(30, 'count_rate', 'typical_minutes=60.0, slope=60.0')
-
-
-if __name__ == '__main__':
-    test_transform()

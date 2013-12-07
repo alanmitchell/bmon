@@ -8,7 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-import models, storereads, global_vars, charts, view_util
+import models, global_vars, charts, view_util, storereads
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)

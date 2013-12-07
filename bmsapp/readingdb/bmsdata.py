@@ -85,6 +85,10 @@ class BMSdata:
         """
         rec_ct = 0
         for id in self.sensor_ids:
-            self.cursor.execute('SELECT COUNT(*) FROM [%s] WHERE ts > ?' % id, (startTime,))
-            rec_ct += self.cursor.fetchone()[0]
+            try:
+                self.cursor.execute('SELECT COUNT(*) FROM [%s] WHERE ts > ?' % id, (startTime,))
+                rec_ct += self.cursor.fetchone()[0]
+            except:
+                # not all tables are reading tables and may error out cause no 'ts' column
+                pass
         return rec_ct

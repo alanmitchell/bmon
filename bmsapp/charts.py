@@ -5,7 +5,8 @@ Reports.
 import time, logging
 from django.template import Context, loader
 import pandas as pd, numpy as np, xlwt
-import models, bmsdata, global_vars, data_util, view_util
+import models, global_vars, data_util, view_util
+from readingdb import bmsdata
 from calcs import transforms
 
 # Make a logger for this module
