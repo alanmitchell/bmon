@@ -70,7 +70,7 @@ def get_chart_object(bldg_id, chart_id, request_params):
             request_params: The parameters (request.GET) passed in by the user further qualifying the chart.
 
         Returns:
-            A chart object descending from BldgChart.
+            A chart object descending from BaseChart.
     """
 
     if bldg_id=='multi':
@@ -87,7 +87,7 @@ def get_chart_object(bldg_id, chart_id, request_params):
     return chart_class(chart_info, bldg_id, request_params)
 
 
-class BldgChart(object):
+class BaseChart(object):
     """Base class for all of the chart classes.
     """
 
@@ -181,7 +181,7 @@ class BldgChart(object):
         return st_ts, end_ts
 
 
-class TimeSeries(BldgChart):
+class TimeSeries(BaseChart):
 
     def data(self):
         """
@@ -244,7 +244,7 @@ class TimeSeries(BldgChart):
         return {"series": series, "y_axes": y_axes_ids}
 
 
-class HourlyProfile(BldgChart):
+class HourlyProfile(BaseChart):
 
     def data(self):
         """
@@ -307,7 +307,7 @@ class HourlyProfile(BldgChart):
 
         return {"series": series, 'y_label': yTitle}
 
-class Histogram(BldgChart):
+class Histogram(BaseChart):
 
     def data(self):
         """
@@ -359,7 +359,7 @@ def formatCurVal(val):
     else:
         return '%.3g' % val
 
-class CurrentValues(BldgChart):
+class CurrentValues(BaseChart):
 
     def html(self, selected_sensor=None):
 
@@ -406,7 +406,7 @@ class CurrentValues(BldgChart):
         return super(CurrentValues, self).html()
 
 
-class ExportData(BldgChart):
+class ExportData(BaseChart):
 
     def download_many(self, resp_object):
         """
@@ -483,7 +483,7 @@ class ExportData(BldgChart):
 
 # **********************  Multi-Building Charts Below Here ***************************
 
-class NormalizedByDDbyFt2(BldgChart):
+class NormalizedByDDbyFt2(BaseChart):
     """
     Chart that normalizes a quantity by degree-days and floor area.  Value being normalized
     must be a rate per hour quantity; the normalization integrates by the hour.  For example
@@ -569,7 +569,7 @@ class NormalizedByDDbyFt2(BldgChart):
 
         return {"series": [{'data': values}], "bldgs": bldg_names, "value_units": self.chart_params["value_units"]}
 
-class NormalizedByFt2(BldgChart):
+class NormalizedByFt2(BaseChart):
     
     """
     Chart that normalizes a quantity by floor area.  The value being normalized is first averaged
