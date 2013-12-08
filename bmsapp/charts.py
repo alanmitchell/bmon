@@ -442,6 +442,7 @@ class ExportData(BaseChart):
         # that aligns the averaged timestamps of the different sensors.
         col = 1   # tracks spreadsheet column
         df = pd.DataFrame()
+        blank_col_names = []   # need to remember columns that have no readings
         for id in self.request_params.getlist('select_sensor'):
             sensor = models.Sensor.objects.get(sensor_id=id)
 
@@ -455,17 +456,24 @@ class ExportData(BaseChart):
             db_recs = db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
             if len(db_recs)!=0:
                 df_new = pd.DataFrame(db_recs).set_index('ts')
-                df_new.columns = ['col%s' % col]
+                df_new.columns = ['col%03d' % col]
                 df_new = df_new.groupby(binner.bin).mean()    # do requested averaging
 
                 # join this with the existing DataFrame, taking the union of all timestamps
                 df = df.join(df_new, how='outer')
             else:
-                # there are no records but still need to create the column in the final 
-                # dataframe.
-                df['col%s' % col] = np.NaN
+                # there are no records.  Save this column name to be added at end of join
+                # process.  Can't add the column right now because DataFrame may be totally
+                # empty, and it doesn't seem possible to add a column to an empty DataFrame.
+                blank_col_names.append('col%03d' % col)
 
             col += 1
+        
+        # add any blank columns to the dataframe
+        for col_name in blank_col_names:
+            df[col_name] = np.NaN
+        # but now need sort the columns back to order they arrived
+        df = df.sort_index(axis=1)
 
         # put the data in the spreadsheet
         row = 1
