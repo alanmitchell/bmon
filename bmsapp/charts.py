@@ -453,12 +453,17 @@ class ExportData(BaseChart):
             # the records
             st_ts, end_ts = self.get_ts_range()
             db_recs = db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
-            df_new = pd.DataFrame(db_recs).set_index('ts')
-            df_new.columns = ['col%s' % col]
-            df_new = df_new.groupby(binner.bin).mean()    # do requested averaging
+            if len(db_recs)!=0:
+                df_new = pd.DataFrame(db_recs).set_index('ts')
+                df_new.columns = ['col%s' % col]
+                df_new = df_new.groupby(binner.bin).mean()    # do requested averaging
 
-            # join this with the existing DataFrame, taking the union of all timestamps
-            df = df.join(df_new, how='outer')
+                # join this with the existing DataFrame, taking the union of all timestamps
+                df = df.join(df_new, how='outer')
+            else:
+                # there are no records but still need to create the column in the final 
+                # dataframe.
+                df['col%s' % col] = np.NaN
 
             col += 1
 
