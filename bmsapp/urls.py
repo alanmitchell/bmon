@@ -16,6 +16,7 @@ urlpatterns = patterns('bmsapp.views',
     url(r'^chart_list/(multi)/$', 'chart_list'),
     url(r'^chart_list/(\d+)/$', 'chart_list'),
     url(r'^chart/(multi|\d+)/(\d+)/([a-zA-Z_]+)/', 'chart_info'),
+    url(r'^map_json/$', 'map_json', name='map-json'),
     url(r'^training/video/(\w+)/(\d+)/(\d+)/$', 'show_video', name='show-video'),
     url(r'^make_store_key/$', 'make_store_key'),
 

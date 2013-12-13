@@ -204,6 +204,22 @@ def show_video(request, filename, width, height):
 
     return render_to_response('bmsapp/video.html', {'filename': filename, 'width': width, 'height': height}) 
 
+def map_json(request):
+    """Returns the JSON data necessary to draw the Google map of the sites.
+    This view is called from the map.html template.
+    """
+    ret = {"name": "ANTHC_Sites", 
+        "type": "FeatureCollection", 
+        "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS83"}},
+        "features": []}
+
+    for bldg in models.Building.objects.all():
+        ret['features'].append( {"type": "Feature", "geometry": {"type": "Point", "coordinates": [bldg.longitude, bldg.latitude]},
+                              "properties": {"facilityName": bldg.title, "facilityID": bldg.id, "message": ""}} )
+
+
+    return HttpResponse(json.dumps(ret), content_type="application/json")
+
 def wildcard(request, template_name):
     '''
     Used if a URL component doesn't match any of the predefied URL patterns.  Renders

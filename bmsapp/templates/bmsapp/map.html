@@ -16,7 +16,7 @@
     </style>
     <script src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
     <script>
-      function initialize() {
+      $(function() {
         var map_canvas = document.getElementById('map_canvas');
         var map_options = {
           center: new google.maps.LatLng(65, -155),
@@ -25,42 +25,36 @@
         }
         var map = new google.maps.Map(map_canvas, map_options)
         
-        var xhr = new XMLHttpRequest();
-        xhr.open('GET', '{% static "bmsapp/map_data.json" %}', true);
-        xhr.onload = function() {loadSites(JSON.parse(this.responseText),map);};
-        xhr.send();
-      }
-      
-      function loadSites(sitesJSON,map) {
-        for (var i = 0; i < sitesJSON.features.length; i++) {
-          var site = sitesJSON.features[i];
-          var coords = site.geometry.coordinates;
-          var latLng = new google.maps.LatLng(coords[1],coords[0]);
-          var markerText = site.properties.Community;
-          var markerColor = 'green';
-          if (site.properties.Message.length > 0) {
-            markerText = markerText + '\n' + site.properties.Message;
-            markerColor = 'red';
-          };
-          var marker = new google.maps.Marker({
-            position: latLng,
-            title: markerText,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: markerColor,
-              fillOpacity: .6,
-              scale: 5,
-              strokeColor: 'black',
-              strokeWeight: .5
-            },
-            scale: .5,
-            map: map
+        $.getJSON('{% url "map-json" %}', function(sitesJSON) {
+            for (var i = 0; i < sitesJSON.features.length; i++) {
+              var site = sitesJSON.features[i];
+              var coords = site.geometry.coordinates;
+              var latLng = new google.maps.LatLng(coords[1],coords[0]);
+              var markerText = site.properties.facilityName;
+              var markerColor = 'green';
+              if (site.properties.message.length > 0) {
+                markerText = markerText + '\n' + site.properties.message;
+                markerColor = 'red';
+              };
+              var marker = new google.maps.Marker({
+                position: latLng,
+                title: markerText,
+                facilityID: site.properties.facilityID.toString(),  
+                icon: {
+                  path: google.maps.SymbolPath.CIRCLE,
+                  fillColor: markerColor,
+                  fillOpacity: .6,
+                  scale: 5,
+                  strokeColor: 'black',
+                  strokeWeight: .5
+                },
+                scale: .5,
+                map: map
+              });
+              google.maps.event.addListener(marker, 'click', function() {window.location.href = '{% url "reports" %}' + this.facilityID + '/'})
+            }
           });
-          google.maps.event.addListener(marker, 'click', function() {window.location.href = '{% url "reports" %}' + site.properties.FacilityID.toString() + '/'})
-        }
-      }
-      
-      google.maps.event.addDomListener(window, 'load', initialize);
+        });
     </script>
 {% endblock %}
 
