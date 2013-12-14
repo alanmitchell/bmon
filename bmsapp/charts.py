@@ -436,24 +436,42 @@ class XYplot(BaseChart):
         # determine the start and end time for selecting records
         st_ts, end_ts = self.get_ts_range()
 
+        # The list that will hold each Highcharts series
+        series = []
+
         # get the X and Y sensor records and perform the requested averaging
-        db_recs = db.rowsForOneID(sensorX.sensor_id, st_ts, end_ts)
-        dfX = pd.DataFrame(db_recs).set_index('ts').groupby(binner.bin).mean()
-        dfX.columns = ['X']
-        db_recs = db.rowsForOneID(sensorY.sensor_id, st_ts, end_ts)
-        dfY = pd.DataFrame(db_recs).set_index('ts').groupby(binner.bin).mean()
-        dfY.columns = ['Y']
+        db_recsX = db.rowsForOneID(sensorX.sensor_id, st_ts, end_ts)
+        db_recsY = db.rowsForOneID(sensorY.sensor_id, st_ts, end_ts)
+        if len(db_recsX)>0 and len(db_recsY)>0:
+            # both sensors have some data, so proceed to average the data points
+            dfX = pd.DataFrame(db_recsX).set_index('ts').groupby(binner.bin).mean()
+            dfX.columns = ['X']
+            dfY = pd.DataFrame(db_recsY).set_index('ts').groupby(binner.bin).mean()
+            dfY.columns = ['Y']
 
-        # Join the X and Y values for the overlapping time intervals and make
-        # a list of points.
-        df_final = dfX.join(dfY)
-        pts = zip( df_final.X.values, df_final.Y.values )
+            # Join the X and Y values for the overlapping time intervals and make
+            # a list of points.
+            df_all = dfX.join(dfY, how='inner')  # inner join does intersection of timestamps
 
-        # create the X and Y axis labels
+            # Set up 3 different series for different time periods of the data.
+            # Info is (starting timestamp, ending timestamp, series name, series color, series symbol).
+            ts_now = time.time()
+            ser_params = ( (ts_now - 24 * 3600, ts_now, 'Last 24 Hours', '#FF0000', 'square'),
+                           (ts_now - 7 * 24 * 3600, ts_now - 24 * 3600, 'Last Week', '#009933', 'triangle'),
+                           (0, ts_now - 7 * 24 * 3600, 'Older than 1 Week', '#2f7ed8', 'circle') )
+            series = []
+
+            for t_start, t_end, ser_name, ser_color, ser_symbol in ser_params:
+                mask = (df_all.index >= t_start) & (df_all.index < t_end)
+                pts = [ (data_util.round4(row['X']), data_util.round4(row['Y'])) for ix, row in df_all[mask].iterrows() ]
+                if len(pts):
+                    series.append( { 'data': pts, 'name': ser_name, 'color': ser_color, 'marker': {'symbol': ser_symbol} } )
+
+        # create the X and Y axis labels and the series in Highcharts format
         x_label = '%s, %s' % (sensorX.title, sensorX.unit.label)
         y_label = '%s, %s' % (sensorY.title, sensorY.unit.label)
 
-        return {"series": [ {'data': pts} ], "x_label": x_label, "y_label": y_label}
+        return {"series": series, "x_label": x_label, "y_label": y_label}
 
 
 class ExportData(BaseChart):

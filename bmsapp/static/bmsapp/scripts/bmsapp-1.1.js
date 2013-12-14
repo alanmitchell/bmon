@@ -307,6 +307,48 @@ AN.chart_makers.Histogram = function() {
 
 }
 
+// XY scatter plot chart object creator function
+AN.chart_makers.XYplot = function() {
+
+    // Get the base chart and customize some options
+    var cht = AN.chart_makers.base_chart();
+    cht.chart_options.chart.type = "scatter";
+    cht.chart_options.plotOptions.series.marker.enabled = true;
+
+    cht.redraw = function() { 
+        // "this" won't refer to chart object if this function is
+        // called through an event callback.
+
+        // Set X and Y Axes titles
+        cht.chart.xAxis[0].setTitle( {text: cht.server_data.x_label}, false );
+        cht.chart.yAxis[0].setTitle( {text: cht.server_data.y_label}, false );
+
+        // Set a Chart title 
+        var new_title = $("#select_sensorY option:selected").text() + " vs. " + $("#select_sensorX option:selected").text(); 
+        cht.chart.setTitle( {text: new_title,
+                             style: {fontSize: '20px'}
+                            });
+
+        // Remove all existing series and add new series
+        while (cht.chart.series.length) { cht.chart.series[0].remove() }
+        $.each(cht.server_data.series, function(idx, a_series) {
+            cht.chart.addSeries(a_series, false);
+        });
+
+        cht.chart.redraw();
+    };
+
+    $("#time_period").change(cht.get_data);
+    $("#select_sensorX").change(cht.get_data);
+    $("#select_sensorY").change(cht.get_data);
+    $("#averaging_time").change(cht.get_data);
+
+    cht.chart = new Highcharts.Chart(cht.chart_options);
+
+    return cht;
+
+}
+
 // Time Series Chart object creator function
 AN.chart_makers.TimeSeries = function() {
 
