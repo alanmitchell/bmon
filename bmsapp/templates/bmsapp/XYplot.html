@@ -1,0 +1,11 @@
+{% extends "bmsapp/chart_base.html" %}
+
+{% block config %}
+
+<h2 id="report_title">Scatter Plot of Sensor X vs. Y</h2>
+<p>
+Sensor X: {{ select_sensorX|safe }}&nbsp;&nbsp;Sensor Y: {{ select_sensorY|safe }}
+&nbsp;&nbsp;{% include "bmsapp/select_averaging_export.html" %}
+</p>
+{% include "bmsapp/select_time_period.html" %}
+{% endblock config %}

@@ -39,7 +39,8 @@ BLDG_CHART_TYPES = [
     BldgChartType(2, 'Plot Sensor Values over Time', 'TimeSeries', True),
     BldgChartType(3, 'Hourly Profile of a Sensor', 'HourlyProfile', False),
     BldgChartType(4, 'Histogram of a Sensor', 'Histogram', False),
-    BldgChartType(5, 'Download Sensor Data to Excel', 'ExportData', True)
+    BldgChartType(5, 'Sensor X vs. Y Scatter Plot', 'XYplot', False),
+    BldgChartType(6, 'Download Sensor Data to Excel', 'ExportData', True)
 ]
 
 # The ID of the Time Series chart above, as it is needed in code below.
@@ -134,19 +135,19 @@ class BaseChart(object):
         """
         return [1,2,3]
 
-    def make_sensor_select_html(self, selected_sensor=None):
-        """
-        Helper method that returns the HTML for a Select control that allows 
+    def make_sensor_select_html(self, selected_sensor=None, control_id='select_sensor'):
+        """Helper method that returns the HTML for a Select control that allows 
         selection of a sensor(s) associated with this building.  
         'selected_sensor' is the ID of the sensor to select; if not provided, 
         the first sensor is selected.
+        'control_id' is the string to use for the HTML Select control id and name.
         """
 
         # convert the selected sensor to an integer, if possible
         select_id = view_util.to_int(selected_sensor)
 
         grp = ''    # tracks the sensor group
-        html = '<select id="select_sensor" name="select_sensor" '
+        html = '<select id="%s" name="%s" ' % (control_id, control_id)
         html += 'multiple="multiple">' if self.chart_info.multi_sensor_select else '>'
         first_sensor = True
         for b_to_sen in self.building.bldgtosensor_set.all():
@@ -349,6 +350,7 @@ class Histogram(BaseChart):
 
         return {"series": series, "x_label": the_sensor.unit.label}
 
+
 def formatCurVal(val):
     """
     Helper function for formatting current values to 3 significant digits, but 
@@ -404,6 +406,54 @@ class CurrentValues(BaseChart):
         self.context['ts_chart_id'] = TIME_SERIES_CHART_ID
 
         return super(CurrentValues, self).html()
+
+
+class XYplot(BaseChart):
+
+    def html(self, selected_sensor=None):
+        """Return the html necessary for the XY scatter plot.
+        """
+        # Make the HTML for the X and Y sensor and save in the context
+        self.context['select_sensorX'] = self.make_sensor_select_html(selected_sensor, control_id='select_sensorX')
+        self.context['select_sensorY'] = self.make_sensor_select_html(selected_sensor, control_id='select_sensorY')
+        return super(XYplot, self).html()
+
+    def data(self):
+        """
+        Returns the data for a scatter plot of one sensor vs. another.  
+        Return value is a dictionary containing the dynamic data used to draw the chart.
+        """
+        # open the database 
+        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
+
+        # determine the X and Y sensors to plot from those sensors selected by the user.
+        sensorX = models.Sensor.objects.get(sensor_id=self.request_params['select_sensorX'])
+        sensorY = models.Sensor.objects.get(sensor_id=self.request_params['select_sensorY'])
+
+        # make a timestamp binning object
+        binner = data_util.TsBin(float(self.request_params['averaging_time']))
+
+        # determine the start and end time for selecting records
+        st_ts, end_ts = self.get_ts_range()
+
+        # get the X and Y sensor records and perform the requested averaging
+        db_recs = db.rowsForOneID(sensorX.sensor_id, st_ts, end_ts)
+        dfX = pd.DataFrame(db_recs).set_index('ts').groupby(binner.bin).mean()
+        dfX.columns = ['X']
+        db_recs = db.rowsForOneID(sensorY.sensor_id, st_ts, end_ts)
+        dfY = pd.DataFrame(db_recs).set_index('ts').groupby(binner.bin).mean()
+        dfY.columns = ['Y']
+
+        # Join the X and Y values for the overlapping time intervals and make
+        # a list of points.
+        df_final = dfX.join(dfY)
+        pts = zip( df_final.X.values, df_final.Y.values )
+
+        # create the X and Y axis labels
+        x_label = '%s, %s' % (sensorX.title, sensorX.unit.label)
+        y_label = '%s, %s' % (sensorY.title, sensorY.unit.label)
+
+        return {"series": [ {'data': pts} ], "x_label": x_label, "y_label": y_label}
 
 
 class ExportData(BaseChart):
