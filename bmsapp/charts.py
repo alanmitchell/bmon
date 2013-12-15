@@ -39,7 +39,7 @@ BLDG_CHART_TYPES = [
     BldgChartType(2, 'Plot Sensor Values over Time', 'TimeSeries', True),
     BldgChartType(3, 'Hourly Profile of a Sensor', 'HourlyProfile', False),
     BldgChartType(4, 'Histogram of a Sensor', 'Histogram', False),
-    BldgChartType(5, 'Sensor X vs. Y Scatter Plot', 'XYplot', False),
+    BldgChartType(5, 'Sensor X vs Y Scatter Plot', 'XYplot', False),
     BldgChartType(6, 'Download Sensor Data to Excel', 'ExportData', True)
 ]
 

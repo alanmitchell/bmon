@@ -38,7 +38,7 @@ AN.chart_makers.cht_options = function() {
         chart: {
             renderTo: 'chart_container',
             spacingTop: 20,
-            animation: true,    // controls animation on redraws, not initial draw
+            animation: false,    // controls animation on redraws, not initial draw
             zoomType: 'xy',
             backgroundColor: '#EEEEEE',
             borderWidth: 2,
