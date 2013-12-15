@@ -338,6 +338,8 @@ AN.chart_makers.XYplot = function() {
         cht.chart.redraw();
     };
 
+    $("#divide_date").datepicker({dateFormat: "mm/dd/yy"}).change(cht.get_data);
+
     $("#time_period").change(cht.get_data);
     $("#select_sensorX").change(cht.get_data);
     $("#select_sensorY").change(cht.get_data);

@@ -436,6 +436,11 @@ class XYplot(BaseChart):
         # determine the start and end time for selecting records
         st_ts, end_ts = self.get_ts_range()
 
+        # get the dividing date, if there is one
+        div_date = self.request_params['divide_date']
+        div_ts = data_util.datestr_to_ts(div_date) if len(div_date) else 0
+
+
         # The list that will hold each Highcharts series
         series = []
 
@@ -453,12 +458,18 @@ class XYplot(BaseChart):
             # a list of points.
             df_all = dfX.join(dfY, how='inner')  # inner join does intersection of timestamps
 
-            # Set up 3 different series for different time periods of the data.
-            # Info is (starting timestamp, ending timestamp, series name, series color, series symbol).
+            # Set up the parameters for the different series of data
+            # Required Info is (starting timestamp, ending timestamp, series name, series color, series symbol).
             ts_now = time.time()
-            ser_params = ( (0, ts_now - 7 * 24 * 3600, 'Older than 1 Week', '#2f7ed8', 'diamond'),
-                           (ts_now - 7 * 24 * 3600, ts_now - 24 * 3600, 'Last Week', '#00CC00', 'circle'),
-                           (ts_now - 24 * 3600, ts_now, 'Last 24 Hours', '#FF0000', 'square') )
+            if div_ts:
+                # A dividing date was provided by the user.
+                ser_params = ( (0, div_ts, 'Prior to %s' % div_date, '#2f7ed8', 'circle'),
+                               (div_ts, ts_now, '%s and beyond' % div_date, '#FF0000', 'circle') )
+            else:
+                # Divide data by how recent it is.
+                ser_params = ( (0, ts_now - 7 * 24 * 3600, 'Older than 1 Week', '#2f7ed8', 'diamond'),
+                               (ts_now - 7 * 24 * 3600, ts_now - 24 * 3600, 'Last Week', '#00CC00', 'circle'),
+                               (ts_now - 24 * 3600, ts_now, 'Last 24 Hours', '#FF0000', 'square') )
             series = []
 
             for t_start, t_end, ser_name, ser_color, ser_symbol in ser_params:
