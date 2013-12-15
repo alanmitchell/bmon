@@ -456,9 +456,9 @@ class XYplot(BaseChart):
             # Set up 3 different series for different time periods of the data.
             # Info is (starting timestamp, ending timestamp, series name, series color, series symbol).
             ts_now = time.time()
-            ser_params = ( (ts_now - 24 * 3600, ts_now, 'Last 24 Hours', '#FF0000', 'square'),
+            ser_params = ( (0, ts_now - 7 * 24 * 3600, 'Older than 1 Week', '#2f7ed8', 'circle'),
                            (ts_now - 7 * 24 * 3600, ts_now - 24 * 3600, 'Last Week', '#009933', 'triangle'),
-                           (0, ts_now - 7 * 24 * 3600, 'Older than 1 Week', '#2f7ed8', 'circle') )
+                           (ts_now - 24 * 3600, ts_now, 'Last 24 Hours', '#FF0000', 'square') )
             series = []
 
             for t_start, t_end, ser_name, ser_color, ser_symbol in ser_params:
