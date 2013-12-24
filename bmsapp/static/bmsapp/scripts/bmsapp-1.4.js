@@ -393,6 +393,25 @@ AN.chart_makers.TimeSeries = function() {
 
 }
 
+// Dashboard report
+AN.chart_makers.Dashboard= function() {
+
+    var cht_obj = {
+        get_data: function() {
+            data_url = AN.make_chart_id_url() + "/data/";
+            $.getJSON(data_url, function(dashConfig) {
+                ANdash.createDashboard('dashboard', dashConfig);
+            });
+        }
+    };
+
+    $("#refresh").button().off('click').click(cht_obj.get_data);
+
+    return cht_obj
+
+}
+
+
 // Current Values report
 AN.chart_makers.CurrentValues = function() {
 

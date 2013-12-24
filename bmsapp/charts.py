@@ -35,6 +35,7 @@ class BldgChartType:
 # These are the possible chart types currently implemented, in the order they will be 
 # presented to the User.
 BLDG_CHART_TYPES = [
+    BldgChartType(0, 'Dashboard', 'Dashboard', False),
     BldgChartType(1, 'Current Sensor Values', 'CurrentValues', False),
     BldgChartType(2, 'Plot Sensor Values over Time', 'TimeSeries', True),
     BldgChartType(3, 'Hourly Profile of a Sensor', 'HourlyProfile', False),
@@ -180,6 +181,48 @@ class BaseChart(object):
             end_ts = data_util.datestr_to_ts(end_date + " 23:59:59") if len(end_date) else time.time() + 3600.0
 
         return st_ts, end_ts
+
+
+class Dashboard(BaseChart):
+
+    def html(self, selected_sensor=None):
+
+        # create a report title
+        self.context['report_title'] = '%s Dashboard' % self.building.title
+        return super(Dashboard, self).html()
+
+
+    def data(self):
+        
+        gaugeRow = [
+          {
+            'title': "DHW Temp to Building",
+            'units': "deg F",
+            'value': 124,
+            'minNormal': 115,
+            'maxNormal': 130
+          }, {
+            'title': "DHW Return Temp",
+            'units': "deg F",
+            'value': 114,
+            'minNormal': 110,
+            'maxNormal': 130
+          }, {
+            'title': "DHW Tank Temp",
+            'units': "deg F",
+            'value': 133,
+            'minNormal': 125,
+            'maxNormal': 150
+          }, {
+            'title': "Outdoor Temp",
+            'units': "deg F",
+            'value': 20,
+            'minNormal': -30,
+            'maxNormal': 90,
+            'prePostScale': 0
+          }
+        ]
+        return { 'widgets': [gaugeRow, gaugeRow[0:3]] }
 
 
 class TimeSeries(BaseChart):
