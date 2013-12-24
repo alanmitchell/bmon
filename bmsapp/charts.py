@@ -204,7 +204,7 @@ class Dashboard(BaseChart):
           }, {
             'title': "DHW Return Temp",
             'units': "deg F",
-            'value': 114,
+            'value': 135,
             'minNormal': 110,
             'maxNormal': 130
           }, {

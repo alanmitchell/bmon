@@ -5,7 +5,7 @@
   window.ANdash = {};
 
   addGauge = function(parentID, gauge) {
-    var maxVal, minVal, opt, scale, span, widgetID;
+    var maxVal, minVal, opt, scale, span, widgetID, _ref;
     span = gauge.maxNormal - gauge.minNormal;
     scale = gauge.prePostScale != null ? gauge.prePostScale : 0.75;
     minVal = Math.min(gauge.minNormal - span * scale, gauge.value);
@@ -124,6 +124,9 @@
         }
       ]
     };
+    if (!((gauge.minNormal <= (_ref = gauge.value) && _ref <= gauge.maxNormal))) {
+      opt.chart.backgroundColor = "#FCC7C7";
+    }
     widgetID = "widget" + (widgetCounter++);
     $("#" + parentID).append("<div id=\"" + widgetID + "\" class=\"gauge\"></div>");
     return $("#" + widgetID).highcharts(opt).width();

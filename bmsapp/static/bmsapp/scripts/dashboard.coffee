@@ -20,7 +20,6 @@ addGauge = (parentID, gauge) ->
     chart:
       type: "gauge"
       backgroundColor: 'rgba(255, 255, 255, 0.1)'
-      #backgroundColor: "#FCC7C7"    # This would be a good out-of-range color
       plotBackgroundColor: null
       plotBackgroundImage: null
       plotBorderWidth: 0
@@ -121,9 +120,13 @@ addGauge = (parentID, gauge) ->
         valueSuffix: " #{gauge.units}"
     ]
 
+  # turn the background light red if the value is abnormal.
+  opt.chart.backgroundColor = "#FCC7C7" if not (gauge.minNormal <= gauge.value <= gauge.maxNormal)
+
+  # Add the div with id that will hold this gauge.
   widgetID = "widget#{widgetCounter++}"    # this increments the counter as well
   $("##{parentID}").append( "<div id=\"#{widgetID}\" class=\"gauge\"></div>" )
-  $("##{widgetID}").highcharts(opt).width()
+  $("##{widgetID}").highcharts(opt).width()  # return the width of the gauge
 
 
 # Variables to track the index of the current row and widget being created
