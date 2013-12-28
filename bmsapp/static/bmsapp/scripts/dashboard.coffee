@@ -6,18 +6,10 @@ window.ANdash = {}
 # Returns the width of the gauge in pixels.
 addGauge = (parentID, gauge) ->
 
-  # Determine parameters that affect how far below the normal range the
-  # gauge will extend.
-  span = gauge.maxNormal - gauge.minNormal
-  scale = if gauge.prePostScale? then gauge.prePostScale else 0.75
-
-  # minVal and maxVal are the extent of the gauge value range.
-  # Have to extend gauge range if value is outside bounds, or meter will wrap around.
-  minVal = Math.min(gauge.minNormal - span * scale, gauge.value)
-  maxVal = Math.max(gauge.maxNormal + span * scale, gauge.value)
-
   opt =
     chart:
+      events:
+        click: null
       type: "gauge"
       backgroundColor: 'rgba(255, 255, 255, 0.1)'
       plotBackgroundColor: null
@@ -34,7 +26,7 @@ addGauge = (parentID, gauge) ->
     title:
       text: gauge.title
       style:
-        fontSize: "14px"
+        fontSize: "13px"
 
     pane:
       startAngle: -130
@@ -79,8 +71,8 @@ addGauge = (parentID, gauge) ->
 
     # the value axis
     yAxis:
-      min: minVal
-      max: maxVal
+      min: gauge.minAxis
+      max: gauge.maxAxis
       minorTickInterval: "auto"
       minorTickWidth: 1
       minorTickLength: 10
@@ -101,7 +93,7 @@ addGauge = (parentID, gauge) ->
         text: gauge.units
 
       plotBands: [
-        from: minVal
+        from: gauge.minAxis
         to: gauge.minNormal
         color: "#DF5353"  # red
        ,
@@ -110,7 +102,7 @@ addGauge = (parentID, gauge) ->
         color: "#55BF3B" # green
        ,
         from: gauge.maxNormal
-        to: maxVal
+        to: gauge.maxAxis
         color: "#DF5353"  # red
       ]
 
@@ -126,6 +118,10 @@ addGauge = (parentID, gauge) ->
   # Add the div with id that will hold this gauge.
   widgetID = "widget#{widgetCounter++}"    # this increments the counter as well
   $("##{parentID}").append( "<div id=\"#{widgetID}\" class=\"gauge\"></div>" )
+  if gauge.urlClick?
+    $("##{widgetID}").css('cursor', 'pointer')   # makes the click hand appear when hovering
+    opt.chart.events.click = (e) ->
+      window.location = gauge.urlClick
   $("##{widgetID}").highcharts(opt).width()  # return the width of the gauge
 
 

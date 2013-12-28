@@ -4,6 +4,7 @@ Reports.
 """
 import time, logging
 from django.template import Context, loader
+from django.core.urlresolvers import reverse
 import pandas as pd, numpy as np, xlwt
 import models, global_vars, data_util, view_util
 from readingdb import bmsdata
@@ -193,36 +194,44 @@ class Dashboard(BaseChart):
 
 
     def data(self):
-        
-        gaugeRow = [
-          {
-            'title': "DHW Temp to Building",
-            'units': "deg F",
-            'value': 124,
-            'minNormal': 115,
-            'maxNormal': 130
-          }, {
-            'title': "DHW Return Temp",
-            'units': "deg F",
-            'value': 135,
-            'minNormal': 110,
-            'maxNormal': 130
-          }, {
-            'title': "DHW Tank Temp",
-            'units': "deg F",
-            'value': 133,
-            'minNormal': 125,
-            'maxNormal': 150
-          }, {
-            'title': "Outdoor Temp",
-            'units': "deg F",
-            'value': 20,
-            'minNormal': -30,
-            'maxNormal': 90,
-            'prePostScale': 0
-          }
-        ]
-        return { 'widgets': [gaugeRow, gaugeRow[0:3]] }
+
+        # open the database 
+        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
+
+        widgets = []
+        cur_row = []
+        cur_row_num = None
+        cur_time = time.time()   # needed for calculating how long ago reading occurred
+        for b_to_sen in self.building.bldgtosensor_set.exclude(dashboard_widget=models.BldgToSensor.NONE).order_by('dashboard_row_number', 'dashboard_column_number'):
+            if b_to_sen.dashboard_row_number != cur_row_num:
+                if len(cur_row):
+                    widgets.append(cur_row)
+                cur_row = []
+                cur_row_num = b_to_sen.dashboard_row_number
+    
+            last_read = db.last_read(b_to_sen.sensor.sensor_id)
+            cur_value = float(formatCurVal(last_read['val'])) if last_read else None
+            minAxis, maxAxis = b_to_sen.get_axis_range()
+            new_widget = {'type': b_to_sen.dashboard_widget,
+                          'title': b_to_sen.sensor.title,
+                          'units': b_to_sen.sensor.unit.label,
+                          'value': cur_value,
+                          'minNormal': b_to_sen.minimum_normal_value,
+                          'maxNormal': b_to_sen.maximum_normal_value,
+                          'minAxis': minAxis,
+                          'maxAxis': maxAxis,
+                          'urlClick': reverse('bmsapp.views.reports', args=(self.bldg_id, TIME_SERIES_CHART_ID, b_to_sen.sensor.id)),
+                         }
+            cur_row.append(new_widget)
+
+        # append the last row if anything is present in that row
+        if len(cur_row):
+            widgets.append(cur_row)
+
+        # close the reading database
+        db.close()
+
+        return { 'widgets': widgets }
 
 
 class TimeSeries(BaseChart):
@@ -435,6 +444,9 @@ class CurrentValues(BaseChart):
         # add the last group
         if cur_group:
             sensor_list.append( (cur_group, cur_group_sensor_list) )
+
+        # close the reading database
+        db.close()
 
         # make this sensor list available to the template
         self.context['sensor_list'] = sensor_list

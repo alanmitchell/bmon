@@ -8,9 +8,22 @@ from django.contrib import admin
 from django.forms import TextInput, Textarea
 from django.db import models
 
-class BldgToSensorInline(admin.TabularInline):
+class BldgToSensorInline(admin.StackedInline):
     model = BldgToSensor
     extra = 1
+    fieldsets = (
+        (None, {'fields': ( ('sensor', 'sensor_group', 'sort_order'), 
+                            ('dashboard_widget', 'dashboard_row_number', 'dashboard_column_number'),
+                            ('minimum_normal_value', 'maximum_normal_value', 'minimum_axis_value', 'maximum_axis_value'),
+                            ('generate_alert', 'no_alert_start_date', 'no_alert_end_date'),
+                          )}
+        ),
+    )
+    formfield_overrides = {
+        models.FloatField: {'widget': TextInput(attrs={'size':'10'})},
+    }
+
+
 
 class BuildingAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline, )

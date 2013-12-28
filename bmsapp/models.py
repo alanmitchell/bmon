@@ -140,6 +140,59 @@ class BldgToSensor(models.Model):
     # Within the sensor group, this field determines the sort order of this sensor.
     sort_order = models.IntegerField(default=999)
 
+    # The Widget type to be used for display of this sensor on the Dashboard.
+    NONE = 'none'
+    GAUGE = 'gauge'
+    LED = 'LED'
+    LABEL = 'label'
+    DISPLAY_WIDGET_CHOICES = (
+        (NONE, 'Not on Dashboard'),
+        (GAUGE, 'Gauge'),
+        (LED, 'Red/Green LED'),
+        (LABEL, 'Text Label'),
+    )
+    dashboard_widget = models.CharField(max_length=15,
+                                        choices=DISPLAY_WIDGET_CHOICES,
+                                        default=NONE)
+
+    # The row number on the Dashboard that this item will appear in.  Numbering can start
+    # at any value and skip values; only the order matters.
+    dashboard_row_number = models.IntegerField("Row Number", default=1)
+
+    # The column number on the Dashboard that this item will appear in.  Numbering can
+    # start at any value and can skip value; only the order matters.
+    dashboard_column_number = models.IntegerField("Column Number", default=1)
+
+    # The range of normal values
+    minimum_normal_value = models.FloatField(default=0.0)
+    maximum_normal_value = models.FloatField(default=100.0)
+
+    # The total range of values shown on the Widget.  If blank,
+    # default axis values will be calculated.
+    minimum_axis_value = models.FloatField(null=True, blank=True)
+    maximum_axis_value = models.FloatField(null=True, blank=True)
+
+    def get_axis_range(self):
+        """Returns the total range of values to show on the widget, using
+        default values if none are provided by the user above.  A tuple of
+        (min_axis_value, max_axis_value) is returned.
+        """
+        # Calculate the amount to extend the range beyond min and max normal
+        # if no axis values are provided.  Base this on the range of normal
+        # values.
+        axis_extension = 0.60 * (self.maximum_normal_value - self.minimum_normal_value)
+        min_val = self.minimum_axis_value if self.minimum_axis_value is not None else self.minimum_normal_value - axis_extension
+        max_val = self.maximum_axis_value if self.maximum_axis_value is not None else self.maximum_normal_value + axis_extension
+        return (min_val, max_val)
+
+    # Determines whether an Alert is generated from this sensor going outside of
+    # the Normal range.
+    generate_alert = models.BooleanField(default=False)
+
+    # Stops alerts from occurring during this date range
+    no_alert_start_date = models.DateField('Except from', null=True, blank=True)
+    no_alert_end_date = models.DateField('to', null=True, blank=True)
+
     def __unicode__(self):
         return self.building.title + ": " + self.sensor.title
 

@@ -52,7 +52,18 @@ def chart_list_html(bldg, selected_chart=None):
         the first chart is selected.
     '''
     if bldg != 'multi':
-        cht_list = charts.BLDG_CHART_TYPES
+        # check to see if there are any Dashboard items
+        bldg_object = models.Building.objects.get(id=bldg)
+        if len(bldg_object.bldgtosensor_set.exclude(dashboard_widget=models.BldgToSensor.NONE)):
+            # include Dashboard in chart list
+            cht_list = charts.BLDG_CHART_TYPES
+        else:
+            # exclude Dashboard chart.
+            cht_list = charts.BLDG_CHART_TYPES[:]  # All items
+            for cht in cht_list:
+                if cht.class_name == 'Dashboard':
+                    cht_list.remove(cht)
+                    break
     else:
         cht_list = models.MultiBuildingChart.objects.all()
 

@@ -5,13 +5,12 @@
   window.ANdash = {};
 
   addGauge = function(parentID, gauge) {
-    var maxVal, minVal, opt, scale, span, widgetID, _ref;
-    span = gauge.maxNormal - gauge.minNormal;
-    scale = gauge.prePostScale != null ? gauge.prePostScale : 0.75;
-    minVal = Math.min(gauge.minNormal - span * scale, gauge.value);
-    maxVal = Math.max(gauge.maxNormal + span * scale, gauge.value);
+    var opt, widgetID, _ref;
     opt = {
       chart: {
+        events: {
+          click: null
+        },
         type: "gauge",
         backgroundColor: 'rgba(255, 255, 255, 0.1)',
         plotBackgroundColor: null,
@@ -28,7 +27,7 @@
       title: {
         text: gauge.title,
         style: {
-          fontSize: "14px"
+          fontSize: "13px"
         }
       },
       pane: {
@@ -77,8 +76,8 @@
         }
       },
       yAxis: {
-        min: minVal,
-        max: maxVal,
+        min: gauge.minAxis,
+        max: gauge.maxAxis,
         minorTickInterval: "auto",
         minorTickWidth: 1,
         minorTickLength: 10,
@@ -101,7 +100,7 @@
         },
         plotBands: [
           {
-            from: minVal,
+            from: gauge.minAxis,
             to: gauge.minNormal,
             color: "#DF5353"
           }, {
@@ -110,7 +109,7 @@
             color: "#55BF3B"
           }, {
             from: gauge.maxNormal,
-            to: maxVal,
+            to: gauge.maxAxis,
             color: "#DF5353"
           }
         ]
@@ -129,6 +128,12 @@
     }
     widgetID = "widget" + (widgetCounter++);
     $("#" + parentID).append("<div id=\"" + widgetID + "\" class=\"gauge\"></div>");
+    if (gauge.urlClick != null) {
+      $("#" + widgetID).css('cursor', 'pointer');
+      opt.chart.events.click = function(e) {
+        return window.location = gauge.urlClick;
+      };
+    }
     return $("#" + widgetID).highcharts(opt).width();
   };
 
