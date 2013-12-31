@@ -153,6 +153,25 @@ addLED = (jqParent, LED_info) ->
       window.location = LED_info.urlClick
   jqWidget        # return the jQuery element holding the LED
   
+addNotCurrent = (jqParent, widget_info) ->
+  # Add the div with id that will hold this LED.
+  widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
+  jqParent.append "<div id=\"#{widgetID}\" class=\"not-current\">
+                     <h2>#{widget_info.title}</h2>
+                     <h2><i>Data is #{widget_info.age}</i></h2>
+                   </div>"
+  jqWidget = $("##{widgetID}")   # make a jQuery element
+  
+  # change the color of the background to indicate problem
+  jqWidget.css('background-color', LIGHT_RED)
+
+  # add click link if requested
+  if widget_info.urlClick?
+    jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
+    jqWidget.click ->
+      window.location = widget_info.urlClick
+  jqWidget        # return the jQuery element holding the LED
+  
 
 # Variables to track the index of the current row and widget being created
 widgetCounter = 0
@@ -164,6 +183,7 @@ addWidget = (jqRow, widget_info) ->
   switch widget_info.type
     when "gauge" then addGauge(jqRow, widget_info)
     when "LED" then addLED(jqRow, widget_info)
+    when "stale" then addNotCurrent(jqRow, widget_info)
 
 # Adds a row of widgets to the dashboard under the div container "jqParent",
 # a jQuery element. 'widgetRow' is an array of widget information objects 

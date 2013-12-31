@@ -211,6 +211,7 @@ class Dashboard(BaseChart):
     
             last_read = db.last_read(b_to_sen.sensor.sensor_id)
             cur_value = float(formatCurVal(last_read['val'])) if last_read else None
+            age_secs = time.time() - last_read['ts'] if last_read else None    # how long ago reading occurred
             minAxis, maxAxis = b_to_sen.get_axis_range()
             new_widget = {'type': b_to_sen.dashboard_widget,
                           'title': b_to_sen.sensor.title,
@@ -222,6 +223,17 @@ class Dashboard(BaseChart):
                           'maxAxis': maxAxis,
                           'urlClick': reverse('bmsapp.views.reports', args=(self.bldg_id, TIME_SERIES_CHART_ID, b_to_sen.sensor.id)),
                          }
+            # check to see if data is older than 2 hours or missing, and change widget type if so.
+            if cur_value is None:
+                new_widget['type'] = models.BldgToSensor.NOT_CURRENT
+                new_widget['age'] = 'Not Available'
+            elif 7200 <= age_secs < 86400:
+                new_widget['type'] = models.BldgToSensor.NOT_CURRENT
+                new_widget['age'] = '%.1f hours Old' % (age_secs/3600.0)
+            elif age_secs >= 86400:
+                new_widget['type'] = models.BldgToSensor.NOT_CURRENT
+                new_widget['age'] = '%.1f days Old' % (age_secs/86400.0)
+
             cur_row.append(new_widget)
 
         # append the last row if anything is present in that row

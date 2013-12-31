@@ -144,12 +144,11 @@ class BldgToSensor(models.Model):
     NONE = 'none'
     GAUGE = 'gauge'
     LED = 'LED'
-    LABEL = 'label'
+    NOT_CURRENT = 'stale'      # data is not current. Don't include as a User choice.
     DISPLAY_WIDGET_CHOICES = (
         (NONE, 'Not on Dashboard'),
         (GAUGE, 'Gauge'),
         (LED, 'Red/Green LED'),
-        (LABEL, 'Text Label'),
     )
     dashboard_widget = models.CharField(max_length=15,
                                         choices=DISPLAY_WIDGET_CHOICES,

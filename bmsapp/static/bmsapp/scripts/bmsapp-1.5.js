@@ -407,6 +407,9 @@ AN.chart_makers.Dashboard= function() {
 
     $("#refresh").button().off('click').click(cht_obj.get_data);
 
+    // have the get_data method called automatically every 10 minutes
+    setInterval(cht_obj.get_data, 600000);
+
     return cht_obj
 
 }
@@ -417,6 +420,10 @@ AN.chart_makers.CurrentValues = function() {
 
     // Everything is done in the HTML returned by the server.  Nothing to do here.
     return AN.chart_makers.base_report();
+
+    // have the chart refreshed automatically every 10 minutes
+    //setInterval(AN.update_chart_html, 600000);
+
 }
 
 // Export Data to Excel feature
