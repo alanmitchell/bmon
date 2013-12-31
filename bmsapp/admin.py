@@ -23,8 +23,6 @@ class BldgToSensorInline(admin.StackedInline):
         models.FloatField: {'widget': TextInput(attrs={'size':'10'})},
     }
 
-
-
 class BuildingAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline, )
 

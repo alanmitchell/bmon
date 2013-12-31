@@ -199,7 +199,6 @@ class BldgToSensor(models.Model):
     class Meta:
         ordering = ('building__title', 'sensor_group__sort_order', 'sort_order')
 
-
 class MultiBuildingChart(models.Model):
     '''
     One particular chart that utilizes data from a group of buildings

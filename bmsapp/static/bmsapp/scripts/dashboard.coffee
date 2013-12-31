@@ -1,10 +1,13 @@
 # A global object variable to attach public methods to 
 window.ANdash = {}
 
-# Adds a gauge control under the container identified by 'parentID'.
+# Light red color used to signify value out of normal range.
+LIGHT_RED = '#FCC7C7'
+
+# Adds a gauge control under the container identified by 'jqParent', a jQuery element.
 # 'gauge' is an object containing the configuration and value info for the gauge.
-# Returns the width of the gauge in pixels.
-addGauge = (parentID, gauge) ->
+# Returns the jQuery div element holding the gauge.
+addGauge = (jqParent, g_info) ->
 
   opt =
     chart:
@@ -24,7 +27,7 @@ addGauge = (parentID, gauge) ->
       enabled: false
 
     title:
-      text: gauge.title
+      text: g_info.title
       style:
         fontSize: "13px"
 
@@ -71,8 +74,8 @@ addGauge = (parentID, gauge) ->
 
     # the value axis
     yAxis:
-      min: gauge.minAxis
-      max: gauge.maxAxis
+      min: g_info.minAxis
+      max: g_info.maxAxis
       minorTickInterval: "auto"
       minorTickWidth: 1
       minorTickLength: 10
@@ -90,55 +93,95 @@ addGauge = (parentID, gauge) ->
           fontSize: "10px"
 
       title:
-        text: gauge.units
+        text: g_info.units
 
       plotBands: [
-        from: gauge.minAxis
-        to: gauge.minNormal
+        from: g_info.minAxis
+        to: g_info.minNormal
         color: "#DF5353"  # red
        ,
-        from: gauge.minNormal
-        to: gauge.maxNormal
+        from: g_info.minNormal
+        to: g_info.maxNormal
         color: "#55BF3B" # green
        ,
-        from: gauge.maxNormal
-        to: gauge.maxAxis
+        from: g_info.maxNormal
+        to: g_info.maxAxis
         color: "#DF5353"  # red
       ]
 
     series: [
-      data: [gauge.value]
+      data: [g_info.value]
       tooltip:
-        valueSuffix: " #{gauge.units}"
+        valueSuffix: " #{g_info.units}"
     ]
 
   # turn the background light red if the value is abnormal.
-  opt.chart.backgroundColor = "#FCC7C7" if not (gauge.minNormal <= gauge.value <= gauge.maxNormal)
+  opt.chart.backgroundColor = LIGHT_RED if not (g_info.minNormal <= g_info.value <= g_info.maxNormal)
 
   # Add the div with id that will hold this gauge.
-  widgetID = "widget#{widgetCounter++}"    # this increments the counter as well
-  $("##{parentID}").append( "<div id=\"#{widgetID}\" class=\"gauge\"></div>" )
-  if gauge.urlClick?
-    $("##{widgetID}").css('cursor', 'pointer')   # makes the click hand appear when hovering
+  widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
+  jqParent.append( "<div id=\"#{widgetID}\" class=\"gauge\"></div>" )
+  jqWidget = $("##{widgetID}")
+  if g_info.urlClick?
+    jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
     opt.chart.events.click = (e) ->
-      window.location = gauge.urlClick
-  $("##{widgetID}").highcharts(opt).width()  # return the width of the gauge
+      window.location = g_info.urlClick
+  jqWidget.highcharts(opt)        # return the jQuery element holding the gauge
 
+
+# Adds an LED widget to dashboard row identified by jQuery elemernt 'jqParent'.
+# Info for making LED is in object LED_info.  Returns jQuery div element holding
+# LED.
+addLED = (jqParent, LED_info) ->
+  # Add the div with id that will hold this LED.
+  widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
+  jqParent.append "<div id=\"#{widgetID}\" class=\"led\">
+                     <h2>#{LED_info.title}</h2>
+                     <div class=\"led-circle\"></div>&nbsp;
+                   </div>"
+  jqWidget = $("##{widgetID}")   # make a jQuery element
+  
+  # change the color of the LED if needed and the background color of whole div
+  if LED_info.value < LED_info.minNormal or LED_info.value > LED_info.maxNormal
+    jqWidget.children(".led-circle").css('background-color', '#FF0000')
+    jqWidget.css('background-color', LIGHT_RED)
+
+  # add click link if requested
+  if LED_info.urlClick?
+    jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
+    jqWidget.click ->
+      window.location = LED_info.urlClick
+  jqWidget        # return the jQuery element holding the LED
+  
 
 # Variables to track the index of the current row and widget being created
 widgetCounter = 0
 rowCounter = 0
 
-# Adds a row of widgets to the dashboard under container 'parentID'.
-# 'widgetRow' is an array of widgets for the row.
-addRow = (parentID, widgetRow) ->
-  rowID = "row#{rowCounter++}"
-  $("##{parentID}").append( "<div id=\"#{rowID}\" class=\"row\"></div>" )
+# Adds one widget to a row in the dashboard.  Returns the jQuery div holding the
+# widget.
+addWidget = (jqRow, widget_info) ->
+  switch widget_info.type
+    when "gauge" then addGauge(jqRow, widget_info)
+    when "LED" then addLED(jqRow, widget_info)
+
+# Adds a row of widgets to the dashboard under the div container "jqParent",
+# a jQuery element. 'widgetRow' is an array of widget information objects 
+# for the row.  Returns the jQuery row div.
+addRow = (jqParent, widgetRow) ->
+  rowID = "row#{++rowCounter}"     # the css id for the row
+  jqParent.append( "<div id=\"#{rowID}\" class=\"row\"></div>" )
   totalWidth = 0
-  totalWidth += addGauge(rowID, widget) for widget in widgetRow
-  $("##{rowID}").width totalWidth
+  jqRow = $("##{rowID}")   # a jQuery element for the new row
+  totalWidth += addWidget(jqRow, widget_info).width() for widget_info in widgetRow
+  jqRow.width totalWidth     # set the row width = total of widget widths
 
-
+# Public method for library.  Used to create entire dashboard in the div
+# element with id "parentID".  "dashConfig" contains the information for
+# each widget, organized as a list of rows, each row being a list of widget
+# information objects.
 ANdash.createDashboard = (parentID, dashConfig) ->
-  $("##{parentID}").empty()
-  addRow parentID, row for row in dashConfig.widgets
+  jqMain = $("##{parentID}")   # jQuery element of div holding Dashboard
+  jqMain.empty()
+  addRow jqMain, row for row in dashConfig.widgets
+  null  # return nothing
