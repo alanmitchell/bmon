@@ -210,7 +210,9 @@ class Dashboard(BaseChart):
                 cur_row_num = dash_item.row_number
     
             new_widget = {'type': dash_item.widget_type}
+            # Determine title, either from user entry or from sensor's title
             new_widget['title'] = dash_item.title if len(dash_item.title) or (dash_item.sensor is None) else dash_item.sensor.sensor.title
+
             if dash_item.sensor is not None:
                 last_read = db.last_read(dash_item.sensor.sensor.sensor_id)
                 cur_value = float(formatCurVal(last_read['val'])) if last_read else None
