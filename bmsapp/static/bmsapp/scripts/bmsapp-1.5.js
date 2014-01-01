@@ -408,7 +408,7 @@ AN.chart_makers.Dashboard= function() {
     $("#refresh").button().off('click').click(cht_obj.get_data);
 
     // have the get_data method called automatically every 10 minutes
-    setInterval(cht_obj.get_data, 600000);
+    AN.refreshTimer = setInterval(cht_obj.get_data, 600000);
 
     return cht_obj
 
@@ -418,11 +418,11 @@ AN.chart_makers.Dashboard= function() {
 // Current Values report
 AN.chart_makers.CurrentValues = function() {
 
+    // have the chart refreshed automatically every 10 minutes
+    AN.refreshTimer = setInterval(AN.update_chart_html, 600000);
+
     // Everything is done in the HTML returned by the server.  Nothing to do here.
     return AN.chart_makers.base_report();
-
-    // have the chart refreshed automatically every 10 minutes
-    //setInterval(AN.update_chart_html, 600000);
 
 }
 
@@ -439,6 +439,9 @@ AN.chart_makers.ExportData = function() {
         window.location.href = AN.make_chart_id_url() + "/download_many/?" +
             $("#config_chart").serialize();
     });
+
+    // Hide the refresh button
+    $("#refresh").hide();
 
     return cht;
 }
@@ -510,6 +513,12 @@ AN.init_chart = function() {
 
 // Updates the main content HTML based on the chart selected.
 AN.update_chart_html = function() {
+
+    // Clear any refresh timer that may have been set
+    if (typeof AN.refreshTimer != "undefined") clearInterval(AN.refreshTimer);
+
+    // Default is for the Refresh button to Show
+    $("#refresh").show();
 
     $.get(AN.make_chart_id_url() + "/html/", function(chart_html) {
 

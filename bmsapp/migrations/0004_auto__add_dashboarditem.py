@@ -8,104 +8,36 @@ from django.db import models
 class Migration(SchemaMigration):
 
     def forwards(self, orm):
-        # Adding field 'BldgToSensor.dashboard_widget'
-        db.add_column(u'bmsapp_bldgtosensor', 'dashboard_widget',
-                      self.gf('django.db.models.fields.CharField')(default='NONE', max_length=15),
-                      keep_default=False)
-
-        # Adding field 'BldgToSensor.dashboard_row_number'
-        db.add_column(u'bmsapp_bldgtosensor', 'dashboard_row_number',
-                      self.gf('django.db.models.fields.IntegerField')(default=1),
-                      keep_default=False)
-
-        # Adding field 'BldgToSensor.dashboard_column_number'
-        db.add_column(u'bmsapp_bldgtosensor', 'dashboard_column_number',
-                      self.gf('django.db.models.fields.IntegerField')(default=1),
-                      keep_default=False)
-
-        # Adding field 'BldgToSensor.minimum_normal_value'
-        db.add_column(u'bmsapp_bldgtosensor', 'minimum_normal_value',
-                      self.gf('django.db.models.fields.FloatField')(default=0.0),
-                      keep_default=False)
-
-        # Adding field 'BldgToSensor.maximum_normal_value'
-        db.add_column(u'bmsapp_bldgtosensor', 'maximum_normal_value',
-                      self.gf('django.db.models.fields.FloatField')(default=100.0),
-                      keep_default=False)
-
-        # Adding field 'BldgToSensor.minimum_axis_value'
-        db.add_column(u'bmsapp_bldgtosensor', 'minimum_axis_value',
-                      self.gf('django.db.models.fields.FloatField')(null=True, blank=True),
-                      keep_default=False)
-
-        # Adding field 'BldgToSensor.maximum_axis_value'
-        db.add_column(u'bmsapp_bldgtosensor', 'maximum_axis_value',
-                      self.gf('django.db.models.fields.FloatField')(null=True, blank=True),
-                      keep_default=False)
-
-        # Adding field 'BldgToSensor.generate_alert'
-        db.add_column(u'bmsapp_bldgtosensor', 'generate_alert',
-                      self.gf('django.db.models.fields.BooleanField')(default=False),
-                      keep_default=False)
-
-        # Adding field 'BldgToSensor.no_alert_start_date'
-        db.add_column(u'bmsapp_bldgtosensor', 'no_alert_start_date',
-                      self.gf('django.db.models.fields.DateField')(null=True, blank=True),
-                      keep_default=False)
-
-        # Adding field 'BldgToSensor.no_alert_end_date'
-        db.add_column(u'bmsapp_bldgtosensor', 'no_alert_end_date',
-                      self.gf('django.db.models.fields.DateField')(null=True, blank=True),
-                      keep_default=False)
+        # Adding model 'DashboardItem'
+        db.create_table(u'bmsapp_dashboarditem', (
+            (u'id', self.gf('django.db.models.fields.AutoField')(primary_key=True)),
+            ('building', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['bmsapp.Building'])),
+            ('widget_type', self.gf('django.db.models.fields.CharField')(default='gauge', max_length=15)),
+            ('row_number', self.gf('django.db.models.fields.IntegerField')(default=1)),
+            ('column_number', self.gf('django.db.models.fields.IntegerField')(default=1)),
+            ('sensor', self.gf('django.db.models.fields.related.ForeignKey')(to=orm['bmsapp.BldgToSensor'], null=True, blank=True)),
+            ('title', self.gf('django.db.models.fields.CharField')(max_length=50, null=True, blank=True)),
+            ('minimum_normal_value', self.gf('django.db.models.fields.FloatField')(default=0.0)),
+            ('maximum_normal_value', self.gf('django.db.models.fields.FloatField')(default=100.0)),
+            ('minimum_axis_value', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('maximum_axis_value', self.gf('django.db.models.fields.FloatField')(null=True, blank=True)),
+            ('generate_alert', self.gf('django.db.models.fields.BooleanField')(default=False)),
+            ('no_alert_start_date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+            ('no_alert_end_date', self.gf('django.db.models.fields.DateField')(null=True, blank=True)),
+        ))
+        db.send_create_signal(u'bmsapp', ['DashboardItem'])
 
 
     def backwards(self, orm):
-        # Deleting field 'BldgToSensor.dashboard_widget'
-        db.delete_column(u'bmsapp_bldgtosensor', 'dashboard_widget')
-
-        # Deleting field 'BldgToSensor.dashboard_row_number'
-        db.delete_column(u'bmsapp_bldgtosensor', 'dashboard_row_number')
-
-        # Deleting field 'BldgToSensor.dashboard_column_number'
-        db.delete_column(u'bmsapp_bldgtosensor', 'dashboard_column_number')
-
-        # Deleting field 'BldgToSensor.minimum_normal_value'
-        db.delete_column(u'bmsapp_bldgtosensor', 'minimum_normal_value')
-
-        # Deleting field 'BldgToSensor.maximum_normal_value'
-        db.delete_column(u'bmsapp_bldgtosensor', 'maximum_normal_value')
-
-        # Deleting field 'BldgToSensor.minimum_axis_value'
-        db.delete_column(u'bmsapp_bldgtosensor', 'minimum_axis_value')
-
-        # Deleting field 'BldgToSensor.maximum_axis_value'
-        db.delete_column(u'bmsapp_bldgtosensor', 'maximum_axis_value')
-
-        # Deleting field 'BldgToSensor.generate_alert'
-        db.delete_column(u'bmsapp_bldgtosensor', 'generate_alert')
-
-        # Deleting field 'BldgToSensor.no_alert_start_date'
-        db.delete_column(u'bmsapp_bldgtosensor', 'no_alert_start_date')
-
-        # Deleting field 'BldgToSensor.no_alert_end_date'
-        db.delete_column(u'bmsapp_bldgtosensor', 'no_alert_end_date')
+        # Deleting model 'DashboardItem'
+        db.delete_table(u'bmsapp_dashboarditem')
 
 
     models = {
         u'bmsapp.bldgtosensor': {
             'Meta': {'ordering': "('building__title', 'sensor_group__sort_order', 'sort_order')", 'object_name': 'BldgToSensor'},
             'building': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['bmsapp.Building']"}),
-            'dashboard_column_number': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
-            'dashboard_row_number': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
-            'dashboard_widget': ('django.db.models.fields.CharField', [], {'default': "'NONE'", 'max_length': '15'}),
-            'generate_alert': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
-            'maximum_axis_value': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
-            'maximum_normal_value': ('django.db.models.fields.FloatField', [], {'default': '100.0'}),
-            'minimum_axis_value': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
-            'minimum_normal_value': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
-            'no_alert_end_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
-            'no_alert_start_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
             'sensor': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['bmsapp.Sensor']"}),
             'sensor_group': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['bmsapp.SensorGroup']"}),
             'sort_order': ('django.db.models.fields.IntegerField', [], {'default': '999'})
@@ -125,6 +57,23 @@ class Migration(SchemaMigration):
             u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
             'parameters': ('django.db.models.fields.TextField', [], {'blank': 'True'}),
             'sort_order': ('django.db.models.fields.IntegerField', [], {'default': '999'})
+        },
+        u'bmsapp.dashboarditem': {
+            'Meta': {'ordering': "('row_number', 'column_number', 'sensor__sort_order')", 'object_name': 'DashboardItem'},
+            'building': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['bmsapp.Building']"}),
+            'column_number': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
+            'generate_alert': ('django.db.models.fields.BooleanField', [], {'default': 'False'}),
+            u'id': ('django.db.models.fields.AutoField', [], {'primary_key': 'True'}),
+            'maximum_axis_value': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'maximum_normal_value': ('django.db.models.fields.FloatField', [], {'default': '100.0'}),
+            'minimum_axis_value': ('django.db.models.fields.FloatField', [], {'null': 'True', 'blank': 'True'}),
+            'minimum_normal_value': ('django.db.models.fields.FloatField', [], {'default': '0.0'}),
+            'no_alert_end_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'no_alert_start_date': ('django.db.models.fields.DateField', [], {'null': 'True', 'blank': 'True'}),
+            'row_number': ('django.db.models.fields.IntegerField', [], {'default': '1'}),
+            'sensor': ('django.db.models.fields.related.ForeignKey', [], {'to': u"orm['bmsapp.BldgToSensor']", 'null': 'True', 'blank': 'True'}),
+            'title': ('django.db.models.fields.CharField', [], {'max_length': '50', 'null': 'True', 'blank': 'True'}),
+            'widget_type': ('django.db.models.fields.CharField', [], {'default': "'gauge'", 'max_length': '15'})
         },
         u'bmsapp.multibuildingchart': {
             'Meta': {'ordering': "['sort_order']", 'object_name': 'MultiBuildingChart'},

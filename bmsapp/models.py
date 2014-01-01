@@ -140,27 +140,47 @@ class BldgToSensor(models.Model):
     # Within the sensor group, this field determines the sort order of this sensor.
     sort_order = models.IntegerField(default=999)
 
+    def __unicode__(self):
+        return self.building.title + ": " + self.sensor.title
+
+    class Meta:
+        ordering = ('building__title', 'sensor_group__sort_order', 'sort_order')
+
+class DashboardItem(models.Model):
+    """An item on the Dashboard display for a building.
+    """
+
+    # The building this Dashboard item is for.
+    building = models.ForeignKey(Building)
+
     # The Widget type to be used for display of this sensor on the Dashboard.
-    NONE = 'none'
     GAUGE = 'gauge'
     LED = 'LED'
+    LABEL = 'label'
     NOT_CURRENT = 'stale'      # data is not current. Don't include as a User choice.
     DISPLAY_WIDGET_CHOICES = (
-        (NONE, 'Not on Dashboard'),
         (GAUGE, 'Gauge'),
         (LED, 'Red/Green LED'),
+        (LABEL, 'Label'),
     )
-    dashboard_widget = models.CharField(max_length=15,
-                                        choices=DISPLAY_WIDGET_CHOICES,
-                                        default=NONE)
+    widget_type = models.CharField(max_length=15,
+                                   choices=DISPLAY_WIDGET_CHOICES,
+                                   default=GAUGE)
 
     # The row number on the Dashboard that this item will appear in.  Numbering can start
     # at any value and skip values; only the order matters.
-    dashboard_row_number = models.IntegerField("Row Number", default=1)
+    row_number = models.IntegerField(default=1)
 
     # The column number on the Dashboard that this item will appear in.  Numbering can
     # start at any value and can skip value; only the order matters.
-    dashboard_column_number = models.IntegerField("Column Number", default=1)
+    column_number = models.IntegerField(default=1)
+
+    # The sensor, if any, used in this Dashboard item
+    sensor = models.ForeignKey(BldgToSensor, null=True, blank=True)
+
+    # Title, mostly used for Label widgets, but also overrides default title on
+    # other widgets
+    title = models.CharField("Widget Title (can be blank)", max_length=50, null=True, blank=True)
 
     # The range of normal values
     minimum_normal_value = models.FloatField(default=0.0)
@@ -193,10 +213,10 @@ class BldgToSensor(models.Model):
     no_alert_end_date = models.DateField('to', null=True, blank=True)
 
     def __unicode__(self):
-        return self.building.title + ": " + self.sensor.title
+        return self.widget_type + ": " + (self.sensor.sensor.title if self.sensor else self.title)
 
     class Meta:
-        ordering = ('building__title', 'sensor_group__sort_order', 'sort_order')
+        ordering = ('row_number', 'column_number', 'sensor__sort_order')
 
 class MultiBuildingChart(models.Model):
     '''

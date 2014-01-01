@@ -202,37 +202,38 @@ class Dashboard(BaseChart):
         cur_row = []
         cur_row_num = None
         cur_time = time.time()   # needed for calculating how long ago reading occurred
-        for b_to_sen in self.building.bldgtosensor_set.exclude(dashboard_widget=models.BldgToSensor.NONE).order_by('dashboard_row_number', 'dashboard_column_number'):
-            if b_to_sen.dashboard_row_number != cur_row_num:
+        for dash_item in self.building.dashboarditem_set.all():
+            if dash_item.row_number != cur_row_num:
                 if len(cur_row):
                     widgets.append(cur_row)
                 cur_row = []
-                cur_row_num = b_to_sen.dashboard_row_number
+                cur_row_num = dash_item.row_number
     
-            last_read = db.last_read(b_to_sen.sensor.sensor_id)
-            cur_value = float(formatCurVal(last_read['val'])) if last_read else None
-            age_secs = time.time() - last_read['ts'] if last_read else None    # how long ago reading occurred
-            minAxis, maxAxis = b_to_sen.get_axis_range()
-            new_widget = {'type': b_to_sen.dashboard_widget,
-                          'title': b_to_sen.sensor.title,
-                          'units': b_to_sen.sensor.unit.label,
-                          'value': cur_value,
-                          'minNormal': b_to_sen.minimum_normal_value,
-                          'maxNormal': b_to_sen.maximum_normal_value,
-                          'minAxis': minAxis,
-                          'maxAxis': maxAxis,
-                          'urlClick': reverse('bmsapp.views.reports', args=(self.bldg_id, TIME_SERIES_CHART_ID, b_to_sen.sensor.id)),
-                         }
-            # check to see if data is older than 2 hours or missing, and change widget type if so.
-            if cur_value is None:
-                new_widget['type'] = models.BldgToSensor.NOT_CURRENT
-                new_widget['age'] = 'Not Available'
-            elif 7200 <= age_secs < 86400:
-                new_widget['type'] = models.BldgToSensor.NOT_CURRENT
-                new_widget['age'] = '%.1f hours Old' % (age_secs/3600.0)
-            elif age_secs >= 86400:
-                new_widget['type'] = models.BldgToSensor.NOT_CURRENT
-                new_widget['age'] = '%.1f days Old' % (age_secs/86400.0)
+            new_widget = {'type': dash_item.widget_type}
+            new_widget['title'] = dash_item.title if len(dash_item.title) or (dash_item.sensor is None) else dash_item.sensor.sensor.title
+            if dash_item.sensor is not None:
+                last_read = db.last_read(dash_item.sensor.sensor.sensor_id)
+                cur_value = float(formatCurVal(last_read['val'])) if last_read else None
+                age_secs = time.time() - last_read['ts'] if last_read else None    # how long ago reading occurred
+                minAxis, maxAxis = dash_item.get_axis_range()
+                new_widget.update( {'units': dash_item.sensor.sensor.unit.label,
+                                    'value': cur_value,
+                                    'minNormal': dash_item.minimum_normal_value,
+                                    'maxNormal': dash_item.maximum_normal_value,
+                                    'minAxis': minAxis,
+                                    'maxAxis': maxAxis,
+                                    'urlClick': reverse('bmsapp.views.reports', args=(self.bldg_id, TIME_SERIES_CHART_ID, dash_item.sensor.sensor.id)),
+                                   } )
+                # check to see if data is older than 2 hours or missing, and change widget type if so.
+                if cur_value is None:
+                    new_widget['type'] = models.DashboardItem.NOT_CURRENT
+                    new_widget['age'] = 'Not Available'
+                elif 7200 <= age_secs < 86400:
+                    new_widget['type'] = models.DashboardItem.NOT_CURRENT
+                    new_widget['age'] = '%.1f hours Old' % (age_secs/3600.0)
+                elif age_secs >= 86400:
+                    new_widget['type'] = models.DashboardItem.NOT_CURRENT
+                    new_widget['age'] = '%.1f days Old' % (age_secs/86400.0)
 
             cur_row.append(new_widget)
 

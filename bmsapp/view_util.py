@@ -54,7 +54,7 @@ def chart_list_html(bldg, selected_chart=None):
     if bldg != 'multi':
         # check to see if there are any Dashboard items
         bldg_object = models.Building.objects.get(id=bldg)
-        if len(bldg_object.bldgtosensor_set.exclude(dashboard_widget=models.BldgToSensor.NONE)):
+        if len(bldg_object.dashboarditem_set.all()):
             # include Dashboard in chart list
             cht_list = charts.BLDG_CHART_TYPES
         else:

@@ -153,6 +153,8 @@ addLED = (jqParent, LED_info) ->
       window.location = LED_info.urlClick
   jqWidget        # return the jQuery element holding the LED
   
+# Adds a clickable Label that indicates data is not current. Used in place of a widget
+# that displays a sensor value.
 addNotCurrent = (jqParent, widget_info) ->
   # Add the div with id that will hold this LED.
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
@@ -172,6 +174,15 @@ addNotCurrent = (jqParent, widget_info) ->
       window.location = widget_info.urlClick
   jqWidget        # return the jQuery element holding the LED
   
+# A Label widget
+addLabel = (jqParent, widget_info) ->
+  # Add the div with id that will hold this Label
+  widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
+  jqParent.append "<div id=\"#{widgetID}\" class=\"dash-label\">
+                     <h2>#{widget_info.title}</h2>
+                   </div>"
+  jqWidget = $("##{widgetID}")   # make and return a jQuery element
+  
 
 # Variables to track the index of the current row and widget being created
 widgetCounter = 0
@@ -184,6 +195,7 @@ addWidget = (jqRow, widget_info) ->
     when "gauge" then addGauge(jqRow, widget_info)
     when "LED" then addLED(jqRow, widget_info)
     when "stale" then addNotCurrent(jqRow, widget_info)
+    when "label" then addLabel(jqRow, widget_info)
 
 # Adds a row of widgets to the dashboard under the div container "jqParent",
 # a jQuery element. 'widgetRow' is an array of widget information objects 

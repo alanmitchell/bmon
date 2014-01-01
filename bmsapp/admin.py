@@ -2,18 +2,23 @@
 This file configures the Admin interface, which allows for editing of the Models.
 '''
 
-from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, Unit
+from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, DashboardItem, Unit
 from bmsapp.models import MultiBuildingChartType, MultiBuildingChart, ChartBuildingInfo
 from django.contrib import admin
 from django.forms import TextInput, Textarea
 from django.db import models
 
-class BldgToSensorInline(admin.StackedInline):
+class BldgToSensorInline(admin.TabularInline):
     model = BldgToSensor
     extra = 1
+
+class DashboardItemInline(admin.StackedInline):
+    model = DashboardItem
+    extra = 1
+
     fieldsets = (
-        (None, {'fields': ( ('sensor', 'sensor_group', 'sort_order'), 
-                            ('dashboard_widget', 'dashboard_row_number', 'dashboard_column_number'),
+        (None, {'fields': ( ('widget_type', 'row_number', 'column_number'),
+                            ('sensor', 'title'),
                             ('minimum_normal_value', 'maximum_normal_value', 'minimum_axis_value', 'maximum_axis_value'),
                             ('generate_alert', 'no_alert_start_date', 'no_alert_end_date'),
                           )}
@@ -21,10 +26,22 @@ class BldgToSensorInline(admin.StackedInline):
     )
     formfield_overrides = {
         models.FloatField: {'widget': TextInput(attrs={'size':'10'})},
+        models.IntegerField: {'widget': TextInput(attrs={'size':'5'})},
     }
+    
+    def formfield_for_foreignkey(self, db_field, request, **kwargs):
+        # Filter sensor list down to just those for this building.
+        if db_field.name == "sensor":
+            kwargs["queryset"] = BldgToSensor.objects.filter(building__exact = request._obj_)
+        return super(DashboardItemInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 class BuildingAdmin(admin.ModelAdmin):
-    inlines = (BldgToSensorInline, )
+    inlines = (BldgToSensorInline, DashboardItemInline)
+
+    def get_form(self, request, obj=None, **kwargs):
+        # save the object reference for future processing in DashboardInline
+        request._obj_ = obj
+        return super(BuildingAdmin, self).get_form(request, obj, **kwargs)
 
 class SensorAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline,)

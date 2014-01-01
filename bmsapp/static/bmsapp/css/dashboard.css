@@ -19,8 +19,19 @@
     background-color: #00BB00;
     margin: 25px auto;
 }
+.dash-label {
+    width: 130px;
+    float: left;
+    margin: 0 auto;
+}
 .led h2, .not-current h2 {
     padding: 5px;
+    text-align: center;
+    font-family: arial,sans-serif;
+    font-size: 18px;
+}
+.dash-label h2 {
+    padding: 55px 0 0 0;
     text-align: center;
     font-family: arial,sans-serif;
     font-size: 18px;
