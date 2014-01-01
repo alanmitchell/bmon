@@ -9,6 +9,7 @@
 }
 .led, .not-current {
     width: 150px;
+	height: 230px;
     float: left;
     margin: 0 auto;
 }
@@ -21,6 +22,7 @@
 }
 .dash-label {
     width: 130px;
+	height: 230px;
     float: left;
     margin: 0 auto;
 }
