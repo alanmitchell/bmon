@@ -222,8 +222,8 @@ class Dashboard(BaseChart):
                                     'value': cur_value,
                                     'minNormal': dash_item.minimum_normal_value,
                                     'maxNormal': dash_item.maximum_normal_value,
-                                    'minAxis': minAxis,
-                                    'maxAxis': maxAxis,
+                                    'minAxis': min(minAxis, cur_value),
+                                    'maxAxis': max(maxAxis, cur_value),
                                     'urlClick': reverse('bmsapp.views.reports', args=(self.bldg_id, TIME_SERIES_CHART_ID, dash_item.sensor.sensor.id)),
                                    } )
                 # check to see if data is older than 2 hours or missing, and change widget type if so.
