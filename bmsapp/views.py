@@ -9,6 +9,7 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 
 import models, global_vars, charts, view_util, storereads
+from readingdb import bmsdata
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -189,6 +190,17 @@ def chart_info(request, bldg_id, chart_id, info_type):
     except:
         _logger.exception('Error in chart_info')
         return HttpResponse('Error in chart_info')
+
+def get_readings(request, reading_id):
+    """Returns all the rows for one sensor in JSON format.
+    'reading_id' is the id of the sensor/reading being requested.
+    """
+
+    # open the database 
+    db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
+    result = db.rowsForOneID(reading_id)
+
+    return HttpResponse(json.dumps(result), content_type="application/json")
 
 def show_log(request):
     '''
