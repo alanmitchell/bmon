@@ -53,6 +53,20 @@ AN.chart_makers.cht_options = function() {
             style: {fontSize: '22px'},
             y : 40
         },
+
+        tooltip: {
+            dateTimeLabelFormats: {
+                millisecond:"%A, %b %e, %H:%M:%S",
+                second:"%A, %b %e, %H:%M:%S",
+                minute:"%A, %b %e, %H:%M:%S",
+                hour:"%A, %b %e, %H:%M:%S",
+                day:"%A, %b %e, %H:%M:%S",
+                week:"%A, %b %e, %H:%M:%S",
+                month:"%A, %b %e, %H:%M:%S",
+                year:"%A, %b %e, %H:%M:%S"
+            }
+        },
+
         yAxis : {
             title: {
                 style: {fontSize: '16px'}
