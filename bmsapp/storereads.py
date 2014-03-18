@@ -16,6 +16,9 @@ def store(reading_id, request_data):
         The 'val' key holds the value to store.  See code below for various formats that 'val' can take.
         The optional 'ts' key holds a date/time string in UTC for the timestamp of the reading. If
             not present, the current time is used.
+    If the value determined by this method is None (probably due to a Transform
+    function that doesn't have enough info (e.g. prior read) to determine a read,
+    no record is stored in the database.
     '''
 
     # open the database 
@@ -56,6 +59,8 @@ def store(reading_id, request_data):
         trans = transforms.Transformer(db)
         ts, reading_id, val = trans.transform_value(ts, reading_id, val, transform_func, transform_params)
 
-    db.insert_reading(ts, reading_id, val)
+    if val is not None:
+        # Only store values that are not None
+        db.insert_reading(ts, reading_id, val)
     
     db.close()

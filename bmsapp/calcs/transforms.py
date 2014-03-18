@@ -2,6 +2,8 @@
 Transform functions for scaling and transforming sensor readings
 '''
 
+from __future__ import division
+from math import *
 import sys
 
 def makeKeywordArgs(keyword_str):
@@ -65,10 +67,75 @@ class Transformer:
         given by the string 'trans_params'.  That string is in keyword format, like "abc=23.3, xyz=True".
         All three elements of the reading--ts, id, and val--can be transformed by the function.
         '''
-        the_func = getattr(self, trans_func.strip())
+        
         params = makeKeywordArgs(trans_params)
-        return the_func(ts, id, val, **params)
-
+        if hasattr(self, trans_func.strip()):
+            the_func = getattr(self, trans_func.strip())
+            return the_func(ts, id, val, **params)
+        else:
+            # the transform must be a general expression.
+            return self._eval_expression(ts, id, val, trans_func, **params)
+            
+    def _eval_expression(self, ts, id, val, expression, 
+                         rollover=2**16, max_rate=5.0, min_interval=60):
+        """Returns ts, id, and val transformed by the expression 'expression'.
+        If invalid conditions occur, None values are returned.
+        The expression can use any variables and functions visible to this 
+        method.  Mostly, this will be 'val', the raw value passed into the 
+        function.  Floating point division is always done with the expression,
+        due to importing 'division' from '__future__'.  The 'math' module was 
+        imported above as well, giving the expressions access to many math
+        functions.
+        
+        An expression can also use the variable 'rate', which forces
+        this routine to interpret the 'val' reading as cumulative counter 
+        reading. 'rate' is then calculated to be the count per second that has
+        occurred since the last time this method received a reading for the 
+        sensor 'id'.  Additional optional parameters affect this calculation.
+        Counters with rollover are addressed by the 'rollover' parameter, 
+        indicating the count they rollover at.  'max_rate' is the maximum count 
+        rate in counts/second that is considered valid.  'min_interval' is the
+        minimum time in seconds between the current and prior read that is
+        considered valid.
+        """
+        expr_clean = expression.strip().lower()
+        
+        if 'rate' in expr_clean:
+            # A count rate is used in the expression.  Determine it so the
+            # expression can be evalulated.
+            # Get the last raw reading with timestamp, and replace it with
+            # this newer reading.
+            last_ts, last_val = self.db.replaceLastRaw(id, ts, val)
+            if last_ts:
+                
+                interval = ts - last_ts
+                count_chg = val - last_val
+                
+                if count_chg < 0:
+                    count_chg += rollover   # counter rolled over or reset, adjust.
+                    
+                if interval < min_interval:
+                    # too short of an interval for valid reading
+                    return None, None, None
+                    
+                rate = count_chg / float(interval)
+                
+                if rate > max_rate:
+                    # calculated rate is too high, indicates invalid reading.
+                    return None, None, None
+                
+                # Stamp the reading at the average of the current and last
+                # timestamp.
+                return int((ts + last_ts)/2.0), id, eval(expr_clean)
+                
+            else:
+                # there was no last reading in database
+                return None, None, None
+            
+        else:
+            # Just a simple transformation of the value
+            return ts, id, eval(expr_clean)
+        
 
     # ******** Add Transform Functions below Here *********
     #
