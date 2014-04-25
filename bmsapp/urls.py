@@ -5,9 +5,10 @@ URLs for the BMS Application
 from django.conf.urls import patterns, url
 
 urlpatterns = patterns('bmsapp.views',
-    url(r'^readingdb/reading/(\w+)/store/', 'store_reading'),          # URL to store readings into database
+    url(r'^readingdb/reading/(\w+)/store/$', 'store_reading'),      # URL to store one reading into database
+    url(r'^readingdb/reading/store/$', 'store_readings'),          # URL to store multiple readings into database
     url(r'^st8(\w+)/', 'store_reading_old'),             # Old URL pattern for storing.  Shouldn't be used for new sensors.
-    url(r'^readingdb/reading/(\w+)/', 'get_readings'),   # gets all readings for one reading ID.
+    url(r'^readingdb/reading/(\w+)/$', 'get_readings'),   # gets all readings for one reading ID.
     url(r'^$', 'index'),
     url(r'^reports/$', 'reports', name='reports'),
     url(r'^reports/(multi|\d+)/$', 'reports'),

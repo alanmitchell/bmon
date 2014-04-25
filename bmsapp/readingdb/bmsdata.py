@@ -1,7 +1,7 @@
 """Class to encapsulate a BMS database.  Uses the SQLite database.
 """
 
-import sqlite3
+import sqlite3, sys
 
 class BMSdata:
 
@@ -39,17 +39,45 @@ class BMSdata:
         self.conn.close()
 
     def insert_reading(self, ts, id, val):
-        """Inserts a record into the database.
+        """Inserts a record or records into the database.  'ts', 'id', and
+        'val' can either be lists or single values.  If val is None, it is 
+        not stored in the database and it is recorded as an exception.
         """
-        # Check to see if sensor table exists.  If not, create it.
-        if id not in self.sensor_ids:
-            self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % id)
-            self.sensor_ids.add(id)
-        self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % id, (ts, val))
+        try:
+            recs = zip(ts, id, val)
+        except:
+            # they were single values, not lists
+            recs = [(ts, id, val)]
+        
+        exceptions = ''
+        success_count = 0
+        for one_ts, one_id, one_val in recs:
+            try:
+                # Check to see if sensor table exists.  If not, create it.
+                if one_id not in self.sensor_ids:
+                    self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % one_id)
+                    self.sensor_ids.add(one_id)
+                if one_val is not None:    # don't store None values
+                    self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % one_id, (one_ts, one_val))
+                    success_count += 1
+                else:
+                    exceptions += '\nNone value not stored with reading %s, %s, %s' % (one_ts, one_id, one_val)
+            except:
+                exceptions += '\nError with reading %s, %s, %s: %s' % (one_ts, one_id, one_val, sys.exc_info()[1])
 
         # Commits take a lot of time, but Sqlite does not allow an open database reference to be
         # shared across threads.  The web server uses multiple threads to handle requests.
         self.conn.commit()
+        
+        msg = '%s readings stored successfully%s' % (success_count, exceptions)
+        
+        if len(exceptions):
+            # Raise an error if there were any exceptions.  This ensures an 
+            # entry will be stored in the error log file.
+            raise ValueError(msg)
+        else:
+            return msg
+        
 
     def last_read(self, sensor_id):
         """Returns the last reading for a particular sensor.  
