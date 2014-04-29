@@ -83,12 +83,12 @@ def store(reading_id, request_data):
 
 def store_many(readings):
     """Stores a list of readings into the database.
-    'readings' is a list of dictionaries. Each dictionary must have three
-    keys: ts, id, val, with the meaning:
-        ts = Unix timestamp of the reading. 
+    'readings' is a list of 3-element tuples. The three elements of the tuple
+    are:
+        1:  Unix timestamp of the reading. 
             If None, the current time is substituted.
-        id = The reading id.
-        val = The reading value.  convert_val() is used to convert/transform
+        2:  The reading id.
+        3:  The reading value.  convert_val() is used to convert/transform
             the value before storage.
     Returns the message returned by the database insert method.
     """
@@ -100,10 +100,8 @@ def store_many(readings):
     reading_id_lst = []
     val_lst = []
     
-    for reading in readings:
-        ts = int(reading['ts']) if reading['ts'] is not None else int(time.time())
-        reading_id = reading['id']
-        val = reading['val']
+    for ts, reading_id, val in readings:
+        ts = int(ts) if ts is not None else int(time.time())
 
         # Convert/transform the fields for storage.
         ts, reading_id, val = convert_val(ts, reading_id, val, db)
