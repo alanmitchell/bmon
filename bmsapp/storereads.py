@@ -30,7 +30,7 @@ def convert_val(ts, reading_id, val, db):
         transform_params = ''
 
     # If val is a string, decode it into a float value
-    if type(val) in ('str', 'unicode'):
+    if type(val) in (str, unicode):
         if ('True' in val) or ('Closed' in val) or (val.startswith('Motion') or (val.startswith('Light')) or (val.startswith('Voltage'))):
             val = 1.0
         elif  ('False' in val) or ('Open' in val) or (val.startswith('No')):

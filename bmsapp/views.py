@@ -144,7 +144,7 @@ def store_reading_old(request, store_key):
             return HttpResponse('Invalid Key')
 
     except:
-        _logger.exception('Error Storing Reading for: %s' %  data)
+        _logger.exception('Error Storing Reading for: %s' %  req_data)
         return HttpResponse('Error Storing Reading')
 
 def make_store_key(request):
