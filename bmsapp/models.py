@@ -44,7 +44,7 @@ class Sensor(models.Model):
     '''
 
     # sensor ID, either from Monnit network or a user-entered ID for a calculated value
-    sensor_id = models.CharField("Monnit Sensor ID, or Calculated Field ID", max_length=15, unique=True)
+    sensor_id = models.CharField("Monnit Sensor ID, or Calculated Field ID", max_length=30, unique=True)
 
     # descriptive title for the sensor, shown to users
     title = models.CharField(max_length = 50)

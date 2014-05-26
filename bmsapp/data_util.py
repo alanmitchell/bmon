@@ -29,9 +29,12 @@ def datestr_to_ts(datestr, tz=default_tz):
 
 def round4(val):
     '''
-    Rounds a number to a 4 significant digits.
+    Rounds a number to a 4 significant digits, unless it is an integer.
     '''
-    return float('%.4g' % val)
+    if val != int(val):
+        return float('%.4g' % val)
+    else:
+        return val
 
 class TsBin:
     '''

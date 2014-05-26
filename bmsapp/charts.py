@@ -421,9 +421,12 @@ class Histogram(BaseChart):
 def formatCurVal(val):
     """
     Helper function for formatting current values to 3 significant digits, but 
-    avoiding the use of scientific notation for display
+    avoiding the use of scientific notation for display.  Also, integers are
+    shown at full precision.
     """
-    if val >= 1000.0:
+    if val == int(val):
+        return '{:,}'.format(int(val))
+    elif val >= 1000.0:
         return '{:,}'.format( int(float('%.3g' % val)))
     else:
         return '%.3g' % val
@@ -631,7 +634,7 @@ class ExportData(BaseChart):
             col = 1
             for v in ser.values:
                 if not np.isnan(v):
-                    ws.write(row, col, float('%.4g' % v))
+                    ws.write(row, col, v)
                 col += 1
             row += 1
             # flush the row data every 1000 rows to save memory.
