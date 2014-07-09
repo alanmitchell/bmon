@@ -1,0 +1,76 @@
+Building [0]	Sensor ID [1]	Title [2]	Unit Label [3]	Sensor Group [4]	Sort Order [5]	Calc Function [6]	Function Parameters [7]
+511 Oklahoma St	Okla511_outdoor_temp	Site Outdoor Temp	deg F	Weather	10		
+511 Oklahoma St	elmendorf_temp	Elmendorf Temp	deg F	Weather	20	getInternetTemp	stnCode="PAED"
+511 Oklahoma St	elmendorf_wind	Elmendorf Wind Speed	mph	Weather	30	getInternetWindSpeed	stnCode="PAED"
+511 Oklahoma St	Okla511_firing_rate	Boiler Firing Rate	%	Boiler	10		
+511 Oklahoma St	Okla511_outlet_temp	Boiler Outlet Temp	deg F	Boiler	20		
+511 Oklahoma St	Okla511_inlet_temp	Boiler Inlet Temp	deg F	Boiler	30		
+511 Oklahoma St	Okla511_stack_temp	Stack Temp	deg F	Boiler	40		
+511 Oklahoma St	Okla511_demand_source	Source of Demand	code	Boiler	50		
+511 Oklahoma St	Okla511_ch_demand	Space Heat Demand	1=On 0=Off	Boiler	60		
+511 Oklahoma St	Okla511_dhw_demand	DHW Demand	1=On 0=Off	Boiler	70		
+511 Oklahoma St	Okla511_lockout_code	Boiler Lockout Code	code	Boiler, Alarms	10		
+511 Oklahoma St	Okla511_alarm_reason	Boiler Alarm Reason	code	Boiler, Alarms	20		
+511 Oklahoma St	Okla511_alarm_code	Boiler Alarm Code	code	Boiler, Alarms	30		
+511 Oklahoma St	Okla511_limits	Boiler Limits Reached	code	Boiler, Alarms	40		
+511 Oklahoma St	Okla511_flame_signal	Boiler Flame Signal	Volts	Boiler, Alarms	50		
+511 Oklahoma St	Okla511_ch_setpoint	Boiler Heating  Setpoint	deg F	Boiler, Setpoints	10		
+511 Oklahoma St	Okla511_dhw_setpoint	Boiler DHW Setpoint	deg F	Boiler, Setpoints	20		
+511 Oklahoma St	Okla511_active_setpoint	Boiler Active Setpoint	deg F	Boiler, Setpoints	30		
+511 Oklahoma St	Okla511_uptime	Monitoring System Uptime	seconds	Miscellaneous	10		
+511 Oklahoma St	28.71F34C050000	DHW to Building Temp	deg F	Domestic Hot Water	10		
+511 Oklahoma St	28.B4974C050000	DHW Tank Temp	deg F	Domestic Hot Water	20		
+511 Oklahoma St	12.1EEAA0000000	DHW Circ Pump State	1=On 0=Off	Domestic Hot Water	30		
+511 Oklahoma St	Okla511_dhw_circ_run	DHW Circ Pump Runtime	Runtime Fraction	Domestic Hot Water	40	runtimeFromOnOff	onOffID="12.1EEAA0000000"
+511 Oklahoma St	28.F97D4C050000	Zone #1 Supply Temp	deg F	Space Heating	10		
+511 Oklahoma St	28.EAEB4C050000	Zone #2 Supply Temp	deg F	Space Heating	20		
+511 Oklahoma St	28.32784C050000	Zone #3 Down Supply Temp	deg F	Space Heating	30		
+511 Oklahoma St	28.F8134C050000	Zone #3 Up Supply Temp	deg F	Space Heating	40		
+511 Oklahoma St	28.21D44C050000	Boiler Room Temp	deg F	Space Conditions, Temperature	10		
+158 Burton St	Burt158_outdoor_temp	Site Outdoor Temp	deg F	Weather	10		
+158 Burton St	elmendorf_temp			Weather	20		
+158 Burton St	elmendorf_wind			Weather	30		
+158 Burton St	Burt158_firing_rate	Boiler Firing Rate	%	Boiler	10		
+158 Burton St	Burt158_outlet_temp	Boiler Outlet Temp	deg F	Boiler	20		
+158 Burton St	Burt158_inlet_temp	Boiler Inlet Temp	deg F	Boiler	30		
+158 Burton St	Burt158_stack_temp	Stack Temp	deg F	Boiler	40		
+158 Burton St	Burt158_demand_source	Source of Demand	code	Boiler	50		
+158 Burton St	Burt158_ch_demand	Space Heat Demand	1=On 0=Off	Boiler	60		
+158 Burton St	Burt158_dhw_demand	DHW Demand	1=On 0=Off	Boiler	70		
+158 Burton St	Burt158_lockout_code	Boiler Lockout Code	code	Boiler, Alarms	10		
+158 Burton St	Burt158_alarm_reason	Boiler Alarm Reason	code	Boiler, Alarms	20		
+158 Burton St	Burt158_alarm_code	Boiler Alarm Code	code	Boiler, Alarms	30		
+158 Burton St	Burt158_limits	Boiler Limits Reached	code	Boiler, Alarms	40		
+158 Burton St	Burt158_flame_signal	Boiler Flame Signal	Volts	Boiler, Alarms	50		
+158 Burton St	Burt158_ch_setpoint	Boiler Heating  Setpoint	deg F	Boiler, Setpoints	10		
+158 Burton St	Burt158_dhw_setpoint	Boiler DHW Setpoint	deg F	Boiler, Setpoints	20		
+158 Burton St	Burt158_active_setpoint	Boiler Active Setpoint	deg F	Boiler, Setpoints	30		
+158 Burton St	Burt158_uptime	Monitoring System Uptime	seconds	Miscellaneous	10		
+158 Burton St	28.88624D050000	DHW to Building Temp	deg F	Domestic Hot Water	10		
+158 Burton St	28.2A794D050000	DHW Tank Temp	deg F	Domestic Hot Water	20		
+158 Burton St	12.???	DHW Circ Pump State	1=On 0=Off	Domestic Hot Water	30		
+158 Burton St	Burt158_dhw_circ_run	DHW Circ Pump Runtime	Runtime Fraction	Domestic Hot Water	40	runtimeFromOnOff	onOffID="12.???"
+158 Burton St	28.5DB24C050000	Zone #1 Supply Temp	deg F	Space Heating	10		
+158 Burton St	28.51304C050000	Zone #2 Supply Temp	deg F	Space Heating	20		
+158 Burton St	28.D52C4C050000	Zone #3 Supply Temp	deg F	Space Heating	30		
+158 Burton St	28.4E834C050000	Zone #4 Supply Temp	deg F	Space Heating	40		
+158 Burton St	28.DBB44D050000	Garage Zone Return Temp	deg F	Space Heating	50		
+158 Burton St	28.EFED4C050000	Boiler Room Temp	deg F	Space Conditions, Temperature	10		
+4319 Reka Dr	28.7CCD4B050000	DHW to Building Temp	deg F	Domestic Hot Water	10		
+4319 Reka Dr	28.C2BE4D050000	DHW Tank Temp	deg F	Domestic Hot Water	20		
+4319 Reka Dr	12.0DF5A0000000	DHW Circ Pump State	1=On 0=Off	Domestic Hot Water	30		
+4319 Reka Dr	Reka_dhw_circ_run	DHW Circ Pump Runtime	Runtime Fraction	Domestic Hot Water	40	runtimeFromOnOff	onOffID="12.0DF5A0000000"
+1142 Ptar Park	28.226A4D050000	Boiler Supply Temp	deg F	Boiler	10		
+1142 Ptar Park	28.6D794D050000	Boiler Mixed Return Temp	deg F	Boiler	20		
+1142 Ptar Park	12.B1517D000000	Boiler Injection Pump State	1=On 0=Off	Boiler	30		
+1142 Ptar Park	Ptar1142_boiler_circ_run	Boiler Injection Pump Runtime	Runtime Fraction	Boiler	40	runtimeFromOnOff	onOffID="12.B1517D000000"
+1142 Ptar Park	28.6D7F4C050000	DHW to Building Temp	deg F	Domestic Hot Water	10		
+1142 Ptar Park	28.98844D050000	DHW Short Tank Temp	deg F	Domestic Hot Water	20		
+1142 Ptar Park	28.7FB74D050000	DHW Tall Tank Temp	deg F	Domestic Hot Water	30		
+1142 Ptar Park	28.9C9B4C050000	DHW Recirc Return Temp	deg F	Domestic Hot Water	40		
+1142 Ptar Park	28.ADEA4C050000	DHW Return to Boiler Temp	deg F	Domestic Hot Water	50		
+1142 Ptar Park	12.FDF4A0000000	DHW Short Circ Pump State	1=On 0=Off	Domestic Hot Water	60		
+1142 Ptar Park	Ptar1142_dhw_short_run	DHW Short Circ Pump Runtime	Runtime Fraction	Domestic Hot Water	70	runtimeFromOnOff	onOffID="12.FDF4A0000000"
+1142 Ptar Park	12.96347D000000	DHW Tall Circ Pump State	1=On 0=Off	Domestic Hot Water	80		
+1142 Ptar Park	Ptar1142_dhw_tall_run	DHW Tall Circ Pump Runtime	Runtime Fraction	Domestic Hot Water	90	runtimeFromOnOff	onOffID="12.96347D000000"
+1142 Ptar Park	28.69764D050000	Building Return Temp	deg F	Space Heating	10		
