@@ -50,10 +50,10 @@ def run():
                 sensor = Sensor(sensor_id=flds[1], title=flds[2])
                 sen_unit = Unit.objects.filter(label=flds[3])[0]
                 sensor.unit = sen_unit
-                if len(flds[6].strip()):
-                    sensor.is_calculated = True
-                    sensor.tran_calc_function = flds[6].strip()
-                    sensor.function_parameters = flds[7].strip()
+                if len(flds[7].strip()):
+                    sensor.is_calculated = (flds[6].strip()=='TRUE')
+                    sensor.tran_calc_function = flds[7].strip()
+                    sensor.function_parameters = flds[8].strip()
                 sensor.save()
                 
             # now the object that links sensors to buildings
