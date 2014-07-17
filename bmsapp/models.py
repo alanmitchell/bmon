@@ -122,6 +122,27 @@ class Building(models.Model):
         ordering = ['title']
 
 
+class BuildingGroup(models.Model):
+    """Defines a group of buildings that the user can select to filter the 
+    buildings shown in the user interface.
+    """
+    
+    # Name of the building group
+    title = models.CharField(max_length=50, unique=True)
+    
+    # Determines the order that the building group will be presented in the UI
+    sort_order = models.IntegerField(default=999)
+    
+    # The buildings that are present in this group
+    buildings = models.ManyToManyField(Building)
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['sort_order', 'title']
+        
+
 class BldgToSensor(models.Model):
     '''
     Links buildings to sensors and supplies additional information about what Sensor Group the sensor is 

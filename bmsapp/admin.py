@@ -4,6 +4,7 @@ This file configures the Admin interface, which allows for editing of the Models
 
 from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, DashboardItem, Unit
 from bmsapp.models import MultiBuildingChartType, MultiBuildingChart, ChartBuildingInfo
+from bmsapp.models import BuildingGroup
 from django.contrib import admin
 from django.forms import TextInput, Textarea
 from django.db import models
@@ -43,9 +44,12 @@ class BuildingAdmin(admin.ModelAdmin):
         request._obj_ = obj
         return super(BuildingAdmin, self).get_form(request, obj, **kwargs)
 
+class BuildingGroupAdmin(admin.ModelAdmin):
+    filter_horizontal = ('buildings',)
+
 class SensorAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline,)
-    search_fields = ['title', 'tran_calc_function']
+    search_fields = ['sensor_id', 'title', 'tran_calc_function']
     list_filter = ['is_calculated', 'tran_calc_function']
 
 class SensorGroupAdmin(admin.ModelAdmin):
@@ -74,6 +78,7 @@ class MultiBuildingChartAdmin(admin.ModelAdmin):
     }
 
 admin.site.register(Building, BuildingAdmin)
+admin.site.register(BuildingGroup, BuildingGroupAdmin)
 admin.site.register(Sensor, SensorAdmin)
 admin.site.register(SensorGroup, SensorGroupAdmin)
 admin.site.register(Unit, UnitAdmin)
