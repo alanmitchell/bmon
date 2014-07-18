@@ -192,7 +192,7 @@ AN.chart_makers.base_chart = function() {
         if (cht_obj.chart) {
             cht_obj.chart.showLoading("Loading Data");
         }
-        $.getJSON(cht_obj.data_url, $("#config_chart").serialize(), function(the_data) {
+        $.getJSON(cht_obj.data_url, $("#content select, #content input").serialize(), function(the_data) {
             cht_obj.server_data = the_data;
             cht_obj.redraw();
             cht_obj.chart.hideLoading();
@@ -514,7 +514,18 @@ AN.chart_makers.NormalizedByFt2 = function() {
 
 // ********************************* End of Chart Making Functions
 
-// initializes the chart, including assigning event handlers and acquiring the chart data.
+// Causes a particular chart type and sensor to be selected.
+AN.plot_sensor = function(chart_id, sensor_id) {
+
+    // Select the chart and call the routine to load the HTML for this chart,
+    // passing in the sensor id to be selected once the HTML is loaded.
+    $("#select_chart").val(chart_id);
+    AN.update_chart_html( null, {select_sensor: sensor_id} );
+    
+}
+
+// initializes the chart, including assigning event handlers and acquiring 
+// the chart data.
 AN.init_chart = function() {
 
     // Extract the chart function name from the html and Make a chart object.
@@ -525,8 +536,10 @@ AN.init_chart = function() {
 }
 
 
-// Updates the main content HTML based on the chart selected.
-AN.update_chart_html = function() {
+// Updates the main content HTML based on the chart selected. 'params' is a
+// Javascript object that can control aspects of the returned HTML, such as
+// selecting a particular sensor in the sensor selection control.
+AN.update_chart_html = function(event, params) {
 
     // Clear any refresh timer that may have been set
     if (typeof AN.refreshTimer != "undefined") clearInterval(AN.refreshTimer);
@@ -534,7 +547,10 @@ AN.update_chart_html = function() {
     // Default is for the Refresh button to Show
     $("#refresh").show();
 
-    $.get(AN.make_chart_id_url() + "/html/", function(chart_html) {
+    // Note: when params is not present in the argument list above, it is passed
+    // as 'undefined' and causes no harm in the get() method (no query parameters
+    // are created).
+    $.get(AN.make_chart_id_url() + "/html/", params, function(chart_html) {
 
         $("#chart_content").html(chart_html);
         AN.init_chart();
@@ -557,10 +573,25 @@ AN.update_chart_list = function() {
     
 }
 
+// Updates the list of buildings associated with the Building Group selected.
+AN.update_bldg_list = function() {
+    
+    // load the building choices from a AJAX query for the selected building group
+    $("#select_bldg").load($("#BaseURL").text() + "bldg_list/" +  $("#select_group").val() + "/", function () {
+
+        // trigger the change event of the building selector to get the 
+        // selected option to process.
+        $("#select_bldg").trigger("change");
+
+    });
+    
+}
+
 // function that runs when the document is ready.
 $(function() {
 
     // Set up controls and functions to respond to events
+    $("#select_group").change(AN.update_bldg_list);
     $("#select_bldg").change(AN.update_chart_list);
     $("#select_chart").change(AN.update_chart_html);
 

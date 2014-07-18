@@ -96,7 +96,8 @@ class BaseChart(object):
 
     def __init__(self, chart_info, bldg_id, request_params):
         """
-        'chart' is the models.BuildingChart object for the chart.  'request_params' are the parameters
+        'chart_info' is the models.BuildingChart object for the chart.  'bldg_id'
+        is the id of the building being charted. 'request_params' are the parameters
         passed in by the user through the Get http request.
         """
         self.chart_info = chart_info
@@ -127,7 +128,8 @@ class BaseChart(object):
         template = loader.get_template('bmsapp/%s.html' % self.class_name)
         self.context['chart_func'] = self.class_name    # this is the name of a Javascript function to call in the browser
         if self.bldg_id != 'multi':
-            self.context['select_sensor'] = self.make_sensor_select_html(selected_sensor)
+            selected_id = self.request_params.get('select_sensor', None)
+            self.context['select_sensor'] = self.make_sensor_select_html(selected_id)
         return template.render(self.context)
 
     def data(self):
@@ -140,8 +142,8 @@ class BaseChart(object):
     def make_sensor_select_html(self, selected_sensor=None, control_id='select_sensor'):
         """Helper method that returns the HTML for a Select control that allows 
         selection of a sensor(s) associated with this building.  
-        'selected_sensor' is the ID of the sensor to select; if not provided, 
-        the first sensor is selected.
+        'selected_sensor' is the primary key ID of the sensor to select; 
+        if not provided, the first sensor is selected.
         'control_id' is the string to use for the HTML Select control id and name.
         """
 
@@ -159,9 +161,8 @@ class BaseChart(object):
                     html += '</optgroup>'
                 html += '<optgroup label="%s">' % b_to_sen.sensor_group.title
                 grp = b_to_sen.sensor_group
-            sensor_id = b_to_sen.sensor.sensor_id
             html += '<option value="%s" %s>%s</option>' % \
-                (b_to_sen.sensor.sensor_id, 'selected' if (first_sensor and select_id==None) or (b_to_sen.sensor.id==select_id) else '', b_to_sen.sensor.title)
+                (b_to_sen.sensor.id, 'selected' if (first_sensor and select_id==None) or (b_to_sen.sensor.id==select_id) else '', b_to_sen.sensor.title)
             first_sensor = False
         html += '</optgroup></select>'
         return html
@@ -201,7 +202,6 @@ class Dashboard(BaseChart):
         widgets = []
         cur_row = []
         cur_row_num = None
-        cur_time = time.time()   # needed for calculating how long ago reading occurred
         for dash_item in self.building.dashboarditem_set.all():
             if dash_item.row_number != cur_row_num:
                 if len(cur_row):
@@ -260,7 +260,7 @@ class TimeSeries(BaseChart):
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # Determine the sensors to plot. This creates a list of Sensor objects to plot.
-        sensor_list = [ models.Sensor.objects.get(sensor_id=id) for id in self.request_params.getlist('select_sensor') ]
+        sensor_list = [ models.Sensor.objects.get(pk=id) for id in self.request_params.getlist('select_sensor') ]
 
         # determine the Y axes that will be needed to cover the the list of sensor, based on the labels
         # of the units
@@ -323,7 +323,7 @@ class HourlyProfile(BaseChart):
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # determine the sensor to plot from the sensor selected by the user.
-        the_sensor = models.Sensor.objects.get(sensor_id=self.request_params['select_sensor'])
+        the_sensor = models.Sensor.objects.get(pk=self.request_params['select_sensor'])
 
         # determine the start time for selecting records and loop through the selected
         # records to get the needed dataset
@@ -386,7 +386,7 @@ class Histogram(BaseChart):
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # determine the sensor to plot from the sensor selected by the user.
-        the_sensor = models.Sensor.objects.get(sensor_id=self.request_params['select_sensor'])
+        the_sensor = models.Sensor.objects.get(pk=self.request_params['select_sensor'])
 
         # determine the start time for selecting records and loop through the selected
         # records to get the needed dataset
@@ -500,8 +500,8 @@ class XYplot(BaseChart):
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # determine the X and Y sensors to plot from those sensors selected by the user.
-        sensorX = models.Sensor.objects.get(sensor_id=self.request_params['select_sensorX'])
-        sensorY = models.Sensor.objects.get(sensor_id=self.request_params['select_sensorY'])
+        sensorX = models.Sensor.objects.get(pk=self.request_params['select_sensorX'])
+        sensorY = models.Sensor.objects.get(pk=self.request_params['select_sensorY'])
 
         # make a timestamp binning object
         binner = data_util.TsBin(float(self.request_params['averaging_time']))
@@ -596,7 +596,7 @@ class ExportData(BaseChart):
         df = pd.DataFrame()
         blank_col_names = []   # need to remember columns that have no readings
         for id in self.request_params.getlist('select_sensor'):
-            sensor = models.Sensor.objects.get(sensor_id=id)
+            sensor = models.Sensor.objects.get(pk=id)
 
             # write column heading in spreadsheet
             ws.write(0, col, '%s, %s' % (sensor.title, sensor.unit.label), t1_style)

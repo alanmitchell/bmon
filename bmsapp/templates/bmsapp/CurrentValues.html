@@ -6,7 +6,7 @@
     {% for group in sensor_list %}
         <tr class="group_header"><td colspan="4">{{ group.0 }}</td></tr>
         {% for sensor in group.1 %}
-            <tr><td class="indent"><a href="{% url 'reports-bldg-chart-sensor' bldg_id ts_chart_id sensor.sensor_id %}">{{ sensor.title }}</a></td>
+            <tr><td class="indent"><a href="#" onclick="AN.plot_sensor({{ ts_chart_id }}, {{ sensor.sensor_id }})">{{ sensor.title }}</a></td>
                 <td class="number">{{ sensor.cur_value }}</td>
                 <td>{{ sensor.unit }}</td>
                 <td>{{ sensor.minutes_ago }} minutes ago</td>

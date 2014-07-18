@@ -164,6 +164,24 @@ def make_store_key(request):
 
     return HttpResponse(k)
 
+def bldg_list(request, selected_group):
+    '''
+    Returns a list of buildings in the group identified by the primary key
+    ID of 'selected_group'. The 'selected_group' value of 0 means no group 
+    selected, so return all buildings.
+    
+    The return value is an html snippet of option elements, one for each building.
+    '''
+
+    # convert the selected group id to an integer so it will match the 
+    # integer IDs in the database.
+    selected_group = int(selected_group)
+
+    bldgs_html, id_selected = view_util.bldg_list_for_group_html(selected_group)
+
+    return HttpResponse(bldgs_html)
+
+
 def chart_list(request, selected_bldg):
     '''
     Returns a list of charts appropriate for a building identified by the primary key
@@ -184,7 +202,7 @@ def chart_list(request, selected_bldg):
 def chart_info(request, bldg_id, chart_id, info_type):
     '''
     Returns the HTML or data needed to display a chart
-    'bldg_id' is either the primary key ID (pk) for a chart associated with one building,
+    'bldg_id' is either the primary key ID (pk) of a building,
     or 'multi', indicating that the chart is for a group of buildings (multi). 
     'chart_id' is the pk ID of the chart requested.
     'info_type' is the type of chart information requested: 'html' to request the HTML for

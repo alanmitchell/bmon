@@ -22,7 +22,7 @@ def bldg_list_html(selected_bldg=None):
     Makes the html for the building list options and also returns the ID of the selected building.
     (when 'selected_bldg" is passed in as None, the first building is selected and that ID is returned).
     'selected_bldg' is the ID of the building to select in the option list.  If None, then
-        the first building is selected.
+    the first building is selected.
     '''
     bldgs = []
 
