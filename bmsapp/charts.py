@@ -4,7 +4,6 @@ Reports.
 """
 import time, logging
 from django.template import Context, loader
-from django.core.urlresolvers import reverse
 import pandas as pd, numpy as np, xlwt
 import models, global_vars, data_util, view_util
 from readingdb import bmsdata
@@ -224,7 +223,8 @@ class Dashboard(BaseChart):
                                     'maxNormal': dash_item.maximum_normal_value,
                                     'minAxis': min(minAxis, cur_value),
                                     'maxAxis': max(maxAxis, cur_value),
-                                    'urlClick': reverse('bmsapp.views.reports', args=(self.bldg_id, TIME_SERIES_CHART_ID, dash_item.sensor.sensor.id)),
+                                    'timeChartID': TIME_SERIES_CHART_ID,
+                                    'sensorID': dash_item.sensor.sensor.id,
                                    } )
                 # check to see if data is older than 2 hours or missing, and change widget type if so.
                 if cur_value is None:
@@ -693,8 +693,12 @@ class NormalizedByDDbyFt2(BaseChart):
         bldg_names = []
         values = []
 
+        # get the buildings in the current building group
+        group_id = int(self.request_params['select_group'])
+        bldgs = view_util.buildings_for_group(group_id)
+        
         # loop through the buildings determining the Btu/ft2/dd for each building
-        for bldg_info in self.chart_info.chartbuildinginfo_set.all():
+        for bldg_info in self.chart_info.chartbuildinginfo_set.filter(building__in=bldgs):
 
             bldg_name = bldg_info.building.title   # get the building name
 
@@ -771,8 +775,12 @@ class NormalizedByFt2(BaseChart):
         bldg_names = []
         values = []
 
+        # get the buildings in the current building group
+        group_id = int(self.request_params['select_group'])
+        bldgs = view_util.buildings_for_group(group_id)
+        
         # loop through the buildings determining the value per ft2 for each building
-        for bldg_info in self.chart_info.chartbuildinginfo_set.all():
+        for bldg_info in self.chart_info.chartbuildinginfo_set.filter(building__in=bldgs):
 
             bldg_name = bldg_info.building.title   # get the building name
 

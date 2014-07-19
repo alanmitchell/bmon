@@ -122,10 +122,9 @@ addGauge = (jqParent, g_info) ->
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
   jqParent.append( "<div id=\"#{widgetID}\" class=\"gauge\"></div>" )
   jqWidget = $("##{widgetID}")
-  if g_info.urlClick?
-    jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
-    opt.chart.events.click = (e) ->
-      window.location = g_info.urlClick
+  jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
+  opt.chart.events.click = (e) ->
+    AN.plot_sensor(g_info.timeChartID, g_info.sensorID)
   jqWidget.highcharts(opt)        # return the jQuery element holding the gauge
 
 
@@ -146,11 +145,10 @@ addLED = (jqParent, LED_info) ->
     jqWidget.children(".led-circle").css('background-color', '#FF0000')
     jqWidget.css('background-color', LIGHT_RED)
 
-  # add click link if requested
-  if LED_info.urlClick?
-    jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
-    jqWidget.click ->
-      window.location = LED_info.urlClick
+  # add click link
+  jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
+  jqWidget.click ->
+    AN.plot_sensor(LED_info.timeChartID, LED_info.sensorID)
   jqWidget        # return the jQuery element holding the LED
   
 # Adds a clickable Label that indicates data is not current. Used in place of a widget
@@ -167,11 +165,10 @@ addNotCurrent = (jqParent, widget_info) ->
   # change the color of the background to indicate problem
   jqWidget.css('background-color', LIGHT_RED)
 
-  # add click link if requested
-  if widget_info.urlClick?
-    jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
-    jqWidget.click ->
-      window.location = widget_info.urlClick
+  # add click link
+  jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
+  jqWidget.click ->
+    AN.plot_sensor(widget_info.timeChartID, widget_info.sensorID)
   jqWidget        # return the jQuery element holding the LED
   
 # A Label widget

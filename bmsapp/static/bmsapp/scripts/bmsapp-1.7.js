@@ -192,6 +192,8 @@ AN.chart_makers.base_chart = function() {
         if (cht_obj.chart) {
             cht_obj.chart.showLoading("Loading Data");
         }
+        // send data from all the select and input controls in the 'content' div
+        // that have a name attribute.
         $.getJSON(cht_obj.data_url, $("#content select, #content input").serialize(), function(the_data) {
             cht_obj.server_data = the_data;
             cht_obj.redraw();
@@ -451,7 +453,7 @@ AN.chart_makers.ExportData = function() {
 
     $("#download_many").button().click( function() {
         window.location.href = AN.make_chart_id_url() + "/download_many/?" +
-            $("#config_chart").serialize();
+            $("#content select, #content input").serialize();
     });
 
     // Hide the refresh button
@@ -563,7 +565,8 @@ AN.update_chart_html = function(event, params) {
 AN.update_chart_list = function() {
 
     // load the chart options from a AJAX query for the selected building
-    $("#select_chart").load($("#BaseURL").text() + "chart_list/" +  $("#select_bldg").val() + "/", function () {
+    $("#select_chart").load($("#BaseURL").text() + "chart_list/" +  $("#select_group").val() + 
+        "/" +  $("#select_bldg").val() + "/", function () {
 
         // trigger the change event of the chart selector to get the 
         // selected option to process.

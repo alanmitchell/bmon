@@ -43,32 +43,33 @@ def index(request):
         if len(lnk)==3 and lnk[2]==True:
             return redirect( reverse('bmsapp.views.wildcard', args=(lnk[1],)) )
 
-def reports(request, selected_bldg=None, selected_chart=None, selected_sensor=None):
+def reports(request, bldg_id=None):
     '''
-    The main graphs/reports page.
+    The main graphs/reports page.  If 'bldg_id' is the building to be selected;
+    if None, the first building in the list is selected.
     '''
 
-    # try to convert the selected building value to an integer (might be the string 'multi' or None) so that
-    # it will match the integer IDs in the database.
-    selected_bldg = view_util.to_int(selected_bldg)
+    # get the html for the list of building groups and the ID of the selected 
+    # group.
+    group_html, group_id_selected = view_util.group_list_html()
 
-    # get the html for the list of buildings and the ID of the a selected building (converts a None
-    # into the ID of the first item).
-    bldgs_html, bldg_id_selected = view_util.bldg_list_html(selected_bldg)
+    # get the html for the list of buildings and the ID of the a selected building
+    # (the first building)
+    bldgs_html, bldg_id_selected = view_util.bldg_list_html(group_id_selected, view_util.to_int(bldg_id))
 
-    # try to convert selected chart to an integer
-    selected_chart = view_util.to_int(selected_chart)
-
-    # get the html for the list of charts, selecting the requested one.  Also returns the actual ID
-    # of the chart selected (a selected_chart=None is converted to an actual ID).
-    chart_list_html, chart_id_selected = view_util.chart_list_html(bldg_id_selected, selected_chart)
+    # get the html for the list of charts, selecting the first one.  Returns the actual ID
+    # of the chart selected.  The group_id of 0 indicates all buildings are being shown.
+    chart_list_html, chart_id_selected = view_util.chart_list_html(0, bldg_id_selected)
 
     # get the html for configuring and displaying this particular chart
     chart_obj = charts.get_chart_object(bldg_id_selected, chart_id_selected, request.GET)
-    chart_html = chart_obj.html(selected_sensor)
+    chart_html = chart_obj.html()
 
     ctx = base_context()
-    ctx.update({'bldgs_html': bldgs_html, 'chart_list_html': chart_list_html, 'chart_html': chart_html})
+    ctx.update({'groups_html': group_html, 
+                'bldgs_html': bldgs_html, 
+                'chart_list_html': chart_list_html, 
+                'chart_html': chart_html})
     return render_to_response('bmsapp/reports.html', ctx)
 
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
@@ -164,37 +165,36 @@ def make_store_key(request):
 
     return HttpResponse(k)
 
-def bldg_list(request, selected_group):
+def bldg_list(request, group_id):
     '''
     Returns a list of buildings in the group identified by the primary key
-    ID of 'selected_group'. The 'selected_group' value of 0 means no group 
+    ID of 'group_id'. The 'selected_group' value of 0 means no group 
     selected, so return all buildings.
     
     The return value is an html snippet of option elements, one for each building.
     '''
 
-    # convert the selected group id to an integer so it will match the 
-    # integer IDs in the database.
-    selected_group = int(selected_group)
-
-    bldgs_html, id_selected = view_util.bldg_list_for_group_html(selected_group)
+    bldgs_html, id_selected = view_util.bldg_list_html(int(group_id))
 
     return HttpResponse(bldgs_html)
 
 
-def chart_list(request, selected_bldg):
+def chart_list(request, group_id, bldg_id):
     '''
     Returns a list of charts appropriate for a building identified by the primary key
-    ID of 'selected_bldg'.  'selected_bldg' could be the string 'multi', in which case
-    the list of multi-building charts is returned.
+    ID of 'bldg_id'.  'bldg_id' could be the string 'multi', in which case
+    the list of multi-building charts is returned, and only multi-building charts
+    appropriate for the Building Group identified by 'group_id' are returned.
     The return value is an html snippet of option elements, one for each chart.
     '''
 
-    # try to convert the selected building value to an integer (might be the string 'multi') so that
-    # it will match the integer IDs in the database.
-    selected_bldg = view_util.to_int(selected_bldg)
+    # try to convert the selected building value to an integer (might be the 
+    # string 'multi') so that it will match the integer IDs in the database.
+    bldg_id = view_util.to_int(bldg_id)
+    
+    group_id = int(group_id)
 
-    charts_html, id_selected = view_util.chart_list_html(selected_bldg)
+    charts_html, id_selected = view_util.chart_list_html(group_id, bldg_id)
 
     return HttpResponse(charts_html)
 
@@ -214,22 +214,22 @@ def chart_info(request, bldg_id, chart_id, info_type):
 
         # Make the chart object
         chart_obj = charts.get_chart_object(view_util.to_int(bldg_id), view_util.to_int(chart_id), request.GET)
-
+    
         # Return the type of data indicated by 'info_type'
         if info_type=='html':
             return HttpResponse(chart_obj.html())
-
+    
         elif info_type=='data':
             result = chart_obj.data()
             return HttpResponse(json.dumps(result), content_type="application/json")
-
+    
         else:
             # the 'info_type' indicates the method to call on the object
             the_method = getattr(chart_obj, info_type)
-
+    
             # give this method an empty response object to fill out and return
             return the_method(HttpResponse())
-
+    
     except:
         _logger.exception('Error in chart_info')
         return HttpResponse('Error in chart_info')

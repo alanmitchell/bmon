@@ -131,12 +131,10 @@
     widgetID = "widget" + (++widgetCounter);
     jqParent.append("<div id=\"" + widgetID + "\" class=\"gauge\"></div>");
     jqWidget = $("#" + widgetID);
-    if (g_info.urlClick != null) {
-      jqWidget.css('cursor', 'pointer');
-      opt.chart.events.click = function(e) {
-        return window.location = g_info.urlClick;
-      };
-    }
+    jqWidget.css('cursor', 'pointer');
+    opt.chart.events.click = function(e) {
+      return AN.plot_sensor(g_info.timeChartID, g_info.sensorID);
+    };
     return jqWidget.highcharts(opt);
   };
 
@@ -149,12 +147,10 @@
       jqWidget.children(".led-circle").css('background-color', '#FF0000');
       jqWidget.css('background-color', LIGHT_RED);
     }
-    if (LED_info.urlClick != null) {
-      jqWidget.css('cursor', 'pointer');
-      jqWidget.click(function() {
-        return window.location = LED_info.urlClick;
-      });
-    }
+    jqWidget.css('cursor', 'pointer');
+    jqWidget.click(function() {
+      return AN.plot_sensor(LED_info.timeChartID, LED_info.sensorID);
+    });
     return jqWidget;
   };
 
@@ -164,12 +160,10 @@
     jqParent.append("<div id=\"" + widgetID + "\" class=\"not-current\">                     <h2>" + widget_info.title + "</h2>                     <h2><i>Data is " + widget_info.age + "</i></h2>                   </div>");
     jqWidget = $("#" + widgetID);
     jqWidget.css('background-color', LIGHT_RED);
-    if (widget_info.urlClick != null) {
-      jqWidget.css('cursor', 'pointer');
-      jqWidget.click(function() {
-        return window.location = widget_info.urlClick;
-      });
-    }
+    jqWidget.css('cursor', 'pointer');
+    jqWidget.click(function() {
+      return AN.plot_sensor(widget_info.timeChartID, widget_info.sensorID);
+    });
     return jqWidget;
   };
 
