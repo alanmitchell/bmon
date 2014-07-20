@@ -723,6 +723,12 @@ class NormalizedByDDbyFt2(BaseChart):
 
             # inner join, matching timestamps
             df = df.join(df_temp, how='inner') 
+            
+            # make sure the data spans at least 80% of the requested interval.
+            # if not, skip this building.
+            actual_span = df.index[-1] - df.index[0]
+            if actual_span / float(end_ts - st_ts) < 0.8:
+                continue
 
             # calculate total degree-days; each period is an hour, so need to divide by
             # 24.0 at end.
@@ -790,6 +796,12 @@ class NormalizedByFt2(BaseChart):
             # get the value records
             db_recs = db.rowsForOneID(bldg_params['id_value'], st_ts, end_ts)
             if len(db_recs)==0:
+                continue
+
+            # make sure the data spans at least 80% of the requested interval.
+            # if not, skip this building.
+            actual_span = db_recs[-1]['ts'] - db_recs[0]['ts']
+            if actual_span / float(end_ts - st_ts) < 0.8:
                 continue
 
             # make a list of the values
