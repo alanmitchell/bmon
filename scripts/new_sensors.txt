@@ -1,20 +1,14 @@
 Building [0]	Sensor ID [1]	Title [2]	Unit Label [3]	Sensor Group [4]	Sort Order [5]	Is Calc'd Field [6]	Calc or Transform Function [7]	Function Parameters [8]
-Chugach View	anc_merril_temp			Weather	10			
-Chugach View	anc_merril_wind			Weather	20			
-Chugach View	53805	Electric Meter	kW	Utilities/Fuel	10		rate*0.096*3600.0	
-Chugach View	53802	Gas Meter West	Btu/hour	Utilities/Fuel	20		rate*1010.0*3600.0	max_rate=1.5
-Chugach View	53804	Gas Meter East	Btu/hour	Utilities/Fuel	30		rate*1010.0*3600.0	max_rate=1.5
-Chugach View	chuvw_gas_total	Gas Meter Total	Btu/hour	Utilities/Fuel	40	TRUE	AplusBplusCplusD	id_A_sync="53802", id_B="53804"
-Chugach View	55439	DHW to Bldg Temp	deg F	Domestic Hot Water	10			
-Chugach View	55436	DHW Tank Temp	deg F	Domestic Hot Water	20			
-Chugach View	55437	DHW Recirc Return Temp	deg F	Domestic Hot Water	30			
-Chugach View	55442	DHW Circ Pump On/Off	1=On 0=Off	Domestic Hot Water	40			
-Chugach View	chuvw_dhw_circ_run	DHW Circ Pump Runtime	Runtime Fraction	Domestic Hot Water	50	TRUE	runtimeFromOnOff	onOffID="55442"
-Chugach View	55446	1st Floor Hall Occup State	1=Occupied 0=Vacant	Space Conditions, Occupancy	10			
-Chugach View	chuvw_occup_run_1	1st Floor Hall Occup Fraction	Occupied Fraction	Space Conditions, Occupancy	20	TRUE	runtimeFromOnOff	onOffID="55446"
-Chugach View	55445	2nd Floor Hall Occup State	1=Occupied 0=Vacant	Space Conditions, Occupancy	30			
-Chugach View	chuvw_occup_run_2	2nd Floor Hall Occup Fraction	Occupied Fraction	Space Conditions, Occupancy	40	TRUE	runtimeFromOnOff	onOffID="55445"
-Chugach View	55444	Snowmelt Circ Pump On/Off	1=On 0=Off	Snowmelt	10			
-Chugach View	chuvw_snow_circ_run	Snowmelt Circ Pump Runtime	Runtime Fraction	Snowmelt	20	TRUE	runtimeFromOnOff	onOffID="55444"
-Chugach View	55438	Snowmelt to Slab Temp	deg F	Snowmelt	30			
-Chugach View	55440	Snowmelt from Slab Temp	deg F	Snowmelt	40			
+Chugach View	chuvw_outdoor_temp	Site Outdoor Temp	deg F	Weather	5			
+Chugach View	chuvw_boilers_fired	West Boilers Fired	units	Boiler	10			
+Chugach View	chuvw_firing_rate	West Boiler Firing Rate	%	Boiler	20			
+Chugach View	chuvw_firing_rate_tot	West Boiler Total Firing Rate	%	Boiler	30			
+Chugach View	chuvw_gas_use	West Boiler Gas Use	Btu/hour	Boiler	40	TRUE	linear	id_val="chuvw_firing_rate_tot", slope=30000.0
+Chugach View	chuvw_header_temp	West Header Temperature	deg F	Boiler	50			
+Chugach View	chuvw_header_setpoint	West Header Setpoint	deg F	Boiler	60			
+Chugach View	chuvw_boilers_online	West Boilers Online	units	Boiler	70			
+Chugach View	chuvw_boiler1_status	West Boiler 1 Status	code	Boiler	80			
+Chugach View	chuvw_boiler2_status	West Boiler 2 Status	code	Boiler	90			
+Chugach View	chuvw_lead_boiler	West Lead Boiler	ID	Boiler	100			
+Chugach View	chuvw_io_status	West Boiler I/O Status	code	Boiler	110			
+Chugach View	chuvw_fault_code	West Boiler Fault Code	code	Boiler	120			
