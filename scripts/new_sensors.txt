@@ -1,14 +1,5 @@
 Building [0]	Sensor ID [1]	Title [2]	Unit Label [3]	Sensor Group [4]	Sort Order [5]	Is Calc'd Field [6]	Calc or Transform Function [7]	Function Parameters [8]
-Chugach View	chuvw_outdoor_temp	Site Outdoor Temp	deg F	Weather	5			
-Chugach View	chuvw_boilers_fired	West Boilers Fired	units	Boiler	10			
-Chugach View	chuvw_firing_rate	West Boiler Firing Rate	%	Boiler	20			
-Chugach View	chuvw_firing_rate_tot	West Boiler Total Firing Rate	%	Boiler	30			
-Chugach View	chuvw_gas_use	West Boiler Gas Use	Btu/hour	Boiler	40	TRUE	linear	id_val="chuvw_firing_rate_tot", slope=30000.0
-Chugach View	chuvw_header_temp	West Header Temperature	deg F	Boiler	50			
-Chugach View	chuvw_header_setpoint	West Header Setpoint	deg F	Boiler	60			
-Chugach View	chuvw_boilers_online	West Boilers Online	units	Boiler	70			
-Chugach View	chuvw_boiler1_status	West Boiler 1 Status	code	Boiler	80			
-Chugach View	chuvw_boiler2_status	West Boiler 2 Status	code	Boiler	90			
-Chugach View	chuvw_lead_boiler	West Lead Boiler	ID	Boiler	100			
-Chugach View	chuvw_io_status	West Boiler I/O Status	code	Boiler	110			
-Chugach View	chuvw_fault_code	West Boiler Fault Code	code	Boiler	120			
+Chugach View	55441	Boiler Return Temperature	deg F	Boiler	65			
+Chugach View	29919	Snowmelt Slab Temperature	deg F	Snowmelt	5		117.6 - 104.85*val - 15.95*val**2	
+511 Oklahoma St	Okla511_cpu_temp	CPU Temperature	deg C	Miscellaneous	20			
+158 Burton St	Burt158_cpu_temp	CPU Temperature	deg C	Miscellaneous	20			
