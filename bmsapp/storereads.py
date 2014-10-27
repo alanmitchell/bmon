@@ -33,7 +33,7 @@ def convert_val(ts, reading_id, val, db):
     if type(val) in (str, unicode):
         if ('True' in val) or ('Closed' in val) or ('On' in val) or (val.startswith('Motion') or (val.startswith('Light')) or (val.startswith('Voltage'))):
             val = 1.0
-        elif  ('False' in val) or ('Open' in val) or (val.startswith('No')):
+        elif  ('False' in val) or ('Open' in val) or ('Off' in val) or (val.startswith('No')):
             val = 0.0
         else:
             # convert to float the first decimal number
