@@ -27,9 +27,9 @@ logger = logging.getLogger('bms.calc_readings')
 # get a BMSdata object for the sensor reading database and then make a Calculate
 # Readings object.  Other calculated reading classes in addition to CalcReadingFuncs_01
 # can be added to the list and they will be search for matching function names.
-# Only allow calculated readings within the last eight hours (480 minutes).
+# Only allow calculated readings within the last 7 days.
 reading_db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
-calc = calcreadings.CalculateReadings([calcfuncs01.CalcReadingFuncs_01, ], reading_db, 480)
+calc = calcreadings.CalculateReadings([calcfuncs01.CalcReadingFuncs_01, ], reading_db, 60*24*7)
 
 # get a database connection and cursor to the Django project database that has the sensor
 # list.
