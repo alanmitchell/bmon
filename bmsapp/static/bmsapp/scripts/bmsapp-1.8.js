@@ -47,7 +47,7 @@ AN.chart_makers.cht_options = function() {
         },
 
         title : {
-            style: {fontSize: '24px'},
+            style: {fontSize: '24px'}
         },
         subtitle : {
             style: {fontSize: '22px'},
@@ -110,6 +110,64 @@ AN.chart_makers.cht_options = function() {
         },
 
         series: [{}]
+    };
+}
+AN.chart_makers.cht_stock_options = function() {
+    return {
+        chart: {
+            renderTo: 'chart_container',
+            animation: false,    // controls animation on redraws, not initial draw
+            backgroundColor: '#EEEEEE',
+            borderWidth: 2,
+            plotBackgroundColor: '#FFFFFF',
+            plotBorderWidth: 1,
+            type: "line"
+        },
+
+        title : {
+            style: {fontSize: '24px'}
+        },
+
+        xAxis : {
+            title: {
+                text: "Date/Time (your computer's time zone)"
+            },
+            type: "datetime"
+        },
+
+        tooltip: {
+            dateTimeLabelFormats: {
+                millisecond:"%A, %b %e, %H:%M:%S",
+                second:"%A, %b %e, %H:%M:%S",
+                minute:"%A, %b %e, %H:%M:%S",
+                hour:"%A, %b %e, %H:%M:%S",
+                day:"%A, %b %e, %H:%M:%S",
+                week:"%A, %b %e, %H:%M:%S",
+                month:"%A, %b %e, %H:%M:%S",
+                year:"%A, %b %e, %H:%M:%S"
+            }
+        },
+
+        xAxis: {
+            title: {
+                style: {fontSize: '16px'}
+            }
+        },
+
+        exporting: {
+            sourceWidth: 930,
+            sourceHeight: 550,
+            scale: 1
+        },
+
+        credits: {
+            enabled: false
+        },
+
+        legend : {
+            enabled : true
+        },
+
     };
 }
 
@@ -372,38 +430,58 @@ AN.chart_makers.TimeSeries = function() {
 
     // Get the base chart and customize some options
     var cht = AN.chart_makers.base_chart();
-    cht.chart_options.title.text = "Time Series Plot: " + $("#select_bldg option:selected").text(); 
-    cht.chart_options.xAxis.title.text = "Date/Time (your computer's time zone)";
-    cht.chart_options.xAxis.type = "datetime";
-    cht.chart_options.chart.type = "line";
 
     cht.redraw = function() { 
         // "this" won't refer to chart object if this function is
         // called through an event callback.
 
-        // Create the needed Y Axes after removing existing axes
-        while (cht.chart.yAxis.length) { cht.chart.yAxis[0].remove() }
-        $.each(cht.server_data.y_axes, function(idx, axis_id) {
-            cht.chart.addAxis({
-                id: axis_id,
+        // Create array of Y axes
+        var y_axes = [];
+        $.each(cht.server_data.y_axes, function (idx, ax_id) {
+            y_axes.push({
+                id: ax_id,
+                opposite: false,
                 title: {
-                    text: axis_id,
+                    text: ax_id,
                     style: {fontSize: '16px'}
                 }
-            }, false, false);
+            });
         });
 
-        // Remove all existing series and add new series
-        AN.chart_makers.replace_series(cht.chart, cht.server_data.series, false);
+        // Determine number of points to be plotted
+        var pt_count = 0;
+        $.each(cht.server_data.series, function(idx, ser) {
+            pt_count += ser.data.length;
+        });
 
-        cht.chart.redraw();
+        var opt;  // the chart options
+        if (pt_count < 20000) {
+            // Use the HighCharts chart
+            opt = AN.chart_makers.cht_options();
+            opt.title.text = "Time Series Plot: " + $("#select_bldg option:selected").text(); 
+            opt.xAxis.title.text = "Date/Time (your computer's time zone)";
+            opt.xAxis.type = "datetime";
+            opt.chart.type = "line";
+            opt.series = cht.server_data.series;
+            opt.yAxis = y_axes;
+
+            cht.chart = new Highcharts.Chart(opt);
+
+        } else {
+            // Large dataset, so use the HighStock chart
+            opt = AN.chart_makers.cht_stock_options();
+            opt.title.text = "Time Series Plot: " + $("#select_bldg option:selected").text(); 
+            opt.series = cht.server_data.series;
+            opt.yAxis = y_axes;
+            cht.chart = new Highcharts.StockChart(opt);
+
+        }
+
     };
 
     $("#time_period").change(cht.get_data);
     $("#select_sensor").bind('multiselectclose', cht.get_data);
     $("#averaging_time").change(cht.get_data);
-
-    cht.chart = new Highcharts.Chart(cht.chart_options);
 
     return cht;
 
