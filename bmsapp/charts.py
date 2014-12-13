@@ -303,7 +303,12 @@ class TimeSeries(BaseChart):
             series_opt = {'data': series_data, 
                           'name': sensor.title, 
                           'yAxis': sensor.unit.label,
-                          'lineWidth': line_width}
+                          'lineWidth': line_width,
+                          'tooltip': {
+                              'valueSuffix': ' ' + sensor.unit.label,
+                              'valueDecimals': data_util.decimals_needed(values, 4)
+                          }
+                         }
             # if the sensor has defined states, make the series a Step type series.
             if sensor.unit.measure_type == 'state':
                 series_opt['step'] = 'left'

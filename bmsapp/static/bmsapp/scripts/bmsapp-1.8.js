@@ -35,6 +35,9 @@ AN.make_chart_id_url = function() {
 // Returns basic Highcharts options
 AN.chart_makers.cht_options = function() {
     return {
+        colors: ['#2f7ed8', '#0d233a', '#8bbc21', '#910000', '#1aadce', '#492970',
+            '#f28f43', '#77a1e5', '#c42525', '#a6c96a'],
+
         chart: {
             renderTo: 'chart_container',
             spacingTop: 20,
@@ -106,7 +109,8 @@ AN.chart_makers.cht_options = function() {
         },
 
         legend : {
-            enabled : true
+            enabled : true,
+            borderWidth: 1
         },
 
         series: [{}]
@@ -114,6 +118,9 @@ AN.chart_makers.cht_options = function() {
 }
 AN.chart_makers.cht_stock_options = function() {
     return {
+        colors: ['#2f7ed8', '#0d233a', '#8bbc21', '#910000', '#1aadce', '#492970',
+            '#f28f43', '#77a1e5', '#c42525', '#a6c96a'],
+
         chart: {
             renderTo: 'chart_container',
             animation: false,    // controls animation on redraws, not initial draw
@@ -121,7 +128,8 @@ AN.chart_makers.cht_stock_options = function() {
             borderWidth: 2,
             plotBackgroundColor: '#FFFFFF',
             plotBorderWidth: 1,
-            type: "line"
+            type: "line",
+            zoomType: 'xy'
         },
 
         title : {
@@ -145,7 +153,8 @@ AN.chart_makers.cht_stock_options = function() {
                 week:"%A, %b %e, %H:%M:%S",
                 month:"%A, %b %e, %H:%M:%S",
                 year:"%A, %b %e, %H:%M:%S"
-            }
+            },
+            crosshairs: false
         },
 
         xAxis: {
@@ -165,7 +174,8 @@ AN.chart_makers.cht_stock_options = function() {
         },
 
         legend : {
-            enabled : true
+            enabled : true,
+            borderWidth: 1
         },
 
     };
@@ -455,7 +465,7 @@ AN.chart_makers.TimeSeries = function() {
         });
 
         var opt;  // the chart options
-        if (pt_count < 20000) {
+        if (pt_count < 15000) {
             // Use the HighCharts chart
             opt = AN.chart_makers.cht_options();
             opt.title.text = "Time Series Plot: " + $("#select_bldg option:selected").text(); 

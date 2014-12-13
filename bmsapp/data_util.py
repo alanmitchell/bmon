@@ -3,7 +3,7 @@ Utilities used in the data analysis used to produce data for charts and reports.
 '''
 
 from datetime import datetime
-import pytz, calendar, time
+import pytz, calendar, time, math
 from dateutil import parser
 import numpy as np
 
@@ -36,6 +36,14 @@ def round4(val):
     else:
         return val
 
+def decimals_needed(vals, sig_figures):
+    '''Returns the number of digits past the decimal needed to ensure
+    that 'sig_figures' significant figures are displayed for the largest
+    value (in absolute value terms) in the array of values 'vals'. 
+    '''
+    max_val = max(abs(min(vals)), abs(max(vals)))
+    return max(0, sig_figures - int(math.log10(max_val)) - 1)
+    
 class TsBin:
     '''
     Class to determine a timestamp bin value (UNIX seconds) for purposes of time-averaging
