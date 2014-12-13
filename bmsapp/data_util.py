@@ -41,8 +41,12 @@ def decimals_needed(vals, sig_figures):
     that 'sig_figures' significant figures are displayed for the largest
     value (in absolute value terms) in the array of values 'vals'. 
     '''
-    max_val = max(abs(min(vals)), abs(max(vals)))
-    return max(0, sig_figures - int(math.log10(max_val)) - 1)
+    if len(vals):
+        max_val = max(abs(min(vals)), abs(max(vals)))
+        return max(0, sig_figures - int(math.log10(max_val)) - 1)
+    else:
+        # No values in the array, just return 0.
+        return 0
     
 class TsBin:
     '''
