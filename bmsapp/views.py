@@ -61,15 +61,11 @@ def reports(request, bldg_id=None):
     # of the chart selected.  The group_id of 0 indicates all buildings are being shown.
     chart_list_html, chart_id_selected = view_util.chart_list_html(0, bldg_id_selected)
 
-    # get the html for configuring and displaying this particular chart
-    chart_obj = charts.get_chart_object(bldg_id_selected, chart_id_selected, request.GET)
-    chart_html = chart_obj.html()
-
     ctx = base_context()
     ctx.update({'groups_html': group_html, 
                 'bldgs_html': bldgs_html, 
-                'chart_list_html': chart_list_html, 
-                'chart_html': chart_html})
+                'chart_list_html': chart_list_html})
+    
     return render_to_response('bmsapp/reports.html', ctx)
 
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.

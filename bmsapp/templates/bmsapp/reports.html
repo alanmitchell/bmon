@@ -11,7 +11,7 @@
 <script src="http://code.highcharts.com/modules/exporting.js"></script>
 <script src="http://highslide-software.github.io/export-csv/export-csv.js"></script>
 <script src="{% static 'bmsapp/scripts/jquery.multiselect.min.js' %}"></script>
-<script src="{% static 'bmsapp/scripts/bmsapp-1.8.js' %}"></script>
+<script src="{% static 'bmsapp/scripts/bmsapp2-1.0.js' %}"></script>
 <script src="{% static 'bmsapp/scripts/dashboard.js' %}"></script>
 {% endblock %}
 
@@ -33,5 +33,79 @@
     Report: <select id="select_chart" name="select_chart">{{ chart_list_html }}</select>
     &nbsp;&nbsp;&nbsp;<button id="refresh" type="button">Refresh Data</button>
 </p>
-<div id="chart_content">{{ chart_html }}</div>
+
+<p>
+    Select Values to Plot: {{ select_sensor|safe }}&nbsp;&nbsp;
+    <span>
+        Data Averaging:
+        <select id="averaging_time" name="averaging_time">
+            <option value="0" selected>None</option>
+            <option value="0.5">30 minutes</option>
+            <option value="1">1 hour</option>
+            <option value="2">2 hour</option>
+            <option value="4">4 hour</option>
+            <option value="8">8 hour</option>
+            <option value="24">1 day</option>
+            <option value="168">1 week</option>
+        </select>
+    </span>
+    <span>
+        Data Averaging:
+        <select id="averaging_time_export" name="averaging_time_export">
+            <option value="0.25">15 minutes</option>
+            <option value="0.5" selected>30 minutes</option>
+            <option value="1">1 hour</option>
+            <option value="2">2 hour</option>
+            <option value="4">4 hour</option>
+            <option value="8">8 hour</option>
+            <option value="24">1 day</option>
+            <option value="168">1 week</option>
+        </select>
+    </span>
+    <input type="checkbox" id="normalize" name="normalize"/>
+        <label for="normalize" class="but_lbl">Scale Values to 0 - 100%</label>
+</p>
+<p>
+    Sensor X: {{ select_sensorX|safe }}&nbsp;&nbsp;Sensor Y: {{ select_sensorY|safe }}
+</p>
+<p>
+    <span>
+        Data Averaging:
+        <select id="averaging_time_xy" name="averaging_time_xy">
+            <option value="0.25">15 minutes</option>
+            <option value="0.5" selected>30 minutes</option>
+            <option value="1">1 hour</option>
+            <option value="2">2 hour</option>
+            <option value="4">4 hour</option>
+            <option value="8">8 hour</option>
+            <option value="24">1 day</option>
+            <option value="168">1 week</option>
+        </select>
+    </span>&nbsp;&nbsp;
+    Divide Data at this Date: <input id="divide_date" type="text" name="divide_date" size="10"/>
+</p>
+
+<div id="time_period">
+    Select Time Period:
+    <input type="radio" id="1d" value="1" name="time_period"/><label for="1d" class="but_lbl">1 da</label>
+    <input type="radio" id="3d" value="3" name="time_period"/><label for="3d" class="but_lbl">3 da</label>
+    <input type="radio" id="1w" value="7" name="time_period" checked="checked"/><label for="1w" class="but_lbl">1 wk</label>
+    <input type="radio" id="2w" value="14" name="time_period"/><label for="2w" class="but_lbl">2 wk</label>
+    <input type="radio" id="1m" value="31" name="time_period"/><label for="1m" class="but_lbl">1 mo</label>
+    <input type="radio" id="2m" value="61" name="time_period"/><label for="2m" class="but_lbl">2 mo</label>
+    <input type="radio" id="4m" value="122" name="time_period"/><label for="4m" class="but_lbl">4 mo</label>
+    <input type="radio" id="1y" value="365" name="time_period"/><label for="1y" class="but_lbl">1 yr</label>
+    <input type="radio" id="all" value="10000" name="time_period"/><label for="all" class="but_lbl">All</label>
+    <input type="radio" id="custom" value="custom" name="time_period"/><label for="custom" class="but_lbl">Custom</label>
+    <span id="custom_dates">
+        &nbsp;&nbsp;&nbsp;Start: <input id="start_date" type="text" name="start_date" size="10"/>
+        End: <input id="end_date" type="text" name="end_date" size="10"/>
+    </span>
+</div>
+
+<p>
+<button id="download_many">Download Excel Spreadsheet</button>
+</p>
+
+<div id="results"></div>
 {% endblock %}
