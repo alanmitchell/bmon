@@ -61,10 +61,15 @@ def reports(request, bldg_id=None):
     # of the chart selected.  The group_id of 0 indicates all buildings are being shown.
     chart_list_html, chart_id_selected = view_util.chart_list_html(0, bldg_id_selected)
 
+    # get the option item html for the list of sensors associated with this building,
+    # selecting the first sensor.
+    sensor_list_html = view_util.sensor_list_html(bldg_id_selected)
+
     ctx = base_context()
     ctx.update({'groups_html': group_html, 
                 'bldgs_html': bldgs_html, 
-                'chart_list_html': chart_list_html})
+                'chart_list_html': chart_list_html,
+                'sensor_list_html': sensor_list_html})
     
     return render_to_response('bmsapp/reports.html', ctx)
 
@@ -175,13 +180,17 @@ def bldg_list(request, group_id):
     return HttpResponse(bldgs_html)
 
 
-def chart_list(request, group_id, bldg_id):
+def chart_sensor_list(request, group_id, bldg_id):
     '''
-    Returns a list of charts appropriate for a building identified by the primary key
-    ID of 'bldg_id'.  'bldg_id' could be the string 'multi', in which case
-    the list of multi-building charts is returned, and only multi-building charts
-    appropriate for the Building Group identified by 'group_id' are returned.
-    The return value is an html snippet of option elements, one for each chart.
+    Returns a list of charts and a list of sensors appropriate for a building 
+    identified by the primary key ID of 'bldg_id'.  'bldg_id' could be the string 
+    'multi', in which case the list of multi-building charts is returned, and 
+    only multi-building charts appropriate for the Building Group identified by 
+    'group_id' are returned.  A list of sensors appropriate for 'bldg_id' is
+    also returned.  If 'bldg_id' is 'multi' then no sensors are returned.
+    The return lists are html snippets of option elements.  The two different
+    option element lists are returned in a JSON object, with the keys 'charts'
+    and 'sensors'.
     '''
 
     # try to convert the selected building value to an integer (might be the 
@@ -191,9 +200,10 @@ def chart_list(request, group_id, bldg_id):
     group_id = int(group_id)
 
     charts_html, id_selected = view_util.chart_list_html(group_id, bldg_id)
+    sensor_html = view_util.sensor_list_html(bldg_id)
+    result = {'charts': charts_html, 'sensors': sensor_html}
 
-    return HttpResponse(charts_html)
-
+    return HttpResponse(json.dumps(result), content_type="application/json")
 
 def chart_info(request, bldg_id, chart_id, info_type):
     '''

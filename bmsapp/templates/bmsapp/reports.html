@@ -35,7 +35,9 @@
 </p>
 
 <p>
-    Select Values to Plot: {{ select_sensor|safe }}&nbsp;&nbsp;
+    Select Values to Plot: <select id="select_sensor" name="select_sensor">
+        {{ sensor_list_html }}
+    </select>&nbsp;&nbsp;
     <span>
         Data Averaging:
         <select id="averaging_time" name="averaging_time">
@@ -66,7 +68,12 @@
         <label for="normalize" class="but_lbl">Scale Values to 0 - 100%</label>
 </p>
 <p>
-    Sensor X: {{ select_sensorX|safe }}&nbsp;&nbsp;Sensor Y: {{ select_sensorY|safe }}
+    Sensor X: <select id="select_sensor_x" name="select_sensor_x">
+        {{ sensor_list_html }}
+    </select>&nbsp;&nbsp;
+    Sensor Y: <select id="select_sensor_y" name="select_sensor_y">
+        {{ sensor_list_html }}
+    </select>
 </p>
 <p>
     <span>
