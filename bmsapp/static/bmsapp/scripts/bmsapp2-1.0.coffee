@@ -4,7 +4,8 @@ window.AN = {}
 
 # Updates the results portion of the page
 update_results = ->
-  null
+  alert "In update_results"
+  return
 
 # Sets the visibility of elements in the list of ids 'ctrl_list'.
 # If 'show' is true then the element is shown, hidden otherwise.
@@ -13,6 +14,10 @@ set_visibility = (ctrl_list, show) ->
     $("##{ctrl}").show() for ctrl in ctrl_list
   else
     $("##{ctrl}").hide() for ctrl in ctrl_list
+
+# A timer used by some charts to do a timed refresh of the results.
+REFRESH_MS = 600000  # milliseconds between timed refreshes
+_refresh_timer = setInterval update_results, REFRESH_MS
 
 # Handles actions required when the chart type changes.  Mostly sets
 # the visibility of controls.
@@ -24,17 +29,22 @@ process_chart_change = ->
   # start by hiding all inputs controls
   set_visibility(ctrls, false)
 
+  # As the default, clear timed refresh
+  clearInterval _refresh_timer
+
   # special case of the multi-building 
   if $("#select_bldg").val() == "multi"
     set_visibility(['refresh', 'time_period'], true)
     update_results()
     return
 
-  # selectively show the needed controls for this chart
+  # Configure control visibility and other chart-related options
   is_multiple = false    # determines if sensor selector is multi-select
+  initial_update = true  # determines if results are immediately retrieved
   switch $("#select_chart").val()
     when "0", "1"    # Dashboard and Current Values
       set_visibility(['refresh'], true)
+      _refresh_timer = setInterval update_results, REFRESH_MS
     when "2"    # Time Series
       set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'time_period'], true)
       is_multiple = true
@@ -48,6 +58,7 @@ process_chart_change = ->
       set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg_export', 
         'time_period', 'download_many'], true)
       is_multiple = true
+      initial_update = false
 
   # Set the sensor selector to multiple or single select
   sensor_ctrl = $("#select_sensor")
@@ -60,7 +71,7 @@ process_chart_change = ->
       sensor_ctrl.multiselect "destroy"
       sensor_ctrl.removeAttr "multiple"
 
-  update_results()
+  update_results() if initial_update
 
 # Updates the list of charts and sensors appropriate for the building selected.
 update_chart_sensor_lists = ->
@@ -82,6 +93,7 @@ update_bldg_list = ->
     # selected option to process.
     $("#select_bldg").trigger "change"
 
+# ---------------------------------------------------------------
 # function that runs when the document is ready.
 $ ->
   # Configure many of the elements that commonly appear in chart configuration
@@ -101,10 +113,11 @@ $ ->
     else
       $("#custom_dates").show()
 
-  $("#refresh").button()     # make refresh button a jQuery button
+  # make refresh button a jQuery button & call update when clicked
+  $("#refresh").button().click update_results     
   $("#normalize").button()   # checkbox to create normalized (0-100%) hourly profile
   $("#divide_date").datepicker dateFormat: "mm/dd/yy"   # for xy plot
-  $("#download_many").button()   # export to Excel Button
+  $("#download_many").button().click update_results   # export to Excel Button
 
   # Set up controls and functions to respond to events
   $("#select_group").change update_bldg_list
