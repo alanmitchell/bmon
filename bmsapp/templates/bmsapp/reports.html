@@ -35,10 +35,12 @@
 </p>
 
 <p>
-    Select Values to Plot: <select id="select_sensor" name="select_sensor">
-        {{ sensor_list_html }}
-    </select>&nbsp;&nbsp;
-    <span>
+    <span id="ctrl_sensor">
+        Select Values to Plot: <select id="select_sensor" name="select_sensor">
+            {{ sensor_list_html }}
+        </select>&nbsp;&nbsp;
+    </span>
+    <span id="ctrl_avg">
         Data Averaging:
         <select id="averaging_time" name="averaging_time">
             <option value="0" selected>None</option>
@@ -51,7 +53,7 @@
             <option value="168">1 week</option>
         </select>
     </span>
-    <span>
+    <span id="ctrl_avg_export">
         Data Averaging:
         <select id="averaging_time_export" name="averaging_time_export">
             <option value="0.25">15 minutes</option>
@@ -64,33 +66,38 @@
             <option value="168">1 week</option>
         </select>
     </span>
-    <input type="checkbox" id="normalize" name="normalize"/>
-        <label for="normalize" class="but_lbl">Scale Values to 0 - 100%</label>
+    <span id="ctrl_normalize">
+        <input type="checkbox" id="normalize" name="normalize"/>
+            <label for="normalize" class="but_lbl">Scale Values to 0 - 100%</label>
+    </span>
 </p>
-<p>
-    Sensor X: <select id="select_sensor_x" name="select_sensor_x">
-        {{ sensor_list_html }}
-    </select>&nbsp;&nbsp;
-    Sensor Y: <select id="select_sensor_y" name="select_sensor_y">
-        {{ sensor_list_html }}
-    </select>
-</p>
-<p>
-    <span>
-        Data Averaging:
-        <select id="averaging_time_xy" name="averaging_time_xy">
-            <option value="0.25">15 minutes</option>
-            <option value="0.5" selected>30 minutes</option>
-            <option value="1">1 hour</option>
-            <option value="2">2 hour</option>
-            <option value="4">4 hour</option>
-            <option value="8">8 hour</option>
-            <option value="24">1 day</option>
-            <option value="168">1 week</option>
+
+<div id="xy_controls">
+    <p>
+        Sensor X: <select id="select_sensor_x" name="select_sensor_x">
+            {{ sensor_list_html }}
+        </select>&nbsp;&nbsp;
+        Sensor Y: <select id="select_sensor_y" name="select_sensor_y">
+            {{ sensor_list_html }}
         </select>
-    </span>&nbsp;&nbsp;
-    Divide Data at this Date: <input id="divide_date" type="text" name="divide_date" size="7"/>
-</p>
+    </p>
+    <p>
+        <span>
+            Data Averaging:
+            <select id="averaging_time_xy" name="averaging_time_xy">
+                <option value="0.25">15 minutes</option>
+                <option value="0.5" selected>30 minutes</option>
+                <option value="1">1 hour</option>
+                <option value="2">2 hour</option>
+                <option value="4">4 hour</option>
+                <option value="8">8 hour</option>
+                <option value="24">1 day</option>
+                <option value="168">1 week</option>
+            </select>
+        </span>&nbsp;&nbsp;
+        Divide Data at this Date: <input id="divide_date" type="text" name="divide_date" size="7"/>
+    </p>
+</div>
 
 <div id="time_period">
     Select Time Period:

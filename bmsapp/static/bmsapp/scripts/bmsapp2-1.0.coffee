@@ -2,6 +2,52 @@
 # global namespace pollution.
 window.AN = {}
 
+# Updates the results portion of the page
+update_results = ->
+  null
+
+# Sets the visibility of elements in the list of ids 'ctrl_list'.
+# If 'show' is true then the element is shown, hidden otherwise.
+set_visibility = (ctrl_list, show) ->
+  if show
+    $("##{ctrl}").show() for ctrl in ctrl_list
+  else
+    $("##{ctrl}").hide() for ctrl in ctrl_list
+
+# Handles actions required when the chart type changes.  Mostly sets
+# the visibility of controls.
+process_chart_change = ->
+  # List of all input controls
+  ctrls = ['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize',
+    'xy_controls', 'time_period', 'download_many']
+
+  # start by hiding all inputs controls
+  set_visibility(ctrls, false)
+
+  # special case of the multi-building 
+  if $("#select_bldg").val() == "multi"
+    set_visibility(['refresh', 'time_period'], true)
+    update_results()
+    return
+
+  # selectively show the needed controls for this chart
+  switch $("#select_chart").val()
+    when "0", "1"    # Dashboard and Current Values
+      set_visibility(['refresh'], true)
+    when "2"    # Time Series
+      set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'time_period'], true)
+    when "3"    # Hourly Profile
+      set_visibility(['refresh', 'ctrl_sensor', 'ctrl_normalize', 'time_period'], true)
+    when "4"    # Histogram
+      set_visibility(['refresh', 'ctrl_sensor', 'time_period'], true)
+    when "5"    # XY
+      set_visibility(['refresh', 'xy_controls', 'time_period'], true)
+    when "6"    # Excel Download
+      set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg_export', 
+        'time_period', 'download_many'], true)
+
+  update_results()
+
 # Updates the list of charts and sensors appropriate for the building selected.
 update_chart_sensor_lists = ->
   # load the options from a AJAX query for the selected building
@@ -11,8 +57,8 @@ update_chart_sensor_lists = ->
     $("#select_sensor").html(data.sensors)
     $("#select_sensor_x").html(data.sensors)
     $("#select_sensor_y").html(data.sensors)
-    # *** Update Results here
-    # update_results()
+
+    process_chart_change()
 
 # Updates the list of buildings associated with the Building Group selected.
 update_bldg_list = ->
@@ -49,4 +95,7 @@ $ ->
   # Set up controls and functions to respond to events
   $("#select_group").change update_bldg_list
   $("#select_bldg").change update_chart_sensor_lists
-  # $("#select_chart").change AN.update_chart_html
+  $("#select_chart").change process_chart_change
+
+  # Process the currently selected chart
+  process_chart_change()
