@@ -31,11 +31,13 @@ process_chart_change = ->
     return
 
   # selectively show the needed controls for this chart
+  is_multiple = false    # determines if sensor selector is multi-select
   switch $("#select_chart").val()
     when "0", "1"    # Dashboard and Current Values
       set_visibility(['refresh'], true)
     when "2"    # Time Series
       set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'time_period'], true)
+      is_multiple = true
     when "3"    # Hourly Profile
       set_visibility(['refresh', 'ctrl_sensor', 'ctrl_normalize', 'time_period'], true)
     when "4"    # Histogram
@@ -45,6 +47,18 @@ process_chart_change = ->
     when "6"    # Excel Download
       set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg_export', 
         'time_period', 'download_many'], true)
+      is_multiple = true
+
+  # Set the sensor selector to multiple or single select
+  sensor_ctrl = $("#select_sensor")
+  if is_multiple
+    unless sensor_ctrl.attr("multiple") is "multiple"
+      sensor_ctrl.attr("multiple", "multiple")
+      sensor_ctrl.multiselect {minWidth: 300, selectedList: 3}
+  else
+    if sensor_ctrl.attr("multiple") == "multiple"
+      sensor_ctrl.multiselect "destroy"
+      sensor_ctrl.removeAttr "multiple"
 
   update_results()
 

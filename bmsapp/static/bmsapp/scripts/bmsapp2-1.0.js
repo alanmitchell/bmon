@@ -28,7 +28,7 @@
   };
 
   process_chart_change = function() {
-    var ctrls;
+    var ctrls, is_multiple, sensor_ctrl;
     ctrls = ['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'xy_controls', 'time_period', 'download_many'];
     set_visibility(ctrls, false);
     if ($("#select_bldg").val() === "multi") {
@@ -36,6 +36,7 @@
       update_results();
       return;
     }
+    is_multiple = false;
     switch ($("#select_chart").val()) {
       case "0":
       case "1":
@@ -43,6 +44,7 @@
         break;
       case "2":
         set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'time_period'], true);
+        is_multiple = true;
         break;
       case "3":
         set_visibility(['refresh', 'ctrl_sensor', 'ctrl_normalize', 'time_period'], true);
@@ -55,6 +57,22 @@
         break;
       case "6":
         set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg_export', 'time_period', 'download_many'], true);
+        is_multiple = true;
+    }
+    sensor_ctrl = $("#select_sensor");
+    if (is_multiple) {
+      if (sensor_ctrl.attr("multiple") !== "multiple") {
+        sensor_ctrl.attr("multiple", "multiple");
+        sensor_ctrl.multiselect({
+          minWidth: 300,
+          selectedList: 3
+        });
+      }
+    } else {
+      if (sensor_ctrl.attr("multiple") === "multiple") {
+        sensor_ctrl.multiselect("destroy");
+        sensor_ctrl.removeAttr("multiple");
+      }
     }
     return update_results();
   };
