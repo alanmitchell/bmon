@@ -17,6 +17,30 @@
   };
 
   $(function() {
+    var d;
+    $("#time_period").buttonset();
+    $("#start_date").datepicker({
+      dateFormat: "mm/dd/yy"
+    });
+    d = new Date();
+    $("#start_date").val((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
+    $("#end_date").datepicker({
+      dateFormat: "mm/dd/yy"
+    });
+    $("#custom_dates").hide(0);
+    $("#time_period").change(function() {
+      if ($("input:radio[name=time_period]:checked").val() !== "custom") {
+        return $("#custom_dates").hide();
+      } else {
+        return $("#custom_dates").show();
+      }
+    });
+    $("#refresh").button();
+    $("#normalize").button();
+    $("#divide_date").datepicker({
+      dateFormat: "mm/dd/yy"
+    });
+    $("#download_many").button();
     $("#select_group").change(AN.update_bldg_list);
     return $("#select_bldg").change(AN.update_chart_list);
   });
