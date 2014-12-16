@@ -115,6 +115,11 @@
 
   $(function() {
     var ctrl, ctrls, d, _i, _len;
+    Highcharts.setOptions({
+      global: {
+        useUTC: false
+      }
+    });
     $("#time_period").buttonset();
     $("#start_date").datepicker({
       dateFormat: "mm/dd/yy"
