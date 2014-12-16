@@ -3,23 +3,23 @@
 window.AN = {}
 
 test = ->
-  window.AN.plot_sensor(2, 190)
+  window.AN.plot_sensor(2, 189)
 
 # Causes a particular chart type and sensor to be selected.
 window.AN.plot_sensor = (chart_id, sensor_id) ->
-    # save the current recalc setting, because we need to disable auto
-    # recalc because we are changing multiple input values
-    #old_recalc_setting = _auto_recalc
-    #_auto_recalc = false
     $("#select_chart").val chart_id 
-    process_chart_change()
+    sensor_ctrl = $("#select_sensor")
     if $("#select_sensor").attr("multiple") == "multiple"
-      $("#select_sensor").multiselect('uncheckAll')
-      $('#select_sensor option[value="#{sensor_id}"]').attr "selected", true
+      # had difficulty finding a simpler way to set the value of a 
+      # multiselect.
+      sensor_ctrl.multiselect "destroy"
+      sensor_ctrl.removeAttr "multiple"
+      sensor_ctrl.val sensor_id
+      sensor_ctrl.attr("multiple", "multiple")
+      sensor_ctrl.multiselect SENSOR_MULTI_CONFIG
     else
-      $("#select_sensor").val sensor_id
-    #_auto_recalc = old_recalc_setting
-    # update_results()
+      sensor_ctrl.val sensor_id
+    process_chart_change()
 
 # controls whether results are updated automatically or manually by
 # a direct call to 'update_results'
@@ -45,6 +45,9 @@ set_visibility = (ctrl_list, show) ->
 # A timer used by some charts to do a timed refresh of the results.
 REFRESH_MS = 600000  # milliseconds between timed refreshes
 _refresh_timer = setInterval update_results, REFRESH_MS
+
+# The configuration options for a the multiselect sensor input
+SENSOR_MULTI_CONFIG = {minWidth: 300, selectedList: 3, close: inputs_changed}
 
 # Handles actions required when the chart type changes.  Mostly sets
 # the visibility of controls.
@@ -93,7 +96,7 @@ process_chart_change = ->
     unless sensor_ctrl.attr("multiple") is "multiple"
       sensor_ctrl.off()   # remove any existing handlers
       sensor_ctrl.attr("multiple", "multiple")
-      sensor_ctrl.multiselect {minWidth: 300, selectedList: 3, close: inputs_changed}
+      sensor_ctrl.multiselect SENSOR_MULTI_CONFIG
   else
     if sensor_ctrl.attr("multiple") == "multiple"
       sensor_ctrl.multiselect "destroy"
