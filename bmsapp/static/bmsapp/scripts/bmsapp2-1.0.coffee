@@ -2,6 +2,14 @@
 # global namespace pollution.
 window.AN = {}
 
+# controls whether results are updated automatically or manually by
+# a direct call to 'update_results'
+_auto_recalc = true
+
+# Called when inputs that affect the results have changed
+inputs_changed = ->
+  update_results() if _auto_recalc
+
 # Updates the results portion of the page
 update_results = ->
   alert "In update_results"
@@ -22,25 +30,25 @@ _refresh_timer = setInterval update_results, REFRESH_MS
 # Handles actions required when the chart type changes.  Mostly sets
 # the visibility of controls.
 process_chart_change = ->
-  # List of all input controls
-  ctrls = ['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize',
-    'xy_controls', 'time_period', 'download_many']
 
   # start by hiding all inputs controls
-  set_visibility(ctrls, false)
+  set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export',
+    'ctrl_normalize', 'xy_controls', 'time_period', 'download_many'], false)
 
   # As the default, clear timed refresh
   clearInterval _refresh_timer
 
+  # default is automatic updating of results
+  _auto_recalc = true
+
   # special case of the multi-building 
   if $("#select_bldg").val() == "multi"
     set_visibility(['refresh', 'time_period'], true)
-    update_results()
+    inputs_changed()
     return
 
   # Configure control visibility and other chart-related options
   is_multiple = false    # determines if sensor selector is multi-select
-  initial_update = true  # determines if results are immediately retrieved
   switch $("#select_chart").val()
     when "0", "1"    # Dashboard and Current Values
       set_visibility(['refresh'], true)
@@ -55,23 +63,26 @@ process_chart_change = ->
     when "5"    # XY
       set_visibility(['refresh', 'xy_controls', 'time_period'], true)
     when "6"    # Excel Download
-      set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg_export', 
+      set_visibility(['ctrl_sensor', 'ctrl_avg_export', 
         'time_period', 'download_many'], true)
       is_multiple = true
-      initial_update = false
+      _auto_recalc = false
 
   # Set the sensor selector to multiple or single select
   sensor_ctrl = $("#select_sensor")
   if is_multiple
     unless sensor_ctrl.attr("multiple") is "multiple"
+      sensor_ctrl.off()   # remove any existing handlers
       sensor_ctrl.attr("multiple", "multiple")
-      sensor_ctrl.multiselect {minWidth: 300, selectedList: 3}
+      sensor_ctrl.multiselect {minWidth: 300, selectedList: 3, close: inputs_changed}
   else
     if sensor_ctrl.attr("multiple") == "multiple"
       sensor_ctrl.multiselect "destroy"
       sensor_ctrl.removeAttr "multiple"
+      sensor_ctrl.off().change inputs_changed
 
-  update_results() if initial_update
+  # the chart type changed so indicated that inputs have changed
+  inputs_changed()
 
 # Updates the list of charts and sensors appropriate for the building selected.
 update_chart_sensor_lists = ->
@@ -123,6 +134,12 @@ $ ->
   $("#select_group").change update_bldg_list
   $("#select_bldg").change update_chart_sensor_lists
   $("#select_chart").change process_chart_change
+
+  # Set up change handlers for inputs.  Sensor select control is
+  # special case and is set up in process_chart_change routine.
+  ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'select_sensor_x',
+    'select_sensor_y', 'averaging_time_xy', 'divide_date', 'time_period']
+  $("##{ctrl}").change inputs_changed for ctrl in ctrls
 
   # Process the currently selected chart
   process_chart_change()
