@@ -2,6 +2,25 @@
 # global namespace pollution.
 window.AN = {}
 
+test = ->
+  window.AN.plot_sensor(2, 190)
+
+# Causes a particular chart type and sensor to be selected.
+window.AN.plot_sensor = (chart_id, sensor_id) ->
+    # save the current recalc setting, because we need to disable auto
+    # recalc because we are changing multiple input values
+    #old_recalc_setting = _auto_recalc
+    #_auto_recalc = false
+    $("#select_chart").val chart_id 
+    process_chart_change()
+    if $("#select_sensor").attr("multiple") == "multiple"
+      $("#select_sensor").multiselect('uncheckAll')
+      $('#select_sensor option[value="#{sensor_id}"]').attr "selected", true
+    else
+      $("#select_sensor").val sensor_id
+    #_auto_recalc = old_recalc_setting
+    # update_results()
+
 # controls whether results are updated automatically or manually by
 # a direct call to 'update_results'
 _auto_recalc = true
@@ -145,6 +164,8 @@ $ ->
   ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'select_sensor_x',
     'select_sensor_y', 'averaging_time_xy', 'divide_date', 'time_period']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
+
+  $("#test").click test
 
   # Process the currently selected chart
   process_chart_change()
