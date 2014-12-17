@@ -83,7 +83,17 @@ def get_report_results(request):
     stock_opt = {'chart': {'renderTo': 'stock'}, 'title': {'text': 'Stock Chart'}}
     result['objects'] = [('highchart', chart_opt), ('highstock', stock_opt)]
 
-    return HttpResponse(json.dumps(result), content_type="application/json")
+    try:
+        # Make the chart object
+        chart_obj = charts.get_chart_object(request.GET)
+        result = chart_obj.result()
+    
+    except:
+        _logger.exception('Error in get_report_results')
+        result = {'html': 'Error in get_report_results', 'objects': []}
+
+    finally:
+        return HttpResponse(json.dumps(result), content_type="application/json")
 
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
 def store_reading(request, reading_id):

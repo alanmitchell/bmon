@@ -32,12 +32,12 @@
     var url;
     url = "" + ($("#BaseURL").text()) + "reports/results/";
     return $.getJSON(url, $("#content select, #content input").serialize(), function(results) {
-      $("#results").html(results.html + '<p><pre>' + JSON.stringify(results.objects) + '</pre></p>');
+      $("#results").html(results.html);
       return $.each(results.objects, function(ix, obj) {
         var obj_config, obj_type;
         obj_type = obj[0], obj_config = obj[1];
         switch (obj_type) {
-          case 'highchart':
+          case 'highcharts':
             return new Highcharts.Chart(obj_config);
           case 'highstock':
             return new Highcharts.StockChart(obj_config);

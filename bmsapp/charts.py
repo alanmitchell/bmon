@@ -5,7 +5,7 @@ Reports.
 import time, logging
 from django.template import Context, loader
 import pandas as pd, numpy as np, xlwt
-import models, global_vars, data_util, view_util
+import models, global_vars, data_util, view_util, chart_config
 from readingdb import bmsdata
 from calcs import transforms
 
@@ -18,30 +18,28 @@ class BldgChartType:
     to one building.
     """
 
-    def __init__(self, id, title, class_name, multi_sensor_select):
+    def __init__(self, id, title, class_name):
         """Initializes the chart type.
 
             Args:
                 id (int): ID number uniquely identifying this chart type.
                 title (string): Text that will be displayed in select controls and chart titles.
                 class_name (string): The name of the Python class in this charts.py used to create the chart.
-                multi_sensor_select (bool): True if chart allows selection of multiple sensors to plot.
         """
         self.id = id        
         self.title = title  
         self.class_name = class_name   
-        self.multi_sensor_select = multi_sensor_select
 
 # These are the possible chart types currently implemented, in the order they will be 
 # presented to the User.
 BLDG_CHART_TYPES = [
-    BldgChartType(0, 'Dashboard', 'Dashboard', False),
-    BldgChartType(1, 'Current Sensor Values', 'CurrentValues', False),
-    BldgChartType(2, 'Plot Sensor Values over Time', 'TimeSeries', True),
-    BldgChartType(3, 'Hourly Profile of a Sensor', 'HourlyProfile', False),
-    BldgChartType(4, 'Histogram of a Sensor', 'Histogram', False),
-    BldgChartType(5, 'Sensor X vs Y Scatter Plot', 'XYplot', False),
-    BldgChartType(6, 'Download Sensor Data to Excel', 'ExportData', True)
+    BldgChartType(0, 'Dashboard', 'Dashboard'),
+    BldgChartType(1, 'Current Sensor Values', 'CurrentValues'),
+    BldgChartType(2, 'Plot Sensor Values over Time', 'TimeSeries'),
+    BldgChartType(3, 'Hourly Profile of a Sensor', 'HourlyProfile'),
+    BldgChartType(4, 'Histogram of a Sensor', 'Histogram'),
+    BldgChartType(5, 'Sensor X vs Y Scatter Plot', 'XYplot'),
+    BldgChartType(6, 'Download Sensor Data to Excel', 'ExportData')
 ]
 
 # The ID of the Time Series chart above, as it is needed in code below.
@@ -62,18 +60,19 @@ def find_chart_type(chart_id):
 
     return None
 
-def get_chart_object(bldg_id, chart_id, request_params):
+def get_chart_object(request_params):
     """Returns the appropriate chart object identified by the arguments.
 
         Args:
-            bldg_id (int or the string 'multi'): Identifies the building this chart will be used for.
-                If bldg_id == 'multi', the chart is a multiple-building chart.
-            chart_id (int): The ID number uniquely identifying the chart.
             request_params: The parameters (request.GET) passed in by the user further qualifying the chart.
 
         Returns:
             A chart object descending from BaseChart.
     """
+
+    # Get building ID and chart ID from the request parameters
+    bldg_id = view_util.to_int(request_params['select_bldg'])
+    chart_id = view_util.to_int(request_params['select_chart'])
 
     if bldg_id=='multi':
         chart_info = models.MultiBuildingChart.objects.get(id=chart_id)
@@ -108,63 +107,10 @@ class BaseChart(object):
 
         self.request_params = request_params
 
-        # the name of this class as it determines templates to use and JavaScript functions to call.
-        self.class_name = self.__class__.__name__
-
         # for the multi-building chart object, take the keyword parameter string 
         # and convert it to a dictionary.
         if bldg_id == 'multi':
             self.chart_params = transforms.makeKeywordArgs(chart_info.parameters)
-
-        # Make a context variable for use by templates including useful template
-        # data.
-        self.context = Context( {} )
-
-    def html(self, selected_sensor=None):
-        """
-        Returns the HTML necessary to configure and display the chart.
-        """
-        template = loader.get_template('bmsapp/%s.html' % self.class_name)
-        self.context['chart_func'] = self.class_name    # this is the name of a Javascript function to call in the browser
-        if self.bldg_id != 'multi':
-            selected_id = self.request_params.get('select_sensor', None)
-            self.context['select_sensor'] = self.make_sensor_select_html(selected_id)
-        return template.render(self.context)
-
-    def data(self):
-        """
-        This method should be overridden.  Returns the series data and any other
-        data that is affected by user configuration of the chart.
-        """
-        return [1,2,3]
-
-    def make_sensor_select_html(self, selected_sensor=None, control_id='select_sensor'):
-        """Helper method that returns the HTML for a Select control that allows 
-        selection of a sensor(s) associated with this building.  
-        'selected_sensor' is the primary key ID of the sensor to select; 
-        if not provided, the first sensor is selected.
-        'control_id' is the string to use for the HTML Select control id and name.
-        """
-
-        # convert the selected sensor to an integer, if possible
-        select_id = view_util.to_int(selected_sensor)
-
-        grp = ''    # tracks the sensor group
-        html = '<select id="%s" name="%s" ' % (control_id, control_id)
-        html += 'multiple="multiple">' if self.chart_info.multi_sensor_select else '>'
-        first_sensor = True
-        for b_to_sen in self.building.bldgtosensor_set.all():
-            if b_to_sen.sensor_group != grp:
-                if first_sensor == False:
-                    # Unless this is the first group, close the prior group
-                    html += '</optgroup>'
-                html += '<optgroup label="%s">' % b_to_sen.sensor_group.title
-                grp = b_to_sen.sensor_group
-            html += '<option value="%s" %s>%s</option>' % \
-                (b_to_sen.sensor.id, 'selected' if (first_sensor and select_id==None) or (b_to_sen.sensor.id==select_id) else '', b_to_sen.sensor.title)
-            first_sensor = False
-        html += '</optgroup></select>'
-        return html
 
     def get_ts_range(self):
         """
@@ -183,17 +129,30 @@ class BaseChart(object):
 
         return st_ts, end_ts
 
+    def get_chart_options(self, chart_type='highcharts'):
+        """
+        Returns a configuration object for a Highcharts or Highstock chart.
+        """
+        opt = chart_config.highcharts_opt if chart_type=='highcharts' else chart_config.highstock_opt
+        opt['title']['text'] = '%s: %s' % (self.chart_info.title, self.building.title)
+
+    def result(self):
+        '''
+        This method should be overridden to return a dictionary with an 
+        'html' key holding the HTML of the results and an 'objects' key
+        holding a list of JavaScript objects to create.  Each object is a
+        two-tuple with the first element being the string identifying the
+        object type and the second element being a configuration dictionary
+        for that object type.
+        '''
+        return {'html': self.__class__.__name__, 'objects': []}
+
 
 class Dashboard(BaseChart):
 
-    def html(self, selected_sensor=None):
-
-        # create a report title
-        self.context['report_title'] = '%s Dashboard' % self.building.title
-        return super(Dashboard, self).html()
-
-
-    def data(self):
+    def result(self):
+        """Create the dashboard HTML and configuration object.
+        """
 
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -246,15 +205,19 @@ class Dashboard(BaseChart):
         # close the reading database
         db.close()
 
-        return { 'widgets': widgets }
+        dash_config = {'widgets': widgets, 'renderTo': 'dashboard'}
+
+        html = '''<h2 id="report_title">%s Dashboard</h2>
+        <div id="dashboard" style="background: #FFFFFF"></div>''' % self.building.title
+
+        return {'html': html, 'objects': [('dashboard', dash_config)]}
 
 
 class TimeSeries(BaseChart):
 
-    def data(self):
+    def result(self):
         """
-        Returns the data for a Time Series chart.  Return value is a dictionary
-        containing the dynamic data used to draw the chart.
+        Returns the HTML and configuration for a Time Series chart.  
         """
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -273,7 +236,10 @@ class TimeSeries(BaseChart):
         # records to get the needed dataset
         st_ts, end_ts = self.get_ts_range()
 
-        # Create the series to plot
+        # Create the series to plot and add up total points to plot and the points
+        # in the longest series.
+        pt_count = 0
+        max_series_count = 0
         series = []
         # determine suitable line width
         line_width = 1 if len(sensor_list) > 1 else 2
@@ -300,6 +266,13 @@ class TimeSeries(BaseChart):
             # The 'yAxis' property indicates the id of the Y axis where the data should be plotted.
             # Our convention is to use the unit label for the axis as the id.
             series_data = [ [ts, data_util.round4(val)] for ts, val in zip(times, values) ]
+
+            # update point count variables
+            pts_in_series = len(series_data)
+            pt_count += pts_in_series
+            if pts_in_series > max_series_count:
+                max_series_count = pts_in_series
+
             series_opt = {'data': series_data, 
                           'name': sensor.title, 
                           'yAxis': sensor.unit.label,
@@ -314,7 +287,32 @@ class TimeSeries(BaseChart):
                 series_opt['step'] = 'left'
             series.append( series_opt )
 
-        return {"series": series, "y_axes": y_axes_ids}
+        # Make the chart y axes configuration objects
+        y_axes = [{ 'id': ax_id,
+                    'opposite': False,
+                    'title': {
+                        'text': ax_id,
+                        'style': {'fontSize': '16px'}
+                    }
+                  } for ax_id in  y_axes_ids]
+
+        # Choose the chart type based on number of points
+        if pt_count < 15000 and max_series_count < 5000:
+            opt = chart_config.highcharts_opt
+            opt['xAxis']['title']['text'] =  "Date/Time (your computer's time zone)"
+            opt['xAxis']['type'] =  'datetime'
+            opt['chart']['type'] =  'line'
+            chart_type = 'highcharts'
+        else:
+            opt = chart_config.highstock_opt
+            chart_type = 'highstock'
+
+        opt['series'] = series
+        opt['yAxis'] = y_axes
+
+        html = '<div id="chart_container"></div>'
+
+        return {'html': html, 'objects': [(chart_type, opt)]}
 
 
 class HourlyProfile(BaseChart):

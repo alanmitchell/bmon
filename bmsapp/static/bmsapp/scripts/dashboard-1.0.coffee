@@ -205,10 +205,10 @@ addRow = (jqParent, widgetRow) ->
   totalWidth += addWidget(jqRow, widget_info).width() for widget_info in widgetRow
   jqRow.width totalWidth     # set the row width = total of widget widths
 
-# Public method for library.  Used to create entire dashboard in the div
-# element with id "parentID".  "dashConfig" contains the information for
-# each widget, organized as a list of rows, each row being a list of widget
-# information objects.
+# Public method for library.  Used to create an entire dashboard.
+# "dashConfig.widgets" contains the information for each widget, organized
+#  as a list of rows, each row being a list of widget information objects.
+# The dashboard is rendered to the div identified by 'dashConfig.renderTo'.
 ANdash.createDashboard = (dashConfig) ->
   jqMain = $("##{dashConfig.renderTo}")   # jQuery element of div holding Dashboard
   jqMain.empty()

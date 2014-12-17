@@ -31,12 +31,12 @@ update_results = ->
   url = "#{$("#BaseURL").text()}reports/results/"
   $.getJSON url, $("#content select, #content input").serialize(), (results) -> 
     # load the returned HTML into the results div
-    $("#results").html results.html + '<p><pre>' + JSON.stringify(results.objects) + '</pre></p>'
+    $("#results").html results.html
     # Loop through the returned JavaScript objects to create and make them
     $.each results.objects, (ix, obj) ->
       [obj_type, obj_config] = obj
       switch obj_type
-        when 'highchart' then new Highcharts.Chart(obj_config)
+        when 'highcharts' then new Highcharts.Chart(obj_config)
         when 'highstock' then new Highcharts.StockChart(obj_config)
         when 'dashboard' then ANdash.createDashboard(obj_config)
 
