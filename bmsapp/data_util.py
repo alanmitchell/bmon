@@ -43,7 +43,10 @@ def decimals_needed(vals, sig_figures):
     '''
     if len(vals):
         max_val = max(abs(min(vals)), abs(max(vals)))
-        return max(0, sig_figures - int(math.log10(max_val)) - 1)
+        if max_val != 0:
+            return max(0, sig_figures - int(math.log10(max_val)) - 1)
+        else:
+            return 0
     else:
         # No values in the array, just return 0.
         return 0
