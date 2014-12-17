@@ -73,6 +73,18 @@ def reports(request, bldg_id=None):
     
     return render_to_response('bmsapp/reports.html', ctx)
 
+def get_report_results(request):
+    import pprint
+
+    result = {'html': '<pre>' + pprint.pformat(request.GET.dict()) + '</pre><div id="chart"></div><div id="stock"></div>'}
+    chart_opt = {'chart': {'type': 'bar', 'renderTo': 'chart'}, 
+                 'title': {'text': 'Fruit Consumption'},
+                }
+    stock_opt = {'chart': {'renderTo': 'stock'}, 'title': {'text': 'Stock Chart'}}
+    result['objects'] = [('highchart', chart_opt), ('highstock', stock_opt)]
+
+    return HttpResponse(json.dumps(result), content_type="application/json")
+
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
 def store_reading(request, reading_id):
     '''

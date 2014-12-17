@@ -2,9 +2,6 @@
 # global namespace pollution.
 window.AN = {}
 
-test = ->
-  window.AN.plot_sensor(2, 189)
-
 # Causes a particular chart type and sensor to be selected.
 window.AN.plot_sensor = (chart_id, sensor_id) ->
     $("#select_chart").val chart_id 
@@ -31,8 +28,17 @@ inputs_changed = ->
 
 # Updates the results portion of the page
 update_results = ->
-  alert "In update_results"
-  return
+  url = "#{$("#BaseURL").text()}reports/results/"
+  $.getJSON url, $("#content select, #content input").serialize(), (results) -> 
+    # load the returned HTML into the results div
+    $("#results").html results.html + '<p><pre>' + JSON.stringify(results.objects) + '</pre></p>'
+    # Loop through the returned JavaScript objects to create and make them
+    $.each results.objects, (ix, obj) ->
+      [obj_type, obj_config] = obj
+      switch obj_type
+        when 'highchart' then new Highcharts.Chart(obj_config)
+        when 'highstock' then new Highcharts.StockChart(obj_config)
+        when 'dashboard' then ANdash.createDashboard(obj_config)
 
 # Sets the visibility of elements in the list of ids 'ctrl_list'.
 # If 'show' is true then the element is shown, hidden otherwise.
@@ -167,8 +173,6 @@ $ ->
   ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'select_sensor_x',
     'select_sensor_y', 'averaging_time_xy', 'divide_date', 'time_period']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
-
-  $("#test").click test
 
   # Process the currently selected chart
   process_chart_change()

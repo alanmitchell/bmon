@@ -11,6 +11,7 @@ urlpatterns = patterns('bmsapp.views',
     url(r'^readingdb/reading/(\w+)/$', 'get_readings'),   # gets all readings for one reading ID.
     url(r'^$', 'index'),
     url(r'^reports/$', 'reports', name='reports'),
+    url(r'^reports/results/$', 'get_report_results'),
     url(r'^reports/(\d+)/$', 'reports'),
     url(r'^show_log/$', 'show_log'),
     url(r'^bldg_list/(\d+)/$', 'bldg_list'),

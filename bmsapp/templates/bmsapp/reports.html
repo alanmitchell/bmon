@@ -12,7 +12,7 @@
 <script src="http://highslide-software.github.io/export-csv/export-csv.js"></script>
 <script src="{% static 'bmsapp/scripts/jquery.multiselect.min.js' %}"></script>
 <script src="{% static 'bmsapp/scripts/bmsapp2-1.0.js' %}"></script>
-<script src="{% static 'bmsapp/scripts/dashboard.js' %}"></script>
+<script src="{% static 'bmsapp/scripts/dashboard-1.0.js' %}"></script>
 {% endblock %}
 
 {% block this_nav_link %}link_reports{% endblock %}
@@ -122,6 +122,6 @@
 </p>
 
 <div id="results">
-    <button id="test">Test It</button>
+    <button id="test" onclick="window.AN.plot_sensor(2, 189)">Test It</button>
 </div>
 {% endblock %}
