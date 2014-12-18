@@ -12,22 +12,23 @@ colors: ["#2f7ed8", "#0d233a", "#8bbc21", "#910000", "#1aadce", "#492970", "#f28
   "#77a1e5", "#c42525", "#a6c96a"]
 
 chart:
-  renderTo: "chart_container"
+  renderTo: chart_container
   spacingTop: 20
-  animation: false # controls animation on redraws, not initial draw
-  zoomType: "xy"
+  animation: false       # controls animation on redraws, not initial draw
+  zoomType: xy
   backgroundColor: "#EEEEEE"
   borderWidth: 2
   plotBackgroundColor: "#FFFFFF"
   plotBorderWidth: 1
+  type: line
 
 title:
   style:
-    fontSize: "24px"
+    fontSize: 24px
 
 subtitle:
   style:
-    fontSize: "22px"
+    fontSize: 22px
   y: 40
 
 tooltip:
@@ -44,15 +45,15 @@ tooltip:
 yAxis:
   title:
     style:
-      fontSize: "16px"
+      fontSize: 16px
   labels:
     style:
-      fontSize: "14px"
+      fontSize: 14px
 
 xAxis:
   title:
     style:
-      fontSize: "16px"
+      fontSize: 16px
 
 plotOptions:
   series:

@@ -2,7 +2,7 @@
 This module holds classes that create the HTML and supply the data for Charts and
 Reports.
 """
-import time, logging
+import time, logging, copy
 from django.template import Context, loader
 import pandas as pd, numpy as np, xlwt
 import models, global_vars, data_util, view_util, chart_config
@@ -131,10 +131,13 @@ class BaseChart(object):
 
     def get_chart_options(self, chart_type='highcharts'):
         """
-        Returns a configuration object for a Highcharts or Highstock chart.
+        Returns a configuration object for a Highcharts or Highstock chart.  Must make a
+        copy of the original so that it is not modified.
         """
         opt = chart_config.highcharts_opt if chart_type=='highcharts' else chart_config.highstock_opt
+        opt = copy.deepcopy(opt)
         opt['title']['text'] = '%s: %s' % (self.chart_info.title, self.building.title)
+        return opt
 
     def result(self):
         '''
@@ -298,13 +301,12 @@ class TimeSeries(BaseChart):
 
         # Choose the chart type based on number of points
         if pt_count < 15000 and max_series_count < 5000:
-            opt = chart_config.highcharts_opt
+            opt = self.get_chart_options()
             opt['xAxis']['title']['text'] =  "Date/Time (your computer's time zone)"
             opt['xAxis']['type'] =  'datetime'
-            opt['chart']['type'] =  'line'
             chart_type = 'highcharts'
         else:
-            opt = chart_config.highstock_opt
+            opt = self.get_chart_options('highstock')
             chart_type = 'highstock'
 
         opt['series'] = series
@@ -317,7 +319,7 @@ class TimeSeries(BaseChart):
 
 class HourlyProfile(BaseChart):
 
-    def data(self):
+    def result(self):
         """
         Returns the data for an Hourly Profile chart.  Return value is a dictionary
         containing the dynamic data used to draw the chart.
@@ -359,6 +361,8 @@ class HourlyProfile(BaseChart):
                 a_series = {'name': nm}
                 df_gp = df[df.da.isin(da_tuple)].drop('da', axis=1).groupby('hr').mean()
                 a_series['data'] = [data_util.round4(df_gp.ix[hr, 'val']) if hr in df_gp.index else None for hr in range(24)]
+                if nm != 'All Days':
+                    a_series['visible'] = False
                 series.append(a_series)
 
         # if normalization was requested, scale values 0 - 100%, with 100% being the largest
@@ -376,7 +380,22 @@ class HourlyProfile(BaseChart):
         else:
             yTitle = the_sensor.unit.label
 
-        return {"series": series, 'y_label': yTitle}
+        opt = self.get_chart_options()
+        opt['series'] = series
+        opt['yAxis']['title']['text'] = yTitle
+        opt['xAxis']['categories'] = ['12a', '1a', '2a', '3a', '4a', '5a', '6a', '7a', '8a', '9a', 
+            '10a', '11a', '12p', '1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p', '10p', '11p']
+        opt['xAxis']['title']['text'] = 'Hour of the Day'
+        opt['title']['text'] = the_sensor.title + ' Hourly Profile: ' + self.building.title
+        opt['title']['style']['fontSize'] = '20px'
+        if 'normalize' in self.request_params:
+            opt['yAxis']['min'] = 0
+            opt['yAxis']['max'] = 100
+
+        html = '<div id="chart_container"></div>'
+
+        return {'html': html, 'objects': [('highcharts', opt)]}
+
 
 class Histogram(BaseChart):
 
