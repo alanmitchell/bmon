@@ -67,7 +67,7 @@ from os.path import dirname, join, realpath
 
 PROJ_PATH = realpath(join(dirname(__file__), '..'))    # probably don't need the "realpath" function
 
-DEBUG = True
+DEBUG = False
 TEMPLATE_DEBUG = DEBUG
 
 MANAGERS = ADMINS
