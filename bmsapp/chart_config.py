@@ -96,9 +96,14 @@ title:
     fontSize: 24px
 
 xAxis:
+  ordinal: false
   title:
     text: Date/Time (your computer's time zone)
-  type: datetime
+    style:
+      fontSize: 16px
+
+navigator:
+  margin: 0
 
 tooltip:
   dateTimeLabelFormats:
@@ -110,13 +115,7 @@ tooltip:
     week: "%A, %b %e, %H:%M:%S"
     month: "%A, %b %e, %H:%M:%S"
     year: "%A, %b %e, %H:%M:%S"
-
   crosshairs: false
-
-xAxis:
-  title:
-    style:
-      fontSize: 16px
 
 exporting:
   sourceWidth: 930

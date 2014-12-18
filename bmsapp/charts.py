@@ -137,7 +137,10 @@ class BaseChart(object):
         """
         opt = chart_config.highcharts_opt if chart_type=='highcharts' else chart_config.highstock_opt
         opt = copy.deepcopy(opt)
-        opt['title']['text'] = '%s: %s' % (self.chart_info.title, self.building.title)
+        if hasattr(self, 'building'):
+            opt['title']['text'] = '%s: %s' % (self.chart_info.title, self.building.title)
+        else:
+            opt['title']['text'] = self.chart_info.title
         return opt
 
     def result(self):
@@ -529,11 +532,11 @@ class XYplot(BaseChart):
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # determine the X and Y sensors to plot from those sensors selected by the user.
-        sensorX = models.Sensor.objects.get(pk=self.request_params['select_sensorX'])
-        sensorY = models.Sensor.objects.get(pk=self.request_params['select_sensorY'])
+        sensorX = models.Sensor.objects.get(pk=self.request_params['select_sensor_x'])
+        sensorY = models.Sensor.objects.get(pk=self.request_params['select_sensor_y'])
 
         # make a timestamp binning object
-        binner = data_util.TsBin(float(self.request_params['averaging_time']))
+        binner = data_util.TsBin(float(self.request_params['averaging_time_xy']))
 
         # determine the start and end time for selecting records
         st_ts, end_ts = self.get_ts_range()
@@ -625,7 +628,7 @@ class ExportData(BaseChart):
         ws.col(0).width = 4300
 
         # make a timestamp binning object
-        binner = data_util.TsBin(float(self.request_params['averaging_time']))
+        binner = data_util.TsBin(float(self.request_params['averaging_time_export']))
 
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -708,10 +711,10 @@ class NormalizedByDDbyFt2(BaseChart):
         'floor_area': the floor area in square feet of the building.
     """
     
-    def data(self):
+    def result(self):
         """
-        Returns the data for a chart that normalizes a value by degree-days and floor area.
-        Return value is a dictionary containing the dynamic data needed to draw the chart.
+        Returns the HTML & chart objects for a chart that normalizes a value by 
+        degree-days and floor area.
         """
 
         # open the database 
@@ -782,7 +785,23 @@ class NormalizedByDDbyFt2(BaseChart):
                 bldg_names.append(bldg_name)
                 values.append( round(total_values / total_dd / bldg_params['floor_area'], 2) )
 
-        return {"series": [{'data': values}], "bldgs": bldg_names, "value_units": self.chart_params["value_units"]}
+        opt = self.get_chart_options()
+        opt['chart']['type'] =  'column'
+        opt['legend']['enabled'] = False
+        opt['series'] = [{'data': values}]
+        opt['xAxis']['categories'] = bldg_names
+        opt['yAxis']['title']['text'] = self.chart_params["value_units"] + '/ft2/degree-day'
+        opt['yAxis']['min'] = 0
+        opt['xAxis']['labels'] = {
+                    'rotation': -45,
+                    'align': 'right',
+                    'style': {'fontSize': '13px'}
+                    }
+
+        html = '<div id="chart_container"></div>'
+
+        return {'html': html, 'objects': [('highcharts', opt)]}
+
 
 class NormalizedByFt2(BaseChart):
     
@@ -802,10 +821,10 @@ class NormalizedByFt2(BaseChart):
         'floor_area': the floor area in square feet of the building.
     """
     
-    def data(self):
+    def result(self):
         """
-        Returns the data for a chart that normalizes a value by floor area.
-        Return value is a dictionary containing the dynamic data needed to draw the chart.
+        Returns the HTML and chart configuration for a chart that normalizes a value 
+        by floor area.
         """
 
         # open the database 
@@ -852,4 +871,19 @@ class NormalizedByFt2(BaseChart):
                 bldg_names.append(bldg_name)
                 values.append( round( normalized_val, 2) )
 
-        return {"series": [{'data': values}], "bldgs": bldg_names, "value_units": self.chart_params["value_units"]}
+        opt = self.get_chart_options()
+        opt['chart']['type'] =  'column'
+        opt['legend']['enabled'] = False
+        opt['series'] = [{'data': values}]
+        opt['xAxis']['categories'] = bldg_names
+        opt['yAxis']['title']['text'] = self.chart_params["value_units"] + '/ft2'
+        opt['yAxis']['min'] = 0
+        opt['xAxis']['labels'] = {
+                    'rotation': -45,
+                    'align': 'right',
+                    'style': {'fontSize': '13px'}
+                    }
+
+        html = '<div id="chart_container"></div>'
+
+        return {'html': html, 'objects': [('highcharts', opt)]}

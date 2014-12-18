@@ -28,9 +28,14 @@ inputs_changed = ->
 
 # Updates the results portion of the page
 update_results = ->
+  $("body").css "cursor", "wait"    # show hourglass
   url = "#{$("#BaseURL").text()}reports/results/"
-  $.getJSON url, $("#content select, #content input").serialize(), (results) -> 
-    # load the returned HTML into the results div
+  $.getJSON(url, $("#content select, #content input").serialize()
+  ).done((results) -> 
+    # load the returned HTML into the results div, but empty first to ensure
+    # event handlers, etc. are removed
+    $("body").css "cursor", "default"   # remove hourglass cursor
+    $("#results").empty()
     $("#results").html results.html
     # Loop through the returned JavaScript objects to create and make them
     $.each results.objects, (ix, obj) ->
@@ -39,6 +44,9 @@ update_results = ->
         when 'highcharts' then new Highcharts.Chart(obj_config)
         when 'highstock' then new Highcharts.StockChart(obj_config)
         when 'dashboard' then ANdash.createDashboard(obj_config)
+  ).fail (jqxhr, textStatus, error) ->
+    $("body").css "cursor", "default"   # remove hourglass cursor
+    alert "Error Occurred: " + err
 
 # Sets the visibility of elements in the list of ids 'ctrl_list'.
 # If 'show' is true then the element is shown, hidden otherwise.
@@ -108,6 +116,10 @@ process_chart_change = ->
       sensor_ctrl.multiselect "destroy"
       sensor_ctrl.removeAttr "multiple"
       sensor_ctrl.off().change inputs_changed
+
+  # if manual recalc, then blank out the results area to clear our remnants
+  # from last chart
+  $("#results").empty() if _auto_recalc == false
 
   # the chart type changed so indicated that inputs have changed
   inputs_changed()

@@ -30,8 +30,11 @@
 
   update_results = function() {
     var url;
+    $("body").css("cursor", "wait");
     url = "" + ($("#BaseURL").text()) + "reports/results/";
-    return $.getJSON(url, $("#content select, #content input").serialize(), function(results) {
+    return $.getJSON(url, $("#content select, #content input").serialize()).done(function(results) {
+      $("body").css("cursor", "default");
+      $("#results").empty();
       $("#results").html(results.html);
       return $.each(results.objects, function(ix, obj) {
         var obj_config, obj_type;
@@ -45,6 +48,9 @@
             return ANdash.createDashboard(obj_config);
         }
       });
+    }).fail(function(jqxhr, textStatus, error) {
+      $("body").css("cursor", "default");
+      return alert("Error Occurred: " + err);
     });
   };
 
@@ -126,6 +132,9 @@
         sensor_ctrl.off().change(inputs_changed);
       }
     }
+    if (_auto_recalc === false) {
+      $("#results").empty();
+    }
     return inputs_changed();
   };
 
@@ -176,7 +185,9 @@
     $("#divide_date").datepicker({
       dateFormat: "mm/dd/yy"
     });
-    $("#download_many").button().click(update_results);
+    $("#download_many").button().click(function() {
+      return window.location.href = ("" + ($("#BaseURL").text()) + "reports/results/?") + $("#content select, #content input").serialize();
+    });
     $("#select_group").change(update_bldg_list);
     $("#select_bldg").change(update_chart_sensor_lists);
     $("#select_chart").change(process_chart_change);

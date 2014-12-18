@@ -228,41 +228,6 @@ def chart_sensor_list(request, group_id, bldg_id):
 
     return HttpResponse(json.dumps(result), content_type="application/json")
 
-def chart_info(request, bldg_id, chart_id, info_type):
-    '''
-    Returns the HTML or data needed to display a chart
-    'bldg_id' is either the primary key ID (pk) of a building,
-    or 'multi', indicating that the chart is for a group of buildings (multi). 
-    'chart_id' is the pk ID of the chart requested.
-    'info_type' is the type of chart information requested: 'html' to request the HTML for
-    the chart page, 'data' to request the data for the chart, or the name of a method on the 
-    created chart class to call to return data.
-    '''
-
-    try:
-
-        # Make the chart object
-        chart_obj = charts.get_chart_object(view_util.to_int(bldg_id), view_util.to_int(chart_id), request.GET)
-    
-        # Return the type of data indicated by 'info_type'
-        if info_type=='html':
-            return HttpResponse(chart_obj.html())
-    
-        elif info_type=='data':
-            result = chart_obj.data()
-            return HttpResponse(json.dumps(result), content_type="application/json")
-    
-        else:
-            # the 'info_type' indicates the method to call on the object
-            the_method = getattr(chart_obj, info_type)
-    
-            # give this method an empty response object to fill out and return
-            return the_method(HttpResponse())
-    
-    except:
-        _logger.exception('Error in chart_info')
-        return HttpResponse('Error in chart_info')
-
 def get_readings(request, reading_id):
     """Returns all the rows for one sensor in JSON format.
     'reading_id' is the id of the sensor/reading being requested.
