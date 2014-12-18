@@ -82,24 +82,23 @@ colors: ["#2f7ed8", "#0d233a", "#8bbc21", "#910000", "#1aadce", "#492970", "#f28
   "#77a1e5", "#c42525", "#a6c96a"]
 
 chart:
-  renderTo: "chart_container"
+  renderTo: chart_container
   animation: false
   backgroundColor: "#EEEEEE"
   borderWidth: 2
   plotBackgroundColor: "#FFFFFF"
   plotBorderWidth: 1
-  type: "line"
-  zoomType: "xy"
+  type: line
+  zoomType: xy
 
 title:
   style:
-    fontSize: "24px"
+    fontSize: 24px
 
 xAxis:
   title:
-    text: "Date/Time (your computer's time zone)"
-
-  type: "datetime"
+    text: Date/Time (your computer's time zone)
+  type: datetime
 
 tooltip:
   dateTimeLabelFormats:
@@ -117,7 +116,7 @@ tooltip:
 xAxis:
   title:
     style:
-      fontSize: "16px"
+      fontSize: 16px
 
 exporting:
   sourceWidth: 930

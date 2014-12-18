@@ -74,15 +74,9 @@ def reports(request, bldg_id=None):
     return render_to_response('bmsapp/reports.html', ctx)
 
 def get_report_results(request):
-    import pprint
-
-    result = {'html': '<pre>' + pprint.pformat(request.GET.dict()) + '</pre><div id="chart"></div><div id="stock"></div>'}
-    chart_opt = {'chart': {'type': 'bar', 'renderTo': 'chart'}, 
-                 'title': {'text': 'Fruit Consumption'},
-                }
-    stock_opt = {'chart': {'renderTo': 'stock'}, 'title': {'text': 'Stock Chart'}}
-    result['objects'] = [('highchart', chart_opt), ('highstock', stock_opt)]
-
+    """Method called to return the main content of a particular chart
+    or report.
+    """
     try:
         # Make the chart object
         chart_obj = charts.get_chart_object(request.GET)
@@ -93,7 +87,14 @@ def get_report_results(request):
         result = {'html': 'Error in get_report_results', 'objects': []}
 
     finally:
-        return HttpResponse(json.dumps(result), content_type="application/json")
+        if type(result) is HttpResponse:
+            # the chart object directly produced an HttpResponse object
+            # so just return it directly.
+            return result
+        else:
+            # if the chart object does not produce an HttpResponse object, then
+            # the result from the chart object is assumed to be a JSON object.
+            return HttpResponse(json.dumps(result), content_type="application/json")
 
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
 def store_reading(request, reading_id):

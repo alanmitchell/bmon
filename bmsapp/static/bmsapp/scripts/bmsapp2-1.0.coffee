@@ -4,19 +4,19 @@ window.AN = {}
 
 # Causes a particular chart type and sensor to be selected.
 window.AN.plot_sensor = (chart_id, sensor_id) ->
-    $("#select_chart").val chart_id 
-    sensor_ctrl = $("#select_sensor")
-    if $("#select_sensor").attr("multiple") == "multiple"
-      # had difficulty finding a simpler way to set the value of a 
-      # multiselect.
-      sensor_ctrl.multiselect "destroy"
-      sensor_ctrl.removeAttr "multiple"
-      sensor_ctrl.val sensor_id
-      sensor_ctrl.attr("multiple", "multiple")
-      sensor_ctrl.multiselect SENSOR_MULTI_CONFIG
-    else
-      sensor_ctrl.val sensor_id
-    process_chart_change()
+  $("#select_chart").val chart_id 
+  sensor_ctrl = $("#select_sensor")
+  if $("#select_sensor").attr("multiple") == "multiple"
+    # had difficulty finding a simpler way to set the value of a 
+    # multiselect.
+    sensor_ctrl.multiselect "destroy"
+    sensor_ctrl.removeAttr "multiple"
+    sensor_ctrl.val sensor_id
+    sensor_ctrl.attr("multiple", "multiple")
+    sensor_ctrl.multiselect SENSOR_MULTI_CONFIG
+  else
+    sensor_ctrl.val sensor_id
+  process_chart_change()
 
 # controls whether results are updated automatically or manually by
 # a direct call to 'update_results'
@@ -161,7 +161,12 @@ $ ->
   $("#refresh").button().click update_results     
   $("#normalize").button()   # checkbox to create normalized (0-100%) hourly profile
   $("#divide_date").datepicker dateFormat: "mm/dd/yy"   # for xy plot
-  $("#download_many").button().click update_results   # export to Excel Button
+
+  # special handling of the Excel Export button because the content for this report
+  # is not displayed in a normal results div.
+  $("#download_many").button().click ->
+    window.location.href = "#{$("#BaseURL").text()}reports/results/?" + 
+      $("#content select, #content input").serialize();
 
   # Set up controls and functions to respond to events
   $("#select_group").change update_bldg_list

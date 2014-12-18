@@ -4,6 +4,7 @@ Reports.
 """
 import time, logging, copy
 from django.template import Context, loader
+from django.http import HttpResponse
 import pandas as pd, numpy as np, xlwt
 import models, global_vars, data_util, view_util, chart_config
 from readingdb import bmsdata
@@ -520,18 +521,9 @@ class CurrentValues(BaseChart):
 
 class XYplot(BaseChart):
 
-    def html(self, selected_sensor=None):
-        """Return the html necessary for the XY scatter plot.
+    def result(self):
         """
-        # Make the HTML for the X and Y sensor and save in the context
-        self.context['select_sensorX'] = self.make_sensor_select_html(selected_sensor, control_id='select_sensorX')
-        self.context['select_sensorY'] = self.make_sensor_select_html(selected_sensor, control_id='select_sensorY')
-        return super(XYplot, self).html()
-
-    def data(self):
-        """
-        Returns the data for a scatter plot of one sensor vs. another.  
-        Return value is a dictionary containing the dynamic data used to draw the chart.
+        Returns the HTML and chart object for a scatter plot of one sensor vs. another.  
         """
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -592,20 +584,31 @@ class XYplot(BaseChart):
         x_label = '%s, %s' % (sensorX.title, sensorX.unit.label)
         y_label = '%s, %s' % (sensorY.title, sensorY.unit.label)
 
-        return {"series": series, "x_label": x_label, "y_label": y_label}
+        opt = self.get_chart_options()
+        opt['series'] = series
+        opt['yAxis']['title']['text'] = y_label
+        opt['xAxis']['title']['text'] = x_label
+        opt['chart']['type'] = 'scatter'
+        opt['plotOptions']['series']['marker']['enabled'] = True
+        opt['title']['text'] = sensorY.title + " vs. " + sensorX.title
+        opt['title']['style']['fontSize'] = '20px'
+
+        html = '<div id="chart_container"></div>'
+        return {'html': html, 'objects': [('highcharts', opt)]}
 
 
 class ExportData(BaseChart):
 
-    def download_many(self, resp_object):
+    def result(self):
         """
         Extracts the requested sensor data, averages it, and creates an Excel spreadsheet
-        which is then written to the returned HttpResponse object 'resp_object'.
+        which is then written to an HttpResponse object, which is returned.
         """
 
         # determine a name for the spreadsheet and fill out the response object
         # headers.
         xls_name = 'sensors_%s.xls' % data_util.ts_to_datetime().strftime('%Y-%m-%d_%H%M%S')
+        resp_object = HttpResponse()
         resp_object['Content-Type']= 'application/vnd.ms-excel'
         resp_object['Content-Disposition'] = 'attachment; filename=%s' % xls_name
         resp_object['Content-Description'] = 'Sensor Data - readable in Excel'
