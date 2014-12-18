@@ -321,8 +321,7 @@ class HourlyProfile(BaseChart):
 
     def result(self):
         """
-        Returns the data for an Hourly Profile chart.  Return value is a dictionary
-        containing the dynamic data used to draw the chart.
+        Returns the HTML and chart object for an Hourly Profile chart.
         """
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -399,10 +398,9 @@ class HourlyProfile(BaseChart):
 
 class Histogram(BaseChart):
 
-    def data(self):
+    def result(self):
         """
-        Returns the data for an Histogram chart.  Return value is a dictionary
-        containing the dynamic data used to draw the chart.
+        Returns the HTML and chart object for an Histogram chart.
         """
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -433,11 +431,24 @@ class Histogram(BaseChart):
                     avg_series = pd_ser.groupby(avg_func).mean()
                 else:
                     avg_series = pd_ser
-                series.append( {'data': data_util.histogram_from_series(avg_series), 'name': series_name} )
+                one_series = {'data': data_util.histogram_from_series(avg_series), 'name': series_name}
+                if series_name != 'Raw':
+                    one_series['visible'] = False
+                series.append( one_series )
         else:
             series = []
 
-        return {"series": series, "x_label": the_sensor.unit.label}
+        opt = self.get_chart_options()
+        opt['series'] = series
+        opt['yAxis']['title']['text'] = '% of Readings'
+        opt['yAxis']['min'] = 0
+        opt['xAxis']['title']['text'] = the_sensor.unit.label
+        opt['title']['text'] = the_sensor.title + ' Histogram: ' + self.building.title
+        opt['title']['style']['fontSize'] = '20px'
+
+        html = '<div id="chart_container"></div>'
+
+        return {'html': html, 'objects': [('highcharts', opt)]}
 
 
 def formatCurVal(val):
@@ -455,7 +466,7 @@ def formatCurVal(val):
 
 class CurrentValues(BaseChart):
 
-    def html(self, selected_sensor=None):
+    def result(self):
 
         # open the database 
         db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
@@ -488,19 +499,23 @@ class CurrentValues(BaseChart):
         # close the reading database
         db.close()
 
+        # context for template
+        context = Context( {} )
+        
         # make this sensor list available to the template
-        self.context['sensor_list'] = sensor_list
+        context['sensor_list'] = sensor_list
 
         # create a report title
-        self.context['report_title'] = 'Current Values: %s' % self.building.title
+        context['report_title'] = 'Current Values: %s' % self.building.title
 
         # template needs building ID.
-        self.context['bldg_id'] = self.bldg_id
+        context['bldg_id'] = self.bldg_id
 
         # Get the ID of the first time series chart for this building
-        self.context['ts_chart_id'] = TIME_SERIES_CHART_ID
+        context['ts_chart_id'] = TIME_SERIES_CHART_ID
 
-        return super(CurrentValues, self).html()
+        template = loader.get_template('bmsapp/CurrentValues.html')
+        return {'html': template.render(context), 'objects': []}
 
 
 class XYplot(BaseChart):
