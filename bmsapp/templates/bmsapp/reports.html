@@ -23,21 +23,21 @@
 
 <p>
     Group:  <select id="select_group" name="select_group">
-        {{ groups_html }}
+        {{ groups_html|safe }}
     </select>
 
     Facility: <select id="select_bldg" name="select_bldg">
-        {{ bldgs_html }}
+        {{ bldgs_html|safe }}
     </select>
 
-    Report: <select id="select_chart" name="select_chart">{{ chart_list_html }}</select>
+    Report: <select id="select_chart" name="select_chart">{{ chart_list_html|safe }}</select>
     &nbsp;&nbsp;&nbsp;<button id="refresh" type="button">Refresh Data</button>
 </p>
 
 <p>
     <span id="ctrl_sensor">
         Select Values to Plot: <select id="select_sensor" name="select_sensor">
-            {{ sensor_list_html }}
+            {{ sensor_list_html|safe }}
         </select>&nbsp;&nbsp;
     </span>
     <span id="ctrl_avg">
@@ -75,10 +75,10 @@
 <div id="xy_controls">
     <p>
         Sensor X: <select id="select_sensor_x" name="select_sensor_x">
-            {{ sensor_list_html }}
+            {{ sensor_list_html|safe }}
         </select>&nbsp;&nbsp;
         Sensor Y: <select id="select_sensor_y" name="select_sensor_y">
-            {{ sensor_list_html }}
+            {{ sensor_list_html|safe }}
         </select>
     </p>
     <p>
