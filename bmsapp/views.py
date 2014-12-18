@@ -61,16 +61,40 @@ def reports(request, bldg_id=None):
     # of the chart selected.  The group_id of 0 indicates all buildings are being shown.
     chart_list_html, chart_id_selected = view_util.chart_list_html(0, bldg_id_selected)
 
-    # get the html for configuring and displaying this particular chart
-    chart_obj = charts.get_chart_object(bldg_id_selected, chart_id_selected, request.GET)
-    chart_html = chart_obj.html()
+    # get the option item html for the list of sensors associated with this building,
+    # selecting the first sensor.
+    sensor_list_html = view_util.sensor_list_html(bldg_id_selected)
 
     ctx = base_context()
     ctx.update({'groups_html': group_html, 
                 'bldgs_html': bldgs_html, 
-                'chart_list_html': chart_list_html, 
-                'chart_html': chart_html})
+                'chart_list_html': chart_list_html,
+                'sensor_list_html': sensor_list_html})
+    
     return render_to_response('bmsapp/reports.html', ctx)
+
+def get_report_results(request):
+    """Method called to return the main content of a particular chart
+    or report.
+    """
+    try:
+        # Make the chart object
+        chart_obj = charts.get_chart_object(request.GET)
+        result = chart_obj.result()
+    
+    except:
+        _logger.exception('Error in get_report_results')
+        result = {'html': 'Error in get_report_results', 'objects': []}
+
+    finally:
+        if type(result) is HttpResponse:
+            # the chart object directly produced an HttpResponse object
+            # so just return it directly.
+            return result
+        else:
+            # if the chart object does not produce an HttpResponse object, then
+            # the result from the chart object is assumed to be a JSON object.
+            return HttpResponse(json.dumps(result), content_type="application/json")
 
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
 def store_reading(request, reading_id):
@@ -179,13 +203,17 @@ def bldg_list(request, group_id):
     return HttpResponse(bldgs_html)
 
 
-def chart_list(request, group_id, bldg_id):
+def chart_sensor_list(request, group_id, bldg_id):
     '''
-    Returns a list of charts appropriate for a building identified by the primary key
-    ID of 'bldg_id'.  'bldg_id' could be the string 'multi', in which case
-    the list of multi-building charts is returned, and only multi-building charts
-    appropriate for the Building Group identified by 'group_id' are returned.
-    The return value is an html snippet of option elements, one for each chart.
+    Returns a list of charts and a list of sensors appropriate for a building 
+    identified by the primary key ID of 'bldg_id'.  'bldg_id' could be the string 
+    'multi', in which case the list of multi-building charts is returned, and 
+    only multi-building charts appropriate for the Building Group identified by 
+    'group_id' are returned.  A list of sensors appropriate for 'bldg_id' is
+    also returned.  If 'bldg_id' is 'multi' then no sensors are returned.
+    The return lists are html snippets of option elements.  The two different
+    option element lists are returned in a JSON object, with the keys 'charts'
+    and 'sensors'.
     '''
 
     # try to convert the selected building value to an integer (might be the 
@@ -195,44 +223,10 @@ def chart_list(request, group_id, bldg_id):
     group_id = int(group_id)
 
     charts_html, id_selected = view_util.chart_list_html(group_id, bldg_id)
+    sensor_html = view_util.sensor_list_html(bldg_id)
+    result = {'charts': charts_html, 'sensors': sensor_html}
 
-    return HttpResponse(charts_html)
-
-
-def chart_info(request, bldg_id, chart_id, info_type):
-    '''
-    Returns the HTML or data needed to display a chart
-    'bldg_id' is either the primary key ID (pk) of a building,
-    or 'multi', indicating that the chart is for a group of buildings (multi). 
-    'chart_id' is the pk ID of the chart requested.
-    'info_type' is the type of chart information requested: 'html' to request the HTML for
-    the chart page, 'data' to request the data for the chart, or the name of a method on the 
-    created chart class to call to return data.
-    '''
-
-    try:
-
-        # Make the chart object
-        chart_obj = charts.get_chart_object(view_util.to_int(bldg_id), view_util.to_int(chart_id), request.GET)
-    
-        # Return the type of data indicated by 'info_type'
-        if info_type=='html':
-            return HttpResponse(chart_obj.html())
-    
-        elif info_type=='data':
-            result = chart_obj.data()
-            return HttpResponse(json.dumps(result), content_type="application/json")
-    
-        else:
-            # the 'info_type' indicates the method to call on the object
-            the_method = getattr(chart_obj, info_type)
-    
-            # give this method an empty response object to fill out and return
-            return the_method(HttpResponse())
-    
-    except:
-        _logger.exception('Error in chart_info')
-        return HttpResponse('Error in chart_info')
+    return HttpResponse(json.dumps(result), content_type="application/json")
 
 def get_readings(request, reading_id):
     """Returns all the rows for one sensor in JSON format.

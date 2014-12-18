@@ -204,9 +204,9 @@
     return jqRow.width(totalWidth);
   };
 
-  ANdash.createDashboard = function(parentID, dashConfig) {
+  ANdash.createDashboard = function(dashConfig) {
     var jqMain, row, _i, _len, _ref;
-    jqMain = $("#" + parentID);
+    jqMain = $("#" + dashConfig.renderTo);
     jqMain.empty();
     _ref = dashConfig.widgets;
     for (_i = 0, _len = _ref.length; _i < _len; _i++) {

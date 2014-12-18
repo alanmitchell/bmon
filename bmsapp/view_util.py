@@ -119,3 +119,33 @@ def chart_list_html(group_id, bldg_id):
 
     t = loader.get_template('bmsapp/select_list.html')
     return t.render( Context({'item_list': item_list, 'id_to_select': id_to_select}) ), id_to_select
+
+def sensor_list_html(bldg_id):
+    """Returns the option list HTML for a Select control that allows 
+    selection of a sensor(s) associated with the 'bldg_id' building.
+    The first sensor is selected.  If 'bldg_id' is 'multi' then return
+    no option elements.
+    """
+
+    if bldg_id == 'multi':
+        return ''   # no sensors for multi-building reports and charts.
+
+    # get the building model object for this building
+    bldg_object = models.Building.objects.get(id=bldg_id)
+
+    html = ''
+    grp = ''    # tracks the sensor group
+    first_sensor = True
+    for b_to_sen in bldg_object.bldgtosensor_set.all():
+        if b_to_sen.sensor_group != grp:
+            if first_sensor == False:
+                # Unless this is the first group, close the prior group
+                html += '</optgroup>'
+            html += '<optgroup label="%s">' % b_to_sen.sensor_group.title
+            grp = b_to_sen.sensor_group
+        html += '<option value="%s" %s>%s</option>' % \
+            (b_to_sen.sensor.id, 'selected' if first_sensor else '', b_to_sen.sensor.title)
+        first_sensor = False
+    html += '</optgroup>'
+
+    return html
