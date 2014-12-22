@@ -18,6 +18,21 @@ class Schedule:
         'tz_name' is the name of the timezone (as a string) where the facility
             is located.  'tz_name' must be available in the pytz timezone database.
             An exmaple value is 'US/Alaska'.
+
+        Alan's ideas on 'schedule_description' formatting.  Lines like the following
+        would be valid:
+
+            M-F: 8a-5p
+            Tu, Th : 6:30p - 7p, 8p - 9:45p
+
+        It would be nice to support a variety of day abbreviations, like 
+        'M', 'Mo', 'Mon', 'Monday' for Monday.  But, I'm pretty sensitive to cost.
+        The person entering the schedule will be the system administrator, **not**
+        the general user.  So, if we need to have a rigid set of the abbreviations,
+        that's not a large problem.  I think it should be fairly easy to allow
+        flexibility on spaces, since they can be easily removed in processing.
+        I think we should forgo seasonal scheduling, unless you think it can
+        fairly easily be done.
         '''
 
         # Create a timezone object and store for later use.
