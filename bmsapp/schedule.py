@@ -70,3 +70,14 @@ class Schedule:
         '''
         return [ (1419276095, 1419276200), 
                  (1419276300, 1419276500) ]
+
+    def is_occupied_day(self, ts):
+        '''Returns True if the Unix timestamp, 'ts', falls on a day that is 
+        "predominantly occupied".  Returns False otherwise.  "Predominantly
+        occupied" means that the number of occupied hours in that day are 
+        more than 65% of the occupied hours in the most occupied day of
+        the week.  So, if Monday has 12 occupied hours and is the most
+        occupied day of the week, this function will return True if the
+        day of the week that 'ts' falls on has more than 7.8 occupied hours.
+        '''
+        return True
