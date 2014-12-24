@@ -144,3 +144,4 @@ if __name__ == '__main__':
     print str(schedule_object.definition)
     # print schedule_object.is_occupied(time.time())
     # print schedule_object.occupied_periods(time.time(),time.time() + (60 * 60 * 24 * 3))
+
