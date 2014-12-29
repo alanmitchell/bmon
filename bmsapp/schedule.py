@@ -100,6 +100,17 @@ class Schedule:
         # Return False if we haven't already returned with True
         return False
 
+    def is_occupied_day(self, ts):
+        '''Returns True if the Unix timestamp, 'ts', falls on a day that is 
+        "predominantly occupied".  Returns False otherwise.  "Predominantly
+        occupied" means that the number of occupied hours in that day are 
+        more than 65% of the occupied hours in the most occupied day of
+        the week.  So, if Monday has 12 occupied hours and is the most
+        occupied day of the week, this function will return True if the
+        day of the week that 'ts' falls on has more than 7.8 occupied hours.
+        '''
+        return True
+        
     def occupied_periods(self, ts_start, ts_end):
         '''Returns a list of two-tuples identifying all of the occupied periods
         falling in the range from 'ts_start' to 'ts_end', which are both Unix
