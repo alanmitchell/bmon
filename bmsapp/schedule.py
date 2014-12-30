@@ -51,9 +51,13 @@ class Schedule:
             for schedule_day_range in [text.strip() for text in schedule_days_text.split(',')]:
                 if '-' in schedule_day_range:
                     schedule_start_day,schedule_end_day = schedule_day_range.split('-',1)
-                    for day_index in range(self.__parse_day_text(schedule_start_day),
-                                           self.__parse_day_text(schedule_end_day) + 1):
+                    day_index = self.__parse_day_text(schedule_start_day)
+                    while True:
                         days_list.append(day_index)
+                        if day_index == self.__parse_day_text(schedule_end_day):
+                            break
+                        else:
+                            day_index = (day_index + 1) % 7
                 else:
                     days_list.append(self.__parse_day_text(schedule_day_range))
 
@@ -74,8 +78,15 @@ class Schedule:
         # Set the definition for the schedule
         self.definition = schedule_dictionary
         
-        # Store the maximum number of occupied hours in any day
-        self.max_occupied_hours = max([self.__sum_occupied_hours(day_index) for day_index in range(0,7)])
+        # Store a list of occupied days ---
+        # "Predominantly occupied" means that the number of occupied hours in that day are more than 65% of
+        # the occupied hours in the most occupied day of the week.  So, if Monday has 12 occupied hours and
+        # is the most occupied day of the week, any day that is occupied for mor than 7.8 hours is considered
+        # "Predominantly occupied".
+
+        max_occupied_hours = max([self.__sum_occupied_hours(day_index) for day_index in range(0,7)])
+        self.predominantly_occupied_days = [day_index for day_index in range(0,7)
+                                            if self.__sum_occupied_hours(day_index) > (max_occupied_hours * 0.65)]
 
     def __sum_occupied_hours(self, day_index):
         '''Returns the total number of occupied hours for the schedule in a given day'''
@@ -96,7 +107,7 @@ class Schedule:
                      'Thursday': 4, 'Friday': 5, 'Saturday': 6}
 
         for day_name in days_dict.keys():
-            if day_name.startswith(day_text):
+            if day_name.startswith(day_text.capitalize()):
                 return days_dict[day_name]
 
     def is_occupied(self, ts):
@@ -128,17 +139,13 @@ class Schedule:
         occupied day of the week, this function will return True if the
         day of the week that 'ts' falls on has more than 7.8 occupied hours.
         '''
+
         # convert the timestamp 'ts' to a day index
         day_index = datetime.datetime.fromtimestamp(ts, self.tz).isoweekday()
 
-        # test to see if there is an entry in the schedule dictionary for the day and time
-        if self.definition.has_key(day_index):
-            if self.__sum_occupied_hours(day_index) > (self.max_occupied_hours * 0.65):
-                return True
+        # return true if it is an occupied day
+        return self.predominantly_occupied_days.contains(day_index)
 
-        # Return False if we haven't already returned with True
-        return False
-        
     def occupied_periods(self, ts_start, ts_end):
         '''Returns a list of two-tuples identifying all of the occupied periods
         falling in the range from 'ts_start' to 'ts_end', which are both Unix
@@ -177,17 +184,16 @@ class Schedule:
         date_time_delta = date_time - datetime.datetime.fromtimestamp(0, self.tz)
         return  date_time_delta.seconds + (date_time_delta.days * 24 * 60 * 60)
 
-def test_dt_to_ts(date_time=datetime.datetime.now()):
-    '''Returns a timestamp corresponding to a Python datetime'''
-    date_time_delta = date_time - datetime.datetime.fromtimestamp(0)
-    return  date_time_delta.seconds + (date_time_delta.days * 24 * 60 * 60)
-
 if __name__ == '__main__':
-    description = 'M-F: 8a-5p\nTu, Th : 6:30p - 7p, 8p - 9:45p'
+    description = 'M-F: 11a-5p\nTu, Th : 6:30p - 7p, 8p - 9:45p\nSat: 11:00-1PM'
     schedule_object = Schedule(description,'US/Alaska')
 
+    dt_now = datetime.datetime.now()
+    dt_delta = dt_now - datetime.datetime.fromtimestamp(0)
+    ts = dt_delta.seconds + (dt_delta.days * 24 * 60 * 60)
+
     print str(schedule_object.definition)
-    print schedule_object.max_occupied_hours
-    print schedule_object.is_occupied(test_dt_to_ts())
-    op = schedule_object.occupied_periods(test_dt_to_ts(),test_dt_to_ts() + (60 * 60 * 24 * 3))
+    print schedule_object.predominantly_occupied_days
+    print schedule_object.is_occupied(ts)
+    op = schedule_object.occupied_periods(ts,ts + (60 * 60 * 24 * 3))
     print [(datetime.datetime.fromtimestamp(start_ts), datetime.datetime.fromtimestamp(end_ts)) for start_ts,end_ts in op]
