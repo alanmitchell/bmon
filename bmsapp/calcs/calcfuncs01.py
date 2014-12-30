@@ -75,7 +75,11 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         'stn' is the primary station to use.  'stn2' is a backup station.
         """
         obs = internetwx.getWUobservation( [stn, stn2] )
-        return [int(time.time())], [float(obs['temp_f'])]
+        temp_val = float(obs['temp_f'])
+        if temp_val>-120.0 and temp_val < 150.0:
+            return [int(time.time())], [temp_val]
+        else:
+            return [], []
 
     def getWUwindSpeed(self, stn, stn2=None):
         """** No parameters are sensor reading arrays **
@@ -84,7 +88,11 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         'stn' is the primary station to use.  'stn2' is a backup station.
         """
         obs = internetwx.getWUobservation( [stn, stn2] )
-        return [int(time.time())], [float(obs['wind_mph'])]
+        wind_val = float(obs['wind_mph'])
+        if wind_val >= 0.0 and wind_val < 150.0:
+            return [int(time.time())], [wind_val]
+        else:
+            return [], []
     
     def runtimeFromOnOff(self, onOffID, runtimeInterval=30):
         """** No parameters are sensor reading arrays **
