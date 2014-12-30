@@ -37,7 +37,11 @@ class Schedule:
         schedule_dictionary = {}
 
         # Parse the schedule description
-        for schedule_line in  schedule_text.splitlines():
+        for schedule_line in schedule_text.splitlines():
+
+            # ignore blank lines
+            if len(schedule_line.strip()) == 0:
+                continue
 
             # Split on first colon into days and times
             schedule_days_text,schedule_times_text = schedule_line.split(':',1)
