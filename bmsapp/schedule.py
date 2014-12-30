@@ -24,8 +24,10 @@ class Schedule:
             M-F: 8a-5p
             Tu, Th : 6:30p - 7p, 8p - 9:45p
 
-        Abbreviations for day names are allowed.
-        Seasonal scheduling is not currently supported.
+        - Abbreviations for day names are allowed.
+        - It is the user's responsibility to ensure that occupied periods do not overlap.
+
+        - Seasonal scheduling is not currently supported.
 
         '''
 
@@ -67,8 +69,21 @@ class Schedule:
 
         # Set the definition for the schedule
         self.definition = schedule_dictionary
+        
+        # Store the maximum number of occupied hours in any day
+        self.max_occupied_hours = max([self.__sum_occupied_hours(day_index) for day_index in range(0,7)])
 
-    def __parse_day_text(self, day_text):
+    def __sum_occupied_hours(self, day_index):
+        '''Returns the total number of occupied hours for the schedule in a given day'''
+        
+        if self.definition.has_key(day_index):
+            occupied_times = self.definition[day_index]
+            return sum((datetime.datetime.combine(datetime.date.today(),end_time) - datetime.datetime.combine(datetime.date.today(),start_time)).seconds for start_time,end_time in occupied_times) / 60.0 / 60.0
+            
+        return 0.0
+
+    @staticmethod
+    def __parse_day_text(day_text):
         '''Returns a day index from the text of a day name'''
 
         # Dictionary mapping day names to indices
@@ -109,7 +124,16 @@ class Schedule:
         occupied day of the week, this function will return True if the
         day of the week that 'ts' falls on has more than 7.8 occupied hours.
         '''
-        return True
+        # convert the timestamp 'ts' to a day index
+        day_index = datetime.datetime.fromtimestamp(ts, self.tz).isoweekday()
+
+        # test to see if there is an entry in the schedule dictionary for the day and time
+        if self.definition.has_key(day_index):
+            if self.__sum_occupied_hours(day_index) > (self.max_occupied_hours * 0.65):
+                return True
+
+        # Return False if we haven't already returned with True
+        return False
         
     def occupied_periods(self, ts_start, ts_end):
         '''Returns a list of two-tuples identifying all of the occupied periods
@@ -145,14 +169,21 @@ class Schedule:
         return periods_list
 
     def __dt_to_ts(self, date_time):
+        '''Returns a timestamp corresponding to a Python datetime'''
         date_time_delta = date_time - datetime.datetime.fromtimestamp(0, self.tz)
         return  date_time_delta.seconds + (date_time_delta.days * 24 * 60 * 60)
+
+def test_dt_to_ts(date_time=datetime.datetime.now()):
+    '''Returns a timestamp corresponding to a Python datetime'''
+    date_time_delta = date_time - datetime.datetime.fromtimestamp(0)
+    return  date_time_delta.seconds + (date_time_delta.days * 24 * 60 * 60)
 
 if __name__ == '__main__':
     description = 'M-F: 8a-5p\nTu, Th : 6:30p - 7p, 8p - 9:45p'
     schedule_object = Schedule(description,'US/Alaska')
 
     print str(schedule_object.definition)
-    # print schedule_object.is_occupied(time.time())
-    # print schedule_object.occupied_periods(time.time(),time.time() + (60 * 60 * 24 * 3))
-
+    print schedule_object.max_occupied_hours
+    print schedule_object.is_occupied(test_dt_to_ts())
+    op = schedule_object.occupied_periods(test_dt_to_ts(),test_dt_to_ts() + (60 * 60 * 24 * 3))
+    print [(datetime.datetime.fromtimestamp(start_ts), datetime.datetime.fromtimestamp(end_ts)) for start_ts,end_ts in op]
