@@ -8,3 +8,4 @@ settings.py
 *.gz
 *.bak
 docs/
+**/.ipynb_checkpoints
