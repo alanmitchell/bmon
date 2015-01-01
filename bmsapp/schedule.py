@@ -102,7 +102,7 @@ class Schedule:
         '''Returns a day index from the text of a day name'''
 
         # Dictionary mapping day names to indices
-        # days_dict = dict([(x.strftime('%A'), x.isoweekday()) for x in [datetime.date(2001, 1, i) for i in range(1, 8)]])
+        # days_dict = dict([(x.strftime('%A'), x.weekday()) for x in [datetime.date(2001, 1, i) for i in range(1, 8)]])
         days_dict = {'Sunday': 0, 'Monday': 1, 'Tuesday': 2, 'Wednesday': 3,
                      'Thursday': 4, 'Friday': 5, 'Saturday': 6}
 
@@ -119,9 +119,9 @@ class Schedule:
         dt = datetime.datetime.fromtimestamp(ts, self.tz)
 
         # test to see if there is an entry in the schedule dictionary for the day and time
-        if self.definition.has_key((dt.isoweekday())):
+        if self.definition.has_key((dt.weekday())):
             # retrieve the occupied times for the day
-            occupied_times = self.definition[dt.isoweekday()]
+            occupied_times = self.definition[dt.weekday()]
 
             for start_time,end_time in occupied_times:
                 if start_time < dt.time() < end_time:
@@ -141,7 +141,7 @@ class Schedule:
         '''
 
         # convert the timestamp 'ts' to a day index
-        day_index = datetime.datetime.fromtimestamp(ts, self.tz).isoweekday()
+        day_index = datetime.datetime.fromtimestamp(ts, self.tz).weekday()
 
         # return true if it is an occupied day
         return self.predominantly_occupied_days.contains(day_index)
@@ -162,9 +162,9 @@ class Schedule:
             dt = datetime.datetime.fromtimestamp(ts, self.tz)
 
             # test to see if there is an entry in the schedule dictionary for the day and time
-            if self.definition.has_key(dt.isoweekday()):
+            if self.definition.has_key(dt.weekday()):
                 # retrieve the occupied times for the day
-                occupied_times = self.definition[dt.isoweekday()]
+                occupied_times = self.definition[dt.weekday()]
 
                 # convert the start and end times to timestamps
                 for start, end in occupied_times:
