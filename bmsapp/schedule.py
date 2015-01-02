@@ -148,13 +148,19 @@ class Schedule:
         # return true if it is an occupied day
         return day_index in self.predominantly_occupied_days
 
-    def occupied_periods(self, ts_start, ts_end):
+    def occupied_periods(self, ts_start, ts_end, resolution='exact'):
         """ Returns a list of two-tuples identifying all of the occupied periods
         falling in the range from 'ts_start' to 'ts_end', which are both Unix
         timestamps.  The format of the return list is:
             [ (1419276095, 1419276200), (1419276300, 1419276500), etc ]
         Each tuple gives the start and stop of an occupied period, using Unix
         timestamps.
+        The 'resolution' parameter has two possible values:
+            'exact': occupied / unoccupied boundaries are at the exact times
+                specified in the schedule.
+            'day': occupied / unoccupied boundaries are placed on day boundaries;
+                the returned tuples identify occupied days but do not give within
+                day resolution of occupied periods.
         """
 
         periods_list = []
