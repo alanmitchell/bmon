@@ -171,8 +171,14 @@ class Schedule:
 
             # test to see if there is an entry in the schedule dictionary for the day and time
             if dt.weekday() in self.definition:
-                # retrieve the occupied times for the day
-                occupied_times = self.definition[dt.weekday()]
+                if resolution == 'exact':
+                    # retrieve the occupied times for the day
+                    occupied_times = self.definition[dt.weekday()]
+                else:
+                    if dt.weekday() in self.predominantly_occupied_days:
+                        occupied_times = [(datetime.time(0), datetime.time(23, 59, 59))]
+                    else:
+                        occupied_times = []
 
                 # convert the start and end times to timestamps
                 for start, end in occupied_times:
@@ -185,7 +191,22 @@ class Schedule:
                             end_ts = ts_end
                         periods_list.append((start_ts, end_ts))
 
-        return periods_list
+        # merge contiguous occupied periods
+        dissolved_list = []
+        start_ts = None
+        for periods_list_index in range(len(periods_list)):
+            period_start, period_end = periods_list[periods_list_index]
+            if start_ts is None:
+                start_ts = period_start
+            try:
+                next_start = periods_list[periods_list_index + 1][0]
+            except IndexError:
+                next_start = float('inf')
+            if next_start > (period_end + 1):
+                dissolved_list.append((start_ts, period_end))
+                start_ts = None
+
+        return dissolved_list
 
     def __dt_to_ts(self, date_time):
         """ Returns a timestamp corresponding to a Python datetime """
@@ -205,6 +226,6 @@ if __name__ == '__main__':
     print str(schedule_object.definition)
     print schedule_object.predominantly_occupied_days
     print schedule_object.is_occupied(dt_ts)
-    op = schedule_object.occupied_periods(dt_ts, dt_ts + (60 * 60 * 24 * 3))
+    op = schedule_object.occupied_periods(dt_ts, dt_ts + (60 * 60 * 24 * 7), 'exact')
     print [(datetime.datetime.fromtimestamp(start_dt_ts), datetime.datetime.fromtimestamp(end_dt_ts))
            for start_dt_ts, end_dt_ts in op]
