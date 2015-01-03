@@ -112,6 +112,16 @@ class Building(models.Model):
     # Longitude of building
     longitude = models.FloatField(default=-161.0)
 
+    # Fields related to the Occupied Schedule of the Facility
+
+    # The timezone, from the Olson timezone database, where the facility
+    # is located.
+    timezone = models.CharField("Time Zone of Facility, from tz database", 
+        max_length=50, default='US/Alaska')
+
+    # Occupied schedule for building.  No entry means continually occupied.
+    schedule = models.TextField("Occupied Schedule of Facility (e.g. M-F: 8a-5p)", blank=True)
+
     # the sensors and calculated values associated with this building
     sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True, null=True)
 
