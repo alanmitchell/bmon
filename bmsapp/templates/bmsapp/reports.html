@@ -11,7 +11,7 @@
 <script src="http://code.highcharts.com/modules/exporting.js"></script>
 <script src="http://highslide-software.github.io/export-csv/export-csv.js"></script>
 <script src="{% static 'bmsapp/scripts/jquery.multiselect.min.js' %}"></script>
-<script src="{% static 'bmsapp/scripts/bmsapp2-1.0.js' %}"></script>
+<script src="{% static 'bmsapp/scripts/bmsapp2-1.1.js' %}"></script>
 <script src="{% static 'bmsapp/scripts/dashboard-1.0.js' %}"></script>
 {% endblock %}
 
@@ -69,6 +69,10 @@
     <span id="ctrl_normalize">
         <input type="checkbox" id="normalize" name="normalize"/>
             <label for="normalize" class="but_lbl">Scale Values to 0 - 100%</label>
+    </span>
+    <span id="ctrl_occupied">
+        <input type="checkbox" id="show_occupied" name="show_occupied"/>
+            <label for="show_occupied" class="but_lbl">Shade Occupied Periods</label>
     </span>
 </p>
 
