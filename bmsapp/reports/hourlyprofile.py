@@ -1,22 +1,25 @@
-class HourlyProfile(BaseChart):
+import pandas as pd
+import bmsapp.models, bmsapp.data_util
+import basechart
+
+class HourlyProfile(basechart.BaseChart):
+    """Class that creates Hourly Profile graph.
+    """
 
     def result(self):
         """
         Returns the HTML and chart object for an Hourly Profile chart.
         """
-        # open the database 
-        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
-
         # determine the sensor to plot from the sensor selected by the user.
-        the_sensor = models.Sensor.objects.get(pk=self.request_params['select_sensor'])
+        the_sensor = bmsapp.models.Sensor.objects.get(pk=self.request_params['select_sensor'])
 
         # determine the start time for selecting records and loop through the selected
         # records to get the needed dataset
         st_ts, end_ts = self.get_ts_range()
-        db_recs = db.rowsForOneID(the_sensor.sensor_id, st_ts, end_ts)
+        db_recs = self.reading_db.rowsForOneID(the_sensor.sensor_id, st_ts, end_ts)
         recs = []
         for rec in  db_recs:
-            dt = data_util.ts_to_datetime(rec['ts'])
+            dt = bmsapp.data_util.ts_to_datetime(rec['ts'])
             recs.append( {'da': dt.weekday(), 'hr': dt.hour, 'val': rec['val']} )
 
         series = []
@@ -40,7 +43,7 @@ class HourlyProfile(BaseChart):
             for nm, da_tuple in da_groups:
                 a_series = {'name': nm}
                 df_gp = df[df.da.isin(da_tuple)].drop('da', axis=1).groupby('hr').mean()
-                a_series['data'] = [data_util.round4(df_gp.ix[hr, 'val']) if hr in df_gp.index else None for hr in range(24)]
+                a_series['data'] = [bmsapp.data_util.round4(df_gp.ix[hr, 'val']) if hr in df_gp.index else None for hr in range(24)]
                 if nm != 'All Days':
                     a_series['visible'] = False
                 series.append(a_series)
@@ -56,7 +59,7 @@ class HourlyProfile(BaseChart):
             for ser in series:
                 for i in range(24):
                     if ser['data'][i]:   # don't scale None values
-                        ser['data'][i] = data_util.round4(ser['data'][i] * scaler)
+                        ser['data'][i] = bmsapp.data_util.round4(ser['data'][i] * scaler)
         else:
             yTitle = the_sensor.unit.label
 

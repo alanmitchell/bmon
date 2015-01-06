@@ -4,7 +4,7 @@ Helper functions for the views in this BMS application.
 
 from django.template import Context, loader
 
-import models, charts
+import models, reports.basechart
 
 def to_int(val):
     '''
@@ -101,12 +101,12 @@ def chart_list_html(group_id, bldg_id):
         bldg_object = models.Building.objects.get(id=bldg_id)
         if len(bldg_object.dashboarditem_set.all()):
             # include Dashboard in chart list
-            cht_list = charts.BLDG_CHART_TYPES
+            cht_list = reports.basechart.BLDG_CHART_TYPES
         else:
             # exclude Dashboard chart.
-            cht_list = charts.BLDG_CHART_TYPES[:]  # All items
+            cht_list = reports.basechart.BLDG_CHART_TYPES[:]  # All items
             for cht in cht_list:
-                if cht.class_name == 'Dashboard':
+                if cht.class_name == 'dashboard.Dashboard':
                     cht_list.remove(cht)
                     break
     else:

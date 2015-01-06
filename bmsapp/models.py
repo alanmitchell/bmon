@@ -84,9 +84,10 @@ class MultiBuildingChartType(models.Model):
     # descriptive title of the Chart Type
     title = models.CharField(max_length=50, unique=True)
 
-    # the name of the Javascript class used to render the chart.  Also the
-    # name of the Django template name used to create the HTML for the chart.
-    class_name = models.CharField(max_length=30, unique=True)
+    # the name of the Django chart class in the 'reports' Python package
+    # that will return the data necessary to render the chart.  The format
+    # of this field must be: <module name>.<class name>
+    class_name = models.CharField(max_length=60, unique=True)
 
     # determines order of Chart Type displayed in Admin interface
     sort_order = models.IntegerField(default=999)

@@ -1,33 +1,38 @@
-class XYplot(BaseChart):
+import time
+import pandas as pd
+import bmsapp.models, bmsapp.data_util
+import basechart
+
+class XYplot(basechart.BaseChart):
+    """Class that creates XY Plot.
+    """
 
     def result(self):
         """
         Returns the HTML and chart object for a scatter plot of one sensor vs. another.  
         """
-        # open the database 
-        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # determine the X and Y sensors to plot from those sensors selected by the user.
-        sensorX = models.Sensor.objects.get(pk=self.request_params['select_sensor_x'])
-        sensorY = models.Sensor.objects.get(pk=self.request_params['select_sensor_y'])
+        sensorX = bmsapp.models.Sensor.objects.get(pk=self.request_params['select_sensor_x'])
+        sensorY = bmsapp.models.Sensor.objects.get(pk=self.request_params['select_sensor_y'])
 
         # make a timestamp binning object
-        binner = data_util.TsBin(float(self.request_params['averaging_time_xy']))
+        binner = bmsapp.data_util.TsBin(float(self.request_params['averaging_time_xy']))
 
         # determine the start and end time for selecting records
         st_ts, end_ts = self.get_ts_range()
 
         # get the dividing date, if there is one
         div_date = self.request_params['divide_date']
-        div_ts = data_util.datestr_to_ts(div_date) if len(div_date) else 0
+        div_ts = bmsapp.data_util.datestr_to_ts(div_date) if len(div_date) else 0
 
 
         # The list that will hold each Highcharts series
         series = []
 
         # get the X and Y sensor records and perform the requested averaging
-        db_recsX = db.rowsForOneID(sensorX.sensor_id, st_ts, end_ts)
-        db_recsY = db.rowsForOneID(sensorY.sensor_id, st_ts, end_ts)
+        db_recsX = self.reading_db.rowsForOneID(sensorX.sensor_id, st_ts, end_ts)
+        db_recsY = self.reading_db.rowsForOneID(sensorY.sensor_id, st_ts, end_ts)
         if len(db_recsX)>0 and len(db_recsY)>0:
             # both sensors have some data, so proceed to average the data points
             dfX = pd.DataFrame(db_recsX).set_index('ts').groupby(binner.bin).mean()
@@ -55,7 +60,7 @@ class XYplot(BaseChart):
 
             for t_start, t_end, ser_name, ser_color, ser_symbol in ser_params:
                 mask = (df_all.index >= t_start) & (df_all.index < t_end)
-                pts = [ (data_util.round4(row['X']), data_util.round4(row['Y'])) for ix, row in df_all[mask].iterrows() ]
+                pts = [ (bmsapp.data_util.round4(row['X']), bmsapp.data_util.round4(row['Y'])) for ix, row in df_all[mask].iterrows() ]
                 if len(pts):
                     series.append( { 'data': pts, 'name': ser_name, 'color': ser_color, 'marker': {'symbol': ser_symbol} } )
 

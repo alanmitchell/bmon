@@ -1,5 +1,7 @@
-class NormalizedByFt2(BaseChart):
-    
+import bmsapp.models, bmsapp.data_util, bmsapp.calcs.transforms
+import basechart
+
+class NormalizedByFt2(basechart.BaseChart):
     """
     Chart that normalizes a quantity by floor area.  The value being normalized is first averaged
     over the requested time period and then divided by floor area.  A scaling multiplier is optionally
@@ -22,9 +24,6 @@ class NormalizedByFt2(BaseChart):
         by floor area.
         """
 
-        # open the database 
-        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
-
         # get the time range  used in the analysis
         st_ts, end_ts = self.get_ts_range()
 
@@ -37,7 +36,7 @@ class NormalizedByFt2(BaseChart):
 
         # get the buildings in the current building group
         group_id = int(self.request_params['select_group'])
-        bldgs = view_util.buildings_for_group(group_id)
+        bldgs = bmsapp.view_util.buildings_for_group(group_id)
         
         # loop through the buildings determining the value per ft2 for each building
         for bldg_info in self.chart_info.chartbuildinginfo_set.filter(building__in=bldgs):
@@ -45,10 +44,10 @@ class NormalizedByFt2(BaseChart):
             bldg_name = bldg_info.building.title   # get the building name
 
             # get the parameters associated with this building
-            bldg_params = transforms.makeKeywordArgs(bldg_info.parameters)
+            bldg_params = bmsapp.calcs.transforms.makeKeywordArgs(bldg_info.parameters)
 
             # get the value records
-            db_recs = db.rowsForOneID(bldg_params['id_value'], st_ts, end_ts)
+            db_recs = self.reading_db.rowsForOneID(bldg_params['id_value'], st_ts, end_ts)
             if len(db_recs)==0:
                 continue
 

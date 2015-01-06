@@ -32,9 +32,14 @@ class BMSdata:
         # sensors in the future.
         if '_last_raw' not in self.sensor_ids:
             self.cursor.execute("CREATE TABLE [_last_raw] (id varchar(50) primary key, ts integer, val real)")
+
+    def __del__(self):
+        """Used to ensure that database is closed when this object is destroyed.
+        """
+        self.close()
         
     def close(self):
-        """Closes this database object.
+        """Closes this database object.  This is called in the destructor for this object.
         """
         self.conn.close()
 

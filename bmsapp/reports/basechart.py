@@ -2,13 +2,11 @@
 This module holds classes that create the HTML and supply the data for Charts and
 Reports.
 """
-import time, logging, copy
-from django.template import Context, loader
-from django.http import HttpResponse
-import pandas as pd, numpy as np, xlwt
-import models, global_vars, data_util, view_util, chart_config
-from readingdb import bmsdata
-from ..calcs import transforms
+import time, logging, copy, importlib
+import bmsapp.models, bmsapp.global_vars, bmsapp.readingdb.bmsdata
+import bmsapp.calcs.transforms, bmsapp.schedule
+import bmsapp.view_util, bmsapp.data_util
+import chart_config
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -34,13 +32,13 @@ class BldgChartType:
 # These are the possible chart types currently implemented, in the order they will be 
 # presented to the User.
 BLDG_CHART_TYPES = [
-    BldgChartType(0, 'Dashboard', 'Dashboard'),
-    BldgChartType(1, 'Current Sensor Values', 'CurrentValues'),
-    BldgChartType(2, 'Plot Sensor Values over Time', 'TimeSeries'),
-    BldgChartType(3, 'Hourly Profile of a Sensor', 'HourlyProfile'),
-    BldgChartType(4, 'Histogram of a Sensor', 'Histogram'),
-    BldgChartType(5, 'Sensor X vs Y Scatter Plot', 'XYplot'),
-    BldgChartType(6, 'Download Sensor Data to Excel', 'ExportData')
+    BldgChartType(0, 'Dashboard', 'dashboard.Dashboard'),
+    BldgChartType(1, 'Current Sensor Values', 'currentvalues.CurrentValues'),
+    BldgChartType(2, 'Plot Sensor Values over Time', 'timeseries.TimeSeries'),
+    BldgChartType(3, 'Hourly Profile of a Sensor', 'hourlyprofile.HourlyProfile'),
+    BldgChartType(4, 'Histogram of a Sensor', 'histogram.Histogram'),
+    BldgChartType(5, 'Sensor X vs Y Scatter Plot', 'xyplot.XYplot'),
+    BldgChartType(6, 'Download Sensor Data to Excel', 'exportdata.ExportData')
 ]
 
 # The ID of the Time Series chart above, as it is needed in code below.
@@ -73,34 +71,26 @@ def get_chart_object(request_params):
     """
 
     # Get building ID and chart ID from the request parameters
-    bldg_id = view_util.to_int(request_params['select_bldg'])
-    chart_id = view_util.to_int(request_params['select_chart'])
+    bldg_id = bmsapp.view_util.to_int(request_params['select_bldg'])
+    chart_id = bmsapp.view_util.to_int(request_params['select_chart'])
 
     if bldg_id=='multi':
-        chart_info = models.MultiBuildingChart.objects.get(id=chart_id)
+        chart_info = bmsapp.models.MultiBuildingChart.objects.get(id=chart_id)
         class_name = chart_info.chart_type.class_name
     else:
         chart_info = find_chart_type(chart_id)
         class_name = chart_info.class_name
 
+    # need to dynamically get a class object based on the class_name.
+    # class_name is in the format <module name>.<class name>; break it apart.
+    mod_name, bare_class_name = class_name.split('.')
+    mod = importlib.import_module('bmsapp.reports.%s' % mod_name.strip())
+    
     # get a reference to the class referred to by class_name
-    chart_class = globals()[class_name]
+    chart_class = getattr(mod, bare_class_name.strip())
 
     # instantiate and return the chart from this class
     return chart_class(chart_info, bldg_id, request_params)
-
-def formatCurVal(val):
-    """
-    Helper function for formatting current values to 3 significant digits, but 
-    avoiding the use of scientific notation for display.  Also, integers are
-    shown at full precision.
-    """
-    if val == int(val):
-        return '{:,}'.format(int(val))
-    elif val >= 1000.0:
-        return '{:,}'.format( int(float('%.3g' % val)))
-    else:
-        return '%.3g' % val
 
 
 class BaseChart(object):
@@ -109,23 +99,34 @@ class BaseChart(object):
 
     def __init__(self, chart_info, bldg_id, request_params):
         """
-        'chart_info' is the models.BuildingChart object for the chart.  'bldg_id'
-        is the id of the building being charted. 'request_params' are the parameters
+        'chart_info' is the models.MultiBuildingChart object for the chart if it
+        is a multi-building chart; for single-building charts, it is the BldgChartType
+        object (the BldgChartType class is in this module).  'bldg_id'
+        is the id of the building being charted, or 'multi' for multi-building
+        charts. 'request_params' are the parameters
         passed in by the user through the Get http request.
         """
         self.chart_info = chart_info
         self.bldg_id = bldg_id
 
-        # if this is a chart for a single building, get the associated building model object
+        # if this is a chart for a single building, get the associated building model object,
+        # and the occupied schedule for the building if it is present.
+        self.schedule = None
         if bldg_id != 'multi':
-            self.building = models.Building.objects.get(id=bldg_id)
+            self.building = bmsapp.models.Building.objects.get(id=bldg_id)
+            if len(self.building.schedule.strip()):
+                self.schedule = bmsapp.schedule.Schedule(self.building.schedule, self.building.timezone)
 
         self.request_params = request_params
 
         # for the multi-building chart object, take the keyword parameter string 
         # and convert it to a dictionary.
         if bldg_id == 'multi':
-            self.chart_params = transforms.makeKeywordArgs(chart_info.parameters)
+            self.chart_params = bmsapp.calcs.transforms.makeKeywordArgs(chart_info.parameters)
+
+        # open the reading database and save it for use by the methods of this object.
+        # It is closed automatically in the destructor of the BMSdata class.
+        self.reading_db = bmsapp.readingdb.bmsdata.BMSdata(bmsapp.global_vars.DATA_DB_FILENAME)
 
     def get_ts_range(self):
         """
@@ -138,9 +139,9 @@ class BaseChart(object):
             end_ts = time.time() + 3600.0    # adding an hour to be sure all records are caught
         else:
             st_date = self.request_params['start_date']
-            st_ts = data_util.datestr_to_ts(st_date) if len(st_date) else 0
+            st_ts = bmsapp.data_util.datestr_to_ts(st_date) if len(st_date) else 0
             end_date = self.request_params['end_date']
-            end_ts = data_util.datestr_to_ts(end_date + " 23:59:59") if len(end_date) else time.time() + 3600.0
+            end_ts = bmsapp.data_util.datestr_to_ts(end_date + " 23:59:59") if len(end_date) else time.time() + 3600.0
 
         return st_ts, end_ts
 
@@ -164,7 +165,12 @@ class BaseChart(object):
         holding a list of JavaScript objects to create.  Each object is a
         two-tuple with the first element being the string identifying the
         object type and the second element being a configuration dictionary
-        for that object type.
+        for that object type.  'bmsappX-Y.Z.js' must understand the string
+        describing the JavaScript object.
+        Alternatively, this method can return a django.http.HttpResponse
+        object, which will be returned directly to the client application;
+        this approach is used the exportdata.ExportData class to return an
+        Excel spreadsheet.
         '''
         return {'html': self.__class__.__name__, 'objects': []}
 

@@ -1,4 +1,11 @@
-class ExportData(BaseChart):
+import numpy as np, pandas as pd, xlwt
+from django.http import HttpResponse
+import bmsapp.models, bmsapp.data_util
+import basechart
+
+class ExportData(basechart.BaseChart):
+    """Class that exports data as an Excel spreadsheet.
+    """
 
     def result(self):
         """
@@ -8,7 +15,7 @@ class ExportData(BaseChart):
 
         # determine a name for the spreadsheet and fill out the response object
         # headers.
-        xls_name = 'sensors_%s.xls' % data_util.ts_to_datetime().strftime('%Y-%m-%d_%H%M%S')
+        xls_name = 'sensors_%s.xls' % bmsapp.data_util.ts_to_datetime().strftime('%Y-%m-%d_%H%M%S')
         resp_object = HttpResponse()
         resp_object['Content-Type']= 'application/vnd.ms-excel'
         resp_object['Content-Disposition'] = 'attachment; filename=%s' % xls_name
@@ -26,10 +33,7 @@ class ExportData(BaseChart):
         ws.col(0).width = 4300
 
         # make a timestamp binning object
-        binner = data_util.TsBin(float(self.request_params['averaging_time_export']))
-
-        # open the database 
-        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
+        binner = bmsapp.data_util.TsBin(float(self.request_params['averaging_time_export']))
 
         # walk through sensors, setting column titles and building a Pandas DataFrame
         # that aligns the averaged timestamps of the different sensors.
@@ -37,7 +41,7 @@ class ExportData(BaseChart):
         df = pd.DataFrame()
         blank_col_names = []   # need to remember columns that have no readings
         for id in self.request_params.getlist('select_sensor'):
-            sensor = models.Sensor.objects.get(pk=id)
+            sensor = bmsapp.models.Sensor.objects.get(pk=id)
 
             # write column heading in spreadsheet
             ws.write(0, col, '%s, %s' % (sensor.title, sensor.unit.label), t1_style)
@@ -46,7 +50,7 @@ class ExportData(BaseChart):
             # determine the start time for selecting records and make a DataFrame from
             # the records
             st_ts, end_ts = self.get_ts_range()
-            db_recs = db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
+            db_recs = self.reading_db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
             if len(db_recs)!=0:
                 df_new = pd.DataFrame(db_recs).set_index('ts')
                 df_new.columns = ['col%03d' % col]
@@ -71,7 +75,7 @@ class ExportData(BaseChart):
         # put the data in the spreadsheet
         row = 1
         for ix, ser in df.iterrows():
-            ws.write(row, 0, data_util.ts_to_datetime(ix), dt_style)
+            ws.write(row, 0, bmsapp.data_util.ts_to_datetime(ix), dt_style)
             col = 1
             for v in ser.values:
                 if not np.isnan(v):

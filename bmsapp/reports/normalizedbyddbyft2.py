@@ -1,4 +1,8 @@
-class NormalizedByDDbyFt2(BaseChart):
+import pandas as pd
+import bmsapp.models, bmsapp.data_util, bmsapp.calcs.transforms
+import basechart
+
+class NormalizedByDDbyFt2(basechart.BaseChart):
     """
     Chart that normalizes a quantity by degree-days and floor area.  Value being normalized
     must be a rate per hour quantity; the normalization integrates by the hour.  For example
@@ -24,14 +28,11 @@ class NormalizedByDDbyFt2(BaseChart):
         degree-days and floor area.
         """
 
-        # open the database 
-        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
-
         # get the time range  used in the analysis
         st_ts, end_ts = self.get_ts_range()
 
         # make a timestamp binning object to bin the data into 1 hour intervals
-        binner = data_util.TsBin(1.0)
+        binner = bmsapp.data_util.TsBin(1.0)
 
         # get the base temperature for degree day calculations
         base_temp = self.chart_params['base_temp']
@@ -45,7 +46,7 @@ class NormalizedByDDbyFt2(BaseChart):
 
         # get the buildings in the current building group
         group_id = int(self.request_params['select_group'])
-        bldgs = view_util.buildings_for_group(group_id)
+        bldgs = bmsapp.view_util.buildings_for_group(group_id)
         
         # loop through the buildings determining the Btu/ft2/dd for each building
         for bldg_info in self.chart_info.chartbuildinginfo_set.filter(building__in=bldgs):
@@ -53,10 +54,10 @@ class NormalizedByDDbyFt2(BaseChart):
             bldg_name = bldg_info.building.title   # get the building name
 
             # get the parameters associated with this building
-            bldg_params = transforms.makeKeywordArgs(bldg_info.parameters)
+            bldg_params = bmsapp.calcs.transforms.makeKeywordArgs(bldg_info.parameters)
 
             # get the value records and average into one hour intervals
-            db_recs = db.rowsForOneID(bldg_params['id_value'], st_ts, end_ts)
+            db_recs = self.reading_db.rowsForOneID(bldg_params['id_value'], st_ts, end_ts)
             if len(db_recs)==0:
                 continue
             df = pd.DataFrame(db_recs).set_index('ts')
@@ -64,7 +65,7 @@ class NormalizedByDDbyFt2(BaseChart):
             df = df.groupby(binner.bin).mean()    # do one hour averaging
 
             # get outdoor temp data and average into one hour intervals.  
-            db_recs = db.rowsForOneID(bldg_params['id_out_temp'], st_ts, end_ts)
+            db_recs = self.reading_db.rowsForOneID(bldg_params['id_out_temp'], st_ts, end_ts)
             if len(db_recs)==0:
                 continue
             df_temp = pd.DataFrame(db_recs).set_index('ts')

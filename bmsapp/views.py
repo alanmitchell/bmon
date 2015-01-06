@@ -8,7 +8,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-import models, global_vars, charts, view_util, storereads
+import models, global_vars, view_util, storereads
+from reports import basechart
 from readingdb import bmsdata
 
 # Make a logger for this module
@@ -79,7 +80,7 @@ def get_report_results(request):
     """
     try:
         # Make the chart object
-        chart_obj = charts.get_chart_object(request.GET)
+        chart_obj = basechart.get_chart_object(request.GET)
         result = chart_obj.result()
     
     except:

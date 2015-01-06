@@ -1,14 +1,18 @@
-class TimeSeries(BaseChart):
+import numpy as np, pandas as pd
+import bmsapp.models, bmsapp.data_util
+import basechart
+
+class TimeSeries(basechart.BaseChart):
+    """Chart class for creating Time Series graph.
+    """
 
     def result(self):
         """
         Returns the HTML and configuration for a Time Series chart.  
         """
-        # open the database 
-        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         # Determine the sensors to plot. This creates a list of Sensor objects to plot.
-        sensor_list = [ models.Sensor.objects.get(pk=id) for id in self.request_params.getlist('select_sensor') ]
+        sensor_list = [ bmsapp.models.Sensor.objects.get(pk=id) for id in self.request_params.getlist('select_sensor') ]
 
         # determine the Y axes that will be needed to cover the the list of sensor, based on the labels
         # of the units
@@ -29,7 +33,7 @@ class TimeSeries(BaseChart):
         # determine suitable line width
         line_width = 1 if len(sensor_list) > 1 else 2
         for sensor in sensor_list:
-            db_recs = db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
+            db_recs = self.reading_db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
             # put timestamps and values into arrays
             times = []
             values = []
@@ -41,7 +45,7 @@ class TimeSeries(BaseChart):
             times = np.array(times)
             if averaging_hours:
                 # averaging is requested, so do it using a Pandas Series
-                ser = pd.Series(values, index=times).groupby(data_util.TsBin(averaging_hours).bin).mean()
+                ser = pd.Series(values, index=times).groupby(bmsapp.data_util.TsBin(averaging_hours).bin).mean()
                 values = ser.values
                 times = ser.index
             # Highcharts uses milliseconds for timestamps, and convert to float because weirdly, integers have
@@ -50,7 +54,7 @@ class TimeSeries(BaseChart):
             # Create series data, each item being an [ts, val] pair.  
             # The 'yAxis' property indicates the id of the Y axis where the data should be plotted.
             # Our convention is to use the unit label for the axis as the id.
-            series_data = [ [ts, data_util.round4(val)] for ts, val in zip(times, values) ]
+            series_data = [ [ts, bmsapp.data_util.round4(val)] for ts, val in zip(times, values) ]
 
             # update point count variables
             pts_in_series = len(series_data)
@@ -64,7 +68,7 @@ class TimeSeries(BaseChart):
                           'lineWidth': line_width,
                           'tooltip': {
                               'valueSuffix': ' ' + sensor.unit.label,
-                              'valueDecimals': data_util.decimals_needed(values, 4)
+                              'valueDecimals': bmsapp.data_util.decimals_needed(values, 4)
                           }
                          }
             # if the sensor has defined states, make the series a Step type series.

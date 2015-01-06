@@ -1,11 +1,14 @@
-class Dashboard(BaseChart):
+import time
+import bmsapp.models, bmsapp.data_util
+import basechart
+
+class Dashboard(basechart.BaseChart):
+    """Class for creating Dashboard report.
+    """
 
     def result(self):
         """Create the dashboard HTML and configuration object.
         """
-
-        # open the database 
-        db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
 
         widgets = []
         cur_row = []
@@ -22,8 +25,8 @@ class Dashboard(BaseChart):
             new_widget['title'] = dash_item.title if len(dash_item.title) or (dash_item.sensor is None) else dash_item.sensor.sensor.title
 
             if dash_item.sensor is not None:
-                last_read = db.last_read(dash_item.sensor.sensor.sensor_id)
-                cur_value = float(formatCurVal(last_read['val'])) if last_read else None
+                last_read = self.reading_db.last_read(dash_item.sensor.sensor.sensor_id)
+                cur_value = float(bmsapp.data_util.formatCurVal(last_read['val'])) if last_read else None
                 age_secs = time.time() - last_read['ts'] if last_read else None    # how long ago reading occurred
                 minAxis, maxAxis = dash_item.get_axis_range()
                 new_widget.update( {'units': dash_item.sensor.sensor.unit.label,
@@ -32,18 +35,18 @@ class Dashboard(BaseChart):
                                     'maxNormal': dash_item.maximum_normal_value,
                                     'minAxis': min(minAxis, cur_value),
                                     'maxAxis': max(maxAxis, cur_value),
-                                    'timeChartID': TIME_SERIES_CHART_ID,
+                                    'timeChartID': basechart.TIME_SERIES_CHART_ID,
                                     'sensorID': dash_item.sensor.sensor.id,
                                    } )
                 # check to see if data is older than 2 hours or missing, and change widget type if so.
                 if cur_value is None:
-                    new_widget['type'] = models.DashboardItem.NOT_CURRENT
+                    new_widget['type'] = bmsapp.models.DashboardItem.NOT_CURRENT
                     new_widget['age'] = 'Not Available'
                 elif 7200 <= age_secs < 86400:
-                    new_widget['type'] = models.DashboardItem.NOT_CURRENT
+                    new_widget['type'] = bmsapp.models.DashboardItem.NOT_CURRENT
                     new_widget['age'] = '%.1f hours Old' % (age_secs/3600.0)
                 elif age_secs >= 86400:
-                    new_widget['type'] = models.DashboardItem.NOT_CURRENT
+                    new_widget['type'] = bmsapp.models.DashboardItem.NOT_CURRENT
                     new_widget['age'] = '%.1f days Old' % (age_secs/86400.0)
 
             cur_row.append(new_widget)
@@ -51,9 +54,6 @@ class Dashboard(BaseChart):
         # append the last row if anything is present in that row
         if len(cur_row):
             widgets.append(cur_row)
-
-        # close the reading database
-        db.close()
 
         dash_config = {'widgets': widgets, 'renderTo': 'dashboard'}
 
