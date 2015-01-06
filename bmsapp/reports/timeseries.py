@@ -98,6 +98,28 @@ class TimeSeries(basechart.BaseChart):
         opt['series'] = series
         opt['yAxis'] = y_axes
 
+        # If occupied period shading is requested, do it, as long as data
+        # is averaged over 1 day or less
+        if ('show_occupied' in self.request_params) and averaging_hours<=24:
+            # determine the occupied periods
+            if self.schedule == None:
+                # no schedule, assume occupied 24x7
+                periods = [(st_ts, end_ts)]
+            else:
+                # if data are daily averages, then shade entire days instead of the
+                # exact periods.
+                resolution = 'exact' if averaging_hours < 24 else 'day'
+                periods = self.schedule.occupied_periods(st_ts, end_ts, resolution=resolution)
+
+            bands = []
+            for occ_start, occ_stop in periods:
+                band = {'color': '#FAFAD4'}
+                band['from'] = int(occ_start * 1000)    # needs to be in milliseconds
+                band['to'] = int(occ_stop * 1000)
+                bands.append(band)
+
+            opt['xAxis']['plotBands'] = bands
+
         html = '<div id="chart_container"></div>'
 
         return {'html': html, 'objects': [(chart_type, opt)]}
