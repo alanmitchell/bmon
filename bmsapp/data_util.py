@@ -50,6 +50,19 @@ def decimals_needed(vals, sig_figures):
     else:
         # No values in the array, just return 0.
         return 0
+
+def formatCurVal(val):
+    """
+    Helper function for formatting current values to 3 significant digits, but 
+    avoiding the use of scientific notation for display.  Also, integers are
+    shown at full precision.
+    """
+    if val == int(val):
+        return '{:,}'.format(int(val))
+    elif val >= 1000.0:
+        return '{:,}'.format( int(float('%.3g' % val)))
+    else:
+        return '%.3g' % val
     
 class TsBin:
     '''

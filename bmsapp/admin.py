@@ -38,7 +38,9 @@ class DashboardItemInline(admin.StackedInline):
 
 class BuildingAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline, DashboardItemInline)
-
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 4})},
+    }
     def get_form(self, request, obj=None, **kwargs):
         # save the object reference for future processing in DashboardInline
         request._obj_ = obj
@@ -61,6 +63,9 @@ class UnitAdmin(admin.ModelAdmin):
     list_editable = ('label', 'measure_type')
 
 class MultiBuildingChartTypeAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.CharField: {'widget': TextInput(attrs={'size':'50'})},
+    }
     list_display = ('id', 'title', 'class_name', 'sort_order')
     list_editable = ('title', 'class_name', 'sort_order')
 

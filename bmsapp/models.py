@@ -84,9 +84,10 @@ class MultiBuildingChartType(models.Model):
     # descriptive title of the Chart Type
     title = models.CharField(max_length=50, unique=True)
 
-    # the name of the Javascript class used to render the chart.  Also the
-    # name of the Django template name used to create the HTML for the chart.
-    class_name = models.CharField(max_length=30, unique=True)
+    # the name of the Django chart class in the 'reports' Python package
+    # that will return the data necessary to render the chart.  The format
+    # of this field must be: <module name>.<class name>
+    class_name = models.CharField(max_length=60, unique=True)
 
     # determines order of Chart Type displayed in Admin interface
     sort_order = models.IntegerField(default=999)
@@ -111,6 +112,16 @@ class Building(models.Model):
 
     # Longitude of building
     longitude = models.FloatField(default=-161.0)
+
+    # Fields related to the Occupied Schedule of the Facility
+
+    # The timezone, from the Olson timezone database, where the facility
+    # is located.
+    timezone = models.CharField("Time Zone of Facility, from tz database", 
+        max_length=50, default='US/Alaska')
+
+    # Occupied schedule for building.  No entry means continually occupied.
+    schedule = models.TextField("Occupied Schedule of Facility (e.g. M-F: 8a-5p)", blank=True)
 
     # the sensors and calculated values associated with this building
     sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True, null=True)

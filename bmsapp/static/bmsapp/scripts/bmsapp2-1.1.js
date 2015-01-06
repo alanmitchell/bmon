@@ -85,7 +85,7 @@
 
   process_chart_change = function() {
     var is_multiple, sensor_ctrl;
-    set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'xy_controls', 'time_period', 'download_many'], false);
+    set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period', 'download_many'], false);
     clearInterval(_refresh_timer);
     _auto_recalc = true;
     if ($("#select_bldg").val() === "multi") {
@@ -101,7 +101,7 @@
         _refresh_timer = setInterval(update_results, REFRESH_MS);
         break;
       case "2":
-        set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'time_period'], true);
+        set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_occupied', 'time_period'], true);
         is_multiple = true;
         break;
       case "3":
@@ -182,6 +182,7 @@
     });
     $("#refresh").button().click(update_results);
     $("#normalize").button();
+    $("#show_occupied").button();
     $("#divide_date").datepicker({
       dateFormat: "mm/dd/yy"
     });
@@ -191,7 +192,7 @@
     $("#select_group").change(update_bldg_list);
     $("#select_bldg").change(update_chart_sensor_lists);
     $("#select_chart").change(process_chart_change);
-    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'divide_date', 'time_period'];
+    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'divide_date', 'time_period'];
     for (_i = 0, _len = ctrls.length; _i < _len; _i++) {
       ctrl = ctrls[_i];
       $("#" + ctrl).change(inputs_changed);

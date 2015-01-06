@@ -67,9 +67,9 @@ SENSOR_MULTI_CONFIG = {minWidth: 300, selectedList: 3, close: inputs_changed}
 # the visibility of controls.
 process_chart_change = ->
 
-  # start by hiding all inputs controls
+  # start by hiding all input controls
   set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export',
-    'ctrl_normalize', 'xy_controls', 'time_period', 'download_many'], false)
+    'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period', 'download_many'], false)
 
   # As the default, clear timed refresh
   clearInterval _refresh_timer
@@ -90,7 +90,7 @@ process_chart_change = ->
       set_visibility(['refresh'], true)
       _refresh_timer = setInterval update_results, REFRESH_MS
     when "2"    # Time Series
-      set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'time_period'], true)
+      set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_occupied', 'time_period'], true)
       is_multiple = true
     when "3"    # Hourly Profile
       set_visibility(['refresh', 'ctrl_sensor', 'ctrl_normalize', 'time_period'], true)
@@ -172,6 +172,7 @@ $ ->
   # make refresh button a jQuery button & call update when clicked
   $("#refresh").button().click update_results     
   $("#normalize").button()   # checkbox to create normalized (0-100%) hourly profile
+  $("#show_occupied").button()   # checkbox to create normalized (0-100%) hourly profile
   $("#divide_date").datepicker dateFormat: "mm/dd/yy"   # for xy plot
 
   # special handling of the Excel Export button because the content for this report
@@ -187,8 +188,9 @@ $ ->
 
   # Set up change handlers for inputs.  Sensor select control is
   # special case and is set up in process_chart_change routine.
-  ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'select_sensor_x',
-    'select_sensor_y', 'averaging_time_xy', 'divide_date', 'time_period']
+  ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 
+    'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'divide_date', 
+    'time_period']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
 
   # Process the currently selected chart
