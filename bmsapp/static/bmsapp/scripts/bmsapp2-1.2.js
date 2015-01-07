@@ -108,7 +108,7 @@
         set_visibility(['refresh', 'ctrl_sensor', 'ctrl_normalize', 'time_period'], true);
         break;
       case "4":
-        set_visibility(['refresh', 'ctrl_sensor', 'time_period'], true);
+        set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'time_period'], true);
         break;
       case "5":
         set_visibility(['refresh', 'xy_controls', 'time_period'], true);

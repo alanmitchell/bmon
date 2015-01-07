@@ -113,7 +113,7 @@ class TimeSeries(basechart.BaseChart):
 
             bands = []
             for occ_start, occ_stop in periods:
-                band = {'color': '#FAFAD4'}
+                band = {'color': '#E6FAED'}          # #FAFAD4
                 band['from'] = int(occ_start * 1000)    # needs to be in milliseconds
                 band['to'] = int(occ_stop * 1000)
                 bands.append(band)
