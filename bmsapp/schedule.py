@@ -112,41 +112,34 @@ class Schedule:
             if day_name.startswith(day_text.capitalize()):
                 return days_dict[day_name]
 
-    def is_occupied(self, ts):
+    def is_occupied(self, ts, resolution='exact'):
         """ Returns True if the Unix timestamp, 'ts', falls within an occupied
         period identified by this schedule.  Returns False otherwise.
+        If 'resolution' is 'exact', 'ts' is judged against the exact schedule;
+        if 'resolution' is 'day', the function returns True if 'ts' falls on a
+        'predominantly occupied' day (see __init__() constructor for further 
+        info).
         """
 
         # convert the timestamp 'ts' to a Python datetime object in the facility's time zone
         dt = datetime.datetime.fromtimestamp(ts, self.tz)
 
-        # test to see if there is an entry in the schedule dictionary for the day and time
-        if dt.weekday() in self.definition:
-            # retrieve the occupied times for the day
-            occupied_times = self.definition[dt.weekday()]
+        if resolution=='exact':
+            # test to see if there is an entry in the schedule dictionary for the day and time
+            if dt.weekday() in self.definition:
+                # retrieve the occupied times for the day
+                occupied_times = self.definition[dt.weekday()]
 
-            for start_time, end_time in occupied_times:
-                if start_time < dt.time() < end_time:
-                    return True
+                for start_time, end_time in occupied_times:
+                    if start_time < dt.time() < end_time:
+                        return True
 
-        # Return False if we haven't already returned with True
-        return False
+            # Return False if we haven't already returned with True
+            return False
 
-    def is_occupied_day(self, ts):
-        """ Returns True if the Unix timestamp, 'ts', falls on a day that is
-        "predominantly occupied".  Returns False otherwise.  "Predominantly
-        occupied" means that the number of occupied hours in that day are 
-        more than 65% of the occupied hours in the most occupied day of
-        the week.  So, if Monday has 12 occupied hours and is the most
-        occupied day of the week, this function will return True if the
-        day of the week that 'ts' falls on has more than 7.8 occupied hours.
-        """
-
-        # convert the timestamp 'ts' to a day index
-        day_index = datetime.datetime.fromtimestamp(ts, self.tz).weekday()
-
-        # return true if it is an occupied day
-        return day_index in self.predominantly_occupied_days
+        else:
+            # return True if ts is in predominantly occupied day.
+            return dt.weekday() in self.predominantly_occupied_days
 
     def occupied_periods(self, ts_start, ts_end, resolution='exact'):
         """ Returns a list of two-tuples identifying all of the occupied periods
