@@ -176,10 +176,14 @@ class BaseChart(object):
             None: Data averaging is across long intervals that make occupied / 
                 unoccupied classification not meaningful.
         """
-        # get the requested averaging interval in hours
-        if self.request_params['select_chart'] == '5':
+        # get info about the requested chart
+        cht_info = find_chart_type(int(self.request_params['select_chart']))
+
+        # get the requested averaging interval in hours.  The relevant 
+        # averaging input control depends on the chart type.
+        if 'XY' in cht_info.class_name:
             averaging_hours = float(self.request_params['averaging_time_xy'])    
-        elif self.request_params['select_chart'] == '6':
+        elif 'Export' in cht_info.class_name:
             averaging_hours = float(self.request_params['averaging_time_export'])
         else:
             averaging_hours = float(self.request_params['averaging_time'])
