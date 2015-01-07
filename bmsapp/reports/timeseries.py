@@ -100,20 +100,22 @@ class TimeSeries(basechart.BaseChart):
 
         # If occupied period shading is requested, do it, as long as data
         # is averaged over 1 day or less
-        if ('show_occupied' in self.request_params) and averaging_hours<=24:
+        if ('show_occupied' in self.request_params):
+
+            # get resolution to use in determining whether a timestamp is
+            # occupied.
+            resolution = self.occupied_resolution()  
+
             # determine the occupied periods
-            if self.schedule == None:
-                # no schedule, assume occupied 24x7
+            if (self.schedule == None) or (resolution is None):
+                # no schedule or data doesn't lend itself to classifying
                 periods = [(st_ts, end_ts)]
             else:
-                # if data are daily averages, then shade entire days instead of the
-                # exact periods.
-                resolution = 'exact' if averaging_hours < 24 else 'day'
                 periods = self.schedule.occupied_periods(st_ts, end_ts, resolution=resolution)
 
             bands = []
             for occ_start, occ_stop in periods:
-                band = {'color': '#E6FAED'}          # #FAFAD4
+                band = {'color': '#D7FAE3'}
                 band['from'] = int(occ_start * 1000)    # needs to be in milliseconds
                 band['to'] = int(occ_stop * 1000)
                 bands.append(band)

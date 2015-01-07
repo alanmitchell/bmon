@@ -158,6 +158,28 @@ class BaseChart(object):
             opt['title']['text'] = self.chart_info.title
         return opt
 
+    def occupied_resolution(self):
+        """Returns a string indicating the resolution to use when determining
+        whether a timestamp is in the Occupied or Unoccupied period.  The return
+        value depends on how many hours the data is averaged over; this is 
+        indicated by the 'averaging_time' GET parameter.
+        The possible return values are 
+            'exact': classify the timestamp based on the exact schedule times.
+            'day': classify the timestamp according to whether it falls in a day
+                that is predominantly occupied.
+            None: Data averaging is across long intervals that make occupied / 
+                unoccupied classification not meaningful.
+        """
+        # get the requested averaging interval in hours
+        averaging_hours = float(self.request_params['averaging_time'])
+
+        if averaging_hours < 24.0:
+            return 'exact'
+        elif averaging_hours==24.0:
+            return 'day'
+        else:
+            return None
+
     def result(self):
         '''
         This method should be overridden to return a dictionary with an 
