@@ -107,7 +107,7 @@ class TimeSeries(basechart.BaseChart):
             resolution = self.occupied_resolution()  
 
             # determine the occupied periods
-            if (self.schedule == None) or (resolution is None):
+            if (self.schedule is None) or (resolution is None):
                 # no schedule or data doesn't lend itself to classifying
                 periods = [(st_ts, end_ts)]
             else:

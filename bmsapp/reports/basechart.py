@@ -3,6 +3,7 @@ This module holds classes that create the HTML and supply the data for Charts an
 Reports.
 """
 import time, logging, copy, importlib
+from django.conf import settings
 import bmsapp.models, bmsapp.global_vars, bmsapp.readingdb.bmsdata
 import bmsapp.calcs.transforms, bmsapp.schedule
 import bmsapp.view_util, bmsapp.data_util
@@ -110,12 +111,17 @@ class BaseChart(object):
         self.bldg_id = bldg_id
 
         # if this is a chart for a single building, get the associated building model object,
-        # and the occupied schedule for the building if it is present.
+        # and the occupied schedule for the building if it is present.  Also, determine a 
+        # timezone appropriate for this chart.
         self.schedule = None
+        self.timezone = getattr(settings, 'TIME_ZONE', 'US/Alaska').strip()
         if bldg_id != 'multi':
             self.building = bmsapp.models.Building.objects.get(id=bldg_id)
+            # override  the timezone if the building has one explicitly set
+            if len(self.building.timezone.strip()):
+                self.timezone = self.building.timezone.strip()
             if len(self.building.schedule.strip()):
-                self.schedule = bmsapp.schedule.Schedule(self.building.schedule, self.building.timezone)
+                self.schedule = bmsapp.schedule.Schedule(self.building.schedule, self.timezone)
 
         self.request_params = request_params
 

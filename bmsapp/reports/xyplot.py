@@ -1,5 +1,6 @@
 import time
-import pandas as pd
+from datetime import datetime
+import pandas as pd, pytz
 import bmsapp.models, bmsapp.data_util
 import basechart
 
@@ -44,6 +45,19 @@ class XYplot(basechart.BaseChart):
             # a list of points.
             df_all = dfX.join(dfY, how='inner')  # inner join does intersection of timestamps
 
+            # add a point name column to be used in the tooltip.  Use the Date/Time for this.
+            tz = pytz.timezone(self.timezone)
+            df_all['name'] = [datetime.fromtimestamp(ts, tz).strftime('%b %d, %Y %H:%M') for ts in df_all.index]
+
+            # add a column identifying whether point is in occupied or unoccupied period.
+            resolution = self.occupied_resolution()
+            if (self.schedule is None) or (resolution is None):
+                # no schedule or data doesn't lend itself to classifying
+                # consider all points to be occupied
+                df_all['occupied'] = 1
+            else:
+                df_all['occupied'] = [self.schedule.is_occupied(ts, resolution=resolution) for ts in df_all.index]
+
             # Set up the parameters for the different series of data
             # Required Info is (starting timestamp, ending timestamp, series name, series color, series symbol).
             ts_now = time.time()
@@ -60,7 +74,8 @@ class XYplot(basechart.BaseChart):
 
             for t_start, t_end, ser_name, ser_color, ser_symbol in ser_params:
                 mask = (df_all.index >= t_start) & (df_all.index < t_end)
-                pts = [ (bmsapp.data_util.round4(row['X']), bmsapp.data_util.round4(row['Y'])) for ix, row in df_all[mask].iterrows() ]
+                pts = [ {'x': bmsapp.data_util.round4(row['X']), 'y': bmsapp.data_util.round4(row['Y']), 'name': row['name'] } 
+                        for ix, row in df_all[mask].iterrows() ]
                 if len(pts):
                     series.append( { 'data': pts, 'name': ser_name, 'color': ser_color, 'marker': {'symbol': ser_symbol} } )
 
@@ -70,6 +85,8 @@ class XYplot(basechart.BaseChart):
 
         opt = self.get_chart_options()
         opt['series'] = series
+        opt['tooltip']['pointFormat'] = 'X: <b>{point.x}</b><br/>Y: <b>{point.y}</b><br/><b>{point.name}</b>'
+        opt['plotOptions']['series']['turboThreshold'] = 0    # with object points, need to disable to allow all points to be displayed
         opt['yAxis']['title']['text'] = y_label
         opt['xAxis']['title']['text'] = x_label
         opt['chart']['type'] = 'scatter'
