@@ -47,7 +47,7 @@ class XYplot(basechart.BaseChart):
 
             # add a point name column to be used in the tooltip.  Use the Date/Time for this.
             tz = pytz.timezone(self.timezone)
-            df_all['name'] = [datetime.fromtimestamp(ts, tz).strftime('%b %d, %Y %H:%M') for ts in df_all.index]
+            df_all['name'] = [datetime.fromtimestamp(ts, tz).strftime('%b %d, %Y %a %H:%M') for ts in df_all.index]
 
             # add a column identifying whether point is in occupied or unoccupied period.
             resolution = self.occupied_resolution()
@@ -59,25 +59,35 @@ class XYplot(basechart.BaseChart):
                 df_all['occupied'] = [self.schedule.is_occupied(ts, resolution=resolution) for ts in df_all.index]
 
             # Set up the parameters for the different series of data
-            # Required Info is (starting timestamp, ending timestamp, series name, series color, series symbol).
+            # Required Info is (starting timestamp, ending timestamp, occupied status (0 or 1), series name, 
+            # series color, series symbol, series radius, series zindex).
             ts_now = time.time()
             if div_ts:
                 # A dividing date was provided by the user.
-                ser_params = ( (0, div_ts, 'Prior to %s' % div_date, '#2f7ed8', 'circle'),
-                               (div_ts, ts_now, '%s and beyond' % div_date, '#FF0000', 'circle') )
+                ser_params = ( (0, div_ts, 1, 'Prior to %s' % div_date, '#2f7ed8', 'circle', 4.5),
+                               (0, div_ts, 0, 'Prior to %s, Unoccupied' % div_date, '#2f7ed8', 'triangle', 3),
+                               (div_ts, ts_now, 1, '%s and beyond' % div_date, '#FF0000', 'circle', 4.5),
+                               (div_ts, ts_now, 0, '%s and beyond, Unoccupied' % div_date, '#FF0000', 'triangle', 3) )
             else:
                 # Divide data by how recent it is.
-                ser_params = ( (0, ts_now - 7 * 24 * 3600, 'Older than 1 Week', '#2f7ed8', 'diamond'),
-                               (ts_now - 7 * 24 * 3600, ts_now - 24 * 3600, 'Last Week', '#00CC00', 'circle'),
-                               (ts_now - 24 * 3600, ts_now, 'Last 24 Hours', '#FF0000', 'square') )
+                ser_params = ( (ts_now - 24 * 3600, ts_now, 1, 'Last 24 Hours', '#FF0000', 'circle', 4.5),
+                               (ts_now - 24 * 3600, ts_now, 0, 'Last 24 Hours, Unoccupied', '#FF0000', 'triangle', 3),
+                               (ts_now - 7 * 24 * 3600, ts_now - 24 * 3600, 1, 'Last 7 Days', '#00CC00', 'circle', 4.5),
+                               (ts_now - 7 * 24 * 3600, ts_now - 24 * 3600, 0, 'Last 7 Days, Unoccupied', '#00CC00', 'triangle', 3),
+                               (0, ts_now - 7 * 24 * 3600, 1, '7+ Days Old', '#2f7ed8', 'circle', 4.5),
+                               (0, ts_now - 7 * 24 * 3600, 0, '7+ Days Old, Unoccupied', '#2f7ed8', 'triangle', 3),
+                              )
             series = []
 
-            for t_start, t_end, ser_name, ser_color, ser_symbol in ser_params:
-                mask = (df_all.index >= t_start) & (df_all.index < t_end)
+            z_index = 10    # I want first series to be on top, so should get largest zindex.
+            for t_start, t_end, occup, ser_name, ser_color, ser_symbol, radius in ser_params:
+                mask = (df_all.index >= t_start) & (df_all.index < t_end) & (df_all.occupied==occup)
                 pts = [ {'x': bmsapp.data_util.round4(row['X']), 'y': bmsapp.data_util.round4(row['Y']), 'name': row['name'] } 
                         for ix, row in df_all[mask].iterrows() ]
                 if len(pts):
-                    series.append( { 'data': pts, 'name': ser_name, 'color': ser_color, 'marker': {'symbol': ser_symbol} } )
+                    series.append( { 'data': pts, 'name': ser_name, 'color': ser_color, 'zIndex': z_index,
+                        'marker': {'symbol': ser_symbol, 'radius': radius} } )
+                    z_index -= 1
 
         # create the X and Y axis labels and the series in Highcharts format
         x_label = '%s, %s' % (sensorX.title, sensorX.unit.label)

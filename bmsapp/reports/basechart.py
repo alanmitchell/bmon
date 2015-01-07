@@ -177,7 +177,12 @@ class BaseChart(object):
                 unoccupied classification not meaningful.
         """
         # get the requested averaging interval in hours
-        averaging_hours = float(self.request_params['averaging_time'])
+        if self.request_params['select_chart'] == '5':
+            averaging_hours = float(self.request_params['averaging_time_xy'])    
+        elif self.request_params['select_chart'] == '6':
+            averaging_hours = float(self.request_params['averaging_time_export'])
+        else:
+            averaging_hours = float(self.request_params['averaging_time'])
 
         if averaging_hours < 24.0:
             return 'exact'
