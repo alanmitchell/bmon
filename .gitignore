@@ -9,3 +9,4 @@ settings.py
 *.bak
 docs/
 **/.ipynb_checkpoints
+.idea
