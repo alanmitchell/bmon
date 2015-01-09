@@ -192,7 +192,7 @@
     $("#select_group").change(update_bldg_list);
     $("#select_bldg").change(update_chart_sensor_lists);
     $("#select_chart").change(process_chart_change);
-    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'divide_date', 'time_period'];
+    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'divide_date', 'time_period'];
     for (_i = 0, _len = ctrls.length; _i < _len; _i++) {
       ctrl = ctrls[_i];
       $("#" + ctrl).change(inputs_changed);
