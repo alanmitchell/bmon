@@ -1,6 +1,8 @@
 import pandas as pd
-import bmsapp.models, bmsapp.data_util
+import bmsapp.models
+import bmsapp.data_util
 import basechart
+
 
 class HourlyProfile(basechart.BaseChart):
     """Class that creates Hourly Profile graph.
@@ -18,9 +20,9 @@ class HourlyProfile(basechart.BaseChart):
         st_ts, end_ts = self.get_ts_range()
         db_recs = self.reading_db.rowsForOneID(the_sensor.sensor_id, st_ts, end_ts)
         recs = []
-        for rec in  db_recs:
+        for rec in db_recs:
             dt = bmsapp.data_util.ts_to_datetime(rec['ts'])
-            recs.append( {'da': dt.weekday(), 'hr': dt.hour, 'val': rec['val']} )
+            recs.append({'da': dt.weekday(), 'hr': dt.hour, 'val': rec['val']})
 
         series = []
         if len(recs):
@@ -29,23 +31,27 @@ class HourlyProfile(basechart.BaseChart):
             df = pd.DataFrame(recs).groupby(('da', 'hr')).mean().reset_index()
 
             # Here are the groups of days we want to chart as separate series
-            da_groups = [ ('All Days', (0,1,2,3,4,5,6)),
-                          ('Mon', (0,)),
-                          ('Tue-Fri', (1,2,3,4)),
-                          ('Mon-Fri', (0,1,2,3,4)),
-                          ('Sat', (5,)),
-                          ('Sun', (6,)),
-                          ('Sat-Sun', (5,6)),
-                        ]
+            if self.schedule:
+                da_groups = [('All Days', (0, 1, 2, 3, 4, 5, 6), False),
+                             ('Occupied Days', (da for da in self.schedule.predominantly_occupied_days), True),
+                             ('Un-Occupied Days', (da for da in range(7)
+                                                   if da not in self.schedule.predominantly_occupied_days), True)]
+            else:
+                da_groups = [('All Days', (0, 1, 2, 3, 4, 5, 6), True)]
 
-            # Make a list of the series.  create the series in a form directly useable by
+            da_groups += [('Mon', (0,), False),
+                          ('Tue-Fri', (1, 2, 3, 4), False),
+                          ('Sat', (5,), False),
+                          ('Sun', (6,), False)]
+
+            # Make a list of the series.  create the series in a form directly usable by
             # Highcharts.
-            for nm, da_tuple in da_groups:
+            for nm, da_tuple, visibility in da_groups:
                 a_series = {'name': nm}
                 df_gp = df[df.da.isin(da_tuple)].drop('da', axis=1).groupby('hr').mean()
-                a_series['data'] = [bmsapp.data_util.round4(df_gp.ix[hr, 'val']) if hr in df_gp.index else None for hr in range(24)]
-                if nm != 'All Days':
-                    a_series['visible'] = False
+                a_series['data'] = [bmsapp.data_util.round4(df_gp.ix[hr, 'val'])
+                                    if hr in df_gp.index else None for hr in range(24)]
+                a_series['visible'] = visibility
                 series.append(a_series)
 
         # if normalization was requested, scale values 0 - 100%, with 100% being the largest
