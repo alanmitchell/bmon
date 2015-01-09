@@ -186,10 +186,9 @@ $ ->
   $("#select_bldg").change update_chart_sensor_lists
   $("#select_chart").change process_chart_change
 
-  # Set up change handlers for inputs.  Sensor select control is
-  # special case and is set up in process_chart_change routine.
+  # Set up change handlers for inputs.
   ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 
-    'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'divide_date', 
+    'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'divide_date', 
     'time_period']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
 
