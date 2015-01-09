@@ -44,9 +44,9 @@ class Histogram(basechart.BaseChart):
                     else:
                         unoccupied_times.append(ts)
 
-                series_info = [(None, 'All Data', False),
-                               (occupied_times, 'Occupied Periods', True),
-                               (unoccupied_times, 'Unoccupied Periods', True)]
+                series_info = [(None, 'All Data', True),
+                               (occupied_times, 'Occupied Periods', False),
+                               (unoccupied_times, 'Unoccupied Periods', False)]
             else:
                 # no schedule, so just return the 'All Data' series
                 series_info = [(None, 'All Data', True)]
