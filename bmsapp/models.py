@@ -53,7 +53,7 @@ class Sensor(models.Model):
     unit =  models.ForeignKey(Unit)
 
     # if True, this field is a calculated field and is not directly created from a sensor.
-    is_calculated = models.BooleanField("Calculated Field")
+    is_calculated = models.BooleanField("Calculated Field", default=False)
 
     # the name of the transform function to scale the value, if any, for a standard sensor field, or the 
     # calculation function (required) for a calculated field.  transform functions must be located in the 
