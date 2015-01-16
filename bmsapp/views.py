@@ -1,5 +1,5 @@
 # Create your views here.
-import sys, logging, json, random
+import sys, logging, json, random, time
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect
@@ -70,7 +70,8 @@ def reports(request, bldg_id=None):
     ctx.update({'groups_html': group_html, 
                 'bldgs_html': bldgs_html, 
                 'chart_list_html': chart_list_html,
-                'sensor_list_html': sensor_list_html})
+                'sensor_list_html': sensor_list_html,
+                'curtime': int(time.time())})
     
     return render_to_response('bmsapp/reports.html', ctx)
 

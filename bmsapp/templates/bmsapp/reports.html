@@ -11,8 +11,8 @@
 <script src="http://code.highcharts.com/3.0.10/modules/exporting.js"></script>
 <script src="http://highslide-software.github.io/export-csv/export-csv.js"></script>
 <script src="{% static 'bmsapp/scripts/jquery.multiselect.min.js' %}"></script>
-<script src="{% static 'bmsapp/scripts/bmsapp2-1.2.js' %}"></script>
-<script src="{% static 'bmsapp/scripts/dashboard-1.0.js' %}"></script>
+<script src="{% static 'bmsapp/scripts/bmsapp.js' %}?t={{ curtime }}"></script>
+<script src="{% static 'bmsapp/scripts/dashboard.js' %}?t={{ curtime }}"></script>
 {% endblock %}
 
 {% block this_nav_link %}link_reports{% endblock %}
