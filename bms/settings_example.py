@@ -59,7 +59,7 @@ ADMINS = (
 STATIC_APP_NAME = 'django_static'
 
 # Make this unique, and don't share it with anybody.
-SECRET_KEY = 'xxxxxxxxxxxxxxxyyyyyyyyyyyyyyyyyzzzzzzzzzzaaabbbcc'
+SECRET_KEY = 'Put a Unique Unpredictable Secret Key Here'
 
 # ----------- Generally shouldn't need to change anything beyond here ------------
 
