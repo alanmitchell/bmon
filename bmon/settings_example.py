@@ -43,9 +43,9 @@ BMSAPP_NAV_LINKS = ( ('Map', 'map'),
 
 #-------------- End of Settings Specific to the Monitoring App -------------------
 
-# Name of this Django project.  Note that if you change this from bms, you will also
+# Name of this Django project.  Note that if you change this from bmon, you will also
 # have to change values in the manage.py, wsgi.py, and appache2/conf/httpd.conf files.
-PROJ_NAME = 'bms'     
+PROJ_NAME = 'bmon'     
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False
 # See https://docs.djangoproject.com/en/1.5/ref/settings/#allowed-hosts
@@ -56,7 +56,7 @@ ADMINS = (
 )
 
 # This is the name you gave to the Static application created to serve static Django media
-STATIC_APP_NAME = 'django_static'
+STATIC_APP_NAME = 'bmon_static'
 
 # Make this unique, and don't share it with anybody.
 SECRET_KEY = 'Put a Unique Unpredictable Secret Key Here'
