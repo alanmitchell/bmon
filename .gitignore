@@ -7,6 +7,5 @@ settings.py
 *.swf
 *.gz
 *.bak
-docs/
 **/.ipynb_checkpoints
 .idea
