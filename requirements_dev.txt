@@ -1,4 +1,0 @@
-# Requirements for development machines.
-
-# base set of requirements
--r requirements.txt    
