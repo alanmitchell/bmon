@@ -80,7 +80,7 @@ def bldg_list_html(bldg_group_id, selected_bldg_id=None):
     for bldg in buildings_for_group(bldg_group_id):
         bldgs.append( (bldg.id, bldg.title) )
 
-    if selected_bldg_id==None:
+    if selected_bldg_id==None and len(bldgs)>0:
         selected_bldg_id = bldgs[0][0] 
 
     t = loader.get_template('bmsapp/select_list.html')

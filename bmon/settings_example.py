@@ -108,6 +108,9 @@ DEBUG = False
 
 from os.path import dirname, join, realpath
 
+# Suprresses warning about unittests and older projects.
+TEST_RUNNER = 'django.test.runner.DiscoverRunner'
+
 PROJ_PATH = realpath(join(dirname(__file__), '..'))    # probably don't need the "realpath" function
 
 TEMPLATE_DEBUG = DEBUG
