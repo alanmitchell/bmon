@@ -61,8 +61,11 @@ STATIC_APP_NAME = 'bmon_static'
 # The settings is the following section still need to be filled out, but these 
 # are settings required for the general Django software.
 
-# Hosts/domain names that are valid for this site; required if DEBUG is False
-# See https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
+# Hosts/domain names that are valid for this site; required if DEBUG is False.
+# For a Webfaction site using the subdomain that Webfaction provides, the entry
+# would be "<username>.webfactional.com", where <username> is your Webfaction
+# username.
+# More documentation at: https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
 ALLOWED_HOSTS = ['.username.webfactional.com']
 
 # This is the Django Secret Key, needed for security purposes.
