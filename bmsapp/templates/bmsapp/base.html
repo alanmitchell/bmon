@@ -4,11 +4,11 @@
 
     <head>
         <title>{{ bmsapp_title_text }} - {%block pagetitle %}{% endblock %}</title>
-        <link rel="stylesheet" type="text/css" href="http://code.jquery.com/ui/1.10.3/themes/smoothness/jquery-ui.min.css">
+        <link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/jquery-ui.min.css' %}">
         <link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/bmsapp.css' %}">
-        <script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-        <script src="http://code.jquery.com/ui/1.10.3/jquery-ui.min.js"></script>
-        <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+        <script src="{% static 'bmsapp/scripts/jquery-1.9.1.min.js' %}"></script>
+        <script src="{% static 'bmsapp/scripts/jquery-ui.min.js' %}"></script>
+        <script src="{% static 'bmsapp/scripts/html5.js' %}"></script>
         <script>
         $(function () {
             $("#{% block this_nav_link %}{% endblock %}").addClass("selected-nav-link").removeAttr("href");

@@ -5,11 +5,11 @@
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/jquery.multiselect.css' %}">
 <link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/dashboard.css' %}">
-<script src="http://code.highcharts.com/stock/2/highstock.js"></script>
-<script src="http://code.highcharts.com/3.0.10/highcharts.js"></script>
-<script src="http://code.highcharts.com/3.0.10/highcharts-more.js"></script>
-<script src="http://code.highcharts.com/3.0.10/modules/exporting.js"></script>
-<script src="http://highslide-software.github.io/export-csv/export-csv.js"></script>
+<script src="{% static 'bmsapp/scripts/highstock.js' %}"></script>
+<script src="{% static 'bmsapp/scripts/highcharts.js' %}"></script>
+<script src="{% static 'bmsapp/scripts/highcharts-more.js' %}"></script>
+<script src="{% static 'bmsapp/scripts/exporting.js' %}"></script>
+<script src="{% static 'bmsapp/scripts/export-csv.js' %}"></script>
 <script src="{% static 'bmsapp/scripts/jquery.multiselect.min.js' %}"></script>
 <script src="{% static 'bmsapp/scripts/bmsapp.js' %}?t={{ curtime }}"></script>
 <script src="{% static 'bmsapp/scripts/dashboard.js' %}?t={{ curtime }}"></script>
