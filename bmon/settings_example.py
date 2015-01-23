@@ -106,7 +106,9 @@ DEFAULT_FROM_EMAIL = ''
 SERVER_EMAIL = ''
 
 # If DEBUG=True, a detailed error traceback is displayed in the browser when an error 
-# occurs.  This setting should be False for production use for security reasons.
+# occurs.  This setting should be False for production use for security reasons, but if
+# errors are occurring with use of the application, setting to True provides valuable
+# debug information.
 DEBUG = False
 
 # ----------- Generally shouldn't need to change anything beyond here ------------

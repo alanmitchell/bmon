@@ -1,4 +1,4 @@
-"""Class to encapsulate a BMS database.  Uses the SQLite database.
+"""Class to encapsulate the BMON Reading database.  Uses the SQLite database.
 """
 
 import sqlite3, sys
