@@ -11,6 +11,41 @@ def _bitmask_to_list(encoded_value, bitmask_dictionary):
     return output_list
 
 
+def aerco_fault_code_formatter(coded_value):
+    fault_code_bitmask_dictionary = {0: 'Outside Air Sensor Error',
+                                     1: 'Header Sensor Error',
+                                     2: 'Interlock 1 Error',
+                                     3: 'Interlock 2 Error',
+                                     4: 'Indoor/Return Air Sensor Error',
+                                     5: '4-20mA Input Error'}
+    value_list = _bitmask_to_list(coded_value, fault_code_bitmask_dictionary)
+    return '; '.join(map(str, value_list))
+
+
+def aerco_io_status_formatter(coded_value):
+    io_status_bitmask_dictionary = {0: 'AUX Relay',
+                                    1: 'Fault Relay',
+                                    2: 'Sys Start Relay',
+                                    4: 'Setback',
+                                    5: 'Interlock 2',
+                                    6: 'Interlock 1'}
+    value_list = _bitmask_to_list(coded_value, io_status_bitmask_dictionary)
+    return '; '.join(map(str, value_list))
+
+
+def aerco_boiler_status_formatter(coded_value):
+    boiler_status_dictionary = {119: 'Not On-Line',
+                                120: 'On-Line But Not Fired',
+                                121: 'On-Line But Disabled',
+                                122: 'On-Line But Faulted'}
+    if 1 <= coded_value <= 40:
+        return 'Fired, sequence = ' + str(coded_value)
+    elif coded_value in boiler_status_dictionary:
+        return boiler_status_dictionary[coded_value]
+    else:
+        return 'Unknown (invalid value)'
+
+
 def sage_limits_sensor_formatter(coded_value):
     limits_bitmask_dictionary = {0: 'Outlet high limit',
                                  1: 'DHW high limit',
