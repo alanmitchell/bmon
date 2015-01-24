@@ -1,7 +1,9 @@
 import time
 from django.template import Context, loader
 import bmsapp.models, bmsapp.data_util
+import bmsapp.formatters
 import basechart
+
 
 class CurrentValues(basechart.BaseChart):
     """Class that creates the Current Values report.
@@ -23,11 +25,15 @@ class CurrentValues(basechart.BaseChart):
                 cur_group = b_to_sen.sensor_group.title
                 cur_group_sensor_list = []
             last_read = self.reading_db.last_read(b_to_sen.sensor.sensor_id)
-            cur_value = bmsapp.data_util.formatCurVal(last_read['val']) if last_read else ''
+            if b_to_sen.sensor.formatting_function:
+                format_function = getattr(bmsapp.formatters,b_to_sen.sensor.formatting_function)
+                cur_value = format_function(last_read['val']) if last_read else ''
+            else:
+                cur_value = bmsapp.data_util.formatCurVal(last_read['val']) if last_read else ''
             minutes_ago = '%.1f' % ((cur_time - last_read['ts'])/60.0) if last_read else ''
             cur_group_sensor_list.append( {'title': b_to_sen.sensor.title, 
                                            'cur_value': cur_value, 
-                                           'unit': b_to_sen.sensor.unit.label, 
+                                           'unit': b_to_sen.sensor.unit.label,
                                            'minutes_ago': minutes_ago,
                                            'sensor_id': b_to_sen.sensor.id} )
         # add the last group
