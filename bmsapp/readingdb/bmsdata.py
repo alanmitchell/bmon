@@ -1,7 +1,10 @@
 """Class to encapsulate the BMON Reading database.  Uses the SQLite database.
 """
 
-import sqlite3, sys
+import sqlite3, sys, calendar
+import pytz
+from dateutil import parser
+
 
 class BMSdata:
 
@@ -32,6 +35,7 @@ class BMSdata:
         # sensors in the future.
         if '_last_raw' not in self.sensor_ids:
             self.cursor.execute("CREATE TABLE [_last_raw] (id varchar(50) primary key, ts integer, val real)")
+            self.conn.commit()
 
     def __del__(self):
         """Used to ensure that database is closed when this object is destroyed.
@@ -42,6 +46,14 @@ class BMSdata:
         """Closes this database object.  This is called in the destructor for this object.
         """
         self.conn.close()
+
+    def add_sensor_table(self, sensor_id):
+        """Adds a table to hold readings from a sensor with the id 'sensor_id'.  Also
+        adds the id to the set that holds sensor ids.
+        """
+        self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % sensor_id)
+        self.conn.commit()
+        self.sensor_ids.add(sensor_id)
 
     def insert_reading(self, ts, id, val):
         """Inserts a record or records into the database.  'ts', 'id', and
@@ -60,8 +72,7 @@ class BMSdata:
             try:
                 # Check to see if sensor table exists.  If not, create it.
                 if one_id not in self.sensor_ids:
-                    self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % one_id)
-                    self.sensor_ids.add(one_id)
+                    self.add_sensor_table(one_id)
                 if one_val is not None:    # don't store None values
                     self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % one_id, (one_ts, one_val))
                     success_count += 1
@@ -155,3 +166,79 @@ class BMSdata:
                                    VALUES (?, ?, ?)''', (sensor_id, ts, val))
             self.conn.commit()
             return None, None   # no prior values
+
+    def import_text_file(self, filename, tz_name='US/Alaska'):
+        """Adds the sensor reading data present in the tab-delimited 'filename' to 
+        the reading database. Date/time values in the file are assumed to be in the
+        'tz_name' time zone.
+
+        The file must be tab-delimited and the values in the first column must be date/time 
+        strings interpretable by the Python dateutil parser module.  Subsequent columns 
+        must contain sensor reading values; the each item can be blank or contain a value parseable 
+        by the Python float function. The first non-blank row of the file must contain sensor IDs 
+        (the first column of that row can contain anything, as it is the timestamp column). An
+        exmaple of the format is (white space separation between columns need to be the Tab
+        character):
+
+            ts                 id_2341   test_alarm_code
+            4/12/2014 13:23    2.2       44.3
+            4/12/2014 13:33    3.2       41.1
+
+        The method returns a two tuple.  The first item is the number of readings successfully
+        stored, and the second is a list of errors, each item being an error description string.
+        """
+
+        # make a timezone object
+        tz = pytz.timezone(tz_name)
+
+        # list of errors that occurred while processing file
+        errors = []
+
+        first_row = True
+        vals_stored = 0
+        cur_line = 0    # current line number being processed
+        for lin in open(filename):
+
+            cur_line += 1
+
+            # ignore blank lines
+            if len(lin.strip())==0:
+                continue
+
+            flds = lin.strip().split('\t')
+
+            # Process sensor IDs in the first row
+            if first_row:
+                # get the sensor ids in this file
+                file_sensor_ids = [fld.strip() for fld in flds[1:]]
+
+                # if any are not present in the database, create tables for them
+                for s_id in file_sensor_ids:
+                    if s_id not in self.sensor_ids:
+                        self.add_sensor_table(s_id)
+                first_row = False
+                continue
+
+            try:
+                # get date and convert to UNIX timestamp
+                datestr = flds[0]
+                dt = parser.parse(datestr)
+                dt_aware = tz.localize(dt)
+                ts = calendar.timegm(dt_aware.utctimetuple())
+            except:
+                errors.append("Problem parsing date %s at line %s" % (datestr, cur_line))
+                continue
+
+            # loop through sensor values and store
+            for s_id, val in zip(file_sensor_ids, flds[1:]):
+                try:
+                    if len(val.strip())!=0:
+                        float_val = float(val)
+                        if float_val is not None:     # sometimes find "nan" in data
+                            self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % s_id, (ts, float(val)))
+                            vals_stored += 1
+                except Exception as e:
+                    errors.append("Problem storing %s: %s=%s at line %s: %s" % (datestr, s_id, val, cur_line, e))
+
+        self.conn.commit()
+        return vals_stored, errors
