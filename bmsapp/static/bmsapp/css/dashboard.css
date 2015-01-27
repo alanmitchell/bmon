@@ -38,3 +38,9 @@
     font-family: arial,sans-serif;
     font-size: 18px;
 }
+.value-label {
+    padding: 5px;
+    text-align: center;
+    font-family: arial,sans-serif;
+    font-size: 12px;
+}

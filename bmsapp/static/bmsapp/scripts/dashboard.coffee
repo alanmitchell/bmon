@@ -137,6 +137,7 @@ addLED = (jqParent, LED_info) ->
   jqParent.append "<div id=\"#{widgetID}\" class=\"led\">
                      <h2>#{LED_info.title}</h2>
                      <div class=\"led-circle\"></div>&nbsp;
+                     <p class=\"value-label\">#{LED_info.value_label}</p>
                    </div>"
   jqWidget = $("##{widgetID}")   # make a jQuery element
   

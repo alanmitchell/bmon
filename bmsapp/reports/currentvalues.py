@@ -25,8 +25,8 @@ class CurrentValues(basechart.BaseChart):
                 cur_group = b_to_sen.sensor_group.title
                 cur_group_sensor_list = []
             last_read = self.reading_db.last_read(b_to_sen.sensor.sensor_id)
-            if b_to_sen.sensor.formatting_function:
-                format_function = getattr(bmsapp.formatters,b_to_sen.sensor.formatting_function)
+            if b_to_sen.sensor.formatting_function.strip():
+                format_function = getattr(bmsapp.formatters, b_to_sen.sensor.formatting_function.strip())
                 cur_value = format_function(last_read['val']) if last_read else ''
             else:
                 cur_value = bmsapp.data_util.formatCurVal(last_read['val']) if last_read else ''

@@ -1,5 +1,7 @@
 import time
-import bmsapp.models, bmsapp.data_util
+import bmsapp.models
+import bmsapp.data_util
+import bmsapp.formatters
 import basechart
 
 class Dashboard(basechart.BaseChart):
@@ -27,6 +29,12 @@ class Dashboard(basechart.BaseChart):
             if dash_item.sensor is not None:
                 last_read = self.reading_db.last_read(dash_item.sensor.sensor.sensor_id)
                 cur_value = float(bmsapp.data_util.formatCurVal(last_read['val'])) if last_read else None
+                formatter_name = dash_item.sensor.sensor.formatting_function.strip()
+                if cur_value is not None and formatter_name:
+                    format_function = getattr(bmsapp.formatters, formatter_name)
+                    new_widget['value_label'] = format_function(cur_value)
+                else:
+                    new_widget['value_label'] = ''
                 age_secs = time.time() - last_read['ts'] if last_read else None    # how long ago reading occurred
                 minAxis, maxAxis = dash_item.get_axis_range()
                 new_widget.update( {'units': dash_item.sensor.sensor.unit.label,
