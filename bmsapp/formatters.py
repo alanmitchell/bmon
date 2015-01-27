@@ -8,7 +8,7 @@ def alarm_formatter(coded_value):
     """Code of 0 indicates OK, and anything else indicates an
     Alarm.  Can be used to format 0/1 values from alarm contacts.
     """
-    return 'OK' if coded_value==0 else 'Alarm'
+    return 'OK' if coded_value==0 else 'Alarm!'
 
 
 def _bitmask_to_list(encoded_value, bitmask_dictionary):
