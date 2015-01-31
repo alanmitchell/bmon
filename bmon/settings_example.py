@@ -1,6 +1,7 @@
 ###################################################
 # Django settings for BMON project.               #
 ###################################################
+import logging
 
 #----------------- Settings Specific to the Monitoring App ----------------------
 
@@ -55,6 +56,10 @@ PROJ_NAME = 'bmon'
 # Panel to serve static Django media.  This is only used to create the STATIC_ROOT setting
 # further down in this settings file.
 STATIC_APP_NAME = 'bmon_static'
+
+# This controls what messages will actually get logged
+# Levels in order from least to greatest severity are:  DEBUG, INFO, WARNING, ERROR, CRITICAL
+LOG_LEVEL = logging.INFO
 
 #------------ End of Settings Specific to the Monitoring App --------------
 

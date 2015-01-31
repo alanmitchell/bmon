@@ -143,12 +143,13 @@ class BMSdata:
 
     def readingCount(self, startTime=0):
         """Returns the number of readings in the reading table inserted after the specified
-        'startTime' (Unix seconds).
+        'startTime' (Unix seconds) and before now (in case erroneously timestamped readings
+        are in the file).
         """
         rec_ct = 0
         for id in self.sensor_ids:
             try:
-                self.cursor.execute('SELECT COUNT(*) FROM [%s] WHERE ts > ?' % id, (startTime,))
+                self.cursor.execute('SELECT COUNT(*) FROM [%s] WHERE ts > ? and ts < ?' % id, (startTime, time.time()))
                 rec_ct += self.cursor.fetchone()[0]
             except:
                 # not all tables are reading tables and may error out cause no 'ts' column
