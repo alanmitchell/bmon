@@ -3,7 +3,13 @@
 # Script to backup the BMS sensor reading database.
 # The database is copied, gzipped, and placed in the bak directory.
 
-import os, sys, time, sqlite3, shutil, subprocess
+import os
+import sys
+import time
+import sqlite3
+import shutil
+import subprocess
+import glob
 
 SENSOR_DB = 'bms_data.sqlite'
 
@@ -36,3 +42,9 @@ conn.rollback()
 
 # gzip the backup file
 subprocess.call(['gzip', fname])
+
+# delete any backup files more than 3 weeks old
+cutoff_time = time.time() - 3 * 7 * 24 *3600.0
+for fn in glob.glob('bak/*.gz'):
+    if os.path.getmtime(fn) < cutoff_time:
+        os.remove(fn)
