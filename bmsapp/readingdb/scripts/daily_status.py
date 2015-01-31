@@ -5,9 +5,10 @@ import os, sys, logging, time
 # change into this directory
 os.chdir(os.path.dirname( os.path.abspath(sys.argv[0]) ))
 
+sys.path.insert(0, '../../')   # add the parent/parent directory to the Python path
 sys.path.insert(0, '../')   # add the parent directory to the Python path
-
-from readingdb import bmsdata
+import global_vars          # needed to set up logging
+import bmsdata
 
 # make a logger object and set time zone so log readings are stamped with Alaska time.
 # Did this because Django sets time to AK time.

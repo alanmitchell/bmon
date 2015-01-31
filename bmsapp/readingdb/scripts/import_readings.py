@@ -28,10 +28,10 @@ import sys, glob
 # Add the parent directory to the Python import path
 sys.path.insert(0, '../')
 
-import bmsapp.readingdb.bmsdata
+import bmsdata
 
 # Open reading database object
-db = bmsapp.readingdb.bmsdata.BMSdata()
+db = bmsdata.BMSdata()
 
 for filename in glob.glob(sys.argv[1]):
     success_count, errors = db.import_text_file(filename)

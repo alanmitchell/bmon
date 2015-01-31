@@ -1,5 +1,5 @@
 '''
-This file holds settings for the application
+This file holds settings for the application and sets up logging.
 '''
 from os.path import dirname, join, realpath
 from glob import glob

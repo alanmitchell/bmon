@@ -11,17 +11,22 @@ import shutil
 import subprocess
 import glob
 
-SENSOR_DB = 'bms_data.sqlite'
-
 # change into the directory of this script
 os.chdir(os.path.dirname(sys.argv[0]))
 
-# make backup filename with current date time
-fname = 'bak/' + time.strftime('%Y-%m-%d-%H%M%S') + '.sqlite'
+# get parent directory into path
+sys.path.insert(0, '../')
+import bmsdata
+
+# path to reading database
+db_path = bmsdata.DEFAULT_DB
+
+# make backup filename with current date time in 'bak' subdirectory
+fname = os.path.join(os.path.dirname(db_path), 'bak', time.strftime('%Y-%m-%d-%H%M%S') + '.sqlite')
 
 # Before copying the database file, need to force a lock on it so that no
 # write operations occur during the copying process
-conn = sqlite3.connect(SENSOR_DB)
+conn = sqlite3.connect(db_path)
 cur = conn.cursor()
 
 # create a dummy table to write into.
@@ -35,7 +40,7 @@ except:
 cur.execute('INSERT INTO _junk VALUES (1)')
 
 # now copy database
-shutil.copy(SENSOR_DB, fname)
+shutil.copy(db_path, fname)
 
 # Rollback the Insert as we don't really need it.
 conn.rollback()
@@ -45,6 +50,6 @@ subprocess.call(['gzip', fname])
 
 # delete any backup files more than 3 weeks old
 cutoff_time = time.time() - 3 * 7 * 24 *3600.0
-for fn in glob.glob('bak/*.gz'):
+for fn in glob.glob(os.path.join(os.path.dirname(db_path), 'bak', '*.gz')):
     if os.path.getmtime(fn) < cutoff_time:
         os.remove(fn)
