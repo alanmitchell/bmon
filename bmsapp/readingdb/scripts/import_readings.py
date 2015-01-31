@@ -29,10 +29,9 @@ import sys, glob
 sys.path.insert(0, '../')
 
 import bmsapp.readingdb.bmsdata
-import bmsapp.global_vars
 
 # Open reading database object
-db = bmsapp.readingdb.bmsdata.BMSdata(bmsapp.global_vars.DATA_DB_FILENAME)
+db = bmsapp.readingdb.bmsdata.BMSdata()
 
 for filename in glob.glob(sys.argv[1]):
     success_count, errors = db.import_text_file(filename)

@@ -4,7 +4,7 @@ Module used to store incoming sensor readings in the database.
 
 import dateutil.parser, calendar, re, time
 
-import models, global_vars
+import models
 from readingdb import bmsdata
 from calcs import transforms
 
@@ -59,7 +59,7 @@ def store(reading_id, request_data):
     """
 
     # open the database 
-    db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
+    db = bmsdata.BMSdata()
     
     # parse the date into a datetime object and then into Unix seconds. Convert to
     # integer.
@@ -94,7 +94,7 @@ def store_many(readings):
     """
 
     # open the reading database 
-    db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
+    db = bmsdata.BMSdata()
     
     ts_lst = []
     reading_id_lst = []

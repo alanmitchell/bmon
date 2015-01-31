@@ -6,9 +6,6 @@ from glob import glob
 
 APP_PATH = realpath(dirname(__file__))
 
-# Full path to the database holding sensor readings
-DATA_DB_FILENAME = join(APP_PATH, 'data', 'bms_data.sqlite')
-
 # Full path to the Django database holding project model data
 # (building lists, sensor lists, etc.).  Assume it is the first sqlite database
 # in the directory above

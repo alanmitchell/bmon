@@ -1,14 +1,21 @@
 """Class to encapsulate the BMON Reading database.  Uses the SQLite database.
 """
 
-import sqlite3, sys, calendar
+import sqlite3
+import sys
+import calendar
+import os.path
 import pytz
 from dateutil import parser
 
 
+# The path to the default Sqlite database used to store readings.
+DEFAULT_DB = os.path.join(os.path.dirname(__file__), 'data', 'bms_data.sqlite')
+
+
 class BMSdata:
 
-    def __init__(self, fname):
+    def __init__(self, fname=DEFAULT_DB):
         """Creates the database object.
         fname: full path to SQLite database file. If the file is not present, 
             it will be created.

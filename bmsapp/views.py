@@ -236,7 +236,7 @@ def get_readings(request, reading_id):
     """
 
     # open the database 
-    db = bmsdata.BMSdata(global_vars.DATA_DB_FILENAME)
+    db = bmsdata.BMSdata()
     result = db.rowsForOneID(reading_id)
 
     return HttpResponse(json.dumps(result), content_type="application/json")

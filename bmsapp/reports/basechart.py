@@ -4,7 +4,7 @@ Reports.
 """
 import time, logging, copy, importlib
 from django.conf import settings
-import bmsapp.models, bmsapp.global_vars, bmsapp.readingdb.bmsdata
+import bmsapp.models, bmsapp.readingdb.bmsdata
 import bmsapp.calcs.transforms, bmsapp.schedule
 import bmsapp.view_util, bmsapp.data_util
 import chart_config
@@ -132,7 +132,7 @@ class BaseChart(object):
 
         # open the reading database and save it for use by the methods of this object.
         # It is closed automatically in the destructor of the BMSdata class.
-        self.reading_db = bmsapp.readingdb.bmsdata.BMSdata(bmsapp.global_vars.DATA_DB_FILENAME)
+        self.reading_db = bmsapp.readingdb.bmsdata.BMSdata()
 
     def get_ts_range(self):
         """
