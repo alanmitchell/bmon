@@ -2,9 +2,9 @@
 a text file.
 
 The sensor information must be stored in a text file with the name
-'new_sensors.txt' stored in the same directory as this script.  The first line
-of that file is a header line.  The file must have the format shown in the
-New_Sensors.xlsx spreadsheet stored in this directory.
+'new_sensors.txt' stored in the subdirectory 'files' beneath this script.  The 
+first line of that file is a header line.  The file must have the format shown 
+in the New_Sensors.xlsx spreadsheet stored in the 'files' subdirectory.
 
 All SensorGroup and Unit objects must be present before running this script.
 Building objects will be created as needed.  If a sensor with the same

@@ -1,19 +1,10 @@
 '''
-This file holds settings for the application and sets up logging.
+This file sets up logging.
 '''
 from os.path import dirname, join, realpath
-from glob import glob
+import logging, logging.handlers
 
 APP_PATH = realpath(dirname(__file__))
-
-# Full path to the Django database holding project model data
-# (building lists, sensor lists, etc.).  Assume it is the first sqlite database
-# in the directory above
-dbs = glob(join(APP_PATH, '..', '*.sqlite'))
-PROJ_DB_FILENAME = realpath(dbs[0]) if dbs else ''
-
-# ------- Set up logging for the application
-import logging, logging.handlers
 
 # Log file for the application
 LOG_FILE = join(APP_PATH, 'logs', 'bms.log')
@@ -43,5 +34,3 @@ fh.setFormatter(formatter)
 
 # add the handler to the logger
 logger.addHandler(fh)
-
-# --------------------------

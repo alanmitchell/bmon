@@ -1,49 +1,42 @@
-#!/usr/local/bin/python2.7
+'''Determines and inserts the calculated sensor values into the sensor
+reading database.  This script is usually run via a cron job every half 
+hour.
 
-import os, sys, sqlite3, logging, time
+This script is set up to run through use of the django-extensions runscript
+feature, in order that the script has easy access to the Django model data
+for this application.  The script is run by:
 
-# change into this directory
-os.chdir(os.path.dirname( os.path.abspath(sys.argv[0]) ))
+    manage.py runscript calc_readings
 
-sys.path.insert(0, '../')   # add the parent directory to the Python path
+'''
 
-import global_vars
-from readingdb import bmsdata
-from calcs import calcreadings, calcfuncs01
+import logging
+from bmsapp.readingdb import bmsdata
+from bmsapp.calcs import calcreadings, calcfuncs01
+import bmsapp.models
 
-# make a logger object and set time zone so log readings are stamped with Alaska time.
-# Did this because Django sets time to AK time.
-os.environ['TZ'] = 'US/Alaska'
-try:
-    time.tzset()
-except:
-    # the above command is not supported in Windows.
-    # Need to come up with another solution if running on Windows
-    # is necessary
-    pass
 
-logger = logging.getLogger('bms.calc_readings')
+def run():
+    '''This method is called by the 'runscript' command.
+    '''
 
-# get a BMSdata object for the sensor reading database and then make a Calculate
-# Readings object.  Other calculated reading classes in addition to CalcReadingFuncs_01
-# can be added to the list and they will be search for matching function names.
-# Only allow calculated readings within the last 7 days.
-reading_db = bmsdata.BMSdata()
-calc = calcreadings.CalculateReadings([calcfuncs01.CalcReadingFuncs_01, ], reading_db, 60*24*7)
+    # make a logger object
+    logger = logging.getLogger('bms.calc_readings')
 
-# get a database connection and cursor to the Django project database that has the sensor
-# list.
-conn = sqlite3.connect(global_vars.PROJ_DB_FILENAME)
-cursor = conn.cursor()
+    # get a BMSdata object for the sensor reading database and then make a Calculate
+    # Readings object.  Other calculated reading classes in addition to CalcReadingFuncs_01
+    # can be added to the list and they will be search for matching function names.
+    # Only allow calculated readings within the last 7 days.
+    reading_db = bmsdata.BMSdata()
+    calc = calcreadings.CalculateReadings([calcfuncs01.CalcReadingFuncs_01, ], reading_db, 60*24*7)
 
-# get all the calculated readings in calculation order
-cursor.execute('SELECT sensor_id, tran_calc_function, function_parameters FROM bmsapp_sensor WHERE is_calculated = 1 ORDER BY calculation_order')
+    # Loop through the calculated sensor readings in the proper calculation order,
+    # inserting the calculated values in the database.
+    for calc_sensor in bmsapp.models.Sensor.objects.filter(is_calculated=1).order_by('calculation_order'):
+        try:
+            rec_count = calc.processCalc(calc_sensor.sensor_id, calc_sensor.tran_calc_function, calc_sensor.function_parameters)
+            logger.debug( '%s %s readings calculated and inserted' % (rec_count, calc_sensor.sensor_id) )
+        except:
+            logger.exception('Error calculating %s readings' % calc_sensor.sensor_id)
 
-for row in cursor.fetchall():
-    try:
-        rec_count = calc.processCalc(row[0], row[1], row[2])
-        logger.debug( '%s %s readings calculated and inserted' % (rec_count, row[0]) )
-    except:
-        logger.exception('Error calculating %s readings' % row[0])
-
-reading_db.close()
+    reading_db.close()

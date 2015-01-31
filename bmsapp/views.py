@@ -8,7 +8,10 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.conf import settings
 
-import models, global_vars, view_util, storereads
+import models
+import logging_setup
+import view_util
+import storereads
 from reports import basechart
 from readingdb import bmsdata
 
@@ -245,7 +248,7 @@ def show_log(request):
     '''
     Returns the application's log file, without formatting.
     '''
-    return HttpResponse('<pre>%s</pre>' % open(global_vars.LOG_FILE).read())
+    return HttpResponse('<pre>%s</pre>' % open(logging_setup.LOG_FILE).read())
 
 def show_video(request, filename, width, height):
     '''

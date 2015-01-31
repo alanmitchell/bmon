@@ -3,8 +3,12 @@
 
 import sqlite3
 import sys
-import calendar
 import os.path
+import time
+import shutil
+import subprocess
+import glob
+import calendar
 import pytz
 from dateutil import parser
 
@@ -20,6 +24,8 @@ class BMSdata:
         fname: full path to SQLite database file. If the file is not present, 
             it will be created.
         """
+
+        self.db_fname = fname   # save database filename.
 
         self.conn = sqlite3.connect(fname)
 
@@ -173,6 +179,41 @@ class BMSdata:
                                    VALUES (?, ?, ?)''', (sensor_id, ts, val))
             self.conn.commit()
             return None, None   # no prior values
+
+    def backup_db(self, days_to_retain):
+        """Backs up the database and compresses the backup.  Deletes old backup
+        files that were created more than 'days_to_retain' ago.
+        """
+        # make backup filename with current date time in 'bak' subdirectory
+        fname = os.path.join(os.path.dirname(self.db_fname), 'bak', time.strftime('%Y-%m-%d-%H%M%S') + '.sqlite')
+
+        # Before copying the database file, need to force a lock on it so that no
+        # write operations occur during the copying process
+
+        # create a dummy table to write into.
+        try:
+            self.cursor.execute('CREATE TABLE _junk (x integer)')
+        except:
+            # table already existed
+            pass
+
+        # write a value into the table to create a lock on the database
+        self.cursor.execute('INSERT INTO _junk VALUES (1)')
+
+        # now copy database
+        shutil.copy(self.db_fname, fname)
+
+        # Rollback the Insert as we don't really need it.
+        self.conn.rollback()
+
+        # gzip the backup file
+        subprocess.call(['gzip', fname])
+
+        # delete any backup files more than 'days_to_retain' old.
+        cutoff_time = time.time() - days_to_retain * 24 *3600.0
+        for fn in glob.glob(os.path.join(os.path.dirname(self.db_fname), 'bak', '*.gz')):
+            if os.path.getmtime(fn) < cutoff_time:
+                os.remove(fn)
 
     def import_text_file(self, filename, tz_name='US/Alaska'):
         """Adds the sensor reading data present in the tab-delimited 'filename' to 

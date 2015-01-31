@@ -1,5 +1,5 @@
 import logging
-import global_vars    # causes code to run in that module.
+import logging_setup    # causes logging setup code to run.
 
 logging.getLogger('bms').info('BMS Application first accessed.')
 
