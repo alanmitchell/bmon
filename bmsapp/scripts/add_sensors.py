@@ -1,5 +1,6 @@
 '''Adds a number of sensors to the system using sensor attributes stored in
-a text file.
+a text file.  This can be less time consuming than using the Admin interface
+to add the sensors.
 
 The sensor information must be stored in a text file with the name
 'new_sensors.txt' stored in the subdirectory 'files' beneath this script.  The 

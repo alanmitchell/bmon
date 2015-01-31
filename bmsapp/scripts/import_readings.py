@@ -1,10 +1,15 @@
 """Script to import a file(s) of sensor readings into the reading database.
 The script must be called with one command line argument that gives the file
-to import or a glob wildcard spec for a set of files.  So, examples of running
+to import or a glob wildcard spec for a set of files.  
+NOTE: unlike other scripts in this directory, this script does **not** use the
+django-extensions runscript facility.  So, examples of running
 the script are:
 
     ./import_readings.py readings.txt
     ./import_readings.py *.txt
+
+You can use the 'files' subdirectory to store import files and instead execute:
+    ./import_readings.py files/readings.txt
 
 The script uses the bmsapp.readingdb.bmsdata.BMSdata.import_text_file() method,
 so the text file must comply with the format required by that method, which is:
@@ -28,10 +33,10 @@ import sys, glob
 # Add the parent directory to the Python import path
 sys.path.insert(0, '../')
 
-import bmsdata
+import readingdb.bmsdata
 
 # Open reading database object
-db = bmsdata.BMSdata()
+db = readingdb.bmsdata.BMSdata()
 
 for filename in glob.glob(sys.argv[1]):
     success_count, errors = db.import_text_file(filename)
