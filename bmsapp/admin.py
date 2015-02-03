@@ -72,14 +72,14 @@ class MultiBuildingChartTypeAdmin(admin.ModelAdmin):
 class ChartBuildingInfoInline(admin.TabularInline):
     model = ChartBuildingInfo
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows':1, 'cols':60})},
+        models.TextField: {'widget': Textarea(attrs={'rows':5, 'cols':40})},
     }
     extra = 1
 
 class MultiBuildingChartAdmin(admin.ModelAdmin):
     inlines = (ChartBuildingInfoInline,)
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows':1, 'cols':60})},
+        models.TextField: {'widget': Textarea(attrs={'rows':6, 'cols':40})},
     }
 
 admin.site.register(Building, BuildingAdmin)

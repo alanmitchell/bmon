@@ -62,8 +62,8 @@ class Sensor(models.Model):
     tran_calc_function = models.CharField("Transform or Calculated Field Function Name", max_length=35, blank=True)
 
     # the function parameters, if any, for the transform or calculation function above.  parameters are 
-    # entered as one comma-separated string in keyword style, such as 'id_flow="124356", heat_capacity=40.2'
-    function_parameters = models.TextField("Function Parameters in Keyword form", blank=True)
+    # entered in YAML format.
+    function_parameters = models.TextField("Function Parameters in YAML form", blank=True)
 
     # Calculation order.  If this particular calculated field depends on the completion of other calculated fields
     # first, make sure the calculation_order for this field is higher than the fields it depends on.
@@ -263,9 +263,8 @@ class MultiBuildingChart(models.Model):
 
     # the general parameters for this chart, if any.  These are parameters that are
     # *not* associated with a particular building.  The parameters are
-    # entered as one comma-separated string in keyword style, 
-    # such as 'id_flow="124356", heat_capacity=40.2'
-    parameters = models.TextField("General Chart Parameters in Keyword Form", blank=True)
+    # entered in YAML format.
+    parameters = models.TextField("General Chart Parameters in YAML Form", blank=True)
 
     # determines order of Chart displayed in Admin interface
     sort_order = models.IntegerField(default=999)
@@ -289,9 +288,8 @@ class ChartBuildingInfo(models.Model):
     building = models.ForeignKey(Building)
 
     # the parameters for this chart associated with this building, if any.
-    # The parameters are entered as one comma-separated string in keyword style, 
-    # such as 'id_flow="124356", heat_capacity=40.2'
-    parameters = models.TextField("Chart Parameters in Keyword Form", blank=True)
+    # The parameters are entered in YAML format.
+    parameters = models.TextField("Chart Parameters in YAML Form", blank=True)
 
     # determines the order that this building appears in the chart
     sort_order = models.IntegerField(default=999)

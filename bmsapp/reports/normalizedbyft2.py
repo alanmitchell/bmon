@@ -1,4 +1,5 @@
-import bmsapp.models, bmsapp.data_util, bmsapp.calcs.transforms
+import yaml
+import bmsapp.models, bmsapp.data_util
 import basechart
 
 class NormalizedByFt2(basechart.BaseChart):
@@ -44,7 +45,7 @@ class NormalizedByFt2(basechart.BaseChart):
             bldg_name = bldg_info.building.title   # get the building name
 
             # get the parameters associated with this building
-            bldg_params = bmsapp.calcs.transforms.makeKeywordArgs(bldg_info.parameters)
+            bldg_params = yaml.load(bldg_info.parameters)
 
             # get the value records
             db_recs = self.reading_db.rowsForOneID(bldg_params['id_value'], st_ts, end_ts)

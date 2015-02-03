@@ -4,8 +4,9 @@ Reports.
 """
 import time, logging, copy, importlib
 from django.conf import settings
+import yaml
 import bmsapp.models, bmsapp.readingdb.bmsdata
-import bmsapp.calcs.transforms, bmsapp.schedule
+import bmsapp.schedule
 import bmsapp.view_util, bmsapp.data_util
 import chart_config
 
@@ -126,9 +127,9 @@ class BaseChart(object):
         self.request_params = request_params
 
         # for the multi-building chart object, take the keyword parameter string 
-        # and convert it to a dictionary.
+        # and convert it to a Python dictionary or list.
         if bldg_id == 'multi':
-            self.chart_params = bmsapp.calcs.transforms.makeKeywordArgs(chart_info.parameters)
+            self.chart_params = yaml.load(chart_info.parameters)
 
         # open the reading database and save it for use by the methods of this object.
         # It is closed automatically in the destructor of the BMSdata class.

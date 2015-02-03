@@ -5,46 +5,7 @@ Transform functions for scaling and transforming sensor readings
 from __future__ import division
 from math import *
 import sys
-
-def makeKeywordArgs(keyword_str):
-    '''
-    Turns a string that looks like a set of keyword arguments into a dictionary of those
-    arguments.  Numbers are converted to floats, except the 'id_' exception mentioned below.
-    Boolean are created if the text looks like a boolean.  Otherwise a string is created as 
-    the value.  There is a special exception for keyword names that start with the string 'id_':
-    these are always converted to strings.  This conveniently allows sensor ids to be entered 
-    without quotes in parameter lists.
-    '''
-    result = {}
-    keyword_str = keyword_str.strip()
-    # need to exit if this is a blank string
-    if len(keyword_str)==0:
-        return result
-
-    for it in keyword_str.strip().split(','):
-        kw, val = it.split('=')
-        kw = kw.strip()
-        val = val.strip()
-        if kw.startswith('id_'):
-            # special case of keyword starting with 'id_'.  Assume val is a string
-            # and strip any surrounding quotes of both types.
-            val = val.strip('"\'')
-        else:
-            try:
-                val = float(val)
-            except:
-                if val in ('True', 'true', 'Y', 'y', 'Yes', 'yes'):
-                    val = True
-                elif val in ('False', 'false', 'N', 'n', 'No', 'no'):
-                    val = False
-                else:
-                    # must be a string.
-                    # get rid of surrounding quotes of both types.
-                    val = val.strip('"\'')
-
-        result[kw] = val
-
-    return result
+import yaml
 
 
 class Transformer:
@@ -68,7 +29,7 @@ class Transformer:
         All three elements of the reading--ts, id, and val--can be transformed by the function.
         '''
         
-        params = makeKeywordArgs(trans_params)
+        params = yaml.load(trans_params)
         if hasattr(self, trans_func.strip()):
             the_func = getattr(self, trans_func.strip())
             return the_func(ts, id, val, **params)
@@ -225,16 +186,3 @@ class Transformer:
 
 
     # ******** End of Transform Function Section **********
-
-
-# ------------ Test functions --------------
-
-def test_kw():
-    '''
-    Test function for makeKeywordArgs.
-    '''
-
-    print makeKeywordArgs('abc=True, xyz=23.3, jlk="Hello"')
-    print makeKeywordArgs("abc=Yes, xyz=23.3, jlk='Hello'")
-    print makeKeywordArgs("abc=Yes, xyz=23.3, jlk=Hello")
-

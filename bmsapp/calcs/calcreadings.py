@@ -4,7 +4,7 @@ Code related to adding calculated fields to the sensor reading database.
 import time, logging
 import numpy as np
 import pandas as pd
-import transforms
+import yaml
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -164,7 +164,7 @@ class CalculateReadings:
         """
         
         # Get the function parameters as a dictionary
-        params = transforms.makeKeywordArgs(calcParams)
+        params = yaml.load(calcParams)
         
         # Start a List to hold the sensor IDs that need to be synchronized.  Also start
         # a separate dictionary that will map the parameter names to these IDs, since the
@@ -178,13 +178,14 @@ class CalculateReadings:
         for nm, id in params.items():
 
             if nm.startswith('id_'):
+                str_id = str(id)    # convert id to string
                 if nm.endswith('_sync'):
                     # the sensor to sync on needs to be the first in the ID list.
-                    ids.insert(0, id)
-                    id_dict[nm[3:-5]] = id  # strip 'id_' and '_sync' from the name
+                    ids.insert(0, str_id)
+                    id_dict[nm[3:-5]] = str_id  # strip 'id_' and '_sync' from the name
                 else:
-                    ids.append(id)
-                    id_dict[nm[3:]] = id    # strip 'id_' from the name
+                    ids.append(str_id)
+                    id_dict[nm[3:]] = str_id    # strip 'id_' from the name
 
                 # delete the parameter from the main parameter dictionary, since it is now
                 # stored in the id_dict.
@@ -270,4 +271,3 @@ class CalcReadingFuncs_base:
         # past readings in the reading database.
         self.calc_id = None    
 
-    
