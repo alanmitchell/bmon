@@ -76,29 +76,6 @@ class Sensor(models.Model):
         ordering = ['sensor_id']
 
 
-class MultiBuildingChartType(models.Model):
-    '''
-    A type of chart that uses data from multiple buildings
-    '''
-
-    # descriptive title of the Chart Type
-    title = models.CharField(max_length=50, unique=True)
-
-    # the name of the Django chart class in the 'reports' Python package
-    # that will return the data necessary to render the chart.  The format
-    # of this field must be: <module name>.<class name>
-    class_name = models.CharField(max_length=60, unique=True)
-
-    # determines order of Chart Type displayed in Admin interface
-    sort_order = models.IntegerField(default=999)
-
-    def __unicode__(self):
-        return self.title
-
-    class Meta:
-        ordering = ['sort_order']
-
-
 class Building(models.Model):
     '''
     A building that contains sensors.
@@ -258,8 +235,17 @@ class MultiBuildingChart(models.Model):
     # descriptive title of the Chart
     title = models.CharField(max_length=60, unique=True)
 
+    MULTI_CHART_CHOICES = (
+        ('currentvalues_multi.CurrentValuesMulti', 'Current Sensor Values'),
+        ('normalizedbyddbyft2.NormalizedByDDbyFt2', 'Energy / Degree-Day / ft2'),
+        ('normalizedbyft2.NormalizedByFt2', 'Energy / ft2'),
+    )
+
     # the type of chart
-    chart_type = models.ForeignKey(MultiBuildingChartType)
+    chart_class = models.CharField("Type of Chart", 
+                                    max_length=60,
+                                    null=True,
+                                    choices=MULTI_CHART_CHOICES)
 
     # the general parameters for this chart, if any.  These are parameters that are
     # *not* associated with a particular building.  The parameters are

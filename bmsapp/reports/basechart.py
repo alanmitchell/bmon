@@ -78,7 +78,7 @@ def get_chart_object(request_params):
 
     if bldg_id=='multi':
         chart_info = bmsapp.models.MultiBuildingChart.objects.get(id=chart_id)
-        class_name = chart_info.chart_type.class_name
+        class_name = chart_info.chart_class
     else:
         chart_info = find_chart_type(chart_id)
         class_name = chart_info.class_name
