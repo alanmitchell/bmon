@@ -4,7 +4,7 @@
 {% block pagetitle %}Reports/Charts{% endblock %}
 {% block head %}
 <link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/jquery.multiselect.css' %}">
-<link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/dashboard.css' %}">
+<link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/dashboard.css' %}?t={{ curtime }}">
 <script src="https://code.highcharts.com/stock/2/highstock.js"></script>
 <script src="https://code.highcharts.com/3.0.10/highcharts.js"></script>
 <script src="https://code.highcharts.com/3.0.10/highcharts-more.js"></script>

@@ -69,6 +69,10 @@ class Sensor(models.Model):
     # first, make sure the calculation_order for this field is higher than the fields it depends on.
     calculation_order = models.IntegerField(default=0)
 
+    # the name of the formatting function for the value, if any.
+    # Formatting functions must be located in the "formatters.py" module.
+    formatting_function = models.CharField("Formatting Function Name", max_length=50, blank=True)
+
     def __unicode__(self):
         return self.sensor_id + ": " + self.title
 

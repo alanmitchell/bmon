@@ -136,7 +136,8 @@ addLED = (jqParent, LED_info) ->
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
   jqParent.append "<div id=\"#{widgetID}\" class=\"led\">
                      <h2>#{LED_info.title}</h2>
-                     <div class=\"led-circle\"></div>&nbsp;
+                     <div class=\"led-circle\"></div>
+                     <div class=\"value-label\">#{LED_info.value_label}</div>
                    </div>"
   jqWidget = $("##{widgetID}")   # make a jQuery element
   
