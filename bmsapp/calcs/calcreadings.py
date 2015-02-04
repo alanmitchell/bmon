@@ -140,12 +140,12 @@ class CalculateReadings:
         keyword parameter with the string 'id_'.  Using the 'fluidHeatFlow' function as an 
         example, if you want the function to operate on the flow readings recorded by sensor
         12345, you would pass the parameter:
-            id_flow="12345"
+            id_flow: "12345"
             (all sensor IDs are strings and are therefore quoted, although code has been
             included to assume a string even if the quotes are forgotten)
         If instead there were no flow sensor readings but you know the flow to have the value
         of 60.5, you would pass:
-            flow=60.5
+            flow: 60.5
         in the 'calcParams' string.
 
         If you are using multiple existing sensor readings as inputs to the calculation function,
@@ -153,7 +153,7 @@ class CalculateReadings:
         designate the sensor to be used for synchronization, append '_sync' to that parameter
         name.  For example, to synchronize on the flow sensor in the 'fluidHeatFlow' function,
         pass:
-            id_flow_sync="12345"
+            id_flow_sync: "12345"
         For the other sensor inputs, sensor values are interpolated to the timestamps of the 
         synchronized sensor.
 
