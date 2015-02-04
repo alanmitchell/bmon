@@ -124,8 +124,7 @@ class CalculateReadings:
 
         'calcFuncName' is a string giving the name of a method of this class.  The method
         is used to calculate new readings for the sensor database.  'calcParams' is one string
-        that is formatted like the keyword parameters of a function call; for example:
-            heat_capacity=1.08, flow=60
+        that is YAML formatted to provide keyword parameters to the function.
         
         There are two categories of functions that can be named by 'calcFuncName':
             *  Functions that expect at least one of the parameters to be the ID of an 
@@ -165,6 +164,8 @@ class CalculateReadings:
         
         # Get the function parameters as a dictionary
         params = yaml.load(calcParams)
+        if params is None:
+            params = {}    # substitute empty dictionary for no parameters
         
         # Start a List to hold the sensor IDs that need to be synchronized.  Also start
         # a separate dictionary that will map the parameter names to these IDs, since the

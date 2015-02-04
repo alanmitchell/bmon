@@ -25,11 +25,14 @@ class Transformer:
         '''
         Returns transformed sensor reading information, using a transformation
         function identified by the string trans_func, and additional parameters to that function
-        given by the string 'trans_params'.  That string is in keyword format, like "abc=23.3, xyz=True".
+        given by the string 'trans_params'.  That string is in YAML format and must
+        convert to a Python dictionary.
         All three elements of the reading--ts, id, and val--can be transformed by the function.
         '''
         
         params = yaml.load(trans_params)
+        if params is None:
+            params = {}    # substitute an empty dictionary for empty parameter string
         if hasattr(self, trans_func.strip()):
             the_func = getattr(self, trans_func.strip())
             return the_func(ts, id, val, **params)
