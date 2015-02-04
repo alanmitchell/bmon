@@ -82,6 +82,7 @@ class BMSdata:
         exceptions = ''
         success_count = 0
         for one_ts, one_id, one_val in recs:
+            one_id = str(one_id)   # make sure sensor ID is a string
             try:
                 # Check to see if sensor table exists.  If not, create it.
                 if one_id not in self.sensor_ids:
@@ -113,6 +114,8 @@ class BMSdata:
         The reading is returned as a row dictionary.
         Returns None if no readings are available for the requested sensor.
         """
+        sensor_id = str(sensor_id)   # make sure ID is a string
+
         # address case where sensor id does not exist
         if sensor_id not in self.sensor_ids:
             return None
@@ -127,6 +130,8 @@ class BMSdata:
         'start_tm' and 'end_tm' are UNIX timestamps.  If either are not provided, no limit
         is imposed.  The rows are returned in timestamp order.
         """
+        sensor_id = str(sensor_id)   # make sure ID is a string
+
         # address case where sensor id does not exist
         if sensor_id not in self.sensor_ids:
             return []
@@ -162,6 +167,8 @@ class BMSdata:
         to replacement. If no last reading was present for the sensor, None 
         values are returned.
         """
+        sensor_id = str(sensor_id)   # make sure ID is a string
+
         self.cursor.execute('SELECT * FROM [_last_raw] WHERE id = ?', (sensor_id,))
         rec = self.cursor.fetchone()
         if rec:
