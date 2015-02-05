@@ -121,7 +121,9 @@ if __name__ == '__main__':
         posters.append(poster)
         poster.start()
 
-    time.sleep(POST_SLEEP)
+    time.sleep(rdg_delay)
+    print results_time()
+    time.sleep(2)
 
     t_elapsed = time.time() - tstart
     total_reads = 0
@@ -129,5 +131,6 @@ if __name__ == '__main__':
         p.stop_posting()
         total_reads += p.reading_count
 
+    print t_elapsed, 'seconds of posting'
     print '%.1f posts / second' % (total_reads / t_elapsed)
     time.sleep(rdg_delay*1.2)  # wait for threads to exit cleanly?
