@@ -38,21 +38,24 @@ def results_time():
     load05 = 0.0
     load15 = 0.0
     dbsize = 0.0
+    resp_size = 0.0
     for i in range(TRIES):
         tstart = time.time()
         # Add a random parameter to avoid caching, although probably not needed
         req_data['rdm'] = random.random()  
         r = requests.get("https://bmon.ahfctest.webfactional.com/reports/results/", params=req_data, verify=False)
+        resp = r.text
         tcomplete = time.time() - tstart
-        res = json.loads(r.text)
+        res = json.loads(resp)
         stats = res['objects'][-1][1]
         tc += tcomplete
         load01 += stats['loads'][0]
         load05 += stats['loads'][1]
         load15 += stats['loads'][2]
         dbsize += stats['dbsize']
+        resp_size += len(resp)
 
-    return tc/TRIES, load01/TRIES, load05/TRIES, load15/TRIES, dbsize/TRIES
+    return tc/TRIES, load01/TRIES, load05/TRIES, load15/TRIES, dbsize/TRIES, resp_size/TRIES
 
 
 class ReadingPoster(threading.Thread):
