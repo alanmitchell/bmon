@@ -15,7 +15,7 @@ LOG_FILE = join(APP_PATH, 'logs', 'bms.log')
 logger = logging.getLogger('bms')
 
 # set the log level
-logger.setLevel(getattr(settings, 'LOG_LEVEL', logging.INFO))
+logger.setLevel(getattr(settings, 'BMSAPP_LOG_LEVEL', logging.INFO))
 
 # create a rotating file handler
 fh = logging.handlers.RotatingFileHandler(LOG_FILE, maxBytes=200000, backupCount=5)
