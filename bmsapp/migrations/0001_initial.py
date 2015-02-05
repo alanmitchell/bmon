@@ -53,7 +53,7 @@ class Migration(migrations.Migration):
             name='ChartBuildingInfo',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('parameters', models.TextField(verbose_name=b'Chart Parameters in Keyword Form', blank=True)),
+                ('parameters', models.TextField(verbose_name=b'Chart Parameters in YAML Form', blank=True)),
                 ('sort_order', models.IntegerField(default=999)),
                 ('building', models.ForeignKey(to='bmsapp.Building')),
             ],
@@ -90,20 +90,8 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('title', models.CharField(unique=True, max_length=60)),
-                ('parameters', models.TextField(verbose_name=b'General Chart Parameters in Keyword Form', blank=True)),
-                ('sort_order', models.IntegerField(default=999)),
-            ],
-            options={
-                'ordering': ['sort_order'],
-            },
-            bases=(models.Model,),
-        ),
-        migrations.CreateModel(
-            name='MultiBuildingChartType',
-            fields=[
-                ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('title', models.CharField(unique=True, max_length=50)),
-                ('class_name', models.CharField(unique=True, max_length=60)),
+                ('chart_class', models.CharField(max_length=60, null=True, verbose_name=b'Type of Chart', choices=[(b'currentvalues_multi.CurrentValuesMulti', b'Current Sensor Values'), (b'normalizedbyddbyft2.NormalizedByDDbyFt2', b'Energy / Degree-Day / ft2'), (b'normalizedbyft2.NormalizedByFt2', b'Energy / ft2')])),
+                ('parameters', models.TextField(verbose_name=b'General Chart Parameters in YAML Form', blank=True)),
                 ('sort_order', models.IntegerField(default=999)),
             ],
             options={
@@ -119,8 +107,9 @@ class Migration(migrations.Migration):
                 ('title', models.CharField(max_length=50)),
                 ('is_calculated', models.BooleanField(default=False, verbose_name=b'Calculated Field')),
                 ('tran_calc_function', models.CharField(max_length=35, verbose_name=b'Transform or Calculated Field Function Name', blank=True)),
-                ('function_parameters', models.TextField(verbose_name=b'Function Parameters in Keyword form', blank=True)),
+                ('function_parameters', models.TextField(verbose_name=b'Function Parameters in YAML form', blank=True)),
                 ('calculation_order', models.IntegerField(default=0)),
+                ('formatting_function', models.CharField(max_length=50, verbose_name=b'Formatting Function Name', blank=True)),
             ],
             options={
                 'ordering': ['sensor_id'],
@@ -155,12 +144,6 @@ class Migration(migrations.Migration):
             model_name='sensor',
             name='unit',
             field=models.ForeignKey(to='bmsapp.Unit'),
-            preserve_default=True,
-        ),
-        migrations.AddField(
-            model_name='multibuildingchart',
-            name='chart_type',
-            field=models.ForeignKey(to='bmsapp.MultiBuildingChartType'),
             preserve_default=True,
         ),
         migrations.AddField(
