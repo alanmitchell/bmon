@@ -6,9 +6,11 @@ import threading
 import time
 import random
 import json
+import urllib3
 import yaml
 import requests
 
+urllib3.disable_warnings()
 
 req_data = yaml.load('''
 select_group: 0
