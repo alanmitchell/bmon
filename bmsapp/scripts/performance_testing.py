@@ -96,23 +96,27 @@ class ReadingPoster(threading.Thread):
             if self.stop:
                 return
 
-            # delay a random amount of time that averages to the requested delay.
-            time.sleep(self.delay * 2.0 * random.random())
-
             dt_new = dt_base + datetime.timedelta(seconds=random.random()*1e7)
             data['ts'] = dt_new.strftime('%Y-%m-%d %H:%M:%S')
             requests.get(self.url, params=data, verify=False)
             self.reading_count += 1
+            # delay a random amount of time that averages to the requested delay.
+            time.sleep(self.delay * 2.0 * random.random())
+
 
 
 if __name__ == '__main__':
     #print results_time()
 
+    args = sys.argv
+    thread_count = int(args[1]) if len(args)>=2 else 5
+    rdg_delay = float(args[2]) if len(args)>=3 else 0.0
+
     TOT_POST_TIME = 5.0   # seconds
     posters = []
-    for i in range(5):
+    for i in range(thread_count):
         sensor_id = 'test_%03d' % i
-        poster = ReadingPoster(sensor_id, 0.0)
+        poster = ReadingPoster(sensor_id, rdg_delay)
         posters.append(poster)
         poster.start()
 
