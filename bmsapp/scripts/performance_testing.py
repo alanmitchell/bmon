@@ -128,3 +128,4 @@ if __name__ == '__main__':
         total_reads += p.reading_count
 
     print '%.1f posts / second' % (total_reads / TOT_POST_TIME)
+    time.sleep(rdg_delay*1.1)  # wait for threads to exit cleanly?
