@@ -132,4 +132,4 @@ if __name__ == '__main__':
 
     print t_elapsed, 'seconds of posting'
     print '%.1f posts / second' % (total_reads / t_elapsed)
-    time.sleep(rdg_delay*1.2)  # wait for threads to exit cleanly?
+    time.sleep(rdg_delay+1.0)  # wait for threads to exit cleanly?
