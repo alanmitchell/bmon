@@ -93,7 +93,7 @@ def get_report_results(request):
         dbsize = os.path.getsize(chart_obj.reading_db.db_fname)
         loads = subprocess.check_output('uptime').split(':')[-1].split(',')
         loads = [float(ld) for ld in loads]
-        result['objects'] = result['objects'].append( ('stats', {'dbsize': dbsize, 'loads': loads}) )
+        result['objects'].append( ('stats', {'dbsize': dbsize, 'loads': loads}) )
     
     except:
         _logger.exception('Error in get_report_results')
