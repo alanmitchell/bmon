@@ -123,7 +123,6 @@ if __name__ == '__main__':
 
     time.sleep(rdg_delay)
     print results_time()
-    time.sleep(2)
 
     t_elapsed = time.time() - tstart
     total_reads = 0
