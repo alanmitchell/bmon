@@ -50,16 +50,16 @@ BMSAPP_NAV_LINKS = ( ('Map', 'map'),
 
 # Name of this Django project.  Note that if you change this from bmon, you will also
 # have to change values in the manage.py, wsgi.py, and appache2/conf/httpd.conf files.
-PROJ_NAME = 'bmon'     
+BMSAPP_PROJ_NAME = 'bmon'     
 
 # This is the name you gave to the Static application created in the Webfaction Control
 # Panel to serve static Django media.  This is only used to create the STATIC_ROOT setting
 # further down in this settings file.
-STATIC_APP_NAME = 'bmon_static'
+BMSAPP_STATIC_APP_NAME = 'bmon_static'
 
 # This controls what messages will actually get logged
 # Levels in order from least to greatest severity are:  DEBUG, INFO, WARNING, ERROR, CRITICAL
-LOG_LEVEL = logging.INFO
+BMSAPP_LOG_LEVEL = logging.INFO
 
 #------------ End of Settings Specific to the Monitoring App --------------
 
@@ -132,7 +132,7 @@ MANAGERS = ADMINS
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3', # Add 'postgresql_psycopg2', 'mysql', 'sqlite3' or 'oracle'.
-        'NAME': join(PROJ_PATH, '%s.sqlite' % PROJ_NAME),                   # Or path to database file if using sqlite3.
+        'NAME': join(PROJ_PATH, '%s.sqlite' % BMSAPP_PROJ_NAME),                   # Or path to database file if using sqlite3.
         # The following settings are not used with sqlite3:
         'USER': '',
         'PASSWORD': '',
@@ -167,7 +167,7 @@ MEDIA_URL = ''
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = join(PROJ_PATH, '..', '..', STATIC_APP_NAME)
+STATIC_ROOT = join(PROJ_PATH, '..', '..', BMSAPP_STATIC_APP_NAME)
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
@@ -206,10 +206,10 @@ MIDDLEWARE_CLASSES = (
     # 'django.middleware.clickjacking.XFrameOptionsMiddleware',
 )
 
-ROOT_URLCONF = '%s.urls' % PROJ_NAME
+ROOT_URLCONF = '%s.urls' % BMSAPP_PROJ_NAME
 
 # Python dotted path to the WSGI application used by Django's runserver.
-WSGI_APPLICATION = '%s.wsgi.application' % PROJ_NAME
+WSGI_APPLICATION = '%s.wsgi.application' % BMSAPP_PROJ_NAME
 
 TEMPLATE_DIRS = (
     # Put strings here, like "/home/html/django_templates" or "C:/www/django/templates".
