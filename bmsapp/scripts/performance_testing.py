@@ -32,7 +32,7 @@ def results_time():
                            average 15 minute load,
                            average reading database size in bytes)
     '''
-    TRIES = 5
+    TRIES = 10
     tc = 0.0
     load01 = 0.0
     load05 = 0.0
