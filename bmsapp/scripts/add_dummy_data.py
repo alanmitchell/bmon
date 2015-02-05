@@ -22,6 +22,7 @@ def run():
         db = bmsapp.readingdb.bmsdata.BMSdata()
 
         for b in range(BLDG_COUNT):
+            print 'Working on Building %03d' % b
             for s in range(SENSOR_COUNT):
 
                 sensor_id = '%03d_%03d' % (b, s)
