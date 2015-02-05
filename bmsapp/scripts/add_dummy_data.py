@@ -19,7 +19,7 @@ vals = [random.random() for i in range(len(tstamps))]
 def run():
 
     try:
-        db = bmsapp.readingdb.bmsdata()
+        db = bmsapp.readingdb.bmsdata.BMSdata()
 
         for b in range(BLDG_COUNT):
             for s in range(SENSOR_COUNT):
