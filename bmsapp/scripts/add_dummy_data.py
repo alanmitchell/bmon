@@ -1,9 +1,10 @@
 '''Adds dummy data to the reading database
 '''
 
-import bmsapp.readingdb.bmsdata
 import random
 import time
+import traceback
+import bmsapp.readingdb.bmsdata
 
 BLDG_COUNT = 8
 SENSOR_COUNT = 20
@@ -17,13 +18,17 @@ vals = [random.random() for i in range(len(tstamps))]
 
 def run():
 
-    db = bmsapp.readingdb.bmsdata()
+    try:
+        db = bmsapp.readingdb.bmsdata()
 
-    for b in range(BLDG_COUNT):
-        for s in range(SENSOR_COUNT):
+        for b in range(BLDG_COUNT):
+            for s in range(SENSOR_COUNT):
 
-            sensor_id = '%03d_%03d' % (b, s)
-            ids = [sensor_id] * len(tstamps)
-            db.insert_reading(tstamps, ids, vals)
+                sensor_id = '%03d_%03d' % (b, s)
+                ids = [sensor_id] * len(tstamps)
+                db.insert_reading(tstamps, ids, vals)
 
-    db.close()
+        db.close()
+
+    except:
+        traceback.print_exc()
