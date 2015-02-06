@@ -50,7 +50,9 @@ class TimeSeries(basechart.BaseChart):
                 times = ser.index
             # Highcharts uses milliseconds for timestamps, and convert to float because weirdly, integers have
             # problems with JSON serialization.
-            times = times * 1000.0    
+            if len(times):
+                times = times * 1000.0
+                
             # Create series data, each item being an [ts, val] pair.  
             # The 'yAxis' property indicates the id of the Y axis where the data should be plotted.
             # Our convention is to use the unit label for the axis as the id.
