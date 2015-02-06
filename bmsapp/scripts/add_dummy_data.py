@@ -7,8 +7,8 @@ import time
 import traceback
 import bmsapp.readingdb.bmsdata
 
-BLDG_COUNT = 20
-SENSOR_COUNT = 30
+BLDG_COUNT = 8
+SENSOR_COUNT = 9
 YRS_OF_READINGS = 2
 READING_SPACING = 10.0    # minutes
 

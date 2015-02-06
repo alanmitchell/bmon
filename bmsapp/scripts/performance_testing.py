@@ -175,7 +175,7 @@ if __name__ == '__main__':
     i = 0
     while True:
         thread_count, rdg_delay, no_query = post_params[i % param_len]
-        results = query_under_load(thread_count, rdg_delay, 100, 20, no_query)
+        results = query_under_load(thread_count, rdg_delay, 8, 9, no_query)
         results = [time.time(), thread_count, rdg_delay] + results
         res_str = '\t'.join(['%.2f' % val for val in results])
         open('performance.txt', 'a').write(res_str + '\n')
