@@ -1,4 +1,5 @@
-'''Adds dummy data to the reading database
+'''Adds dummy data to the reading database.
+Executed through the django-extensions runscript facility.
 '''
 
 import random
