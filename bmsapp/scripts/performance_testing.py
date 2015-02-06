@@ -24,7 +24,7 @@ start_date: 01/01/2014
 end_date: 12/31/2014     # Getting one year of data
 ''')
 
-def results_time():
+def time_query():
     '''Determine average time to complete a report request.
     This returns a tuple: (average completion time in seconds, 
                            average 1 minute load,
@@ -107,32 +107,59 @@ class ReadingPoster(threading.Thread):
             time.sleep(self.delay * 2.0 * random.random())
 
 
+def query_under_load(thread_count, reading_delay):
+    '''Times the response of chart query while simultaneous posting
+    sensor readings to the database.
+    '''
 
-if __name__ == '__main__':
-    #print results_time()
-
-    args = sys.argv
-    thread_count = int(args[1]) if len(args)>=2 else 5
-    rdg_delay = float(args[2]) if len(args)>=3 else 0.0
-
-    POST_SLEEP = 5.0   # seconds
     posters = []
     tstart = time.time()
     for i in range(thread_count):
         sensor_id = 'test_%03d' % i
-        poster = ReadingPoster(sensor_id, rdg_delay)
+        poster = ReadingPoster(sensor_id, reading_delay)
         posters.append(poster)
         poster.start()
 
-    time.sleep(rdg_delay)
-    print results_time()
+    time.sleep(reading_delay)
+    results =  time_query()
 
     t_elapsed = time.time() - tstart
     total_reads = 0
     for p in posters:
         p.stop_posting()
         total_reads += p.reading_count
+        del p
 
-    print t_elapsed, 'seconds of posting'
-    print '%.1f posts / second' % (total_reads / t_elapsed)
-    time.sleep(rdg_delay+1.0)  # wait for threads to exit cleanly?
+    #print '%.1f posts / second' % (total_reads / t_elapsed)
+    time.sleep(reading_delay + 1.0)  # wait for threads to exit cleanly?
+
+    return [total_reads / t_elapsed] + list(results)
+
+
+if __name__ == '__main__':
+
+    #args = sys.argv
+    #thread_count = int(args[1]) if len(args)>=2 else 5
+    #rdg_delay = float(args[2]) if len(args)>=3 else 0.0
+
+    # (threads, delay between sensor posts)
+    post_params = (
+        (1, 1.0),
+        (3, 0.5),
+        (5, 0.5),
+        (10, 0.5),
+        (10, 0.25),
+        (10, 0.15),
+        (10, 0.0)
+    )
+    param_len = len(post_params)
+
+    i = 0
+    while True:
+        thread_count, rdg_delay = post_params[i % param_len]
+        results = query_under_load(thread_count, rdg_delay)
+        results = [time.time(), thread_count, rdg_delay] + results
+        res_str = '\t'.join(['%.2f' % val for val in results])
+        open('performance.txt', 'a').write(res_str + '\n')
+        i += 1
+        time.sleep(25)
