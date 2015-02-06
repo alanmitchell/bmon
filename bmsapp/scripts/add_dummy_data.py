@@ -7,9 +7,9 @@ import time
 import traceback
 import bmsapp.readingdb.bmsdata
 
-BLDG_COUNT = 100
-SENSOR_COUNT = 20
-YRS_OF_READINGS = 10
+BLDG_COUNT = 20
+SENSOR_COUNT = 30
+YRS_OF_READINGS = 2
 READING_SPACING = 10.0    # minutes
 
 # create the timestamp array and the value array (random)

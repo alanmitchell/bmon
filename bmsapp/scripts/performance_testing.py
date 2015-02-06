@@ -18,19 +18,21 @@ select_group: 0
 select_bldg: 1
 select_chart: 2
 select_sensor: [2, 3, 4]
-averaging_time: 720
+averaging_time: 168
 time_period: custom
 start_date: 01/01/2014
 end_date: 12/31/2014     # Getting one year of data
 ''')
 
-def time_query():
+def time_query(no_query=False):
     '''Determine average time to complete a report request.
     This returns a tuple: (average completion time in seconds, 
                            average 1 minute load,
                            average 5 minute load,
                            average 15 minute load,
                            average reading database size in bytes)
+    if 'no_query' is True, no actual queries are performed, and instead
+    this function delays for a roughly equivalent amount of time.
     '''
     TRIES = 10
     tc = 0.0
@@ -39,21 +41,25 @@ def time_query():
     load15 = 0.0
     dbsize = 0.0
     resp_size = 0.0
-    for i in range(TRIES):
-        tstart = time.time()
-        # Add a random parameter to avoid caching, although probably not needed
-        req_data['rdm'] = random.random()  
-        r = requests.get("https://bmon.ahfctest.webfactional.com/reports/results/", params=req_data, verify=False)
-        resp = r.text
-        tcomplete = time.time() - tstart
-        res = json.loads(resp)
-        stats = res['objects'][-1][1]
-        tc += tcomplete
-        load01 += stats['loads'][0]
-        load05 += stats['loads'][1]
-        load15 += stats['loads'][2]
-        dbsize += stats['dbsize']
-        resp_size += len(resp)
+    if no_query:
+        time.sleep(TRIES * 0.7)
+
+    else:
+        for i in range(TRIES):
+            tstart = time.time()
+            # Add a random parameter to avoid caching, although probably not needed
+            req_data['rdm'] = random.random()  
+            r = requests.get("https://bmon.ahfctest.webfactional.com/reports/results/", params=req_data, verify=False)
+            resp = r.text
+            tcomplete = time.time() - tstart
+            res = json.loads(resp)
+            stats = res['objects'][-1][1]
+            tc += tcomplete
+            load01 += stats['loads'][0]
+            load05 += stats['loads'][1]
+            load15 += stats['loads'][2]
+            dbsize += stats['dbsize']
+            resp_size += len(resp)
 
     return tc/TRIES, load01/TRIES, load05/TRIES, load15/TRIES, dbsize/TRIES, resp_size/TRIES
 
@@ -62,18 +68,21 @@ class ReadingPoster(threading.Thread):
     '''Posts sensor readings
     '''
 
-    def __init__ (self, sensor_id, delay=0.0):
+    def __init__ (self, delay, bldg_ct, sensor_ct):
         """
-        'sensor_id': the sensor_id to use in the post
         'delay': delay between reading posts.  Randomness is added
             to cause delay to vary from 0 to 2 x 'delay'
+        'bldg_ct': for creating random sensor IDs, the total building count
+        'sensor_ct': for creating random sensor IDs, the # of sensors per building
         The timestamp used in each post is random.  The value is always 1.0.
         """  
         # run constructor of base class
         threading.Thread.__init__(self)
 
-        self.url = 'https://bmon.ahfctest.webfactional.com/readingdb/reading/%s/store/' % sensor_id
+        self.url = 'https://bmon.ahfctest.webfactional.com/readingdb/reading/%s/store/'
         self.delay = delay
+        self.bldg_ct = bldg_ct
+        self.sensor_ct = sensor_ct
         
         # If only thing left running are daemon threads, Python will exit.
         self.daemon = True
@@ -99,29 +108,37 @@ class ReadingPoster(threading.Thread):
             if self.stop:
                 return
 
+            # create a random sensor ID and the needed posting URL
+            sensor_id = '%03d_%03d' % (random.randint(0, self.bldg_ct - 1), random.randint(0, self.sensor_ct - 1))
+            url = self.url % sensor_id
             dt_new = dt_base + datetime.timedelta(seconds=random.random()*1e7)
             data['ts'] = dt_new.strftime('%Y-%m-%d %H:%M:%S')
-            requests.get(self.url, params=data, verify=False)
+            requests.get(url, params=data, verify=False)
             self.reading_count += 1
             # delay a random amount of time that averages to the requested delay.
             time.sleep(self.delay * 2.0 * random.random())
 
 
-def query_under_load(thread_count, reading_delay):
+def query_under_load(thread_count, reading_delay, building_count, bldg_sensor_count, no_query=False):
     '''Times the response of chart query while simultaneous posting
     sensor readings to the database.
+    'thread_count': number of sensor reading posting threads.
+    'reading_delay': delay between postings for one thread.
+    'building_count': for creating random sensor IDs, the total building count
+    'bldg_sensor_count': for creating random sensor IDs, the # of sensors per building
+    'no_query': if True, no chart queries are performed, but sensor reading postings are;
+        this is way to measure maximum posting rate under no query load.
     '''
 
     posters = []
     tstart = time.time()
     for i in range(thread_count):
-        sensor_id = 'test_%03d' % i
-        poster = ReadingPoster(sensor_id, reading_delay)
+        poster = ReadingPoster(reading_delay, building_count, bldg_sensor_count)
         posters.append(poster)
         poster.start()
 
     time.sleep(reading_delay)
-    results =  time_query()
+    results =  time_query(no_query)
 
     t_elapsed = time.time() - tstart
     total_reads = 0
@@ -144,20 +161,21 @@ if __name__ == '__main__':
 
     # (threads, delay between sensor posts)
     post_params = (
-        (1, 1.0),
-        (3, 0.5),
-        (5, 0.5),
-        (10, 0.5),
-        (10, 0.25),
-        (10, 0.15),
-        (10, 0.0)
+        (1, 1.0, False),
+        (3, 0.5, False),
+        (5, 0.5, False),
+        (10, 0.5, False),
+        (10, 0.25, False),
+        (10, 0.15, False),
+        (10, 0.0, False),
+        (10, 0.0, True)
     )
     param_len = len(post_params)
 
     i = 0
     while True:
-        thread_count, rdg_delay = post_params[i % param_len]
-        results = query_under_load(thread_count, rdg_delay)
+        thread_count, rdg_delay, no_query = post_params[i % param_len]
+        results = query_under_load(thread_count, rdg_delay, 100, 20, no_query)
         results = [time.time(), thread_count, rdg_delay] + results
         res_str = '\t'.join(['%.2f' % val for val in results])
         open('performance.txt', 'a').write(res_str + '\n')
