@@ -8,10 +8,28 @@ from bmsapp.models import BuildingGroup
 from django.contrib import admin
 from django.forms import TextInput, Textarea
 from django.db import models
+from django.utils.html import format_html
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext_lazy as _
 
 
 class BldgToSensorInline(admin.TabularInline):
+    '''Used in Building change form.
+    '''
+    model = BldgToSensor
+    extra = 1
+    fields = ('sensor', 'edit_sensor', 'sensor_group', 'sort_order')
+
+    def edit_sensor(self, instance):
+        url = reverse('admin:bmsapp_sensor_change', args=(instance.sensor.pk,))
+        return format_html(u'<a href="{}">Edit this Sensor</a>', url)
+
+    readonly_fields = ('edit_sensor',)
+
+
+class BldgToSensorInline2(admin.TabularInline):
+    '''Used in Sensor change form.
+    '''
     model = BldgToSensor
     extra = 1
 
@@ -98,7 +116,7 @@ class BuildingSensorListFilter(admin.SimpleListFilter):
 
 
 class SensorAdmin(admin.ModelAdmin):
-    inlines = (BldgToSensorInline,)
+    inlines = (BldgToSensorInline2,)
     search_fields = ['sensor_id', 'title', 'tran_calc_function']
     list_filter = ['is_calculated', BuildingSensorListFilter]
 
