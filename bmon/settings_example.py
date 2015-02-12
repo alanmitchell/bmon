@@ -1,5 +1,5 @@
 ###################################################
-# Django settings for BMON project.               #
+# Django settings for BMON project                #
 ###################################################
 import logging
 
