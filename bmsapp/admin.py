@@ -72,7 +72,7 @@ class BuildingAdmin(admin.ModelAdmin):
 
 @admin.register(BuildingMode)
 class BuildingModeAdmin(admin.ModelAdmin):
-    list_display = ('id', 'name')
+    list_display = ('name',)
     list_editable = ('name',)
 
 
@@ -86,6 +86,7 @@ class AlertAdminInline(admin.StackedInline):
     '''
     model = AlertCondition
     extra = 1
+    filter_horizontal = ('recipients',)
 
     fieldsets = (
         (None, {'fields': ( ('active', 'sensor'),
@@ -97,6 +98,10 @@ class AlertAdminInline(admin.StackedInline):
                           )}
         ),
     )
+
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':3, 'cols':80})},
+    }
 
 
 class BuildingSensorListFilter(admin.SimpleListFilter):
@@ -177,7 +182,7 @@ class MultiBuildingChartAdmin(admin.ModelAdmin):
 
 @admin.register(AlertRecipient)
 class AlertRecipientAdmin(admin.ModelAdmin):
-    list_display = ('id', 'active', 'name')
+    list_display = ('name', 'active' )
     list_editable= ('active',)
     fields = (
         ('active', 'name'), 

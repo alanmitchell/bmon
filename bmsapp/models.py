@@ -308,7 +308,7 @@ class AlertRecipient(models.Model):
     '''
 
     # If False, no alerts will be sent to this person
-    active = models.BooleanField(default=True, help_text='Alerts to this recipient will be disabled if not checked.')
+    active = models.BooleanField(default=True)
 
     # Name of recipient 
     name = models.CharField(max_length=50)
@@ -320,7 +320,7 @@ class AlertRecipient(models.Model):
     # Cell Phone Text Message notification fields
     notify_cell = models.BooleanField("Send Text Message?", default=True)
     phone_regex = RegexValidator(regex=r'^\d{10}$', message="Phone number must be entered as a 10 digit number, including area code, no spaces, dashes or parens.")
-    cell_number = models.CharField("10 digit Cell number", validators=[phone_regex], blank=True)
+    cell_number = models.CharField("10 digit Cell number", max_length=10, validators=[phone_regex], blank=True)
     cell_sms_gateway = models.CharField('Cell Phone Carrier', max_length=60, choices=sms_gateways.GATEWAYS, blank=True)
 
     # Pushover mobile app notification fields
@@ -328,13 +328,16 @@ class AlertRecipient(models.Model):
     pushover_regex = RegexValidator(regex=r'^\w{30}$', message="Pushover ID should be exactly 30 characters long.")
     pushover_id = models.CharField('Pushover ID', validators=[pushover_regex], max_length=30, blank=True)
 
+    def __unicode__(self):
+        return self.name
+
 
 class AlertCondition(models.Model):
     '''A sensor condition that should trigger an Alert to be sent to AlertRecipient's.
     '''
 
     # If False, this condition will not be evaluated
-    active = models.BooleanField(default=True, help_text='If not checked, this condition will not be evaluated.')
+    active = models.BooleanField(default=True, help_text='Uncheck the box to Disable the alert.')
 
     # the sensor this condition applies to
     sensor = models.ForeignKey(Sensor)
@@ -352,7 +355,7 @@ class AlertCondition(models.Model):
     condition = models.CharField('Notify when the Sensor value is', max_length=20, choices=CONDITION_CHOICES)
 
     # the value to test the current sensor value against
-    test_value = models.FloatField(verbose_name='', blank=True, null=True)
+    test_value = models.FloatField(verbose_name='this value', blank=True, null=True)
 
     # fields to qualify the condition test according to building mode
     only_if_bldg = models.ForeignKey(Building, verbose_name='But only if building', blank=True, null=True)
@@ -360,7 +363,7 @@ class AlertCondition(models.Model):
 
     # alert message.  If left blank a message will be created from other field values.
     alert_message = models.TextField(max_length=200, blank=True, 
-        help_text='If left blank, a message will be created.  If a message is entered, the string "{val}" in the message will be replaced with the current sensor value')
+        help_text='If left blank, a message will be created.  Use the string "{val}" in the message to show the current sensor value.')
 
     # priority of the alert.  These numbers correspond to priority levels in Pushover.
     PRIORITY_LOW = '-1'
@@ -371,7 +374,9 @@ class AlertCondition(models.Model):
         (PRIORITY_NORMAL, 'Normal'),
         (PRIORITY_HIGH, 'High'),
     )
-    priority = models.CharField('Priority of this Alert Situation', max_length=5, default=PRIORITY_NORMAL)
+    priority = models.CharField('Priority of this Alert Situation', max_length=5, 
+        choices=ALERT_PRIORITY_CHOICES,
+        default=PRIORITY_NORMAL)
 
     # determines delay before notifying again about this condition.  Expressed in hours.
     wait_before_next = models.FloatField('Hours to Wait before Notifying Again', default=4.0)
@@ -383,3 +388,6 @@ class AlertCondition(models.Model):
     # This is filled out when alert conditions are evaluated and is not accessible in the Admin
     # interface.
     last_notified = models.FloatField(blank=True, null=True)
+
+    def __unicode__(self):
+        return '%s %s %s' % (self.sensor.title, self.condition, self.test_value)
