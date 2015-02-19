@@ -1,4 +1,7 @@
 from django.db import models
+from django.core.validators import RegexValidator
+import sms_gateways
+
 
 # Models for the BMS App
 
@@ -80,6 +83,17 @@ class Sensor(models.Model):
         ordering = ['sensor_id']
 
 
+class BuildingMode(models.Model):
+    '''A state or mode that the building could be in, such as Winter, Summer, Vacant.
+    '''
+
+    # name of the mode
+    name = models.CharField("Mode Name", max_length=50)
+
+    def __unicode__(self):
+        return self.name
+
+
 class Building(models.Model):
     '''
     A building that contains sensors.
@@ -87,6 +101,9 @@ class Building(models.Model):
 
     # name of the building displayed to users
     title = models.CharField(max_length=50, unique=True)
+
+    # Current mode that building is in
+    current_mode = models.ForeignKey(BuildingMode, verbose_name='Current Operating Mode', blank=True, null=True)
 
     # Latitude of building
     latitude = models.FloatField(default=62.0)
@@ -159,6 +176,7 @@ class BldgToSensor(models.Model):
     class Meta:
         ordering = ('building__title', 'sensor_group__sort_order', 'sort_order')
 
+
 class DashboardItem(models.Model):
     """An item on the Dashboard display for a building.
     """
@@ -217,19 +235,12 @@ class DashboardItem(models.Model):
         max_val = self.maximum_axis_value if self.maximum_axis_value is not None else self.maximum_normal_value + axis_extension
         return (min_val, max_val)
 
-    # Determines whether an Alert is generated from this sensor going outside of
-    # the Normal range.
-    generate_alert = models.BooleanField(default=False)
-
-    # Stops alerts from occurring during this date range
-    no_alert_start_date = models.DateField('Except from', null=True, blank=True)
-    no_alert_end_date = models.DateField('to', null=True, blank=True)
-
     def __unicode__(self):
         return self.widget_type + ": " + (self.sensor.sensor.title if self.sensor else self.title)
 
     class Meta:
         ordering = ('row_number', 'column_number', 'sensor__sort_order')
+
 
 class MultiBuildingChart(models.Model):
     '''
@@ -290,3 +301,82 @@ class ChartBuildingInfo(models.Model):
     class Meta:
         ordering = ['sort_order']
 
+
+class AlertRecipient(models.Model):
+    '''A person or entity that is sent a notification when an Alert condition
+    occurs.
+    '''
+
+    # If False, no alerts will be sent to this person
+    active = models.BooleanField(default=True, help_text='Alerts to this recipient will be disabled if not checked.')
+
+    # Name of recipient 
+    name = models.CharField(max_length=50)
+
+    # Email notification fields
+    notify_email = models.BooleanField("Send Email?", default=True)
+    email_address = models.EmailField(max_length=100, blank=True)
+
+    # Cell Phone Text Message notification fields
+    notify_cell = models.BooleanField("Send Text Message?", default=True)
+    phone_regex = RegexValidator(regex=r'^\d{10}$', message="Phone number must be entered as a 10 digit number, including area code, no spaces, dashes or parens.")
+    cell_number = models.CharField("10 digit Cell number", validators=[phone_regex], blank=True)
+    cell_sms_gateway = models.CharField('Cell Phone Carrier', max_length=60, choices=sms_gateways.GATEWAYS, blank=True)
+
+    # Pushover mobile app notification fields
+    notify_pushover = models.BooleanField("Send Pushover Notification?", default=True)
+    pushover_regex = RegexValidator(regex=r'^\w{30}$', message="Pushover ID should be exactly 30 characters long.")
+    pushover_id = models.CharField('Pushover ID', validators=[pushover_regex], max_length=30, blank=True)
+
+
+class AlertCondition(models.Model):
+    '''A sensor condition that should trigger an Alert to be sent to AlertRecipient's.
+    '''
+
+    # If False, this condition will not be evaluated
+    active = models.BooleanField(default=True, help_text='If not checked, this condition will not be evaluated.')
+
+    # the sensor this condition applies to
+    sensor = models.ForeignKey(Sensor)
+
+    CONDITION_CHOICES = (
+        ('>', '>'),
+        ('>=', '>='),
+        ('<', '<'),
+        ('<=', '<='),
+        ('==', 'equal to'),
+        ('!=', 'not equal to'),
+        ('inactive', 'inactive'),
+    )
+    # conditional type to evaluate for the sensor value
+    condition = models.CharField('The Sensor value is', max_length=20, choices=CONDITION_CHOICES)
+
+    # the value to test the current sensor value against
+    test_value = models.FloatField(verbose_name='', blank=True, null=True)
+
+    # fields to qualify the condition test according to building mode
+    only_if_bldg = models.ForeignKey(Building, verbose_name='But only if building', blank=True, null=True)
+    only_if_bldg_mode = models.ForeignKey(BuildingMode, verbose_name='is in this mode', blank=True, null=True)
+
+    # alert message.  If left blank a message will be created from other field values.
+    alert_message = models.CharField(max_length=200, blank=True, 
+        help_text='If left blank, a message will be created.  If a message is entered, the string "{val}" in the message will be replaced with the current sensor value')
+
+    # priority of the alert.  These numbers correspond to priority levels in Pushover.
+    PRIORITY_LOW = '-1'
+    PRIORITY_NORMAL = '0'
+    PRIORITY_HIGH = '1'
+    ALERT_PRIORITY_CHOICES = ( 
+        (PRIORITY_LOW, 'Low'), 
+        (PRIORITY_NORMAL, 'Normal'),
+        (PRIORITY_HIGH, 'High'),
+    )
+    priority = models.CharField('Priority of this Alert Situation', max_length=5, default=PRIORITY_NORMAL)
+
+    # the recipients who should receive this alert
+    recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?')
+
+    # when the last notification of this alert condition was sent out, Unix timestamp.
+    # This is filled out when alert conditions are evaluated and is not accessible in the Admin
+    # interface.
+    last_notified = models.FloatField(blank=True, null=True)
