@@ -349,7 +349,7 @@ class AlertCondition(models.Model):
         ('inactive', 'inactive'),
     )
     # conditional type to evaluate for the sensor value
-    condition = models.CharField('The Sensor value is', max_length=20, choices=CONDITION_CHOICES)
+    condition = models.CharField('Notify when the Sensor value is', max_length=20, choices=CONDITION_CHOICES)
 
     # the value to test the current sensor value against
     test_value = models.FloatField(verbose_name='', blank=True, null=True)
@@ -359,7 +359,7 @@ class AlertCondition(models.Model):
     only_if_bldg_mode = models.ForeignKey(BuildingMode, verbose_name='is in this mode', blank=True, null=True)
 
     # alert message.  If left blank a message will be created from other field values.
-    alert_message = models.CharField(max_length=200, blank=True, 
+    alert_message = models.TextField(max_length=200, blank=True, 
         help_text='If left blank, a message will be created.  If a message is entered, the string "{val}" in the message will be replaced with the current sensor value')
 
     # priority of the alert.  These numbers correspond to priority levels in Pushover.
@@ -372,6 +372,9 @@ class AlertCondition(models.Model):
         (PRIORITY_HIGH, 'High'),
     )
     priority = models.CharField('Priority of this Alert Situation', max_length=5, default=PRIORITY_NORMAL)
+
+    # determines delay before notifying again about this condition.  Expressed in hours.
+    wait_before_next = models.FloatField('Hours to Wait before Notifying Again', default=4.0)
 
     # the recipients who should receive this alert
     recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?')

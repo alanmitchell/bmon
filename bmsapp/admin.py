@@ -4,7 +4,8 @@ This file configures the Admin interface, which allows for editing of the Models
 
 from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, DashboardItem, Unit
 from bmsapp.models import MultiBuildingChart, ChartBuildingInfo
-from bmsapp.models import BuildingGroup
+from bmsapp.models import BuildingGroup, BuildingMode
+from bmsapp.models import AlertCondition, AlertRecipient
 from django.contrib import admin
 from django.forms import TextInput, Textarea
 from django.db import models
@@ -42,7 +43,6 @@ class DashboardItemInline(admin.StackedInline):
         (None, {'fields': ( ('widget_type', 'row_number', 'column_number'),
                             ('sensor', 'title'),
                             ('minimum_normal_value', 'maximum_normal_value', 'minimum_axis_value', 'maximum_axis_value'),
-                            ('generate_alert', 'no_alert_start_date', 'no_alert_end_date'),
                           )}
         ),
     )
@@ -58,6 +58,7 @@ class DashboardItemInline(admin.StackedInline):
         return super(DashboardItemInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
 
+@admin.register(Building)
 class BuildingAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline, DashboardItemInline)
     formfield_overrides = {
@@ -69,8 +70,33 @@ class BuildingAdmin(admin.ModelAdmin):
         return super(BuildingAdmin, self).get_form(request, obj, **kwargs)
 
 
+@admin.register(BuildingMode)
+class BuildingModeAdmin(admin.ModelAdmin):
+    list_display = ('id', 'name')
+    list_editable = ('name',)
+
+
+@admin.register(BuildingGroup)
 class BuildingGroupAdmin(admin.ModelAdmin):
     filter_horizontal = ('buildings',)
+
+
+class AlertAdminInline(admin.StackedInline):
+    '''Used in the Sensor Admin to enter alerts.
+    '''
+    model = AlertCondition
+    extra = 1
+
+    fieldsets = (
+        (None, {'fields': ( ('active', 'sensor'),
+                            ('condition', 'test_value'),
+                            ('only_if_bldg', 'only_if_bldg_mode'),
+                            ('alert_message',),
+                            ('priority', 'wait_before_next'),
+                            ('recipients',)
+                          )}
+        ),
+    )
 
 
 class BuildingSensorListFilter(admin.SimpleListFilter):
@@ -115,17 +141,20 @@ class BuildingSensorListFilter(admin.SimpleListFilter):
             return queryset.filter(pk__in=sensor_ids)
 
 
+@admin.register(Sensor)
 class SensorAdmin(admin.ModelAdmin):
-    inlines = (BldgToSensorInline2,)
+    inlines = (BldgToSensorInline2, AlertAdminInline)
     search_fields = ['sensor_id', 'title', 'tran_calc_function']
     list_filter = ['is_calculated', BuildingSensorListFilter]
 
 
+@admin.register(SensorGroup)
 class SensorGroupAdmin(admin.ModelAdmin):
     list_display = ('id', 'title', 'sort_order')
     list_editable = ('title', 'sort_order')
 
 
+@admin.register(Unit)
 class UnitAdmin(admin.ModelAdmin):
     list_display = ('id', 'label', 'measure_type')
     list_editable = ('label', 'measure_type')
@@ -139,16 +168,20 @@ class ChartBuildingInfoInline(admin.TabularInline):
     extra = 1
 
 
+@admin.register(MultiBuildingChart)
 class MultiBuildingChartAdmin(admin.ModelAdmin):
     inlines = (ChartBuildingInfoInline,)
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows':6, 'cols':40})},
     }
 
-
-admin.site.register(Building, BuildingAdmin)
-admin.site.register(BuildingGroup, BuildingGroupAdmin)
-admin.site.register(Sensor, SensorAdmin)
-admin.site.register(SensorGroup, SensorGroupAdmin)
-admin.site.register(Unit, UnitAdmin)
-admin.site.register(MultiBuildingChart, MultiBuildingChartAdmin)
+@admin.register(AlertRecipient)
+class AlertRecipientAdmin(admin.ModelAdmin):
+    list_display = ('id', 'active', 'name')
+    list_editable= ('active',)
+    fields = (
+        ('active', 'name'), 
+        ('notify_email', 'email_address'), 
+        ('notify_cell', 'cell_number', 'cell_sms_gateway'),
+        ('notify_pushover', 'pushover_id')
+    )
