@@ -20,7 +20,7 @@ class Migration(migrations.Migration):
                 ('condition', models.CharField(max_length=20, verbose_name=b'Notify when the Sensor value is', choices=[(b'>', b'>'), (b'>=', b'>='), (b'<', b'<'), (b'<=', b'<='), (b'==', b'equal to'), (b'!=', b'not equal to'), (b'inactive', b'inactive')])),
                 ('test_value', models.FloatField(null=True, verbose_name=b'this value', blank=True)),
                 ('alert_message', models.TextField(help_text=b'If left blank, a message will be created.  Use the string "{val}" in the message to show the current sensor value.', max_length=200, blank=True)),
-                ('priority', models.CharField(default=b'0', max_length=5, verbose_name=b'Priority of this Alert Situation', choices=[(b'-1', b'Low'), (b'0', b'Normal'), (b'1', b'High')])),
+                ('priority', models.CharField(default=b'0', max_length=5, verbose_name=b'Priority of this Alert Situation', choices=[(b'-1', b'Low'), (b'0', b'Normal'), (b'1', b'High'), (b'2', b'Emergency')])),
                 ('wait_before_next', models.FloatField(default=4.0, verbose_name=b'Hours to Wait before Notifying Again')),
                 ('last_notified', models.FloatField(null=True, blank=True)),
                 ('only_if_bldg', models.ForeignKey(verbose_name=b'But only if building', blank=True, to='bmsapp.Building', null=True)),
