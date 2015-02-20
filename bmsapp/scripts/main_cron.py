@@ -9,6 +9,7 @@ from datetime import datetime
 import calc_readings
 import daily_status
 import backup_readingdb
+import check_alerts
 
 
 def suppress_errors(func):
@@ -40,6 +41,10 @@ def run():
     # script
     if hr_div in (3, 9):     
         suppress_errors(calc_readings.run)
+
+    # Alert checking occurs on every pass.  Run it after the calculated readings
+    # so fresh readings are available.
+    suppress_errors(check_alerts.run)
 
     # run the daily status script 5 minutes after midnight each day
     if hr==0 and hr_div==1:
