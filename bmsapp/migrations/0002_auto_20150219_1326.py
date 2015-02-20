@@ -16,11 +16,11 @@ class Migration(migrations.Migration):
             name='AlertCondition',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('active', models.BooleanField(default=True, help_text=b'If not checked, this condition will not be evaluated.')),
+                ('active', models.BooleanField(default=True, help_text=b'Uncheck the box to Disable the alert.')),
                 ('condition', models.CharField(max_length=20, verbose_name=b'Notify when the Sensor value is', choices=[(b'>', b'>'), (b'>=', b'>='), (b'<', b'<'), (b'<=', b'<='), (b'==', b'equal to'), (b'!=', b'not equal to'), (b'inactive', b'inactive')])),
-                ('test_value', models.FloatField(null=True, verbose_name=b'', blank=True)),
-                ('alert_message', models.TextField(help_text=b'If left blank, a message will be created.  If a message is entered, the string "{val}" in the message will be replaced with the current sensor value', max_length=200, blank=True)),
-                ('priority', models.CharField(default=b'0', max_length=5, verbose_name=b'Priority of this Alert Situation')),
+                ('test_value', models.FloatField(null=True, verbose_name=b'this value', blank=True)),
+                ('alert_message', models.TextField(help_text=b'If left blank, a message will be created.  Use the string "{val}" in the message to show the current sensor value.', max_length=200, blank=True)),
+                ('priority', models.CharField(default=b'0', max_length=5, verbose_name=b'Priority of this Alert Situation', choices=[(b'-1', b'Low'), (b'0', b'Normal'), (b'1', b'High')])),
                 ('wait_before_next', models.FloatField(default=4.0, verbose_name=b'Hours to Wait before Notifying Again')),
                 ('last_notified', models.FloatField(null=True, blank=True)),
                 ('only_if_bldg', models.ForeignKey(verbose_name=b'But only if building', blank=True, to='bmsapp.Building', null=True)),
@@ -33,7 +33,7 @@ class Migration(migrations.Migration):
             name='AlertRecipient',
             fields=[
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
-                ('active', models.BooleanField(default=True, help_text=b'Alerts to this recipient will be disabled if not checked.')),
+                ('active', models.BooleanField(default=True)),
                 ('name', models.CharField(max_length=50)),
                 ('notify_email', models.BooleanField(default=True, verbose_name=b'Send Email?')),
                 ('email_address', models.EmailField(max_length=100, blank=True)),
@@ -44,6 +44,7 @@ class Migration(migrations.Migration):
                 ('pushover_id', models.CharField(blank=True, max_length=30, verbose_name=b'Pushover ID', validators=[django.core.validators.RegexValidator(regex=b'^\\w{30}$', message=b'Pushover ID should be exactly 30 characters long.')])),
             ],
             options={
+                'ordering': ['name'],
             },
             bases=(models.Model,),
         ),
@@ -54,6 +55,7 @@ class Migration(migrations.Migration):
                 ('name', models.CharField(max_length=50, verbose_name=b'Mode Name')),
             ],
             options={
+                'ordering': ['name'],
             },
             bases=(models.Model,),
         ),

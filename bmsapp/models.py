@@ -93,6 +93,9 @@ class BuildingMode(models.Model):
     def __unicode__(self):
         return self.name
 
+    class Meta:
+        ordering = ['name']
+
 
 class Building(models.Model):
     '''
@@ -330,6 +333,9 @@ class AlertRecipient(models.Model):
 
     def __unicode__(self):
         return self.name
+
+    class Meta:
+        ordering = ['name']
 
 
 class AlertCondition(models.Model):
