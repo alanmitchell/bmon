@@ -39,8 +39,8 @@ def run():
         # example for sending alert to the Pushover service
         # see https://pushover.net/api
         url = 'https://api.pushover.net/1/messages.json'
-        payload = {'token': 'an53xsLPX5GaV78Pv54UyaZ4bj9xB6',
-            'user': 'u2o9nvQL5h6wG2ESyLvRqotUXuzB5o',
+        payload = {'token': PUSHOVER_API_KEY,
+            'user': 'pushover_user_key_goes_here',
             'priority': '0',
             'title': 'Abnormal Sensor Reading',
             'message': 'Message goes here.'}
