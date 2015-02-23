@@ -2,6 +2,7 @@
 """
 
 import urllib2, time, json, urllib
+from django.conf import settings
 from metar import Metar
 from cache import Cache
 
@@ -25,7 +26,6 @@ def getWeatherObservation(stnCode):
                 read_str = urllib2.urlopen(URL % stnCode).read()
                 break
             except:
-                _logger.info('Retry required in getWeatherObservation.')
                 # wait before retrying
                 time.sleep(1)
 
@@ -58,10 +58,14 @@ def getWUobservation(stnList):
     
         if obs is None:
             # not in cache; download from weather underground.
-            # strange characters after the api are my weather underground key
-            json_str = urllib2.urlopen('http://api.wunderground.com/api/52f395599cb1a086/conditions/q/%s.json' % urllib.quote(stn)).read()
-            obs = json.loads(json_str)
-            _wu_cache.store(stn, obs)
+            wu_key = getattr(settings, 'BMSAPP_WU_API_KEY', None)
+            if wu_key:
+                url = 'http://api.wunderground.com/api/%s/conditions/q/%s.json' % (wu_key, urllib.quote(stn))
+                json_str = urllib2.urlopen(url).read()
+                obs = json.loads(json_str)
+                _wu_cache.store(stn, obs)
+            else:
+                raise ValueError('No Weather Underground API key in Settings File.')
 
         if 'current_observation' in obs:
             return obs['current_observation']
