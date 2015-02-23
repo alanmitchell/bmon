@@ -6,9 +6,11 @@ from datetime import datetime
 import pytz, calendar, time, math
 from dateutil import parser
 import numpy as np
+from django.conf import settings
+
 
 # Default timezone used when a datetime value needs to be created
-default_tz = pytz.timezone('US/Alaska')
+default_tz = pytz.timezone(getattr(settings, 'TIME_ZONE', 'US/Alaska'))
 
 def ts_to_datetime(unix_ts=time.time(), tz=default_tz):
     '''
