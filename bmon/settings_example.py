@@ -6,8 +6,8 @@ import logging
 #----------------- Settings Specific to the Monitoring App ----------------------
 
 # The key needed to store sensor readings into the database.
-# This is a REQUIRED setting.  In the future, if this settings file is kept in
-# public version control, use an Environment variable to store this key.
+# This is a REQUIRED setting.  You can have multiple valid storage keys
+# by listing them in a tuple or list:  ('key1', 'key2') or ['key1', 'key2'].
 # You can load http://bms.ahfconline.net/make_store_key/ in a browser to generate
 # a suitable random store key.  Any sensors that post data to this site will
 # need to include thise Store Key when they post the data.  
@@ -60,6 +60,11 @@ BMSAPP_STATIC_APP_NAME = 'bmon_static'
 # This controls what messages will actually get logged
 # Levels in order from least to greatest severity are:  DEBUG, INFO, WARNING, ERROR, CRITICAL
 BMSAPP_LOG_LEVEL = logging.INFO
+
+# Put a Weather Underground API key here, if you are acquiring temperature or wind
+# data from any Weather Underground sites (getWUtemperature, getWUwindSpeed).  
+# See http://www.wunderground.com/weather/api for details on acuiring a key for your use.
+BMSAPP_WU_API_KEY = ''
 
 #------------ End of Settings Specific to the Monitoring App --------------
 
