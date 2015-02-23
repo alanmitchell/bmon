@@ -101,6 +101,18 @@ def get_report_results(request):
             # the result from the chart object is assumed to be a JSON object.
             return HttpResponse(json.dumps(result), content_type="application/json")
 
+
+def store_key_is_valid(the_key):
+    '''Returns True if the 'the_key' is a valid sensor reading storage key.
+    '''
+    if type(settings.BMSAPP_STORE_KEY) in (tuple, list):
+        # there are multiple valid storage keys
+        return True if the_key in settings.BMSAPP_STORE_KEY else False
+    else:
+        # there is only one valid storage key
+        return the_key==settings.BMSAPP_STORE_KEY
+
+
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
 def store_reading(request, reading_id):
     '''
@@ -108,7 +120,6 @@ def store_reading(request, reading_id):
     reading to store.  Other information about the reading is in the GET parameter or POST data of the
     request.
     '''
-
     try:
         # determine whether request was a GET or POST and extract data
         req_data = request.GET.dict() if request.method == 'GET' else request.POST.dict()
@@ -117,15 +128,16 @@ def store_reading(request, reading_id):
         # installation.
         storeKey = req_data['storeKey']
         del req_data['storeKey']    # for safety, get the key out of the dictionary
-        if storeKey != settings.BMSAPP_STORE_KEY:
+        if store_key_is_valid(storeKey):
+            msg = storereads.store(reading_id, req_data)
+            return HttpResponse(msg)
+        else:
             return HttpResponse('Invalid Key')
-
-        msg = storereads.store(reading_id, req_data)
-        return HttpResponse(msg)
 
     except:
         _logger.exception('Error Storing Reading for ID=%s: %s' % (reading_id, req_data))
         return HttpResponse(sys.exc_info()[1])
+
 
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
 def store_readings(request):
@@ -133,7 +145,6 @@ def store_readings(request):
     Stores a set of sensor readings in the sensor reading database.  The readings 
     and store key are in the POST data, encoded in JSON.
     '''
-
     try:
         # The post data is JSON, so decode it.  Once decoded, it is a dictionary
         # with two keys: 'storeKey' and 'readings'
@@ -142,11 +153,11 @@ def store_readings(request):
         # Test for a valid key for storing readings.  Key should be unique for each
         # installation.
         storeKey = req_data['storeKey']
-        if storeKey != settings.BMSAPP_STORE_KEY:
+        if store_key_is_valid(storeKey):
+            msg = storereads.store_many(req_data['readings'])
+            return HttpResponse(msg)
+        else:
             return HttpResponse('Invalid Key')
-
-        msg = storereads.store_many(req_data['readings'])
-        return HttpResponse(msg)
 
     except:
         _logger.exception('Error Storing Reading')

@@ -59,12 +59,13 @@ def getWUobservation(stnList):
         if obs is None:
             # not in cache; download from weather underground.
             wu_key = getattr(settings, 'BMSAPP_WU_API_KEY', None)
-            if wu_key is None:
+            if wu_key:
+                url = 'http://api.wunderground.com/api/%s/conditions/q/%s.json' % (wu_key, urllib.quote(stn))
+                json_str = urllib2.urlopen(url).read()
+                obs = json.loads(json_str)
+                _wu_cache.store(stn, obs)
+            else:
                 raise ValueError('No Weather Underground API key in Settings File.')
-            url = 'http://api.wunderground.com/api/%s/conditions/q/%s.json' % (wu_key, urllib.quote(stn))
-            json_str = urllib2.urlopen(url).read()
-            obs = json.loads(json_str)
-            _wu_cache.store(stn, obs)
 
         if 'current_observation' in obs:
             return obs['current_observation']
