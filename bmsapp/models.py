@@ -62,7 +62,7 @@ class Sensor(models.Model):
     # calculation function (required) for a calculated field.  transform functions must be located in the 
     # "transforms.py" module in the "calcs" package and calculated field functions must be properly 
     # referenced in the "calc_readings.py" script in the "scripts" directory.
-    tran_calc_function = models.CharField("Transform or Calculated Field Function Name", max_length=35, blank=True)
+    tran_calc_function = models.CharField("Transform or Calculated Field Function Name", max_length=80, blank=True)
 
     # the function parameters, if any, for the transform or calculation function above.  parameters are 
     # entered in YAML format.
