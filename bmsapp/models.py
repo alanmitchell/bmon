@@ -423,7 +423,8 @@ class AlertCondition(models.Model):
     last_notified = models.FloatField(default=0.0)
 
     def __unicode__(self):
-        return '%s %s %s' % (self.sensor.title, self.condition, self.test_value)
+        return '%s %s %s, %s in %s mode' % \
+            (self.sensor.title, self.condition, self.test_value, self.only_if_bldg, self.only_if_bldg_mode)
 
     def check_condition(self, reading_db):
         '''This method checks to see if the alert condition is in effect, and if so,

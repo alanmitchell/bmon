@@ -85,7 +85,7 @@ class AlertAdminInline(admin.StackedInline):
     '''Used in the Sensor Admin to enter alerts.
     '''
     model = AlertCondition
-    extra = 1
+    extra = 0
     filter_horizontal = ('recipients',)
 
     fieldsets = (
