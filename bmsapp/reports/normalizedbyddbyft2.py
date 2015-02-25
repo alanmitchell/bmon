@@ -75,6 +75,9 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
 
             # inner join, matching timestamps
             df = df.join(df_temp, how='inner') 
+
+            if len(df)==0:
+                continue
             
             # make sure the data spans at least 80% of the requested interval.
             # if not, skip this building.

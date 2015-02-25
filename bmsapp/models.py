@@ -1,5 +1,8 @@
+import time
 from django.db import models
 from django.core.validators import RegexValidator
+from django.conf import settings
+import bmsapp.data_util
 import sms_gateways
 
 
@@ -81,6 +84,28 @@ class Sensor(models.Model):
 
     class Meta:
         ordering = ['sensor_id']
+
+    def last_read(self, reading_db):
+        '''Returns the last reading from the sensor as a dictionary with 'ts' and 'val' keys.
+        Returns None if there have been no readings.  'reading_db' is a sensor reading database,
+        an instance of bmsapp.readingdb.bmsdata.BMSdata.
+        '''
+        return reading_db.last_read(self.sensor_id)
+
+    def is_active(self, reading_db):
+        '''Returns True if the sensor has last posted within the sensor
+        activity interval specified in the settings file.  'reading_db' is a sensor reading
+        database, an instance of bmsapp.readingdb.bmsdata.BMSdata.
+        '''
+        last_read = self.last_read(reading_db)
+        if last_read is not None:
+            # get inactivity setting from settings file
+            inactivity_hrs = getattr(settings, 'BMSAPP_SENSOR_INACTIVITY', 2.0)
+            last_post_hrs = (time.time() - last_read['ts']) / 3600.0
+            return (last_post_hrs <= inactivity_hrs)
+        else:
+            # no readings in database for this sensor
+            return False
 
 
 class BuildingMode(models.Model):
@@ -358,7 +383,7 @@ class AlertCondition(models.Model):
         ('inactive', 'inactive'),
     )
     # conditional type to evaluate for the sensor value
-    condition = models.CharField('Notify when the Sensor value is', max_length=20, choices=CONDITION_CHOICES)
+    condition = models.CharField('Notify when the Sensor value is', max_length=20, default='>', choices=CONDITION_CHOICES)
 
     # the value to test the current sensor value against
     test_value = models.FloatField(verbose_name='this value', blank=True, null=True)
@@ -395,7 +420,82 @@ class AlertCondition(models.Model):
     # when the last notification of this alert condition was sent out, Unix timestamp.
     # This is filled out when alert conditions are evaluated and is not accessible in the Admin
     # interface.
-    last_notified = models.FloatField(blank=True, null=True)
+    last_notified = models.FloatField(default=0.0)
 
     def __unicode__(self):
         return '%s %s %s' % (self.sensor.title, self.condition, self.test_value)
+
+    def check_condition(self, reading_db):
+        '''This method checks to see if the alert condition is in effect, and if so,
+        returns a message describing the alert.  If the condition is not in effect,
+        None is returned.  'reading_db' is a sensor reading database, an instance of
+        bmsapp.readingdb.bmsdata.BMSdata.  If the alert condition is not active, None
+        is returned.
+        '''
+
+        if not self.active:
+            return None   # condition not active
+
+        # Make a description of the sensor that includes the building(s) it is
+        # associated with.
+        bldgs = [btos.building.title for btos in BldgToSensor.objects.filter(sensor__pk=self.sensor.pk)]
+        bldgs_str = ', '.join(bldgs)
+        sensor_desc = '%s sensor in %s' % (self.sensor.title, bldgs_str)
+
+        # get the most current reading for the sensor
+        last_read = self.sensor.last_read(reading_db)
+
+        # if the condition test is for an inactive sensor, do that test now.
+        # Do not consider the building mode test for this test.
+        if self.condition=='inactive' and not self.sensor.is_active(reading_db):
+            if last_read:
+                msg = 'The last reading from the %s was %.1f hours ago.' % \
+                    ( sensor_desc, (time.time() - last_read['ts'])/3600.0 )
+            else:
+                msg = 'The %s has never posted a reading.' % sensor_desc
+            return msg
+
+        # If there are no readings for this sensor return
+        if last_read is None:
+            return None
+
+        # Now look at the value test, considering the building mode if specified.
+        val_test = eval( '%s %s %s' % (last_read['val'], self.condition, self.test_value) )
+        if self.only_if_bldg is not None and self.only_if_bldg_mode is not None:
+            bldg_mode_test = (self.only_if_bldg.current_mode == self.only_if_bldg_mode)
+        else:
+            bldg_mode_test = True
+
+        if val_test and bldg_mode_test:
+            # Value test is in effect, return a message
+            if self.alert_message.strip():
+                msg = self.alert_message.strip()
+                if msg[-1] != '.':
+                    msg += '.'
+                msg = '%s The current sensor reading is %s %s' % \
+                    (msg, bmsapp.data_util.formatCurVal(last_read['val']), self.sensor.unit.label)
+            else:
+                # find the text for the condition 
+                for val, text in AlertCondition.CONDITION_CHOICES:
+                    if self.condition == val:
+                        condition_text = text
+                msg = 'The %s has a current reading of %s %s, which is %s %s %s.' % \
+                    (
+                    sensor_desc, 
+                    bmsapp.data_util.formatCurVal(last_read['val']),
+                    self.sensor.unit.label,
+                    condition_text, 
+                    self.test_value, 
+                    self.sensor.unit.label
+                    )
+
+            return msg
+
+        else:
+            return None
+
+    def wait_satisfied(self):
+        '''Returns True if there has been enough wait between the last notification
+        for this condition and now.
+        '''
+        return (time.time() >= self.last_notified + self.wait_before_next * 3600.0)
