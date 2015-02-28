@@ -68,7 +68,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='alertcondition',
             name='recipients',
-            field=models.ManyToManyField(to='bmsapp.AlertRecipient', verbose_name=b'Who should be notified?'),
+            field=models.ManyToManyField(to='bmsapp.AlertRecipient', null=True, verbose_name=b'Who should be notified?', blank=True),
             preserve_default=True,
         ),
         migrations.AddField(

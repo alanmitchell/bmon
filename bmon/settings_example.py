@@ -67,6 +67,10 @@ BMSAPP_SENSOR_INACTIVITY = 2.0   # Hours
 # notification options are available as well.
 BMSAPP_PUSHOVER_APP_TOKEN = '123456789012345678901234567890'
 
+# When Alerts are generated and sent by the monitoring system, the following text will be
+# used in the Subject line of the alert.
+BMSAPP_ALERT_SUBJECT = 'Building Monitoring Alert'
+
 # This controls what messages will actually get logged
 # Levels in order from least to greatest severity are:  DEBUG, INFO, WARNING, ERROR, CRITICAL
 BMSAPP_LOG_LEVEL = logging.INFO

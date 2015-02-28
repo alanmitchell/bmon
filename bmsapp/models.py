@@ -1,10 +1,17 @@
 import time
+import json
+import logging
 from django.db import models
 from django.core.validators import RegexValidator
 from django.conf import settings
+from django.core.mail import send_mail
+import requests
 import bmsapp.data_util
 import sms_gateways
 
+
+# Make a logger for this module
+_logger = logging.getLogger('bms.' + __name__)
 
 # Models for the BMS App
 
@@ -106,6 +113,17 @@ class Sensor(models.Model):
         else:
             # no readings in database for this sensor
             return False
+
+    def alerts(self, reading_db):
+        '''Returns a list of alert messages that are currently effective.  List will be
+        empty if no alerts are occurring.
+        '''
+        alerts = []
+        for alert_condx in AlertCondition.objects.filter(sensor__pk=self.pk):
+            msg = alert_condx.check_condition(reading_db)
+            if msg:
+                alerts.append(msg)
+        return alerts
 
 
 class BuildingMode(models.Model):
@@ -362,6 +380,63 @@ class AlertRecipient(models.Model):
     class Meta:
         ordering = ['name']
 
+    def notify(self, subject, message, pushover_priority):
+        '''If this recipient is active, sends a message to the recipient via each
+         of the enabled communication means.  'subject' is the subject line of the
+         message, and 'message' is the message.  For the Pushover notification
+         service, 'pushover_priority' gives the priority string for the message
+         (e.g. '0', '1', etc.)
+         Retuns the number of successful messages sent.
+        '''
+        if not self.active:
+            return 0
+
+        msgs_sent = 0     # tracks successful messages sent.
+
+        email_addrs = []
+        if self.notify_email:
+            email_addrs.append(self.email_address)
+        if self.notify_cell:
+            email_addrs.append('%s@%s' % (self.cell_number, self.cell_sms_gateway))
+
+        if email_addrs:
+            # The FROM email address
+            from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', '')
+            if from_email:
+                try:
+                    if send_mail(subject, message, from_email, email_addrs):
+                        msgs_sent += len(email_addrs)
+                except:
+                    _logger.exception('Error sending mail to alert recipients.')
+            else:
+                _logger.exception('No From Email address configured in Settings file.')
+
+        if self.notify_pushover:
+            # Get the Pushover API key out of the settings file, setting it to None
+            # if it is not present in the file.
+            pushover_api_key = getattr(settings, 'BMSAPP_PUSHOVER_APP_TOKEN', None)
+            if pushover_api_key:
+                url = 'https://api.pushover.net/1/messages.json'
+                payload = {'token': pushover_api_key,
+                    'user': self.pushover_id,
+                    'priority': pushover_priority,
+                    'title': subject,
+                    'message': message}
+                if pushover_priority=='2':
+                    # emergency priority requires a retry and expire parameter
+                    payload['retry'] = 300
+                    payload['expire'] = 7200
+                resp = json.loads(requests.post(url, data=payload).text)
+                if resp['status'] != 0:
+                    msgs_sent += 1
+                else:
+                    _logger.exception(', '.join(resp['errors']))
+
+            else:
+                _logger.exception('No Pushover API Token Key configured in Settings file.')
+
+        return msgs_sent
+
 
 class AlertCondition(models.Model):
     '''A sensor condition that should trigger an Alert to be sent to AlertRecipient's.
@@ -415,7 +490,7 @@ class AlertCondition(models.Model):
     wait_before_next = models.FloatField('Hours to Wait before Notifying Again', default=4.0)
 
     # the recipients who should receive this alert
-    recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?')
+    recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?', blank=True, null=True)
 
     # when the last notification of this alert condition was sent out, Unix timestamp.
     # This is filled out when alert conditions are evaluated and is not accessible in the Admin
@@ -473,13 +548,11 @@ class AlertCondition(models.Model):
                 msg = self.alert_message.strip()
                 if msg[-1] != '.':
                     msg += '.'
-                msg = '%s The current sensor reading is %s %s' % \
+                msg = '%s The current sensor reading is %s %s.' % \
                     (msg, bmsapp.data_util.formatCurVal(last_read['val']), self.sensor.unit.label)
             else:
                 # find the text for the condition 
-                for val, text in AlertCondition.CONDITION_CHOICES:
-                    if self.condition == val:
-                        condition_text = text
+                condition_text = choice_text(self.condition, AlertCondition.CONDITION_CHOICES)
                 msg = 'The %s has a current reading of %s %s, which is %s %s %s.' % \
                     (
                     sensor_desc, 
@@ -500,3 +573,16 @@ class AlertCondition(models.Model):
         for this condition and now.
         '''
         return (time.time() >= self.last_notified + self.wait_before_next * 3600.0)
+
+
+def choice_text(val, choices):
+    '''Returns the display text associated with the choice value 'val'
+    from a list of Django character field choices 'choices'.  The 'choices'
+    list is a list of two-element tuples, the first item being the stored
+    value and the second item being the displayed value.  Returns None if 
+    val is not found inthe choice list.
+    '''
+    for choice in choices:
+        if choice[0]==val:
+            return choice[1]
+    return None
