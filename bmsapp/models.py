@@ -115,14 +115,14 @@ class Sensor(models.Model):
             return False
 
     def alerts(self, reading_db):
-        '''Returns a list of alert messages that are currently effective.  List will be
-        empty if no alerts are occurring.
+        '''Returns a list of alert (subject, message) tuples that are currently effective.  
+        List will be empty if no alerts are occurring.
         '''
         alerts = []
         for alert_condx in AlertCondition.objects.filter(sensor__pk=self.pk):
-            msg = alert_condx.check_condition(reading_db)
-            if msg:
-                alerts.append(msg)
+            subject_msg = alert_condx.check_condition(reading_db)
+            if subject_msg:
+                alerts.append(subject_msg)
         return alerts
 
 
@@ -503,10 +503,10 @@ class AlertCondition(models.Model):
 
     def check_condition(self, reading_db):
         '''This method checks to see if the alert condition is in effect, and if so,
-        returns a message describing the alert.  If the condition is not in effect,
-        None is returned.  'reading_db' is a sensor reading database, an instance of
-        bmsapp.readingdb.bmsdata.BMSdata.  If the alert condition is not active, None
-        is returned.
+        returns a (subject, message) tuple describing the alert.  If the condition is 
+        not in effect, None is returned.  'reading_db' is a sensor reading database, an 
+        instance ofbmsapp.readingdb.bmsdata.BMSdata.  If the alert condition is not active, 
+        None is returned.
         '''
 
         if not self.active:
@@ -521,6 +521,9 @@ class AlertCondition(models.Model):
         # get the most current reading for the sensor
         last_read = self.sensor.last_read(reading_db)
 
+        # start the subject
+        subject = '%s Priority Alert: ' % choice_text(self.priority, AlertCondition.ALERT_PRIORITY_CHOICES)
+
         # if the condition test is for an inactive sensor, do that test now.
         # Do not consider the building mode test for this test.
         if self.condition=='inactive' and not self.sensor.is_active(reading_db):
@@ -529,7 +532,8 @@ class AlertCondition(models.Model):
                     ( sensor_desc, (time.time() - last_read['ts'])/3600.0 )
             else:
                 msg = 'The %s has never posted a reading.' % sensor_desc
-            return msg
+            subject += '%s Inactive' % sensor_desc
+            return subject, msg
 
         # If there are no readings for this sensor return
         if last_read is None:
@@ -543,7 +547,10 @@ class AlertCondition(models.Model):
             bldg_mode_test = True
 
         if val_test and bldg_mode_test:
-            # Value test is in effect, return a message
+            # Value test is in effect, return a subject and message
+            # find the text for the condition 
+            condition_text = choice_text(self.condition, AlertCondition.CONDITION_CHOICES)
+            subject += '%s is %s %s' % (sensor_desc, condition_text, self.test_value)
             if self.alert_message.strip():
                 msg = self.alert_message.strip()
                 if msg[-1] != '.':
@@ -551,8 +558,6 @@ class AlertCondition(models.Model):
                 msg = '%s The current sensor reading is %s %s.' % \
                     (msg, bmsapp.data_util.formatCurVal(last_read['val']), self.sensor.unit.label)
             else:
-                # find the text for the condition 
-                condition_text = choice_text(self.condition, AlertCondition.CONDITION_CHOICES)
                 msg = 'The %s has a current reading of %s %s, which is %s %s %s.' % \
                     (
                     sensor_desc, 
@@ -563,7 +568,7 @@ class AlertCondition(models.Model):
                     self.sensor.unit.label
                     )
 
-            return msg
+            return subject, msg
 
         else:
             return None

@@ -4,49 +4,44 @@ be run with the django-extensions runscript facility:
     manage.py runscript check_alerts
 '''
 import logging
-from django.conf import settings
-from django.core.mail import send_mail
-import requests
+import time
+from bmsapp.models import AlertCondition
+from bmsapp.readingdb.bmsdata import BMSdata
 
-# Get the Pushover API key out of the settings file, setting it to None
-# if it is not present in the file.
-PUSHOVER_API_KEY = getattr(settings, 'BMSAPP_PUSHOVER_APP_TOKEN', None)
-
-# The FROM email address
-FROM_EMAIL = getattr(settings, 'DEFAULT_FROM_EMAIL', '')
 
 def run():
+    '''Checks all Alert conditions and notifies Alert recipients for those
+    conditions that are true.
+    Returns the number alerts where the alert condition is true.
+    '''
 
     # make a logger object
     logger = logging.getLogger('bms.check_alerts')
+
+    # get a sensor reading database object
+    reading_db = BMSdata()
+
+    total_true_alerts = 0
     
-    if False:
+    for condx in AlertCondition.objects.all():
 
-        # We need to protect against errors stopping alert processing.  If an 
-        # error occurs, we need to log it and go on processing alerts.
         try:
-            pass
+            subject_msg = condx.check_condition(reading_db)
+            if subject_msg:
+                total_true_alerts += 1
+                subject, msg = subject_msg
+                msg_count = 0  # tracks # of successful messages sent
+                for recip in condx.recipients.all():
+                    try:
+                        msg_count += recip.notify(subject, msg, condx.priority)
+                    except:
+                        logger.exception('Error notifying recipient %s of an alert.' % recip)
+                if msg_count:
+                    # at least one message was sent so update the field tracking the timestamp
+                    # of the last notification for this condition.
+                    condx.last_notified = time.time()
+
         except:
-            logger.exception('Logged Error Message goes here')
+            logger.exception('Error processing alert %s')
 
-        # example for sending mail.  For one given alert, I think it is OK
-        # to list all recipients for that alert in one email (including
-        # email-to-SMS addresses).  That will allow recipients to see who is
-        # getting notified.
-        send_mail('Subject here', 'Here is the message.', FROM_EMAIL,
-            ['to@example.com'])
-
-        # example for sending alert to the Pushover service
-        # see https://pushover.net/api
-        url = 'https://api.pushover.net/1/messages.json'
-        payload = {'token': PUSHOVER_API_KEY,
-            'user': 'pushover_user_key_goes_here',
-            'priority': '0',
-            'title': 'Abnormal Sensor Reading',
-            'message': 'Message goes here.'}
-        r = requests.post(url, data=payload)
-
-        # get the response, which is a JSON string looking like this typically:
-        # u'{"status":1,"request":"8f8e4f0f8b68b129097346a2d9d68294"}'
-        # log an error if the status is not good.
-        resp = r.text
+    return total_true_alerts
