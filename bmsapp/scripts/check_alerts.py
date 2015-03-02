@@ -25,6 +25,10 @@ def run():
     
     for condx in AlertCondition.objects.all():
 
+        # if the wait time has not been satisfied, don't notify
+        if time.time() < (condx.last_notified + condx.wait_before_next * 3600.0):
+            continue
+
         try:
             subject_msg = condx.check_condition(reading_db)
             if subject_msg:
@@ -40,6 +44,7 @@ def run():
                     # at least one message was sent so update the field tracking the timestamp
                     # of the last notification for this condition.
                     condx.last_notified = time.time()
+                    condx.save()
 
         except:
             logger.exception('Error processing alert %s')
