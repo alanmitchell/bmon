@@ -29,7 +29,7 @@ BMSAPP_HEADER = 'XYZ Remote Monitoring'
 # Footer that appears at the bottom of every page.  Can include HTML, **BUT**
 # if the website has been set up as a Secure (https) site, all URLs in this 
 # footer must come from https secure sites or they will not be loaded.
-BMSAPP_FOOTER = '''<img src="https://bmon.ahfctest.webfactional.com/static/bmsapp/images/ahfc_logo.png" 
+BMSAPP_FOOTER = '''<img src="/static/bmsapp/images/ahfc_logo.png" 
 width="75" height="58" border="0" alt="AHFC Logo" style="vertical-align:middle">
 &nbsp;&nbsp;Thanks to the Alaska Housing Finance Corporation for providing most
 of the source code for this website.'''
