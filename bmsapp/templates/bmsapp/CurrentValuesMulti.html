@@ -1,0 +1,20 @@
+<h2 id="report_title">{{ report_title }}</h2>
+<table>
+    <thead><tr><th>Building Name</th><th>Sensor</th><th>Value</th><th>Unit</th><th>When</th></tr></thead>
+    <tbody>
+    {% for building in sensor_list %}
+        <tr class="group_header"><td colspan="5"><a href="{{ building.bldg_id }}">{{ building.bldg_name }}</a></td></tr>
+        {% for group in building.group_sensor_list %}
+            <tr class="group_header"><td></td><td colspan="4">{{ group.0 }}</td></tr>
+            {% for sensor in group.1 %}
+                <tr><td></td>
+                    <td class="indent"><a href="#" onclick="AN.plot_sensor({{ ts_chart_id }}, {{ sensor.sensor_id }})">{{ sensor.title }}</a></td>
+                    <td class="number">{{ sensor.cur_value }}</td>
+                    <td>{{ sensor.unit }}</td>
+                    <td>{{ sensor.minutes_ago }} minutes ago</td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    {% endfor %}
+    </tbody>
+</table>
