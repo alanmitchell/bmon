@@ -7,17 +7,24 @@
   window.AN.plot_sensor = function(chart_id, sensor_id) {
     var sensor_ctrl;
     $("#select_chart").val(chart_id);
-    sensor_ctrl = $("#select_sensor");
-    if ($("#select_sensor").attr("multiple") === "multiple") {
-      sensor_ctrl.multiselect("destroy");
-      sensor_ctrl.removeAttr("multiple");
-      sensor_ctrl.val(sensor_id);
-      sensor_ctrl.attr("multiple", "multiple");
-      sensor_ctrl.multiselect(SENSOR_MULTI_CONFIG);
-    } else {
-      sensor_ctrl.val(sensor_id);
+    if (sensor_id != null) {
+      sensor_ctrl = $("#select_sensor");
+      if ($("#select_sensor").attr("multiple") === "multiple") {
+        sensor_ctrl.multiselect("destroy");
+        sensor_ctrl.removeAttr("multiple");
+        sensor_ctrl.val(sensor_id);
+        sensor_ctrl.attr("multiple", "multiple");
+        sensor_ctrl.multiselect(SENSOR_MULTI_CONFIG);
+      } else {
+        sensor_ctrl.val(sensor_id);
+      }
     }
     return process_chart_change();
+  };
+
+  window.AN.plot_building_chart_sensor = function(bldg_id, chart_id, sensor_id) {
+    $("#select_bldg").val(bldg_id);
+    return update_chart_sensor_lists(null, chart_id, sensor_id);
   };
 
   _auto_recalc = true;
@@ -138,7 +145,7 @@
     return inputs_changed();
   };
 
-  update_chart_sensor_lists = function() {
+  update_chart_sensor_lists = function(event, chart_id, sensor_id) {
     var url;
     url = "" + ($("#BaseURL").text()) + "chart_sensor_list/" + ($("#select_group").val()) + "/" + ($("#select_bldg").val()) + "/";
     return $.getJSON(url, function(data) {
@@ -146,7 +153,11 @@
       $("#select_sensor").html(data.sensors);
       $("#select_sensor_x").html(data.sensors);
       $("#select_sensor_y").html(data.sensors);
-      return process_chart_change();
+      if (chart_id != null) {
+        return window.AN.plot_sensor(chart_id, sensor_id);
+      } else {
+        return process_chart_change();
+      }
     });
   };
 

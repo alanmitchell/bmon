@@ -3,12 +3,12 @@
     <thead><tr><th>Building Name</th><th>Sensor</th><th>When</th><th>Value</th><th>Unit</th><th>*</th></tr></thead>
     <tbody>
     {% for building in sensor_list %}
-        <tr class="group_header"><td colspan="6"><a href="{{ building.bldg_id }}">{{ building.bldg_name }}</a></td></tr>
+        <tr class="group_header"><td colspan="6"><a href="#" onclick="AN.plot_building_chart_sensor({{ building.bldg_id }})">{{ building.bldg_name }}</a></td></tr>
         {% for group in building.group_sensor_list %}
             <tr class="group_header"><td style="border:none"></td><td colspan="5">{{ group.0 }}</td></tr>
             {% for sensor in group.1 %}
                 <tr><td style="border:none"></td>
-                    <td class="indent"><a href="#" onclick="AN.plot_sensor({{ ts_chart_id }}, {{ sensor.sensor_id }})">{{ sensor.title }}</a></td>
+                    <td class="indent"><a href="#" onclick="AN.plot_building_chart_sensor({{ building.bldg_id }}, {{ ts_chart_id }}, {{ sensor.sensor_id }})">{{ sensor.title }}</a></td>
                     <td>{{ sensor.minutes_ago }} minutes ago</td>
                     <td class="number">{{ sensor.cur_value }}</td>
                     <td>{{ sensor.unit }}</td>
