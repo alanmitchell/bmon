@@ -70,8 +70,8 @@ def reports(request, bldg_id=None):
     sensor_list_html = view_util.sensor_list_html(bldg_id_selected)
 
     ctx = base_context()
-    ctx.update({'groups_html': group_html, 
-                'bldgs_html': bldgs_html, 
+    ctx.update({'groups_html': group_html,
+                'bldgs_html': bldgs_html,
                 'chart_list_html': chart_list_html,
                 'sensor_list_html': sensor_list_html,
                 'curtime': int(time.time())})
@@ -132,6 +132,7 @@ def store_reading(request, reading_id):
             msg = storereads.store(reading_id, req_data)
             return HttpResponse(msg)
         else:
+            _logger.warning('Invalid Storage Key in Reading Post: %s', storeKey)
             return HttpResponse('Invalid Key')
 
     except:
@@ -142,7 +143,7 @@ def store_reading(request, reading_id):
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
 def store_readings(request):
     '''
-    Stores a set of sensor readings in the sensor reading database.  The readings 
+    Stores a set of sensor readings in the sensor reading database.  The readings
     and store key are in the POST data, encoded in JSON.
     '''
     try:
@@ -157,6 +158,7 @@ def store_readings(request):
             msg = storereads.store_many(req_data['readings'])
             return HttpResponse(msg)
         else:
+            _logger.warning('Invalid Storage Key in Reading Post: %s', storeKey)
             return HttpResponse('Invalid Key')
 
     except:
@@ -208,9 +210,9 @@ def make_store_key(request):
 def bldg_list(request, group_id):
     '''
     Returns a list of buildings in the group identified by the primary key
-    ID of 'group_id'. The 'selected_group' value of 0 means no group 
+    ID of 'group_id'. The 'selected_group' value of 0 means no group
     selected, so return all buildings.
-    
+
     The return value is an html snippet of option elements, one for each building.
     '''
 
@@ -221,10 +223,10 @@ def bldg_list(request, group_id):
 
 def chart_sensor_list(request, group_id, bldg_id):
     '''
-    Returns a list of charts and a list of sensors appropriate for a building 
-    identified by the primary key ID of 'bldg_id'.  'bldg_id' could be the string 
-    'multi', in which case the list of multi-building charts is returned, and 
-    only multi-building charts appropriate for the Building Group identified by 
+    Returns a list of charts and a list of sensors appropriate for a building
+    identified by the primary key ID of 'bldg_id'.  'bldg_id' could be the string
+    'multi', in which case the list of multi-building charts is returned, and
+    only multi-building charts appropriate for the Building Group identified by
     'group_id' are returned.  A list of sensors appropriate for 'bldg_id' is
     also returned.  If 'bldg_id' is 'multi' then no sensors are returned.
     The return lists are html snippets of option elements.  The two different
@@ -249,7 +251,7 @@ def get_readings(request, reading_id):
     'reading_id' is the id of the sensor/reading being requested.
     """
 
-    # open the database 
+    # open the database
     db = bmsdata.BMSdata()
     result = db.rowsForOneID(reading_id)
 
@@ -267,14 +269,14 @@ def show_video(request, filename, width, height):
     the 'swf' extension, 'width' and 'height' are the width and height in pixels of the viewport.
     '''
 
-    return render_to_response('bmsapp/video.html', {'filename': filename, 'width': width, 'height': height}) 
+    return render_to_response('bmsapp/video.html', {'filename': filename, 'width': width, 'height': height})
 
 def map_json(request):
     """Returns the JSON data necessary to draw the Google map of the sites.
     This view is called from the map.html template.
     """
-    ret = {"name": "ANTHC_Sites", 
-        "type": "FeatureCollection", 
+    ret = {"name": "ANTHC_Sites",
+        "type": "FeatureCollection",
         "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS83"}},
         "features": []}
 
@@ -296,4 +298,3 @@ def wildcard(request, template_name):
 def password_change_done(request):
     return render_to_response('registration/password_change_done.html',
         {'user': request.user})
-
