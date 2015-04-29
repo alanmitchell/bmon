@@ -9,6 +9,10 @@ class CurrentValues(basechart.BaseChart):
     """Class that creates the Current Values report.
     """
 
+    # see BaseChart for definition of these constants
+    CTRLS = 'refresh'
+    TIMED_REFRESH = 1
+
     def result(self):
 
         # make a list with the major items being a sensor group and the 

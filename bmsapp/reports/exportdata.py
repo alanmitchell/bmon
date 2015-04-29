@@ -7,6 +7,11 @@ class ExportData(basechart.BaseChart):
     """Class that exports data as an Excel spreadsheet.
     """
 
+    # see BaseChart for definition of these constants
+    CTRLS = 'ctrl_sensor, ctrl_avg_export, time_period, download_many'
+    MULTI_SENSOR = 1
+    AUTO_RECALC = 0
+
     def result(self):
         """
         Extracts the requested sensor data, averages it, and creates an Excel spreadsheet

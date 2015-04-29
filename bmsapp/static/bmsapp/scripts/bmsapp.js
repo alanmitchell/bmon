@@ -67,14 +67,14 @@
       _results = [];
       for (_i = 0, _len = ctrl_list.length; _i < _len; _i++) {
         ctrl = ctrl_list[_i];
-        _results.push($("#" + ctrl).show());
+        _results.push($("#" + ($.trim(ctrl))).show());
       }
       return _results;
     } else {
       _results1 = [];
       for (_j = 0, _len1 = ctrl_list.length; _j < _len1; _j++) {
         ctrl = ctrl_list[_j];
-        _results1.push($("#" + ctrl).hide());
+        _results1.push($("#" + ($.trim(ctrl))).hide());
       }
       return _results1;
     }
@@ -91,42 +91,19 @@
   };
 
   process_chart_change = function() {
-    var is_multiple, sensor_ctrl;
+    var selected_chart_option, sensor_ctrl, vis_ctrls;
     set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period', 'download_many'], false);
-    clearInterval(_refresh_timer);
-    _auto_recalc = true;
-    if ($("#select_bldg").val() === "multi") {
-      set_visibility(['refresh', 'time_period'], true);
-      inputs_changed();
-      return;
+    selected_chart_option = $("#select_chart").find("option:selected");
+    vis_ctrls = selected_chart_option.data("ctrls").split(",");
+    set_visibility(vis_ctrls, true);
+    if (selected_chart_option.data("timed_refresh") === 1) {
+      _refresh_timer = setInterval(update_results, REFRESH_MS);
+    } else {
+      clearInterval(_refresh_timer);
     }
-    is_multiple = false;
-    switch ($("#select_chart").val()) {
-      case "0":
-      case "1":
-        set_visibility(['refresh'], true);
-        _refresh_timer = setInterval(update_results, REFRESH_MS);
-        break;
-      case "2":
-        set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_occupied', 'time_period'], true);
-        is_multiple = true;
-        break;
-      case "3":
-        set_visibility(['refresh', 'ctrl_sensor', 'ctrl_normalize', 'time_period'], true);
-        break;
-      case "4":
-        set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'time_period'], true);
-        break;
-      case "5":
-        set_visibility(['refresh', 'xy_controls', 'time_period'], true);
-        break;
-      case "6":
-        set_visibility(['ctrl_sensor', 'ctrl_avg_export', 'time_period', 'download_many'], true);
-        is_multiple = true;
-        _auto_recalc = false;
-    }
+    _auto_recalc = selected_chart_option.data("auto_recalc") === 1;
     sensor_ctrl = $("#select_sensor");
-    if (is_multiple) {
+    if (selected_chart_option.data("multi_sensor") === 1) {
       if (sensor_ctrl.attr("multiple") !== "multiple") {
         sensor_ctrl.off();
         sensor_ctrl.attr("multiple", "multiple");

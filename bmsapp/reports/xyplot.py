@@ -8,6 +8,9 @@ class XYplot(basechart.BaseChart):
     """Class that creates XY Plot.
     """
 
+    # see BaseChart for definition of these constants
+    CTRLS = 'refresh, xy_controls, time_period'
+
     def result(self):
         """
         Returns the HTML and chart object for a scatter plot of one sensor vs. another.  

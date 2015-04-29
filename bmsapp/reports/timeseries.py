@@ -6,6 +6,10 @@ class TimeSeries(basechart.BaseChart):
     """Chart class for creating Time Series graph.
     """
 
+    # see BaseChart for definition of these constants
+    CTRLS = 'refresh, ctrl_sensor, ctrl_avg, ctrl_occupied, time_period'
+    MULTI_SENSOR = 1
+
     def result(self):
         """
         Returns the HTML and configuration for a Time Series chart.  

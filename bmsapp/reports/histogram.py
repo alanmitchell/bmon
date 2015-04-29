@@ -9,6 +9,9 @@ class Histogram(basechart.BaseChart):
     """Class that creates Histogram plot.
     """
 
+    # see BaseChart for definition of these constants
+    CTRLS = 'refresh, ctrl_sensor, ctrl_avg, time_period'
+
     def result(self):
         """
         Returns the HTML and chart object for an Histogram chart.

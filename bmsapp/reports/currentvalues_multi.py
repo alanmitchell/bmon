@@ -10,6 +10,10 @@ class CurrentValuesMulti(basechart.BaseChart):
     """Class that creates the Current Values Multi-Building report.
     """
     
+    # see BaseChart for definition of these constants
+    CTRLS = 'refresh'
+    TIMED_REFRESH = 1
+    
     def result(self):
         # get the current time for calculating how long ago reading occurred
         cur_time = time.time()

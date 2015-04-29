@@ -22,6 +22,9 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
             degree-days.
         'floor_area': the floor area in square feet of the building.
     """
+
+    # see BaseChart for definition of these constants
+    CTRLS = 'refresh, time_period'
     
     def result(self):
         """

@@ -1,7 +1,7 @@
 '''
 Helper functions for the views in this BMS application.
 '''
-
+import importlib
 from django.template import Context, loader
 
 import models, reports.basechart
@@ -52,7 +52,7 @@ def group_list_html():
     
     # add the rest of the groups.
     for gp in models.BuildingGroup.objects.all():
-        groups.append( (gp.id, gp.title) )
+        groups.append( (gp.id, gp.title, '') )
         
     # Selected group is the first one
     selected_gp = groups[0][0]
@@ -74,11 +74,11 @@ def bldg_list_html(bldg_group_id, selected_bldg_id=None):
 
     # Determine whether a Multi building chart selection should be presented.
     if len(multi_charts_for_group(bldg_group_id)):
-        bldgs.append( ('multi', 'Multiple Buildings') )
+        bldgs.append( ('multi', 'Multiple Buildings', '') )
 
     # Add the rest of buildings that are in the group
     for bldg in buildings_for_group(bldg_group_id):
-        bldgs.append( (bldg.id, bldg.title) )
+        bldgs.append( (bldg.id, bldg.title, '') )
 
     if selected_bldg_id==None and len(bldgs)>0:
         selected_bldg_id = bldgs[0][0] 
@@ -115,7 +115,22 @@ def chart_list_html(group_id, bldg_id):
     # Get the id of the first chart in the list and also make a generic
     # item list.
     id_to_select = cht_list[0].id
-    item_list = [ (cht.id, cht.title) for cht in cht_list ]
+    item_list = []
+    for cht in cht_list:
+        # need to get the class for the chart so the data attributes that
+        # need to be passed to the client can be found.
+        class_name = cht.chart_class if bldg_id=='multi' else cht.class_name
+
+        # class_name is in the format <module name>.<class name>; break it apart.
+        mod_name, bare_class_name = class_name.split('.')
+        mod = importlib.import_module('bmsapp.reports.%s' % mod_name.strip())
+        
+        # get a reference to the class referred to by class_name, and get
+        # data atrributes from class
+        chart_class = getattr(mod, bare_class_name.strip())
+        attrs = chart_class.data_attributes()
+        
+        item_list.append( (cht.id, cht.title, attrs) )
 
     t = loader.get_template('bmsapp/select_list.html')
     return t.render( Context({'item_list': item_list, 'id_to_select': id_to_select}) ), id_to_select

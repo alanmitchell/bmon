@@ -61,9 +61,9 @@ update_results = ->
 # If 'show' is true then the element is shown, hidden otherwise.
 set_visibility = (ctrl_list, show) ->
   if show
-    $("##{ctrl}").show() for ctrl in ctrl_list
+    $("##{$.trim(ctrl)}").show() for ctrl in ctrl_list
   else
-    $("##{ctrl}").hide() for ctrl in ctrl_list
+    $("##{$.trim(ctrl)}").hide() for ctrl in ctrl_list
 
 # A timer used by some charts to do a timed refresh of the results.
 REFRESH_MS = 600000  # milliseconds between timed refreshes
@@ -80,42 +80,26 @@ process_chart_change = ->
   set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export',
     'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period', 'download_many'], false)
 
-  # As the default, clear timed refresh
-  clearInterval _refresh_timer
+  # get the chart option control that is selected.  Then use the data
+  # attributes of that option element to configure the user interface.
+  selected_chart_option = $("#select_chart").find("option:selected")
 
-  # default is automatic updating of results
-  _auto_recalc = true
+  # list of controls that should be visible
+  vis_ctrls = selected_chart_option.data("ctrls").split(",")
+  set_visibility(vis_ctrls, true)
 
-  # special case of the multi-building 
-  if $("#select_bldg").val() == "multi"
-    set_visibility(['refresh', 'time_period'], true)
-    inputs_changed()
-    return
+  # Should timed refresh be set?
+  if selected_chart_option.data("timed_refresh") == 1
+    _refresh_timer = setInterval update_results, REFRESH_MS
+  else
+    clearInterval _refresh_timer
 
-  # Configure control visibility and other chart-related options
-  is_multiple = false    # determines if sensor selector is multi-select
-  switch $("#select_chart").val()
-    when "0", "1"    # Dashboard and Current Values
-      set_visibility(['refresh'], true)
-      _refresh_timer = setInterval update_results, REFRESH_MS
-    when "2"    # Time Series
-      set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_occupied', 'time_period'], true)
-      is_multiple = true
-    when "3"    # Hourly Profile
-      set_visibility(['refresh', 'ctrl_sensor', 'ctrl_normalize', 'time_period'], true)
-    when "4"    # Histogram
-      set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'time_period'], true)
-    when "5"    # XY
-      set_visibility(['refresh', 'xy_controls', 'time_period'], true)
-    when "6"    # Excel Download
-      set_visibility(['ctrl_sensor', 'ctrl_avg_export', 
-        'time_period', 'download_many'], true)
-      is_multiple = true
-      _auto_recalc = false
+  # set auto recalculation
+  _auto_recalc = (selected_chart_option.data("auto_recalc") == 1)
 
-  # Set the sensor selector to multiple or single select
+  # Set sensor selector to multiple if needed
   sensor_ctrl = $("#select_sensor")
-  if is_multiple
+  if selected_chart_option.data("multi_sensor") == 1
     unless sensor_ctrl.attr("multiple") is "multiple"
       sensor_ctrl.off()   # remove any existing handlers
       sensor_ctrl.attr("multiple", "multiple")

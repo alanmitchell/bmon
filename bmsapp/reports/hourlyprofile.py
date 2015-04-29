@@ -8,6 +8,9 @@ class HourlyProfile(basechart.BaseChart):
     """Class that creates Hourly Profile graph.
     """
 
+    # see BaseChart for definition of these constants
+    CTRLS = 'refresh, ctrl_sensor, ctrl_normalize, time_period'
+
     def result(self):
         """
         Returns the HTML and chart object for an Hourly Profile chart.

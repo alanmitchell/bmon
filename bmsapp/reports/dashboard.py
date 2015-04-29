@@ -8,6 +8,10 @@ class Dashboard(basechart.BaseChart):
     """Class for creating Dashboard report.
     """
 
+    # see BaseChart for definition of these constants
+    CTRLS = 'refresh'
+    TIMED_REFRESH = 1
+
     def result(self):
         """Create the dashboard HTML and configuration object.
         """

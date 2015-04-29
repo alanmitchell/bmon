@@ -1,3 +1,3 @@
-{% for id, title in item_list %}
-    <option value="{{ id }}"{% if id == id_to_select %} selected{% endif %}>{{ title }}</option>
+{% for id, title, attributes in item_list %}
+    <option value="{{ id }}" {{ attributes|safe }}{% if id == id_to_select %} selected{% endif %}>{{ title }}</option>
 {% endfor %}

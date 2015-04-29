@@ -19,6 +19,9 @@ class NormalizedByFt2(basechart.BaseChart):
         'floor_area': the floor area in square feet of the building.
     """
     
+    # see BaseChart for definition of these constants
+    CTRLS = 'refresh, time_period'
+    
     def result(self):
         """
         Returns the HTML and chart configuration for a chart that normalizes a value 
