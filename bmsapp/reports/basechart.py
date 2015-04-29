@@ -99,6 +99,36 @@ class BaseChart(object):
     """Base class for all of the chart classes.
     """
 
+    # Constants to override, if needed for the specific chart being created.
+    # These constants affect configuration of the browser user interface that 
+    # will be used for this particular chart.
+
+    # This is a comma-separated list of the client HTML controls that need to be
+    # visible for this chart.
+    CTRLS = 'ctrl_sensor, time_period'
+
+    # 1 if the Sensor selection control should allow for selecting more than one
+    # sensor.
+    MULTI_SENSOR = 0
+
+    # 1 if the chart should automatically recalculate and refresh when the user 
+    # changes inputs.
+    AUTO_RECALC = 1
+
+    # 1 if the chart should automatically refresh every 10 minutes even without 
+    # changes in user inputs
+    TIMED_REFRESH = 0
+
+    @classmethod
+    def data_attributes(cls):
+        '''This class method returns an string of HTML data attributes that will
+        control aspects of the browser user interface.  Javascript in the browser
+        reads these attributes and configures the interface appropriately.
+        '''
+        return 'data-ctrls="%s" data-multi_sensor="%s" data-auto_recalc="%s" data-timed_refresh="%s"' % \
+            (cls.CTRLS, cls.MULTI_SENSOR, cls.AUTO_RECALC, cls.TIMED_REFRESH)
+
+
     def __init__(self, chart_info, bldg_id, request_params):
         """
         'chart_info' is the models.MultiBuildingChart object for the chart if it
