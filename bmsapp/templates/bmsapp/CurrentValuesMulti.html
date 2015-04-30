@@ -13,7 +13,7 @@
                 <td><a href="#" onclick="AN.plot_building_chart_sensor({{ building.bldg_id }}, {{ ts_chart_id }}, {{ sensor.sensor_id }})">{{ sensor.title }}</a></td>
                 <td>{{ sensor.minutes_ago }} minutes ago</td>
                 {% if sensor.alerts %}
-                <td class="number" title="{{ sensor.alerts }}" style="background-color:red;">
+                <td class="number" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
                 {% else %}
                 <td class="number">
                 {% endif %}
