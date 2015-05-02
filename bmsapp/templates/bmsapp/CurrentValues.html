@@ -6,7 +6,12 @@
         <tr class="group_header"><td colspan="4">{{ group.0 }}</td></tr>
         {% for sensor in group.1 %}
             <tr><td class="indent"><a href="#" onclick="AN.plot_sensor({{ ts_chart_id }}, {{ sensor.sensor_id }})">{{ sensor.title }}</a></td>
-                <td class="number">{{ sensor.cur_value }}</td>
+                {% if sensor.alerts %}
+                <td class="number" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
+                {% else %}
+                <td class="number">
+                {% endif %}
+                    {{ sensor.cur_value }}</td>
                 <td>{{ sensor.unit }}</td>
                 <td>{{ sensor.minutes_ago }} minutes ago</td>
             </tr>
