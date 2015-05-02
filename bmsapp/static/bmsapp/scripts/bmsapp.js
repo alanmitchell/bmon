@@ -96,10 +96,9 @@
     selected_chart_option = $("#select_chart").find("option:selected");
     vis_ctrls = selected_chart_option.data("ctrls").split(",");
     set_visibility(vis_ctrls, true);
+    clearInterval(_refresh_timer);
     if (selected_chart_option.data("timed_refresh") === 1) {
       _refresh_timer = setInterval(update_results, REFRESH_MS);
-    } else {
-      clearInterval(_refresh_timer);
     }
     _auto_recalc = selected_chart_option.data("auto_recalc") === 1;
     sensor_ctrl = $("#select_sensor");

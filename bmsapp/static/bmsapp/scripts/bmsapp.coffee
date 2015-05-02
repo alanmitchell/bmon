@@ -89,11 +89,10 @@ process_chart_change = ->
   set_visibility(vis_ctrls, true)
 
   # Should timed refresh be set?
+  clearInterval _refresh_timer   # clear any old timer
   if selected_chart_option.data("timed_refresh") == 1
     _refresh_timer = setInterval update_results, REFRESH_MS
-  else
-    clearInterval _refresh_timer
-
+ 
   # set auto recalculation
   _auto_recalc = (selected_chart_option.data("auto_recalc") == 1)
 
