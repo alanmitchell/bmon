@@ -35,7 +35,7 @@ def aerco_boiler_status_formatter(coded_value):
     elif coded_value in formatter_codes.aerco_boiler_status_dictionary:
         return formatter_codes.aerco_boiler_status_dictionary[coded_value]
     else:
-        return 'Unknown (invalid value)'
+        return 'Unknown Value: %s' % coded_value
 
 
 def sage_limits_sensor_formatter(coded_value):
@@ -54,25 +54,25 @@ def sage_alarm_reason_formatter(coded_value):
     if coded_value in formatter_codes.sage_alarm_reason_dictionary:
         return formatter_codes.sage_alarm_reason_dictionary[coded_value]
     else:
-        return 'Unknown (invalid value)'
+        return 'Unknown Value: %s' % coded_value
 
 
 def sage_demand_source_formatter(coded_value):
     if coded_value in formatter_codes.sage_demand_source_dictionary:
         return formatter_codes.sage_demand_source_dictionary[coded_value]
     else:
-        return 'Unknown (invalid value)'
+        return 'Unknown Value: %s' % coded_value
 
 
 def sage_lockout_code_formatter(coded_value):
     if coded_value in formatter_codes.sage_lockout_code_dictionary:
         return formatter_codes.sage_lockout_code_dictionary[coded_value]
     else:
-        return 'Unknown (invalid value)'
+        return 'Unknown Value: %s' % coded_value
 
 
 def sage_alert_code_formatter(coded_value):
     if coded_value in formatter_codes.sage_alert_code_dictionary:
         return formatter_codes.sage_alert_code_dictionary[coded_value]
     else:
-        return 'Unknown (invalid value)'
+        return 'Unknown Value: %s' % coded_value
