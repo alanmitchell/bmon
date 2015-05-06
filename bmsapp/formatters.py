@@ -16,7 +16,7 @@ def _bitmask_to_list(encoded_value, bitmask_dictionary):
     for bit_offset in bitmask_dictionary.keys():
         if int(encoded_value) & (1 << bit_offset):
             output_list.append(bitmask_dictionary[bit_offset])
-    return output_list
+    return output_list if len(output_list) else ['None']
 
 
 def aerco_fault_code_formatter(coded_value):
@@ -43,7 +43,7 @@ def sage_limits_sensor_formatter(coded_value):
     return '; '.join(map(str, value_list))
 
 
-def sage_demand_on_off_formatter(coded_value):
+def on_off_formatter(coded_value):
     if coded_value == 0:
         return 'Off'
     else:

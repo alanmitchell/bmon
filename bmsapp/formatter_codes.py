@@ -47,11 +47,11 @@ sage_alarm_reason_dictionary = \
 sage_demand_source_dictionary = \
     {0: 'Unknown',
      1: 'No source demand',
-     2: 'CH',
+     2: 'Space Ht',
      3: 'DHW',
      4: 'Lead Lag slave',
      5: 'Lead Lag master',
-     6: 'CH frost protection',
+     6: 'Space Ht frost protection',
      7: 'DHW frost protection',
      8: 'No demand (burner switch turned off)',
      9: 'DHW storage',
@@ -275,7 +275,7 @@ sage_lockout_code_dictionary = \
      252: 'Invalid Line frequency setting'}
 
 sage_alert_code_dictionary = \
-    {0: 'None (No alert)',
+    {0: 'None',
      1: 'Alert PCB was restored from factory defaults',
      2: 'Safety configuration parameters were restored from factory defaults',
      3: 'Configuration parameters were restored from factory defaults',
