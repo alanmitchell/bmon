@@ -8,7 +8,7 @@ import logging
 # The key needed to store sensor readings into the database.
 # This is a REQUIRED setting.  You can have multiple valid storage keys
 # by listing them in a tuple or list:  ('key1', 'key2') or ['key1', 'key2'].
-# You can load http://bms.ahfconline.net/make_store_key/ in a browser to generate
+# You can load https://bms.ahfc.us/make_store_key/ in a browser to generate
 # a suitable random store key.  Any sensors that post data to this site will
 # need to include thise Store Key when they post the data.  
 # See bmsapp/views.storereading() and bmsapp/views.storereadings() for details
