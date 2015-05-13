@@ -22,10 +22,3 @@ pytz>=2013b
 requests==2.5.1
 xlwt==0.7.5
 PyYAML==3.11
-
-# metar==1.4.0 is also required but cannot be installed via pip.
-# The script "install_package.sh" has commands to install the package.
-# The PyPI (Python Package Index) page for this package is:
-#     https://pypi.python.org/pypi/metar/
-# However, it is not configured properly there for successful install 
-# with pip or easy_install.

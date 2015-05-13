@@ -15,14 +15,3 @@ pip install -I --user numpy==1.9.1
 
 # install all the packages in the requirements.txt file
 pip install --user -r requirements.txt
-
-# manual install of the metar libary, pulling the package from the
-# analysisnorth.com site because the main website for the package
-# does not have a clean download URL.
-wget http://analysisnorth.com/packages/metar-1.4.0.tar.gz
-tar xzf metar-1.4.0.tar.gz
-cd metar-1.4.0
-PYTHONPATH=$HOME/lib/python2.7 python2.7 setup.py install --install-lib=$HOME/lib/python2.7 --install-scripts=$HOME/bin --install-data=$HOME/lib/python2.7
-cd ..
-rm -rf metar-1.4.0
-rm metar-1.4.0.tar.gz
