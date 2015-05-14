@@ -11,6 +11,20 @@ def alarm_formatter(coded_value):
     return 'OK' if coded_value==0 else 'Alarm!'
 
 
+def on_off_formatter(coded_value):
+    if coded_value == 0:
+        return 'Off'
+    else:
+        return 'On'
+
+
+def occupied_formatter(coded_value):
+    '''Use with occupancy sensors that return 0 if vacant and 
+    anything else (usually 1) if occupied.
+    '''
+    return 'Vacant' if coded_value == 0 else 'Occupied'
+
+
 def _bitmask_to_list(encoded_value, bitmask_dictionary):
     output_list = []
     for bit_offset in bitmask_dictionary.keys():
@@ -41,13 +55,6 @@ def aerco_boiler_status_formatter(coded_value):
 def sage_limits_sensor_formatter(coded_value):
     value_list = _bitmask_to_list(coded_value, formatter_codes.sage_limits_bitmask_dictionary)
     return '; '.join(map(str, value_list))
-
-
-def on_off_formatter(coded_value):
-    if coded_value == 0:
-        return 'Off'
-    else:
-        return 'On'
 
 
 def sage_alarm_reason_formatter(coded_value):
