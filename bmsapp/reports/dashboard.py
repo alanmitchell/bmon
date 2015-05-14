@@ -31,27 +31,23 @@ class Dashboard(basechart.BaseChart):
             new_widget['title'] = dash_item.title if len(dash_item.title) or (dash_item.sensor is None) else dash_item.sensor.sensor.title
 
             if dash_item.sensor is not None:
-                last_read = self.reading_db.last_read(dash_item.sensor.sensor.sensor_id)
-                cur_value = float(bmsapp.data_util.formatCurVal(last_read['val'])) if last_read else None
-                formatter_name = dash_item.sensor.sensor.formatting_function.strip()
-                if cur_value is not None and formatter_name:
-                    format_function = getattr(bmsapp.formatters, formatter_name)
-                    new_widget['value_label'] = format_function(cur_value)
-                else:
-                    new_widget['value_label'] = ''
+                last_read = dash_item.sensor.sensor.last_read(self.reading_db)
+                format_function = dash_item.sensor.sensor.format_func()
+                cur_value = format_function(last_read['val']) if last_read else ''
+                new_widget['value_label'] = cur_value
                 age_secs = time.time() - last_read['ts'] if last_read else None    # how long ago reading occurred
                 minAxis, maxAxis = dash_item.get_axis_range()
                 new_widget.update( {'units': dash_item.sensor.sensor.unit.label,
                                     'value': cur_value,
                                     'minNormal': dash_item.minimum_normal_value,
                                     'maxNormal': dash_item.maximum_normal_value,
-                                    'minAxis': min(minAxis, cur_value),
+                                    'minAxis': min(minAxis, cur_value),  # this works even with cur_value==''
                                     'maxAxis': max(maxAxis, cur_value),
                                     'timeChartID': basechart.TIME_SERIES_CHART_ID,
                                     'sensorID': dash_item.sensor.sensor.id,
                                    } )
                 # check to see if data is older than 2 hours or missing, and change widget type if so.
-                if cur_value is None:
+                if cur_value=='':
                     new_widget['type'] = bmsapp.models.DashboardItem.NOT_CURRENT
                     new_widget['age'] = 'Not Available'
                 elif 7200 <= age_secs < 86400:

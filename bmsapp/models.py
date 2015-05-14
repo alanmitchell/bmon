@@ -7,6 +7,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 import requests
 import bmsapp.data_util
+import bmsapp.formatters
 import sms_gateways
 
 
@@ -98,6 +99,16 @@ class Sensor(models.Model):
         an instance of bmsapp.readingdb.bmsdata.BMSdata.
         '''
         return reading_db.last_read(self.sensor_id)
+
+    def format_func(self):
+        '''Returns a function suitable for formatting a value from this sensor.
+        If 'formatting_function' is present, that function is looked up and returned,
+        otherwise a generic formatting function that displays 3 significant digits is
+        returned.
+        '''
+        return getattr(bmsapp.formatters,
+                       self.formatting_function.strip(),
+                       bmsapp.data_util.formatCurVal)
 
     def is_active(self, reading_db):
         '''Returns True if the sensor has last posted within the sensor
@@ -548,23 +559,26 @@ class AlertCondition(models.Model):
 
         if val_test and bldg_mode_test:
             # Value test is in effect, return a subject and message
-            # find the text for the condition 
+            # find the text for the condition.
+
+            # Get a formatting function for sensor values
+            formatter = self.sensor.format_func()
             condition_text = choice_text(self.condition, AlertCondition.CONDITION_CHOICES)
-            subject += '%s is %s %s' % (sensor_desc, condition_text, self.test_value)
+            subject += '%s is %s %s' % (sensor_desc, condition_text, formatter(self.test_value))
             if self.alert_message.strip():
                 msg = self.alert_message.strip()
                 if msg[-1] != '.':
                     msg += '.'
                 msg = '%s The current sensor reading is %s %s.' % \
-                    (msg, bmsapp.data_util.formatCurVal(last_read['val']), self.sensor.unit.label)
+                    (msg, formatter(last_read['val']), self.sensor.unit.label)
             else:
                 msg = 'The %s has a current reading of %s %s, which is %s %s %s.' % \
                     (
-                    sensor_desc, 
-                    bmsapp.data_util.formatCurVal(last_read['val']),
+                    sensor_desc,
+                    formatter(last_read['val']),
                     self.sensor.unit.label,
-                    condition_text, 
-                    self.test_value, 
+                    condition_text,
+                    formatter(self.test_value),
                     self.sensor.unit.label
                     )
 

@@ -28,10 +28,8 @@ class CurrentValues(basechart.BaseChart):
                     sensor_list.append( (cur_group, cur_group_sensor_list) )
                 cur_group = b_to_sen.sensor_group.title
                 cur_group_sensor_list = []
-            last_read = self.reading_db.last_read(b_to_sen.sensor.sensor_id)
-            format_function = getattr(bmsapp.formatters,
-                                      b_to_sen.sensor.formatting_function.strip(),
-                                      bmsapp.data_util.formatCurVal)
+            last_read = b_to_sen.sensor.last_read(self.reading_db)
+            format_function = b_to_sen.sensor.format_func()
             cur_value = format_function(last_read['val']) if last_read else ''
             minutes_ago = '%.1f' % ((cur_time - last_read['ts'])/60.0) if last_read else ''
             cur_group_sensor_list.append( {'title': b_to_sen.sensor.title, 
