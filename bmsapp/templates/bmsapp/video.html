@@ -15,7 +15,9 @@
 </style>
 </head>
 <body>
+{% if not hide_back_link %}
 <p><a href="/training/">Back to Video List</a></p>
+{% endif %}
 <div>
 <object id="movie" type="application/x-shockwave-flash" data="{% static 'bmsapp/videos/' %}{{ filename }}.swf">
 	<param name="movie" value="{% static 'bmsapp/videos/' %}{{ filename }}.swf" />

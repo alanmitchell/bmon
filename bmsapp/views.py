@@ -267,9 +267,13 @@ def show_video(request, filename, width, height):
     '''
     A Page to show a training video.  'filename' is the Flash file name of the video, without
     the 'swf' extension, 'width' and 'height' are the width and height in pixels of the viewport.
+    A 'hide_back_link' GET parameter is optional; if set to 1, it will hide the 'Back to Video
+    List' link on the page.
     '''
+    hide_back_link = True if request.GET.get('hide_back_link') == '1' else False
 
-    return render_to_response('bmsapp/video.html', {'filename': filename, 'width': width, 'height': height})
+    return render_to_response('bmsapp/video.html', 
+        {'filename': filename, 'width': width, 'height': height, 'hide_back_link': hide_back_link})
 
 def map_json(request):
     """Returns the JSON data necessary to draw the Google map of the sites.
