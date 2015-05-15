@@ -460,10 +460,10 @@ class AlertCondition(models.Model):
     sensor = models.ForeignKey(Sensor)
 
     CONDITION_CHOICES = (
-        ('>', '>'),
-        ('>=', '>='),
-        ('<', '<'),
-        ('<=', '<='),
+        ('>', 'greater than'),
+        ('>=', 'greater than or equal to'),
+        ('<', 'less than'),
+        ('<=', 'less than or equal to'),
         ('==', 'equal to'),
         ('!=', 'not equal to'),
         ('inactive', 'inactive'),
