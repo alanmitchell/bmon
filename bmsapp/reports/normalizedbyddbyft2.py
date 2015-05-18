@@ -14,8 +14,8 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
         'base_temp': the base temperature in degrees F to use in the degree-day calculation.
         'value_units': the units, for example 'Btus', to label the Y-axis with; '/ft2/degree-day'
             will be appended to this value.
-        'multiplier' (optional, defaults to 1.0): a scaling multiplier that will be applied to 
-            the final value for a building.
+        'multiplier' (optional, defaults to 1.0): a value that when multiplied by
+            the rate of energy use in units used by the sensors gives total energy used in **one
 
     BUILDING PARAMETERS:
         'id_value': the sensor ID of the quantity to sum up and normalize.
