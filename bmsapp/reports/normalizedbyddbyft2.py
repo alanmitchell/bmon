@@ -16,6 +16,9 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
             will be appended to this value.
         'multiplier' (optional, defaults to 1.0): a value that when multiplied by
             the rate of energy use in units used by the sensors gives total energy used in **one
+            hour**, expressed in 'value_units'.  For example, if the sensors express energy use 
+            in Btu/hour and the 'value_units' are 'Btus', the multiplier should be 1.0 because
+            the Btus used in one hour are 1.0 times the Btu/hour rate of use.
 
     BUILDING PARAMETERS:
         'id_value': the sensor ID of the quantity to sum up and normalize.

@@ -9,18 +9,18 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
     """A set of functions that can be used to create calculated readings.  
     """
     
-    def fluidHeatFlow(self, flow, Thot, Tcold, heat_capacity, heat_recovery=0.0):
+    def fluidHeatFlow(self, flow, Thot, Tcold, multiplier, heat_recovery=0.0):
         """** One or more parameters must be an array of sensor readings **
 
         Heat flow (power) in a fluid.  Inputs are flow rate of fluid, hot and cold
-        temperatures and a heat capacity.  A heat_recovery fraction can also
+        temperatures and a multiplier.  A heat_recovery fraction can also
         be provided, which if greater than 0 will dimish the calculated heat flow.
         Any of these parameters can be passed to 'processCalc' as sensor IDs, as 
         array math is used in the calculation below.
         """
     
         # return the records to insert
-        return flow * (Thot - Tcold) * heat_capacity * (1.0 - heat_recovery)
+        return flow * (Thot - Tcold) * multiplier * (1.0 - heat_recovery)
 
     def linear(self, val, slope=1.0, offset=0.0):
         """** One or more parameters must be an array of sensor readings **
