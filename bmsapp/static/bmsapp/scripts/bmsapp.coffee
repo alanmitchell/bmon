@@ -55,6 +55,7 @@ update_results = ->
         when 'dashboard' then ANdash.createDashboard(obj_config)
   ).fail (jqxhr, textStatus, error) ->
     $("body").css "cursor", "default"   # remove hourglass cursor
+    err = textStatus + ", " + error
     alert "Error Occurred: " + err
 
 # Sets the visibility of elements in the list of ids 'ctrl_list'.

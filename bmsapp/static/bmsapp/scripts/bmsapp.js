@@ -56,7 +56,9 @@
         }
       });
     }).fail(function(jqxhr, textStatus, error) {
+      var err;
       $("body").css("cursor", "default");
+      err = textStatus + ", " + error;
       return alert("Error Occurred: " + err);
     });
   };
