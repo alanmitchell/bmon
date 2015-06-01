@@ -12,6 +12,9 @@ def alarm_formatter(coded_value):
 
 
 def on_off_formatter(coded_value):
+    '''Formats On/Off type sensors where the value 0 is Off, and any
+    other value is On.
+    '''
     if coded_value == 0:
         return 'Off'
     else:
@@ -34,16 +37,22 @@ def _bitmask_to_list(encoded_value, bitmask_dictionary):
 
 
 def aerco_fault_code_formatter(coded_value):
+    '''Used with AERCO boilers.  Formats `_fault_code' sensor from mini-monitor.
+    '''
     value_list = _bitmask_to_list(coded_value, formatter_codes.aerco_fault_code_bitmask_dictionary)
     return '; '.join(map(str, value_list))
 
 
 def aerco_io_status_formatter(coded_value):
+    '''Used with AERCO boilers.  Formats `_io_status' sensor from mini-monitor.
+    '''
     value_list = _bitmask_to_list(coded_value, formatter_codes.aerco_io_status_bitmask_dictionary)
     return '; '.join(map(str, value_list))
 
 
 def aerco_boiler_status_formatter(coded_value):
+    '''Used with AERCO boilers.  Formats `_boilerX_status' sensors from mini-monitor.
+    '''
     if 1 <= coded_value <= 40:
         return 'Fired, sequence = ' + str(coded_value)
     elif coded_value in formatter_codes.aerco_boiler_status_dictionary:
@@ -53,11 +62,17 @@ def aerco_boiler_status_formatter(coded_value):
 
 
 def sage_limits_sensor_formatter(coded_value):
+    '''Used with Sage Boiler Control (Burnham Alpine).  Formats '_limits' 
+    sensor from mini-monitor.
+    '''
     value_list = _bitmask_to_list(coded_value, formatter_codes.sage_limits_bitmask_dictionary)
     return '; '.join(map(str, value_list))
 
 
 def sage_alarm_reason_formatter(coded_value):
+    '''Used with Sage Boiler Control (Burnham Alpine).  Formats '_alarm_reason' 
+    sensor from mini-monitor.
+    '''
     if coded_value in formatter_codes.sage_alarm_reason_dictionary:
         return formatter_codes.sage_alarm_reason_dictionary[coded_value]
     else:
@@ -65,6 +80,9 @@ def sage_alarm_reason_formatter(coded_value):
 
 
 def sage_demand_source_formatter(coded_value):
+    '''Used with Sage Boiler Control (Burnham Alpine).  Formats '_demand_source' 
+    sensor from mini-monitor.
+    '''
     if coded_value in formatter_codes.sage_demand_source_dictionary:
         return formatter_codes.sage_demand_source_dictionary[coded_value]
     else:
@@ -72,6 +90,9 @@ def sage_demand_source_formatter(coded_value):
 
 
 def sage_lockout_code_formatter(coded_value):
+    '''Used with Sage Boiler Control (Burnham Alpine).  Formats '_lockout_code' 
+    sensor from mini-monitor.
+    '''
     if coded_value in formatter_codes.sage_lockout_code_dictionary:
         return formatter_codes.sage_lockout_code_dictionary[coded_value]
     else:
@@ -79,6 +100,9 @@ def sage_lockout_code_formatter(coded_value):
 
 
 def sage_alert_code_formatter(coded_value):
+    '''Used with Sage Boiler Control (Burnham Alpine).  Formats '_alarm_code' 
+    and '_alert_code' sensors from mini-monitor.
+    '''
     if coded_value in formatter_codes.sage_alert_code_dictionary:
         return formatter_codes.sage_alert_code_dictionary[coded_value]
     else:
