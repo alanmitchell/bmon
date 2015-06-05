@@ -1,13 +1,13 @@
 Copyright (c) 2014, Alaska Housing Finance Corporation. All Rights Reserved.
 
 Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License,
+you may not use this software except in compliance with the License,
 as included below.
 
 Please note that this project uses the [[Highcharts and Highstock|http://www.highcharts.com/]] 
 charting libraries, which are *not* open source.  Please see the 
-[[Licensing Page|http://shop.highsoft.com/highcharts.html]] and the 
-[[Licensing FAQ|http://shop.highsoft.com/faq#licensing-faq]] for these products to ensure that 
+[Licensing Page](http://shop.highsoft.com/highcharts.html) and the 
+[Licensing FAQ](http://shop.highsoft.com/faq#licensing-faq) for these products to ensure that 
 you comply with the licensing requirements. 
 
 Unless required by applicable law or agreed to in writing, software
