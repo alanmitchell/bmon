@@ -10,4 +10,4 @@ BMON is a web-based software application built with the Python Django framework 
 
 For detailed information about this software: 
 
-### Please see the [BMON Wiki](../../wiki).
+### Please see the [BMON Wiki](../../wiki)
