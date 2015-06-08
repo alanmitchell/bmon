@@ -6,8 +6,10 @@ cron tasks.  It should be run using the django-extensions runscript facility:
 '''
 
 from datetime import datetime
+import time
 import calc_readings
 import daily_status
+import backup_django_db
 import backup_readingdb
 import check_alerts
 
@@ -25,6 +27,10 @@ def run():
     '''The function executed by runscript.
     '''
 
+    # wait a few seconds so we are sure that we are inside the 5 minute
+    # interval
+    time.sleep(3)
+
     # current time
     now = datetime.now()
 
@@ -39,7 +45,7 @@ def run():
 
     # at 15 and 45 minute marks in hour (roughly), run the calculate readings
     # script
-    if hr_div in (3, 9):     
+    if hr_div in (3, 9):
         suppress_errors(calc_readings.run)
 
     # Alert checking occurs on every pass.  Run it after the calculated readings
@@ -47,9 +53,13 @@ def run():
     suppress_errors(check_alerts.run)
 
     # run the daily status script 5 minutes after midnight each day
-    if hr==0 and hr_div==1:
+    if hr == 0 and hr_div == 1:
         suppress_errors(daily_status.run)
 
+    # run the Django DB backup every day
+    if hr == 2 and hr_div == 6:
+        suppress_errors(backup_django_db.run)
+
     # run the sensor reading database backup every 3 days
-    if (yr_day % 3)==0 and hr==2 and hr_div==6:
+    if (yr_day % 3) == 0 and hr == 2 and hr_div == 6:
         suppress_errors(backup_readingdb.run)
