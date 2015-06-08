@@ -1,4 +1,5 @@
-'''Script to backup the main Django database, if it is a SQLite database.
+'''Script to backup the main Django database, if it is a SQLite database
+ending with extension '.sqlite'.
 '''
 import os
 import time
@@ -16,14 +17,13 @@ def run():
     app_dir = os.path.dirname(bmsapp.__file__)
 
     # the project directory, where the SQLite files should be, is the parent
-    # of the app directory.  The backup directory should be one below the
-    # project directory.
+    # of the app directory.
     proj_dir = os.path.join(app_dir, '../')
 
-    # the backup directory is a subdirectory of that.
+    # the backup directory is a subdirectory of the project directory.
     backup_dir = os.path.join(proj_dir, 'bak')
 
-    # backup all the '.sqlite' files in the parent of the application director
+    # backup all the '.sqlite' files in the project directory
     for fn in glob.glob(os.path.join(proj_dir, '*.sqlite')):
         # make a name and the full path to backup file
         bak_fn = time.strftime('%Y-%m-%d-%H%M%S') + '_' + os.path.basename(fn)
