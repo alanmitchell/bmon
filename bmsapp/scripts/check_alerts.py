@@ -2,6 +2,8 @@
 be run with the django-extensions runscript facility:
 
     manage.py runscript check_alerts
+
+This script is also called from the main_cron.py script.    
 '''
 import logging
 import time

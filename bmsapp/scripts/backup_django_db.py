@@ -1,5 +1,12 @@
 '''Script to backup the main Django database, if it is a SQLite database
 ending with extension '.sqlite'.
+The database is copied, gzipped, and placed in the bak directory beneath
+the main Django project directory.
+This script is run via django-extensions runscript facility:
+
+    manage.py runscript backup_django_db
+
+This script is also called from the main_cron.py script.
 '''
 import os
 import time

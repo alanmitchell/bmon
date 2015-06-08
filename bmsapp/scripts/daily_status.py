@@ -3,6 +3,7 @@ This script is run through the django-extensions runscript facility.  To run:
 
     manage.py runscript daily_status
 
+This script is also called from the main_cron.py script.
 '''
 import logging 
 import time

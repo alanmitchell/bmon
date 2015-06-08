@@ -4,6 +4,7 @@ This script is run via django-extensions runscript facility:
 
     manage.py runscript backup_readingdb
 
+This script is also called from the main_cron.py script.
 """ 
 import bmsapp.readingdb.bmsdata
 

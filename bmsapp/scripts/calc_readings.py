@@ -8,6 +8,7 @@ for this application.  The script is run by:
 
     manage.py runscript calc_readings
 
+This script is also called from the main_cron.py script.
 '''
 
 import logging
