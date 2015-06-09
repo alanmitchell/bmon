@@ -92,6 +92,14 @@ class BMSdata:
                     success_count += 1
                 else:
                     exceptions += '\nNone value not stored with reading %s, %s, %s' % (one_ts, one_id, one_val)
+            except sqlite3.IntegrityError:
+                # this record already exists (same ID and ts).  Replace the old value.
+                try:
+                    self.cursor.execute('UPDATE [%s] SET val=? WHERE ts=?' % one_id, (one_val, one_ts))
+                    success_count += 1
+                except:
+                    exceptions += '\nError with reading %s, %s, %s: %s' % (one_ts, one_id, one_val, sys.exc_info()[1])
+
             except:
                 exceptions += '\nError with reading %s, %s, %s: %s' % (one_ts, one_id, one_val, sys.exc_info()[1])
 
