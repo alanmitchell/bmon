@@ -3,7 +3,7 @@
 
 import time
 import pandas as pd
-import calcreadings, internetwx
+import calcreadings, internetwx, aris_web_api
 
 class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
     """A set of functions that can be used to create calculated readings.  
@@ -143,3 +143,32 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         
         # return the timestamps and runtime values
         return ser_runtime.index.values, ser_runtime.values
+
+    def getUsageFromARIS(self,
+                         building_id,
+                         energy_type_id,
+                         energy_parameter='EnergyQuantity',
+                         energy_multiplier=None):
+        """** No parameters are sensor reading arrays **
+
+        Returns energy use via the ARIS web API
+        """
+
+        # determine the timestamp of the last update that was read for this sensor.
+        last_ts, last_val = self.db.replaceLastRaw(id, 0, 0)
+        if last_ts is None:
+            last_ts = 0
+
+        # Retrieve the data from ARIS
+        update_ts, timestamp_list, values_list = aris_web_api.get_energy_use(building_id,
+                                                                             energy_type_id,
+                                                                             last_ts,
+                                                                             energy_parameter,
+                                                                             energy_multiplier)
+
+        # Update the last update timestamp for the sensor
+        self.db.replaceLastRaw(self.calc_id, update_ts, 0)
+
+        # return the timestamps and runtime values
+        return timestamp_list, values_list
+
