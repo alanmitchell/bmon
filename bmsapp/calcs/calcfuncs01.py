@@ -155,9 +155,10 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         """
 
         # determine the timestamp of the last update that was read for this sensor.
-        last_ts, last_val = self.db.replaceLastRaw(id, 0, 0)
+        last_ts, last_val = self.db.replaceLastRaw(self.calc_id, 0, 0)
         if last_ts is None:
             last_ts = 0
+
 
         # Retrieve the data from ARIS
         update_ts, timestamp_list, values_list = aris_web_api.get_energy_use(building_id,
@@ -165,6 +166,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                                                                              last_ts,
                                                                              energy_parameter,
                                                                              energy_multiplier)
+        print 'Updating '+ str(len(timestamp_list)) + ' values for ' + str(self.calc_id)
 
         # Update the last update timestamp for the sensor
         self.db.replaceLastRaw(self.calc_id, update_ts, 0)

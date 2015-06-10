@@ -70,6 +70,8 @@ def get_energy_use(building_id,
                 read_dt = parser.parse(response_row['MeterReadDate'])
                 if response_row['PreviousReadDate']:
                     last_dt = parser.parse(response_row['PreviousReadDate'])
+                    if abs((read_dt - last_dt).days) > 60:
+                        last_dt = read_dt + relativedelta(months=-1)
                 else:
                     last_dt = read_dt + relativedelta(months=-1)
             else:
@@ -82,10 +84,12 @@ def get_energy_use(building_id,
 
             # Get the value for the requested energy parameter
             if energy_parameter in response_row:
+                if not response_row[energy_parameter]:
+                    continue
                 try:
                     energy_parameter_value = float(response_row[energy_parameter])
                 except:
-                    print "Parameter Conversion Error: ", response_row[energy_parameter]
+                    print "ARIS Value Conversion Error: ", response_row[energy_parameter]
                     continue
             else:
                 print "Parameter Name Not Present: ", energy_parameter
