@@ -33,7 +33,7 @@ class Dashboard(basechart.BaseChart):
             if dash_item.sensor is not None:
                 last_read = dash_item.sensor.sensor.last_read(self.reading_db)
                 format_function = dash_item.sensor.sensor.format_func()
-                cur_value = float(bmsapp.data_util.formatCurVal(last_read['val'])) if last_read else None
+                cur_value = float(bmsapp.data_util.formatCurVal(last_read['val']).translate(None, ',')) if last_read else None
                 new_widget['value_label'] = format_function(last_read['val']) if last_read else ''
                 age_secs = time.time() - last_read['ts'] if last_read else None    # how long ago reading occurred
                 minAxis, maxAxis = dash_item.get_axis_range()
