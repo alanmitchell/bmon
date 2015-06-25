@@ -148,7 +148,8 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                          building_id,
                          energy_type_id,
                          energy_parameter='EnergyQuantity',
-                         energy_multiplier=None):
+                         energy_multiplier=None,
+                         expected_period_months=1):
         """** No parameters are sensor reading arrays **
 
         Returns energy use via the ARIS web API
@@ -159,14 +160,14 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         if last_ts is None:
             last_ts = 0
 
-
         # Retrieve the data from ARIS
         update_ts, timestamp_list, values_list = aris_web_api.get_energy_use(building_id,
                                                                              energy_type_id,
                                                                              last_ts,
                                                                              energy_parameter,
-                                                                             energy_multiplier)
-        print 'Updating '+ str(len(timestamp_list)) + ' values for ' + str(self.calc_id)
+                                                                             energy_multiplier,
+                                                                             expected_period_months)
+        # print 'Updating '+ str(len(timestamp_list)) + ' values for ' + str(self.calc_id)
 
         # Update the last update timestamp for the sensor
         self.db.replaceLastRaw(self.calc_id, update_ts, 0)

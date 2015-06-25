@@ -34,17 +34,19 @@ def get_energy_use(building_id,
                    energy_type_id,
                    last_update_ts=0,
                    energy_parameter='EnergyQuantity',
-                   energy_multiplier=None):
+                   energy_multiplier=None,
+                   expected_period_months=1):
     """
     Returns building energy usage information via the ARIS Web API
 
     """
 
-    aris_url = getattr(settings, 'BMSAPP_ARIS_URL', 'http://arisapi.dev.ahfc.us')
-    aris_username = getattr(settings, 'BMSAPP_ARIS_USERNAME', 'buildingmonitoringapp')
-    aris_password = getattr(settings, 'BMSAPP_ARIS_PASSWORD', 'KWAoOHan6ZJANyp7TNO641YFcMYkiX')
+    aris_url = getattr(settings, 'BMSAPP_ARIS_URL')
+    aris_username = getattr(settings, 'BMSAPP_ARIS_USERNAME')
+    aris_password = getattr(settings, 'BMSAPP_ARIS_PASSWORD')
 
-    last_update_dt = datetime.fromtimestamp(last_update_ts)
+    last_update_dt = datetime.utcfromtimestamp(last_update_ts + 1)
+
     timestamp_list = []
     values_list = []
 
@@ -62,23 +64,24 @@ def get_energy_use(building_id,
     except requests.exceptions.RequestException as e:
         print e
         response_data = []
+        raise
 
     if len(response_data) > 0:
         for response_row in response_data:
             # Assign the sensor date/time
             if response_row['MeterReadDate']:
                 read_dt = parser.parse(response_row['MeterReadDate'])
-                if response_row['PreviousReadDate']:
-                    last_dt = parser.parse(response_row['PreviousReadDate'])
-                    if abs((read_dt - last_dt).days) > 60:
-                        last_dt = read_dt + relativedelta(months=-1)
-                else:
-                    last_dt = read_dt + relativedelta(months=-1)
             else:
-                read_dt = datetime.strptime(response_row['UsageMonthYear'], '%m-%Y') \
-                    + relativedelta(months=+1, days=-1)
-                last_dt = datetime.strptime(response_row['UsageMonthYear'], '%m-%Y') \
-                    + relativedelta(days=-1)
+                read_dt = datetime.strptime(response_row['UsageMonthYear'], '%m-%Y') + relativedelta(months=+1, days=-1)
+                # last_dt = datetime.strptime(response_row['UsageMonthYear'], '%m-%Y') + relativedelta(days=-1)
+
+            if response_row['PreviousReadDate']:
+                last_dt = parser.parse(response_row['PreviousReadDate'])
+                if abs((read_dt - last_dt).days) > (expected_period_months * 30 * 1.75):
+                    last_dt = read_dt + relativedelta(months=(-1 * expected_period_months))
+            else:
+                last_dt = read_dt + relativedelta(months=(-1 * expected_period_months))
+
             sensor_dt = last_dt + (read_dt - last_dt)/2
             read_period_hours = (read_dt - last_dt).total_seconds() / 60 / 60
 
@@ -111,7 +114,7 @@ def get_energy_use(building_id,
             update_dt = parser.parse(response_row['UpdateDate'])
             if update_dt > last_update_dt:
                 last_update_dt = update_dt
-            last_update_ts = (last_update_dt - datetime.fromtimestamp(0)).total_seconds()
+            last_update_ts = (last_update_dt - datetime.utcfromtimestamp(0)).total_seconds()
 
             # Add the results to the output lists
             timestamp_list.append((sensor_dt - datetime.fromtimestamp(0)).total_seconds())

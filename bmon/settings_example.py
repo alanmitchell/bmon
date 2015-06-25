@@ -76,6 +76,12 @@ BMSAPP_LOG_LEVEL = logging.INFO
 # See http://www.wunderground.com/weather/api for details on acuiring a key for your use.
 BMSAPP_WU_API_KEY = ''
 
+# Enter URL, Username and Password for the ARIS api here if you are using the
+# getUsageFromARIS calculation function to import building energy usage info
+BMSAPP_ARIS_URL = 'https://arisapi.ahfc.us'
+BMSAPP_ARIS_USERNAME = 'buildingmonitoringapp'
+BMSAPP_ARIS_PASSWORD = ''
+
 #------------ End of Settings Specific to the Monitoring App --------------
 
 # The settings is the following section still need to be filled out, but these 
