@@ -148,7 +148,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                          building_id,
                          energy_type_id,
                          energy_parameter='EnergyQuantity',
-                         energy_multiplier=None,
+                         energy_multiplier=1,
                          expected_period_months=1):
         """** No parameters are sensor reading arrays **
 

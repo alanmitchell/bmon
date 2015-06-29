@@ -34,7 +34,7 @@ def get_energy_use(building_id,
                    energy_type_id,
                    last_update_ts=0,
                    energy_parameter='EnergyQuantity',
-                   energy_multiplier=None,
+                   energy_multiplier=1,
                    expected_period_months=1):
     """
     Returns building energy usage information via the ARIS Web API
@@ -63,7 +63,6 @@ def get_energy_use(building_id,
         response_data = r.json()
     except requests.exceptions.RequestException as e:
         print e
-        response_data = []
         raise
 
     if len(response_data) > 0:
@@ -73,14 +72,18 @@ def get_energy_use(building_id,
                 read_dt = parser.parse(response_row['MeterReadDate'])
             else:
                 read_dt = datetime.strptime(response_row['UsageMonthYear'], '%m-%Y') + relativedelta(months=+1, days=-1)
-                # last_dt = datetime.strptime(response_row['UsageMonthYear'], '%m-%Y') + relativedelta(days=-1)
 
             if response_row['PreviousReadDate']:
                 last_dt = parser.parse(response_row['PreviousReadDate'])
-                if abs((read_dt - last_dt).days) > (expected_period_months * 30 * 1.75):
+                if abs((read_dt - last_dt).days) > (expected_period_months * 52):
                     last_dt = read_dt + relativedelta(months=(-1 * expected_period_months))
             else:
                 last_dt = read_dt + relativedelta(months=(-1 * expected_period_months))
+                # a better algorithm to deal with the last day of the month would be:
+                # last_dt = read_dt + relativedelta(days=+1)
+                #                   + relativedelta(months=(-1 * expected_period_months))
+                #                   + relativedelta(days=-1)
+                # but, changing this might mess up data from sensors that have already been processed
 
             sensor_dt = last_dt + (read_dt - last_dt)/2
             read_period_hours = (read_dt - last_dt).total_seconds() / 60 / 60
@@ -100,15 +103,14 @@ def get_energy_use(building_id,
 
             # Convert the energy parameter value into appropriate units for the sensor
             if energy_parameter == 'EnergyQuantity':
-                if energy_multiplier is None:
-                    energy_multiplier = 1
-                sensor_value = energy_parameter_value / read_period_hours * energy_multiplier
+                # return hourly energy use
+                sensor_value = energy_parameter_value * energy_multiplier / read_period_hours
             elif energy_parameter in ['DollarCost', 'DemandCost']:
-                # For now, return direct value for cost
-                # but we may eventually decide to normalize for a standard length read period
-                sensor_value = energy_parameter_value
+                # return monthly cost. There are 8766 hours in a year, so 730.5 hours on average per month
+                sensor_value = energy_parameter_value * energy_multiplier / (read_period_hours / 730.5)
             else:
-                sensor_value = energy_parameter_value  # return direct values for demand or anything else
+                # return values for demand or anything else
+                sensor_value = energy_parameter_value * energy_multiplier
 
             # Update the last update date
             update_dt = parser.parse(response_row['UpdateDate'])
