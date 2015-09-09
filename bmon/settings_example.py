@@ -82,9 +82,7 @@ BMSAPP_ARIS_URL = 'https://arisapi.ahfc.us'
 BMSAPP_ARIS_USERNAME = 'buildingmonitoringapp'
 BMSAPP_ARIS_PASSWORD = ''
 
-#------------ End of Settings Specific to the Monitoring App --------------
-
-# The settings is the following section still need to be filled out, but these 
+# The settings is the following section need to be filled out. These 
 # are settings required for the general Django software.
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False.
