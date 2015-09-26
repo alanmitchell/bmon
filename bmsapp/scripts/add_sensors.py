@@ -30,7 +30,7 @@ def run():
     '''
     
     # walk through the lines in the input file, each one being a sensor
-    in_file = os.path.join(os.path.dirname(__file__), 'new_sensors.txt')
+    in_file = os.path.join(os.path.dirname(__file__), 'files/new_sensors.txt')
     for lin in open(in_file).readlines()[1:]: # skip the header line
         try:
             flds = lin.split('\t')
