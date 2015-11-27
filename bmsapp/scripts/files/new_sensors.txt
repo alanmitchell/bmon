@@ -1,5 +1,25 @@
 Building [0]	Sensor ID [1]	Title [2]	Unit Label [3]	Sensor Group [4]	Sort Order [5]	Is Calc'd Field [6]	Calc or Transform Function [7]	Function Parameters [8]
-Chugach View	55441	Boiler Return Temperature	deg F	Boiler	65			
-Chugach View	29919	Snowmelt Slab Temperature	deg F	Snowmelt	5		117.6 - 104.85*val - 15.95*val**2	
-511 Oklahoma St	Okla511_cpu_temp	CPU Temperature	deg C	Miscellaneous	20			
-158 Burton St	Burt158_cpu_temp	CPU Temperature	deg C	Miscellaneous	20			
+Homer Strawbale	hmr_StrHmT	Straw Home Temperature	deg F	Space Conditions, Temperature	10			
+Homer Strawbale	hmr_GreenHsT	Greenhouse Temperature	deg F	Space Conditions, Temperature	20			
+Homer Strawbale	hmr_BoilerRmT	Boiler Room Temp	deg F	Space Conditions, Temperature	30			
+Homer Strawbale	hmr_ArptTemp	Homer Airport Temperature, F	deg F	Weather	10			
+Homer Strawbale	hmr_ArptWind	Homer Airport Wind, mph	mph	Weather	20			
+Homer Strawbale	hmr_OutdoorT	Site Outdoor Temperature, F	deg F	Weather	30			
+Homer Strawbale	hmr_StrArrBtuMeter	Straw Array Btu/hr	Btu/hour	Solar Thermal	10			
+Homer Strawbale	hmr_StrArrInT	Straw Array Inlet Temp	deg F	Solar Thermal	20			
+Homer Strawbale	hmr_StrArrOutT	Straw Array Outlet Temp	deg F	Solar Thermal	30			
+Homer Strawbale	hmr_StrArrFlowMeter	Straw Array Flow gpm	gpm	Solar Thermal	40			
+Homer Strawbale	hmr_GrnArrBtuMeter	Greenhouse Array Btu/hr	Btu/hour	Solar Thermal	50			
+Homer Strawbale	hmr_GrnArrInT	Greenhouse Array Inlet Temp	deg F	Solar Thermal	60			
+Homer Strawbale	hmr_GrnArrOutT	Greenhouse Array Outlet Temp	deg F	Solar Thermal	70			
+Homer Strawbale	hmr_GrnArrFlowMeter	Greenhouse Array Flow gpm	gpm	Solar Thermal	80			
+Homer Strawbale	hmr_PoolT	HS Tank Temp	deg F	Heat Storage	10			
+Homer Strawbale	hmr_PoolSoilT	Soil Temp Beside Tank	deg F	Heat Storage	20			
+Homer Strawbale	hmr_PL750_bottom	PL750 Tank Temp Bottom	deg F	Heat Storage	30			
+Homer Strawbale	hmr_PL750_mid	PL750 Tank Temp Mid	deg F	Heat Storage	40			
+Homer Strawbale	hmr_PL750_top	PL750 Tank Temp Top	deg F	Heat Storage	50			
+Homer Strawbale	hmr_PriToPoolReturnT	PL750 Heat Dump Temp	deg F	Heat Storage	60			
+Homer Strawbale	hmr_PriLoopT	Primary Loop Temp	deg F	Heating System	10			
+Homer Strawbale	hmr_PoolToPriT	Strawbale Mixed Temp	deg F	Heating System	20			
+Homer Strawbale	hmr_MixedT	Greenhouse Mixed Temp	deg F	Heating System	30			
+Homer Strawbale	hmr_BoilerStackT	Boiler Stack Temp	deg F	Heating System	40			
