@@ -22,7 +22,7 @@ class SensorGroup(models.Model):
     '''
 
     # the diplay name of the Sensor Group.
-    title = models.CharField(max_length=40, unique=True)
+    title = models.CharField(max_length=80, unique=True)
 
     # A number that determines the order that Sensor Groups will be presented to the user.
     sort_order = models.IntegerField(default=999)
@@ -58,10 +58,10 @@ class Sensor(models.Model):
     '''
 
     # sensor ID, either from Monnit network or a user-entered ID for a calculated value
-    sensor_id = models.CharField("Monnit Sensor ID, or Calculated Field ID", max_length=30, unique=True)
+    sensor_id = models.CharField("Monnit Sensor ID, or Calculated Field ID", max_length=80, unique=True)
 
     # descriptive title for the sensor, shown to users
-    title = models.CharField(max_length = 50)
+    title = models.CharField(max_length = 80)
 
     # the units for the sensor values
     unit =  models.ForeignKey(Unit)
@@ -157,7 +157,7 @@ class Building(models.Model):
     '''
 
     # name of the building displayed to users
-    title = models.CharField(max_length=50, unique=True)
+    title = models.CharField(max_length=80, unique=True)
 
     # Current mode that building is in
     current_mode = models.ForeignKey(BuildingMode, verbose_name='Current Operating Mode', blank=True, null=True)
@@ -194,7 +194,7 @@ class BuildingGroup(models.Model):
     """
     
     # Name of the building group
-    title = models.CharField(max_length=50, unique=True)
+    title = models.CharField(max_length=80, unique=True)
     
     # Determines the order that the building group will be presented in the UI
     sort_order = models.IntegerField(default=999)
