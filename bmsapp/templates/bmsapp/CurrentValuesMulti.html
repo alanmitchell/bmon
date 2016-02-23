@@ -1,3 +1,15 @@
+<script>
+  $(function() {
+    $( document ).tooltip();
+  });
+  </script>
+  <style>
+  label {
+    display: inline-block;
+    width: 5em;
+  }
+  </style>
+
 <h2 id="report_title">{{ report_title }}</h2>
 <table>
     <thead><tr><th>Building Name</th><th>Sensor</th><th>When</th><th>Value</th><th>Unit</th><th>Graph</th></tr></thead>
@@ -10,7 +22,7 @@
                 {% else %}
                 <td></td>
                 {% endif %}
-                <td><a href="#" onclick="AN.plot_building_chart_sensor({{ building.bldg_id }}, {{ ts_chart_id }}, {{ sensor.sensor_id }})">{{ sensor.title }}</a></td>
+                <td><a href="#" onclick="AN.plot_building_chart_sensor({{ building.bldg_id }}, {{ ts_chart_id }}, {{ sensor.sensor_id }})" title={{ sensor.notes }}>{{ sensor.title }}</a></td>
                 <td>{{ sensor.minutes_ago }} minutes ago</td>
                 {% if sensor.alerts %}
                 <td class="number" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
