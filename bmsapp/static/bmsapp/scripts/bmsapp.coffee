@@ -146,6 +146,9 @@ update_bldg_list = ->
 # function that runs when the document is ready.
 $ ->
 
+  # enable jQuery UI tooltips
+  $(document).tooltip()
+
   # Make Highcharts display in the timezone of the client's computer
   Highcharts.setOptions global:
     useUTC: false

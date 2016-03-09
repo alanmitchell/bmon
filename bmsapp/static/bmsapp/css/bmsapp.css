@@ -116,3 +116,8 @@ td.indent {
 tr.group_header {
     font-weight: bold;
 }
+
+label {
+    display: inline-block;
+    width: 5em;
+}

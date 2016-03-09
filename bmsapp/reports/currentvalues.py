@@ -37,6 +37,7 @@ class CurrentValues(basechart.BaseChart):
                                            'unit': b_to_sen.sensor.unit.label,
                                            'minutes_ago': minutes_ago,
                                            'sensor_id': b_to_sen.sensor.id,
+                                           'notes': b_to_sen.sensor.notes,
                                            'alerts': '; '.join([message for subject, message in b_to_sen.sensor.alerts(self.reading_db)])})
         # add the last group
         if cur_group:

@@ -66,6 +66,9 @@ class Sensor(models.Model):
     # the units for the sensor values
     unit =  models.ForeignKey(Unit)
 
+    # Adds in a notes field to the Current sensors page.
+    notes = models.CharField("Please enter descriptive notes about the sensor.", max_length=300, default="No sensor notes available.")
+    
     # if True, this field is a calculated field and is not directly created from a sensor.
     is_calculated = models.BooleanField("Calculated Field", default=False)
 
