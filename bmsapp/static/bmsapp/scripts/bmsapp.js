@@ -147,6 +147,7 @@
 
   $(function() {
     var ctrl, ctrls, d, _i, _len;
+    $(document).tooltip();
     Highcharts.setOptions({
       global: {
         useUTC: false
