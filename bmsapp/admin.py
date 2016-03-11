@@ -62,7 +62,7 @@ class DashboardItemInline(admin.StackedInline):
 class BuildingAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline, DashboardItemInline)
     formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows': 4})},
+        models.TextField: {'widget': Textarea(attrs={'rows': 6, 'cols':80})},
     }
     def get_form(self, request, obj=None, **kwargs):
         # save the object reference for future processing in DashboardInline

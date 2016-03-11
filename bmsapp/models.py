@@ -165,6 +165,8 @@ class Building(models.Model):
     # Current mode that building is in
     current_mode = models.ForeignKey(BuildingMode, verbose_name='Current Operating Mode', blank=True, null=True)
 
+    report_footer = models.TextField(verbose_name='Additional Building Documentation', help_text='Use <a href="http://markdowntutorial.com/"> markdown syntax </a> to add links, pictures, etc.  Note that you <b>must</b> include the url prefix (e.g. <i>http://</i>) in your links.', blank=True, null=True)
+                                      
     # Latitude of building
     latitude = models.FloatField(default=62.0)
 
