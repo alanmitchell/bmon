@@ -47,6 +47,12 @@ class CurrentValues(basechart.BaseChart):
         # Convert the user-entered markdown into an html list to be made available to the footer
         footer = markdown.markdown(self.building.report_footer)
             
+        # 
+        if footer:
+            footer_title = 'Additional Building Documentation for %s:' % self.building.title
+        else:
+            footer_title = ""
+            
         # context for template
         context = Context( {} )
         
@@ -60,7 +66,7 @@ class CurrentValues(basechart.BaseChart):
         context['report_title'] = 'Current Values: %s' % self.building.title
         
         # create a footer title
-        context['footer_title'] = 'Additional Building Documentation for: %s' % self.building.title
+        context['footer_title'] = footer_title
 
         # template needs building ID.
         context['bldg_id'] = self.bldg_id
