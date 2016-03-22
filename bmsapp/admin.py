@@ -151,6 +151,9 @@ class SensorAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline2, AlertAdminInline)
     search_fields = ['sensor_id', 'title', 'tran_calc_function']
     list_filter = ['is_calculated', BuildingSensorListFilter]
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':6, 'cols':80})},
+    }
 
 
 @admin.register(SensorGroup)
