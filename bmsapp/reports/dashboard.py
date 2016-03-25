@@ -76,7 +76,7 @@ class Dashboard(basechart.BaseChart):
         html = '''<h2 id="report_title">%s Dashboard</h2>
         <div id="dashboard" style="background: #FFFFFF"></div>
         <div style="clear:both"></div>
-        <h4>%s</h4>
+        <h3>%s</h3>
         %s''' % (self.building.title, footer_title, footer)
 
         return {'html': html, 'objects': [('dashboard', dash_config)]}
