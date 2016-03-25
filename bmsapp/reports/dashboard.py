@@ -3,6 +3,7 @@ import bmsapp.models
 import bmsapp.data_util
 import bmsapp.formatters
 import basechart
+import markdown
 
 class Dashboard(basechart.BaseChart):
     """Class for creating Dashboard report.
@@ -64,9 +65,19 @@ class Dashboard(basechart.BaseChart):
             widgets.append(cur_row)
 
         dash_config = {'widgets': widgets, 'renderTo': 'dashboard'}
+        
+        footer = markdown.markdown(self.building.report_footer)
 
+        if footer:
+            footer_title = "Additional Building Documentation for %s:" % self.building.title
+        else: 
+            footer_title = ""
+            
         html = '''<h2 id="report_title">%s Dashboard</h2>
-        <div id="dashboard" style="background: #FFFFFF"></div>''' % self.building.title
+        <div id="dashboard" style="background: #FFFFFF"></div>
+        <div style="clear:both"></div>
+        <h3>%s</h3>
+        %s''' % (self.building.title, footer_title, footer)
 
         return {'html': html, 'objects': [('dashboard', dash_config)]}
 
