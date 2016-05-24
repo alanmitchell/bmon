@@ -76,6 +76,10 @@ BMSAPP_LOG_LEVEL = logging.INFO
 # See http://www.wunderground.com/weather/api for details on acuiring a key for your use.
 BMSAPP_WU_API_KEY = ''
 
+# Put an Enphase API key here, if you are acquiring photovolaic data from an Enphase system
+# See https://developer.enphase.com for details on Enphase API
+BMSAPP_ENPHASE_API_KEY = ''
+
 # Enter URL, Username and Password for the ARIS api here if you are using the
 # getUsageFromARIS calculation function to import building energy usage info
 BMSAPP_ARIS_URL = 'https://arisapi.ahfc.us'
