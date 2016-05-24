@@ -3,7 +3,7 @@
 
 import time
 import pandas as pd
-import calcreadings, internetwx, aris_web_api
+import calcreadings, internetwx, aris_web_api, enphase
 
 class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
     """A set of functions that can be used to create calculated readings.  
@@ -175,3 +175,16 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         # return the timestamps and runtime values
         return timestamp_list, values_list
 
+    def getCurrentEnphasePower(self,
+                               system_id,
+                               user_id):
+        """**Uses the enphase system and user IDs to query the most recent power production. **
+            Returns uxix timestamp and power in kW 
+        """
+
+        obs = enphase.System( system_id, user_id ).summary()
+        currentPower = float(obs['current_power'])
+        if currentPower >= 0.0 and currentPower < 1500000.0:
+            return [int(time.time())], [currentPower/1000]
+        else:
+            return [], []
