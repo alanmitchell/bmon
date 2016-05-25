@@ -42,6 +42,18 @@ def get_data(plant_id,
     Portal plant with a Plant ID of 'plant_id'.  'plant_tz' is the Olson
     timezone database string identifying the timezone that is used for
     the plant on the Sunny Portal.
+    'menu_text': text that occurs in the title attribute of the menu item in
+        the left navigation bar; this menu item should bring up the desired
+        Power graph.
+    'fill_NA': If fill_NA is False (the default), Power values that are blank
+        are not posted, because these are time slots that have not occurred yet.
+        But, for some systems, the Power value is left blank when the power
+        production is 0.  Setting fill_NA to True will cause these blank power
+        values to be changed to 0 and posted.
+    'graph_num': On the page containing the desired Power graph, sometimes multiple
+        graphs will appear.  If so, this parameter needs to be set to 0 to use
+        the first graph on the page, 1 for the second, etc.  If there is only one
+        graph on the page, this parameter must be set to None.
 
     Data from the current day and the day prior are returned.  The return
     value from this function is a two-tuple: a list of Unix Epoch
@@ -83,18 +95,8 @@ def get_one_day(browser, plant_tz, menu_text, fill_NA, graph_num, go_back_one_da
     is the timezone of the data displayed on the Sunny Portal. 'broswer' is
     the Selenium web browser object; it is assumed that the browswer object
     just loaded the main page for the target PV plant.
-    'menu_text': text that occurs in the title attribute of the menu item in
-        the left navigation bar; this menu item should bring up the desired
-        Power graph.
-    'fill_NA': If fill_NA is False (the default), Power values that are blank
-        are not posted, because these are time slots that have not occurred yet.
-        But, for some systems, the Power value is left blank when the power
-        production is 0.  Setting fill_NA to True will cause these blank power
-        values to be changed to 0 and posted.
-    'graph_num': On the page containing the desired Power graph, sometimes multiple
-        graphs will appear.  If so, this parameter needs to be set to 0 to use
-        the first graph on the page, 1 for the second, etc.  If there is only one
-        graph on the page, this parameter must be set to None.
+    For documentation of most parameters, see documentation of the "get_data"
+    function.
     'go_back_one_day': If True, the prior days readings are returned instead of the
         current day's readings.
 
