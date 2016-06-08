@@ -16,10 +16,11 @@ django-extensions==1.4.9
 # as is done in the "install_packages.sh" script.
 numexpr==2.4.0
 
-pandas==0.15.2
+pandas==0.18.1
 python-dateutil==2.2
 pytz>=2013b
 requests==2.5.1
 xlwt==0.7.5
 PyYAML==3.11
 markdown==2.6.5
+selenium>=2.53.2

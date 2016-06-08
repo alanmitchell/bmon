@@ -3,7 +3,10 @@
 
 import time
 import pandas as pd
-import calcreadings, internetwx, aris_web_api
+import calcreadings
+import internetwx
+import aris_web_api
+import sunny_portal
 
 class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
     """A set of functions that can be used to create calculated readings.  
@@ -175,3 +178,43 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         # return the timestamps and runtime values
         return timestamp_list, values_list
 
+    def getSunnyPortalData(self,
+                           plant_id,
+                           plant_tz='US/Alaska',
+                           menu_text='Energy and Power',
+                           fill_NA=False,
+                           graph_num=None
+                           ):
+        """Retrieves detailed time-resolution power production data from a Sunny
+        Portal PV system.
+
+        Parameters
+        ----------
+        plant_id:  The Plant ID of the system to retrieve in the Sunny Portal system.
+        plant_tz:  The Olson timezone database string identifying the timezone
+            that is used for the plant on the Sunny Portal.
+        menu_text: text that occurs in the title attribute of the menu item in
+            the left navigation bar; this menu item should bring up the desired
+            Power graph.
+        fill_NA: If fill_NA is False (the default), Power values that are blank
+            are not posted, because these are time slots that have not occurred yet.
+            But, for some systems, the Power value is left blank when the power
+            production is 0.  Setting fill_NA to True will cause these blank power
+            values to be changed to 0 and posted.
+        graph_num: On the page containing the desired Power graph, sometimes multiple
+            graphs will appear.  If so, this parameter needs to be set to 0 to use
+            the first graph on the page, 1 for the second, etc.  If there is only one
+            graph on the page, this parameter must be set to None.
+
+        Returns
+        -------
+        Data from the current day and the day prior are returned.  The return type
+        is a two-tupe with the first item being a list of timestamps and the second
+        being a list of reading values.
+        """
+        return sunny_portal.get_data(plant_id,
+                                     plant_tz=plant_tz,
+                                     menu_text=menu_text,
+                                     fill_NA=fill_NA,
+                                     graph_num=graph_num
+                                     )
