@@ -67,8 +67,13 @@ def get_data(plant_id,
     '''
     # Start the PhantomJS driver.  Assume the PhantomJS executable is in the same
     # folder as this file.
+    # Name of Linux executable.
+    phantom_path = os.path.join(os.path.dirname(__file__), "phantomjs")
+    if not os.path.exists(phantom_path):
+        # Windows executable ends in '.exe'
+        phantom_path = os.path.join(os.path.dirname(__file__), "phantomjs.exe")
+    br = webdriver.PhantomJS(executable_path=phantom_path)
     #br = webdriver.Firefox()
-    br = webdriver.PhantomJS(executable_path=os.path.join(os.path.dirname(__file__), "phantomjs.exe"))
 
     try:
         br.implicitly_wait(30)      # don't timeout for at least 30 seconds
