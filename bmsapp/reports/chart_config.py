@@ -25,6 +25,7 @@ chart:
 title:
   style:
     fontSize: 24px
+    color: black
 
 subtitle:
   style:
@@ -42,18 +43,25 @@ tooltip:
     month: "%A, %b %e, %H:%M:%S"
     year: "%A, %b %e, %H:%M:%S"
 
-yAxis:
-  title:
-    style:
-      fontSize: 16px
-  labels:
-    style:
-      fontSize: 14px
-
 xAxis:
   title:
     style:
       fontSize: 16px
+      color: black
+  labels:
+    style:
+      fontSize: 14px
+      color: black
+
+yAxis:
+  title:
+    style:
+      fontSize: 16px
+      color: black
+  labels:
+    style:
+      fontSize: 15px
+      color: black
 
 plotOptions:
   series:
@@ -94,6 +102,7 @@ chart:
 title:
   style:
     fontSize: 24px
+    color: black
 
 xAxis:
   ordinal: false
@@ -101,6 +110,21 @@ xAxis:
     text: Date/Time (your computer's time zone)
     style:
       fontSize: 16px
+      color: black
+  labels:
+    style:
+      fontSize: 14px
+      color: black
+
+yAxis:
+  title:
+    style:
+      fontSize: 16px
+      color: black
+  labels:
+    style:
+      fontSize: 14px
+      color: black
 
 navigator:
   margin: 0

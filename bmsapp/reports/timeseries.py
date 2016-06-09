@@ -82,15 +82,6 @@ class TimeSeries(basechart.BaseChart):
                 series_opt['step'] = 'left'
             series.append( series_opt )
 
-        # Make the chart y axes configuration objects
-        y_axes = [{ 'id': ax_id,
-                    'opposite': False,
-                    'title': {
-                        'text': ax_id,
-                        'style': {'fontSize': '16px'}
-                    }
-                  } for ax_id in  y_axes_ids]
-
         # Choose the chart type based on number of points
         if pt_count < 15000 and max_series_count < 5000:
             opt = self.get_chart_options()
@@ -100,6 +91,18 @@ class TimeSeries(basechart.BaseChart):
         else:
             opt = self.get_chart_options('highstock')
             chart_type = 'highstock'
+
+        # Make the chart y axes configuration objects
+        y_axes = [{ 'id': ax_id,
+                    'opposite': False,
+                    'title': {
+                        'text': ax_id,
+                        'style': opt['yAxis']['title']['style']
+                    },
+                    'labels': {
+                        'style': opt['yAxis']['labels']['style']
+                    }
+                  } for ax_id in  y_axes_ids]
 
         opt['series'] = series
         opt['yAxis'] = y_axes
