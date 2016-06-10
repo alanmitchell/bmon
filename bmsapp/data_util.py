@@ -110,7 +110,7 @@ class TsBin:
             # month binning. Put it into bin in middle of month.
             dt = datetime.fromtimestamp(ts, self.tz).replace(day=16, hour=0, minute=0, second=0, microsecond=0)
             # this may still be expressed in Standard time instead of Daylight Savings time, so correct
-            dt = self.tz.normalize(dt).replace(hour=0)
+            dt = self.tz.normalize(dt).replace(day=16, hour=0)
             return calendar.timegm(dt.utctimetuple())
 
         if self.bin_width == 8760:
