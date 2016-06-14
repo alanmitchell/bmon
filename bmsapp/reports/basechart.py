@@ -38,9 +38,10 @@ BLDG_CHART_TYPES = [
     BldgChartType(1, 'Current Sensor Values', 'currentvalues.CurrentValues'),
     BldgChartType(2, 'Plot Sensor Values over Time', 'timeseries.TimeSeries'),
     BldgChartType(3, 'Hourly Profile of a Sensor', 'hourlyprofile.HourlyProfile'),
-    BldgChartType(4, 'Histogram of a Sensor', 'histogram.Histogram'),
-    BldgChartType(5, 'Sensor X vs Y Scatter Plot', 'xyplot.XYplot'),
-    BldgChartType(6, 'Download Sensor Data to Excel', 'exportdata.ExportData')
+    BldgChartType(4, 'Heat Map Hourly Profile', 'hourly_heatmap.HourlyHeatMap'),
+    BldgChartType(5, 'Histogram of a Sensor', 'histogram.Histogram'),
+    BldgChartType(6, 'Sensor X vs Y Scatter Plot', 'xyplot.XYplot'),
+    BldgChartType(7, 'Download Sensor Data to Excel', 'exportdata.ExportData')
 ]
 
 # The ID of the Time Series chart above, as it is needed in code below.
@@ -187,7 +188,14 @@ class BaseChart(object):
         Returns a configuration object for a Highcharts or Highstock chart.  Must make a
         copy of the original so that it is not modified.
         """
-        opt = chart_config.highcharts_opt if chart_type=='highcharts' else chart_config.highstock_opt
+        if chart_type == 'highcharts':
+            opt = chart_config.highcharts_opt
+        elif chart_type == 'highstock':
+            opt = chart_config.highstock_opt
+        elif chart_type == 'heatmap':
+            opt = chart_config.heatmap_opt
+        else:
+            raise ValueError('Invalid Chart Type.')
         opt = copy.deepcopy(opt)
         if hasattr(self, 'building'):
             opt['title']['text'] = '%s: %s' % (self.chart_info.title, self.building.title)
