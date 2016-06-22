@@ -61,10 +61,18 @@ def run_query(url):
             j = json.loads(urllib2.urlopen(url, timeout=TCP_TIMEOUT).read())
             break
         except urllib2.HTTPError as e:
-            errordata = json.loads(e.read())
             print url
             print e
-            print errordata
+
+            try:
+                errordata = json.loads(e.read())
+                print errordata
+
+            except:
+                print 'No JSON object could be decoded'
+                print 'Waiting %d seconds' % MAX_WAIT
+                time.sleep(MAX_WAIT)
+
             if errordata['reason'] == '409':
                 diff = datetime.datetime.fromtimestamp(errordata['period_end'])\
                     - datetime.datetime.now()
