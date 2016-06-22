@@ -5,6 +5,8 @@ import time
 import pandas as pd
 import calcreadings, internetwx, aris_web_api, enphase
 
+
+
 class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
     """A set of functions that can be used to create calculated readings.  
     """
@@ -148,7 +150,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                          building_id,
                          energy_type_id,
                          energy_parameter='EnergyQuantity',
-                         energy_multiplier=1,
+                         energy_multiplier=None,
                          expected_period_months=1):
         """** No parameters are sensor reading arrays **
 
@@ -178,8 +180,8 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
     def getCurrentEnphasePower(self,
                                system_id,
                                user_id):
-        """**Uses the enphase system and user IDs to query the most recent power production. **
-            Returns uxix timestamp and power in kW 
+        """
+        This script only gets the most recent measurement. The following function getEnphasePower is better because it can fill in measurements.
         """
 
         obs = enphase.System( system_id, user_id ).summary()
@@ -188,3 +190,31 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             return [int(time.time())], [currentPower/1000]
         else:
             return [], []
+
+    def getEnphasePower(self, system_id, user_id):
+        """
+        This script gets all power measurements for the past 24 hours. Each data point represents the average power during the five minute interval ending at the associated timestamp.
+        """
+        start = int(time.time()) - 1*24*60*60
+        end = None
+
+        obs = enphase.System( system_id, user_id ).stats(start, end)
+        kWarray = [ float(item['powr'])/1000 for item in obs['intervals']]
+#        kWharray = [ item['enwh']/1000 for item in obs['intervals']]
+        timearray = [ item['end_at'] for item in obs['intervals']]
+
+        return timearray, kWarray
+
+    def getEnphaseEnergy(self, system_id, user_id):
+        """       
+        This script gets all energy measurements for the past 24 hours. Each data point represents the cumulative energy generated during the five minute interval ending at the associated timestamp.
+        """
+        start = int(time.time()) - 1*24*60*60
+        end = None
+
+        obs = enphase.System( system_id, user_id ).stats(start, end)
+#        kWarray = [ float(item['powr'])/1000 for item in obs['intervals']]
+        kWharray = [ float(item['enwh'])/1000 for item in obs['intervals']]
+        timearray = [ item['end_at'] for item in obs['intervals']]
+
+        return timearray, kWharray
