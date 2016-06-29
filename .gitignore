@@ -10,3 +10,4 @@ settings.py
 *.ipynb
 **/.ipynb_checkpoints
 .idea
+*.exe
