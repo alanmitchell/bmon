@@ -220,23 +220,23 @@ class CalculateReadings:
             # call the calculation function with parameters
             vals = calc_func(**params)
             
-            # make the list of records to add to the database.
-            recs = zip(ts_sync, len(ts_sync)*[calc_id], vals)
+            # make the lists for insertion into the database
+            # Had trouble inserting numpy data types, so convert to regular python data
+            # types.
 
         else:
             # There were no sensor IDs in the parameter list.  This calculate function must
             # be the kind that returns a list of timestamps and a list of values for the 
             # records it wants to add to the database.
             stamps, vals = calc_func(**params)
-            recs = zip(stamps, len(stamps)*[calc_id], vals)
-        
-        # insert the records into the database.
-        for ts, id, val in recs:
+
             # Had trouble inserting numpy data types, so convert to regular python data
             # types.
-            self.db.insert_reading(int(ts), str(id), float(val))  
+        
+        # insert the records into the database.
+        self.db.insert_reading(ts, len(ts)*[calc_id], vals)  
             
-        return len(recs)
+        return len(ts)
     
 
 class CalcReadingFuncs_base:
