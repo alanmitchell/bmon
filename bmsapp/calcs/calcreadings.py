@@ -223,6 +223,8 @@ class CalculateReadings:
             # make the lists for insertion into the database
             # Had trouble inserting numpy data types, so convert to regular python data
             # types.
+            ts = map(int, ts_sync)
+            vals = map(float, vals)
 
         else:
             # There were no sensor IDs in the parameter list.  This calculate function must
@@ -232,6 +234,8 @@ class CalculateReadings:
 
             # Had trouble inserting numpy data types, so convert to regular python data
             # types.
+            ts = map(int, stamps)
+            vals = map(float, vals)
         
         # insert the records into the database.
         self.db.insert_reading(ts, len(ts)*[calc_id], vals)  
