@@ -144,12 +144,16 @@ def store_reading(request, reading_id):
 def store_readings(request):
     '''
     Stores a set of sensor readings in the sensor reading database.  The readings
-    and store key are in the POST data, encoded in JSON.  See 'storereads.store_many'
-    for details on the format of the JSON POST data.
+    are in the POST data encoded in JSON and there may be additional information in
+    the query string.  See 'storereads.store_many' for details on the data formats
+    supported of the request data.
     '''
     try:
         # The post data is JSON, so decode it.
         req_data = json.loads(request.body)
+
+        # Add any query parameters into the dictionary
+        req_data.update(request.GET.dict())
 
         # Test for a valid key for storing readings.  Key should be unique for each
         # installation.
