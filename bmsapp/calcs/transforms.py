@@ -5,7 +5,11 @@ Transform functions for scaling and transforming sensor readings
 from __future__ import division
 from math import *
 import sys
+import logging
 import yaml
+
+# Make a logger for this module
+_logger = logging.getLogger('bms.' + __name__)
 
 
 class Transformer:
@@ -76,6 +80,7 @@ class Transformer:
             
             # Check for a zero value that should be ignored
             if val==0 and ignore_zero:
+                _logger.warn('Counter value is zero and requested to be ignored: ts=%s, id=%s, val=%s' % (ts, id, val))
                 return None, None, None
                 
             if last_ts:
@@ -88,12 +93,14 @@ class Transformer:
                     
                 if interval < min_interval:
                     # too short of an interval for valid reading
+                    _logger.warn('Too short of interval to calculate rate: ts=%s, last_ts=%s, id=%s, val=%s' % (ts, last_ts, id, val))
                     return None, None, None
                     
                 rate = count_chg / float(interval)
                 
                 if rate > max_rate:
                     # calculated rate is too high, indicates invalid reading.
+                    _logger.warn('Too high of counter rate: ts=%s, id=%s, val=%s, rate=%s' % (ts, id, val, rate))
                     return None, None, None
                 
                 # Stamp the reading at the average of the current and last
@@ -102,6 +109,7 @@ class Transformer:
                 
             else:
                 # there was no last reading in database
+                _logger.warn('No last reading available to determine rate: ts=%s, id=%s, val=%s' % (ts, id, val))
                 return None, None, None
             
         else:

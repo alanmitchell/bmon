@@ -5,6 +5,7 @@ import sqlite3
 import sys
 import os.path
 import time
+import logging
 import shutil
 import subprocess
 import glob
@@ -12,6 +13,8 @@ import calendar
 import pytz
 from dateutil import parser
 
+# Make a logger for this module
+_logger = logging.getLogger('bms.' + __name__)
 
 # The path to the default Sqlite database used to store readings.
 DEFAULT_DB = os.path.join(os.path.dirname(__file__), 'data', 'bms_data.sqlite')
@@ -79,7 +82,7 @@ class BMSdata:
             # they were single values, not lists
             recs = [(ts, id, val)]
         
-        exceptions = ''
+        rejected_count = 0
         success_count = 0
         for one_ts, one_id, one_val in recs:
             one_id = str(one_id)   # make sure sensor ID is a string
@@ -87,34 +90,33 @@ class BMSdata:
                 # Check to see if sensor table exists.  If not, create it.
                 if one_id not in self.sensor_ids:
                     self.add_sensor_table(one_id)
-                if one_val is not None:    # don't store None values
+                if one_val is not None:    # don't store None values.
                     self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % one_id, (one_ts, one_val))
                     success_count += 1
                 else:
-                    exceptions += '\nNone value not stored with reading %s, %s, %s' % (one_ts, one_id, one_val)
+                    # No need for logger warning because one was generated earlier when
+                    # the None value was created.
+                    rejected_count += 1
             except sqlite3.IntegrityError:
                 # this record already exists (same ID and ts).  Replace the old value.
                 try:
                     self.cursor.execute('UPDATE [%s] SET val=? WHERE ts=?' % one_id, (one_val, one_ts))
+                    _logger.warn('Reading already in DB, updated to: ts=%s, id=%s, val=%s' % (one_ts, one_id, one_val))
                     success_count += 1
                 except:
-                    exceptions += '\nError with reading %s, %s, %s: %s' % (one_ts, one_id, one_val, sys.exc_info()[1])
+                    rejected_count += 1
+                    _logger.warn('Problem updating reading already in DB: ts=%s, id=%s, val=%s' % (one_ts, one_id, one_val))
 
             except:
-                exceptions += '\nError with reading %s, %s, %s: %s' % (one_ts, one_id, one_val, sys.exc_info()[1])
+                rejected_count += 1
+                _logger.warn('Error storing reading %s, %s, %s: %s' % (one_ts, one_id, one_val, sys.exc_info()[1]))
 
         # Commits take a lot of time, but Sqlite does not allow an open database reference to be
         # shared across threads.  The web server uses multiple threads to handle requests.
         self.conn.commit()
         
-        msg = '%s readings stored successfully%s' % (success_count, exceptions)
-        
-        if len(exceptions):
-            # Raise an error if there were any exceptions.  This ensures an 
-            # entry will be stored in the error log file.
-            raise ValueError(msg)
-        else:
-            return msg
+        msg = '%s readings stored successfully, %s rejected.' % (success_count, rejected_count)
+        return msg
         
 
     def last_read(self, sensor_id):
