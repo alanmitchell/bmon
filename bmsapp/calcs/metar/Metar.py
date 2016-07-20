@@ -1,4 +1,8 @@
 #!/usr/bin/env python
+
+# NOTE:  Alan Mitchell modified this code to eliminate raising an error if
+# an Unparsed Group is found in the METAR string.
+#
 #
 #  A python package for interpreting METAR and SPECI weather reports.
 #  
@@ -413,9 +417,11 @@ class Metar(object):
       except Exception, err:
           raise ParserError(handler.__name__+" failed while processing '"+code+"'\n"+string.join(err.args))
           raise err
-      if self._unparsed_groups:
-          code = ' '.join(self._unparsed_groups)
-          raise ParserError("Unparsed groups in body: "+code)
+      # Alan Mitchell commented out the following 3 lines to eliminate raising an
+      # error when an unparsed group is present.
+      #if self._unparsed_groups:
+      #    code = ' '.join(self._unparsed_groups)
+      #    raise ParserError("Unparsed groups in body: "+code)
 
   def _do_trend_handlers(self, code):
       for pattern, handler, repeatable in Metar.trend_handlers:
