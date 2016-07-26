@@ -101,11 +101,13 @@ class BMSdata:
                 # this record already exists (same ID and ts).  Replace the old value.
                 try:
                     self.cursor.execute('UPDATE [%s] SET val=? WHERE ts=?' % one_id, (one_val, one_ts))
-                    _logger.warn('Reading already in DB, updated to: ts=%s, id=%s, val=%s' % (one_ts, one_id, one_val))
+                    # This occurs a lot with, for example, the Sunny Boy portal scraper.  Make is
+                    # a debug message so that it doesn't overwhelm the log file.
+                    _logger.debug('Reading already in DB, updated to: ts=%s, id=%s, val=%s' % (one_ts, one_id, one_val))
                     success_count += 1
                 except:
                     rejected_count += 1
-                    _logger.warn('Problem updating reading already in DB: ts=%s, id=%s, val=%s' % (one_ts, one_id, one_val))
+                    _logger.exception('Problem updating reading already in DB: ts=%s, id=%s, val=%s' % (one_ts, one_id, one_val))
 
             except:
                 rejected_count += 1
