@@ -3,7 +3,7 @@
 
 import time
 import pandas as pd
-import calcreadings, internetwx, aris_web_api, enphase, sunny_portal
+import calcreadings, internetwx, aris_web_api, enphase, sunny_portal, auroravision
 
 
 
@@ -259,4 +259,24 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                                      menu_text=menu_text,
                                      fill_NA=fill_NA,
                                      graph_num=graph_num
+                                     )
+
+    def getAuroraVisionData(self,
+                           plant_id,
+                           plant_tz='US/Alaska',
+                           ):
+        """Retrieves detailed time-resolution power production data from a ABB PV system.
+        Parameters
+        ----------
+        plant_id:  The Plant ID of the system to retrieve in the Aurora Vision system.
+        plant_tz:  The Olson timezone database string identifying the timezone
+            that is used for the plant.
+        Returns
+        -------
+        Data from the current day and the day prior are returned.  The return type
+        is a two-tupe with the first item being a list of timestamps and the second
+        being a list of reading values.
+        """
+        return auroravision.get_data(plant_id,
+                                     plant_tz=plant_tz
                                      )
