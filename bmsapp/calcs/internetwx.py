@@ -12,9 +12,17 @@ _nws_cache = Cache()
 def getWeatherObservation(stnCode):
     """Returns a current weather observation from an NWS weather station, using the metar 
     library to parse and hold the values.  Uses the 'metar' python library.
+
+    ** NOTE: It is possible to eliminate use of the metar python library by downloading
+       decoded observations.  The URL for decoded observations is:
+       http://tgftp.nws.noaa.gov/data/observations/metar/decoded/PANC.TXT
+       Notice that the 'TXT' is capitalized.  The format of the file is one item
+       per line.
     """
 
-    URL = 'http://weather.noaa.gov/pub/data/observations/metar/stations/%s.TXT'
+    # This is URL where the raw METAR observations are kept.  A station code
+    # substitutes for the %s.
+    URL = 'http://tgftp.nws.noaa.gov/data/observations/metar/stations/%s.TXT'
 
     obs = _nws_cache.get(stnCode)   # try cache first
 
