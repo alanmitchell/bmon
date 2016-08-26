@@ -1,9 +1,38 @@
 '''
-Holds the base configuration options for Highcharts and Highstock charts.
+Holds the base configuration options for charts.
 The options are in YAML format and then converted to a Python dictionary.
 Set Tab to 2 spaces.
 '''
 import yaml
+
+# ------------------------------------ For Plotly Chart -----------------------------
+plotly_opt = yaml.load(
+'''
+data: []    # Trace data is programmatically added here
+
+layout:
+  titlefont:
+    family: Arial, monospace
+    size: 40
+    color: black
+  xaxis:
+    title: Date/Time
+    titlefont:
+      family: Arial, monospace
+      size: 18
+      color: black
+  yaxis:
+    title: Value
+    titlefont:
+      family: Arial, monospace
+      size: 18
+      color: black
+
+config:
+  showLink: false
+  displaylogo: false
+  scrollZoom: true
+''')
 
 # ------------------------------------ For HighChart ---------------------------------
 highcharts_opt = yaml.load(
