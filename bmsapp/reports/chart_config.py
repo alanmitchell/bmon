@@ -8,6 +8,8 @@ import yaml
 # ------------------------------------ For Plotly Chart -----------------------------
 plotly_opt = yaml.load(
 '''
+renderTo: chart_container     # the name of the div to render into
+
 data: []    # Trace data is programmatically added here
 
 layout:
