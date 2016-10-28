@@ -599,6 +599,39 @@ class AlertCondition(models.Model):
         return (time.time() >= self.last_notified + self.wait_before_next * 3600.0)
 
 
+class PeriodicScript(models.Model):
+    '''Describes a script that should be run on a periodic basis,
+    often for the purposes of collecting sensor readings to store in the
+    reading database.
+    '''
+
+    # Name of the script file
+    script_file_name = models.CharField('File name of script', max_length=50, blank=False)
+
+    # How often the script should be run, in units of seconds.
+    # Use defined choices; choices must be a multiple of 5 minutes, as that is
+    # how frequently the main cron procedure runs.
+    PERIOD_CHOICES = (
+        (300, '5 min'),
+        (600, '10 min'),
+        (900, '15 min'),
+        (1800, '30 min'),
+        (3600, '1 hr'),
+        (7200, '2 hr'),
+        (14400, '4 hr'),
+        (21600, '6 hr'),
+        (43200, '12 hr'),
+        (86400, '24 hr')
+    )
+    period = models.IntegerField('How often should script run', default=3600, choices=PERIOD_CHOICES)
+
+    # Parameters for the script, if any, given in YAML form.
+    script_parameters = models.TextField("Script Parameters in YAML form", blank=True)
+
+    # Results of the script saved and passed to the next invocation of the script.
+    script_results = models.TextField('Script results in YAML form', blank=True)
+
+
 def choice_text(val, choices):
     '''Returns the display text associated with the choice value 'val'
     from a list of Django character field choices 'choices'.  The 'choices'
