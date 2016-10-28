@@ -18,10 +18,11 @@ import time
 from bmsapp.readingdb import bmsdata
 import bmsapp.models
 
+CRON_PERIOD = 300
 
 def run():
     '''This method is called by the 'runscript' command and is the entry point for
-    the script.
+    this module.
     '''
 
     # make a logger object
@@ -30,16 +31,29 @@ def run():
     # get a BMSdata object for the sensor reading database.
     reading_db = bmsdata.BMSdata()
 
+
 class RunScript(threading.Thread):
     '''
     This class will run one periodic script in a separate thread.
     '''
 
-    def __init__(self, script_name, cron_time=time.time()):
-        '''
-        :param script_name: Name of the s
-        :param cron_time:
-        '''
-        threading.Thread.__init__()
-        self.script_name = script_name
+    def __init__(self, script, cron_time=time.time()):
+        """
+        :param script: the models.PeriodicScript object containing info about the
+            script to run.
+        :param cron_time:  the UNIX epoch timestamp of the time when this batch of
+            scripts was initiated.  This time is used to determine whether it is the
+            proper time to run the script.
+        """
+        threading.Thread.__init__(self)
+        self.script = script
         self.cron_time = cron_time
+
+    def run(self):
+        """This function is run in a new thread and runs the desired script if the time is correct
+        """
+
+        if (self.cron_time % script.period) >= CRON_PERIOD:
+            # Not the correct time to run script, so exit.
+            return
+

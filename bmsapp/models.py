@@ -600,10 +600,10 @@ class AlertCondition(models.Model):
 
 
 class PeriodicScript(models.Model):
-    '''Describes a script that should be run on a periodic basis,
+    """Describes a script that should be run on a periodic basis,
     often for the purposes of collecting sensor readings to store in the
     reading database.
-    '''
+    """
 
     # Name of the script file
     script_file_name = models.CharField('File name of script', max_length=50, blank=False)
@@ -633,12 +633,12 @@ class PeriodicScript(models.Model):
 
 
 def choice_text(val, choices):
-    '''Returns the display text associated with the choice value 'val'
+    """Returns the display text associated with the choice value 'val'
     from a list of Django character field choices 'choices'.  The 'choices'
     list is a list of two-element tuples, the first item being the stored
     value and the second item being the displayed value.  Returns None if 
     val is not found inthe choice list.
-    '''
+    """
     for choice in choices:
         if choice[0]==val:
             return choice[1]
