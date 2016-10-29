@@ -631,6 +631,9 @@ class PeriodicScript(models.Model):
     # Results of the script saved and passed to the next invocation of the script.
     script_results = models.TextField('Script results in YAML form', blank=True)
 
+    def __unicode__(self):
+        return '%s -- %s' % (self.script_file_name, self.script_parameters.replace('\n', ', '))
+
 
 def choice_text(val, choices):
     """Returns the display text associated with the choice value 'val'

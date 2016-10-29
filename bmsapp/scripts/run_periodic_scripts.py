@@ -90,7 +90,12 @@ class RunScript(threading.Thread):
             # last run of the script.  Both of the those sets of parameters are in YAML
             # form.
             params = yaml.load(self.script.script_parameters)
-            params.update(yaml.load(self.script.script_results))
+            last_script_results = yaml.load(self.script.script_results)
+            if type(last_script_results) != dict:
+                # There may not have been any script results, or the YAML translation
+                # did not produce a dictionary.
+                last_script_results = {}
+            params.update(last_script_results)
 
             # import the periodic script module, but first strip off any extension that
             # the user may have appended
@@ -99,7 +104,7 @@ class RunScript(threading.Thread):
             # The script is coded in the 'run' function, so run it with the input parameters
             # and record the execution time.
             start = time.time()
-            script_results = script_mod.run(params)
+            script_results = script_mod.run(**params)
             exec_time = time.time() - start
             results['script_execution_time'] = round(exec_time, 2)
 
@@ -133,6 +138,6 @@ class RunScript(threading.Thread):
             # Store the results back into the model script object so they are
             # viewable in the Admin interface and are available for the next call.
             self.script.script_results = yaml.dump(results)
-            self.script.script_results.save()
+            self.script.save()
 
 
