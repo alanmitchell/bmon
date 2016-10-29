@@ -31,6 +31,15 @@ def run():
     # make a logger object
     logger = logging.getLogger('bms.run_periodic_scripts')
 
+    # Loop through all of the scripts to run.
+    # Use the same time for all of the scripts to determine if
+    # they should run or not.
+    cron_time = time.time()
+    for script in bmsapp.models.PeriodicScript.objects.all():
+        try:
+            RunScript(script, cron_time).start()
+        except:
+            logger.exception('Error run %s Periodic Script.' % script.script_file_name)
 
 class RunScript(threading.Thread):
     '''
@@ -57,11 +66,16 @@ class RunScript(threading.Thread):
             # Not the correct time to run script, so exit.
             return
 
+        # get a logger.  First strip off any extension from the script
+        # file name and use that as part of the logger name.
+        script_mod_base = self.script.script_file_name.split('.')[0]
+        logger = logging.getLogger('bms.run_periodic_scripts.' + script_mod_base)
+
         # in order to minimize coincident requests on resources due to multiple scripts
         # starting at the same time, introduce a random delay, up to 10 seconds.
         time.sleep(random.random() * 10.0)
 
-        # Assemble the paramater list to pass to the script.  It consists of the
+        # Assemble the parameter list to pass to the script.  It consists of the
         # combination of the configuration parameters and saved results from the
         # last run of the script.
         params = yaml.load(self.script.script_parameters)
@@ -69,7 +83,6 @@ class RunScript(threading.Thread):
 
         # import the periodic script module, but first strip off any extension that
         # the user may have appended
-        script_mod_base = self.script.script_file_name.split('.')[0]
         script_mod = importlib.import_module('bmsapp.periodic_scripts.' + script_mod_base)
 
         # The script is coded in the 'run' function, so run it with the input parameters.
@@ -91,6 +104,7 @@ class RunScript(threading.Thread):
                 # store this message so it can be seen in the Django Admin
                 # interface
                 results['reading_insert_message'] = insert_msg
+                logger.debug('Script %s: %s' % (self.script.script_file_name, insert_msg))
                 # **** DO WE WANT TO LOG THIS AS WELL?
 
 
