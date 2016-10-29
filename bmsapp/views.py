@@ -35,7 +35,7 @@ def base_context():
     Had to do this because I could not run the 'reverse' method from the module level.
     '''
     ctx = TMPL_CONTEXT.copy()
-    ctx['bmsapp_nav_link_base_url'] = reverse('bmsapp.views.index')
+    ctx['bmsapp_nav_link_base_url'] = reverse('index')
     return ctx
 
 def index(request):
@@ -45,7 +45,7 @@ def index(request):
     # find the index page in the set of navigation links
     for lnk in TMPL_CONTEXT['bmsapp_nav_links']:
         if len(lnk)==3 and lnk[2]==True:
-            return redirect( reverse('bmsapp.views.wildcard', args=(lnk[1],)) )
+            return redirect( reverse('wildcard', args=(lnk[1],)) )
 
 def reports(request, bldg_id=None):
     '''

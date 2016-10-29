@@ -74,6 +74,7 @@ class BuildingAdmin(admin.ModelAdmin):
 class BuildingModeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_editable = ('name',)
+    list_display_links = None
 
 
 @admin.register(BuildingGroup)

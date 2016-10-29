@@ -184,7 +184,7 @@ class Building(models.Model):
     schedule = models.TextField("Occupied Schedule of Facility (e.g. M-F: 8a-5p)", blank=True)
 
     # the sensors and calculated values associated with this building
-    sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True, null=True)
+    sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True)
 
     def __unicode__(self):
         return self.title
@@ -506,7 +506,7 @@ class AlertCondition(models.Model):
     wait_before_next = models.FloatField('Hours to Wait before Notifying Again', default=4.0)
 
     # the recipients who should receive this alert
-    recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?', blank=True, null=True)
+    recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?', blank=True)
 
     # when the last notification of this alert condition was sent out, Unix timestamp.
     # This is filled out when alert conditions are evaluated and is not accessible in the Admin
