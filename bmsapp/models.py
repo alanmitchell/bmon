@@ -608,6 +608,9 @@ class PeriodicScript(models.Model):
     # Name of the script file
     script_file_name = models.CharField('File name of script', max_length=50, blank=False)
 
+    # Optional Description
+    description = models.CharField('Optional Description', max_length=80, blank=True)
+
     # How often the script should be run, in units of seconds.
     # Use defined choices; choices must be a multiple of 5 minutes, as that is
     # how frequently the main cron procedure runs.

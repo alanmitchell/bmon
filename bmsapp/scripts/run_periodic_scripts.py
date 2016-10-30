@@ -137,7 +137,7 @@ class RunScript(threading.Thread):
         finally:
             # Store the results back into the model script object so they are
             # viewable in the Admin interface and are available for the next call.
-            self.script.script_results = yaml.dump(results)
+            self.script.script_results = yaml.dump(results, default_flow_style=False)
             self.script.save()
 
 
