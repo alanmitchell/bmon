@@ -4,6 +4,6 @@ Script to collect sensor readings from an OkoFEN pellet boiler.
 import random, time
 
 def run(**kwargs):
-    time.sleep(random.random() * 2.0)
-    print kwargs
-    return {'Random Number': random.random()}
+    results = {'readings': [(None, 'anc_birch_wind', 10.0 * random.random()),
+                            (None, 'anc_birch_temp', 40 + 20 * random.random())]}
+    return results

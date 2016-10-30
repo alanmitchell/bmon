@@ -125,6 +125,7 @@ class RunScript(threading.Thread):
                     # get a connection to the reading database and insert
                     reading_db = bmsdata.BMSdata()
                     insert_msg = reading_db.insert_reading(ts, ids, vals)
+                    reading_db.close()
                     # store this message so it can be seen in the Django Admin
                     # interface
                     results['reading_insert_message'] = insert_msg
