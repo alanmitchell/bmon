@@ -198,6 +198,7 @@ class AlertRecipientAdmin(admin.ModelAdmin):
 @admin.register(PeriodicScript)
 class SensorAdmin(admin.ModelAdmin):
     list_display =  ('script_file_name', 'description', 'period', 'script_parameters')
+    search_fields = ['script_file_name', 'description', 'script_parameters']
     readonly_fields = ('script_results',)
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 8, 'cols': 80})},
