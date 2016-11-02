@@ -21,6 +21,7 @@ urlpatterns = [
     url(r'^map_json/$', views.map_json, name='map-json'),
     url(r'^training/video/(\w+)/(\d+)/(\d+)/$', views.show_video, name='show-video'),
     url(r'^make_store_key/$', views.make_store_key),
+    url(r'^ecobee_auth/$', views.ecobee_auth),
 
     # catches URLs that don't match the above patterns.  Assumes they give a template name to render.
     url(r'^(\w+)/$', views.wildcard, name='wildcard'),

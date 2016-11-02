@@ -2,6 +2,8 @@
 
 {% block pagetitle %}Ecobee Authorization{% endblock %}
 
+{% block this_nav_link %}{% endblock %}
+
 {% block title %}Ecobee Thermostat Authorization{% endblock %}
 
 {% block content %}
@@ -19,11 +21,11 @@ the following 4 character PIN in your account:</p>
 
 <h2>Step 2:  Click the following Button after Completing Step 1</h2>
 
-<form style="text-align:center">
+<form method="post" style="text-align:center">{% csrf_token %}
 
   <input type="hidden" name="auth_code" value="{{ auth_code }}">
   <input type="hidden" name="ecobee_PIN" value="{{ ecobee_PIN }}">
-  <input type="submit" value="Click after Completing Step 1">
+  <input type="submit" value="Click after Completing Step 1" style="font-size:20px">
 
 </form>
 

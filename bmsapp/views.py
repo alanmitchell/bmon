@@ -2,7 +2,7 @@
 import sys, logging, json, random, time
 
 from django.http import HttpResponse
-from django.shortcuts import render_to_response, redirect
+from django.shortcuts import render_to_response, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
@@ -296,6 +296,21 @@ def map_json(request):
 
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
+
+def ecobee_auth(request):
+    """Used to generated a form so that a System Admin can obtain access keys
+    for reading data from the Ecobee thermostat server.
+    """
+
+    ctx = base_context()
+    if request.method == 'GET':
+        ctx.update({'ecobee_PIN': 'Xy12', 'auth_code': 'ABcd132435@#45xaui'})
+        return render(request, 'bmsapp/ecobee_auth.html', ctx)
+
+    elif request.method == 'POST':
+        req = request.POST.dict()
+        ctx.update({'access_token': 'XYZ123abc', 'refresh_token': '123abcDEF'})
+        return render_to_response('bmsapp/ecobee_auth_result.html', ctx)
 
 def wildcard(request, template_name):
     '''
