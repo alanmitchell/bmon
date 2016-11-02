@@ -197,6 +197,7 @@ class AlertRecipientAdmin(admin.ModelAdmin):
 
 @admin.register(PeriodicScript)
 class SensorAdmin(admin.ModelAdmin):
+    exclude = ('hidden_script_results', )
     list_display =  ('script_file_name', 'description', 'period', 'script_parameters')
     search_fields = ['script_file_name', 'description', 'script_parameters']
     readonly_fields = ('script_results',)

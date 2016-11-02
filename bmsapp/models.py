@@ -634,6 +634,10 @@ class PeriodicScript(models.Model):
     # Results of the script saved and passed to the next invocation of the script.
     script_results = models.TextField('Script results in YAML form', blank=True)
 
+    # Results of the Script that are *not* displayed in the Admin interface.  Useful
+    # for storing authorization tokens or other credentials.
+    hidden_script_results = models.TextField('Hidden Script results in YAML form', blank=True)
+
     def __unicode__(self):
         return '%s -- %s' % (self.script_file_name, self.script_parameters.replace('\n', ', '))
 

@@ -80,6 +80,9 @@ class RunScript(threading.Thread):
             # results of the script.
             results ={'script_start_time': datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S UTC")}
 
+            # Start a dictionary that holds results that are not shown in the Admin interface.
+            hidden_results = {}
+
             # get a logger.  First strip off any extension from the script
             # file name and use that as part of the logger name.
             script_mod_base = self.script.script_file_name.split('.')[0]
@@ -90,12 +93,20 @@ class RunScript(threading.Thread):
             # last run of the script.  Both of the those sets of parameters are in YAML
             # form.
             params = yaml.load(self.script.script_parameters)
+
             last_script_results = yaml.load(self.script.script_results)
             if type(last_script_results) != dict:
                 # There may not have been any script results, or the YAML translation
                 # did not produce a dictionary.
                 last_script_results = {}
             params.update(last_script_results)
+
+            last_hidden_script_results = yaml.load(self.script.hidden_script_results)
+            if type(last_hidden_script_results) != dict:
+                # There may not have been any script results, or the YAML translation
+                # did not produce a dictionary.
+                last_hidden_script_results = {}
+            params.update(last_hidden_script_results)
 
             # import the periodic script module, but first strip off any extension that
             # the user may have appended
@@ -131,6 +142,22 @@ class RunScript(threading.Thread):
                     results['reading_insert_message'] = insert_msg
                     logger.debug('Script %s: %s' % (self.script.script_file_name, insert_msg))
 
+            # if the results contains a 'hidden' key, then extract that dictionary and save
+            # for storage in the hidden results field.
+            if 'hidden' in results:
+                # Note that you can put binary data into the values fields of the dictionary.
+                # YAML will represent them correctly.
+                hidden_results = results.pop('hidden')
+
+            # if there is a "delete_params" key, then the script is requesting that those
+            # input parameters, which are in a list, be deleted from the model object.
+            # Exmaple use is to delete one-time authorization parameters
+            if 'delete_params' in results:
+                params = yaml.load(self.script.script_parameters)
+                for p in results.pop('delete_params'):
+                    params.pop(p, None)  # deletes param and no error if not there
+                self.script.script_parameters = yaml.dump(params, default_flow_style=False)
+
         except:
             # record the traceback of the error in the results variable
             results['script_error'] = traceback.format_exc()
@@ -139,6 +166,7 @@ class RunScript(threading.Thread):
             # Store the results back into the model script object so they are
             # viewable in the Admin interface and are available for the next call.
             self.script.script_results = yaml.dump(results, default_flow_style=False)
+            self.script.hidden_script_results = yaml.dump(hidden_results, default_flow_style=False)
             self.script.save()
 
 
