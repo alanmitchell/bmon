@@ -184,7 +184,7 @@ class Building(models.Model):
     schedule = models.TextField("Occupied Schedule of Facility (e.g. M-F: 8a-5p)", blank=True)
 
     # the sensors and calculated values associated with this building
-    sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True, null=True)
+    sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True)
 
     def __unicode__(self):
         return self.title
@@ -506,7 +506,7 @@ class AlertCondition(models.Model):
     wait_before_next = models.FloatField('Hours to Wait before Notifying Again', default=4.0)
 
     # the recipients who should receive this alert
-    recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?', blank=True, null=True)
+    recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?', blank=True)
 
     # when the last notification of this alert condition was sent out, Unix timestamp.
     # This is filled out when alert conditions are evaluated and is not accessible in the Admin
@@ -599,13 +599,56 @@ class AlertCondition(models.Model):
         return (time.time() >= self.last_notified + self.wait_before_next * 3600.0)
 
 
+class PeriodicScript(models.Model):
+    """Describes a script that should be run on a periodic basis,
+    often for the purposes of collecting sensor readings to store in the
+    reading database.
+    """
+
+    # Name of the script file
+    script_file_name = models.CharField('File name of script', max_length=50, blank=False)
+
+    # Optional Description
+    description = models.CharField('Optional Description', max_length=80, blank=True)
+
+    # How often the script should be run, in units of seconds.
+    # Use defined choices; choices must be a multiple of 5 minutes, as that is
+    # how frequently the main cron procedure runs.
+    PERIOD_CHOICES = (
+        (300, '5 min'),
+        (600, '10 min'),
+        (900, '15 min'),
+        (1800, '30 min'),
+        (3600, '1 hr'),
+        (7200, '2 hr'),
+        (14400, '4 hr'),
+        (21600, '6 hr'),
+        (43200, '12 hr'),
+        (86400, '24 hr')
+    )
+    period = models.IntegerField('How often should script run', default=3600, choices=PERIOD_CHOICES)
+
+    # Parameters for the script, if any, given in YAML form.
+    script_parameters = models.TextField("Script Parameters in YAML form", blank=True)
+
+    # Results of the script saved and passed to the next invocation of the script.
+    script_results = models.TextField('Script results in YAML form', blank=True)
+
+    # Results of the Script that are *not* displayed in the Admin interface.  Useful
+    # for storing authorization tokens or other credentials.
+    hidden_script_results = models.TextField('Hidden Script results in YAML form', blank=True)
+
+    def __unicode__(self):
+        return '%s -- %s' % (self.script_file_name, self.script_parameters.replace('\n', ', '))
+
+
 def choice_text(val, choices):
-    '''Returns the display text associated with the choice value 'val'
+    """Returns the display text associated with the choice value 'val'
     from a list of Django character field choices 'choices'.  The 'choices'
     list is a list of two-element tuples, the first item being the stored
     value and the second item being the displayed value.  Returns None if 
     val is not found inthe choice list.
-    '''
+    """
     for choice in choices:
         if choice[0]==val:
             return choice[1]

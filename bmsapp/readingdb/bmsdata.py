@@ -73,8 +73,9 @@ class BMSdata:
 
     def insert_reading(self, ts, id, val):
         """Inserts a record or records into the database.  'ts', 'id', and
-        'val' can either be lists or single values.  If val is None, it is 
-        not stored in the database and it is recorded as an exception.
+        'val' can either be lists or single values.  If 'ts' is None, it is
+        replaced with the current time.
+        If val is None, the record is not stored in the database and it is recorded as an exception.
         """
         try:
             recs = zip(ts, id, val)
@@ -85,7 +86,17 @@ class BMSdata:
         rejected_count = 0
         success_count = 0
         for one_ts, one_id, one_val in recs:
-            one_id = str(one_id)   # make sure sensor ID is a string
+
+            # make sure sensor ID is a string
+            one_id = str(one_id)
+
+            if one_ts is None:
+                # substitute current time
+                one_ts = time.time()
+
+            # convert time to integer
+            one_ts = int(one_ts)
+
             try:
                 # Check to see if sensor table exists.  If not, create it.
                 if one_id not in self.sensor_ids:

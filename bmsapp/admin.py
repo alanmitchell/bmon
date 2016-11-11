@@ -5,7 +5,7 @@ This file configures the Admin interface, which allows for editing of the Models
 from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, DashboardItem, Unit
 from bmsapp.models import MultiBuildingChart, ChartBuildingInfo
 from bmsapp.models import BuildingGroup, BuildingMode
-from bmsapp.models import AlertCondition, AlertRecipient
+from bmsapp.models import AlertCondition, AlertRecipient, PeriodicScript
 from django.contrib import admin
 from django.forms import TextInput, Textarea
 from django.db import models
@@ -74,6 +74,7 @@ class BuildingAdmin(admin.ModelAdmin):
 class BuildingModeAdmin(admin.ModelAdmin):
     list_display = ('name',)
     list_editable = ('name',)
+    list_display_links = None
 
 
 @admin.register(BuildingGroup)
@@ -193,3 +194,13 @@ class AlertRecipientAdmin(admin.ModelAdmin):
         ('notify_cell', 'cell_number', 'cell_sms_gateway'),
         ('notify_pushover', 'pushover_id')
     )
+
+@admin.register(PeriodicScript)
+class SensorAdmin(admin.ModelAdmin):
+    exclude = ('hidden_script_results', )
+    list_display =  ('script_file_name', 'description', 'period', 'script_parameters')
+    search_fields = ['script_file_name', 'description', 'script_parameters']
+    readonly_fields = ('script_results',)
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows': 8, 'cols': 80})},
+    }
