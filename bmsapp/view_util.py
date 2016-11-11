@@ -2,7 +2,7 @@
 Helper functions for the views in this BMS application.
 '''
 import importlib
-from django.template import Context, loader
+from django.template import loader
 
 import models, reports.basechart
 
@@ -48,7 +48,7 @@ def group_list_html():
     ID of the first group, which is selected.
     """
     # always have the All Buildings option, which has the special id of 0.
-    groups = [ (0, 'All Facilities') ]  
+    groups = [ (0, 'All Facilities', '') ]
     
     # add the rest of the groups.
     for gp in models.BuildingGroup.objects.all():
@@ -58,7 +58,7 @@ def group_list_html():
     selected_gp = groups[0][0]
     
     t = loader.get_template('bmsapp/select_list.html')
-    return t.render( Context({'item_list': groups, 'id_to_select': selected_gp}) ), selected_gp
+    return t.render( {'item_list': groups, 'id_to_select': selected_gp} ), selected_gp
 
 
 def bldg_list_html(bldg_group_id, selected_bldg_id=None):
@@ -84,7 +84,7 @@ def bldg_list_html(bldg_group_id, selected_bldg_id=None):
         selected_bldg_id = bldgs[0][0] 
 
     t = loader.get_template('bmsapp/select_list.html')
-    return t.render( Context({'item_list': bldgs, 'id_to_select': selected_bldg_id}) ), selected_bldg_id
+    return t.render( {'item_list': bldgs, 'id_to_select': selected_bldg_id} ), selected_bldg_id
 
 
 def chart_list_html(group_id, bldg_id):
@@ -133,7 +133,7 @@ def chart_list_html(group_id, bldg_id):
         item_list.append( (cht.id, cht.title, attrs) )
 
     t = loader.get_template('bmsapp/select_list.html')
-    return t.render( Context({'item_list': item_list, 'id_to_select': id_to_select}) ), id_to_select
+    return t.render( {'item_list': item_list, 'id_to_select': id_to_select} ), id_to_select
 
 def sensor_list_html(bldg_id):
     """Returns the option list HTML for a Select control that allows 

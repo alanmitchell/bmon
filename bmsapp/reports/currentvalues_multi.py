@@ -1,6 +1,6 @@
 import yaml
 import time
-from django.template import Context, loader
+from django.template import loader
 import bmsapp.models, bmsapp.data_util, bmsapp.view_util
 import bmsapp.formatters
 import basechart
@@ -83,7 +83,7 @@ class CurrentValuesMulti(basechart.BaseChart):
 
 
         # context for template
-        context = Context({})
+        context = {}
 
         # create a report title
         context['report_title'] = self.chart_info.title

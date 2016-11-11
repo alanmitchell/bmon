@@ -1,0 +1,17 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Ecobee Access Tokens{% endblock %}
+
+{% block title %}Ecobee Thermostat Access Tokens{% endblock %}
+
+{% block content %}
+
+<p>Copy and Paste the text below into the Script Parameters input for your
+Ecobee Periodic Script:</p>
+
+<textarea style="font-size:15px" rows="3" cols="50">
+access_token: {{ access_token }}
+refresh_token: {{ refresh_token }}
+</textarea>
+
+{% endblock %}

@@ -1,5 +1,5 @@
 import time
-from django.template import Context, loader
+from django.template import loader
 import bmsapp.models, bmsapp.data_util
 import bmsapp.formatters
 import basechart
@@ -54,7 +54,7 @@ class CurrentValues(basechart.BaseChart):
             footer_title = ""
             
         # context for template
-        context = Context( {} )
+        context = {}
         
         # Make markdown entries available to the template to be used in the footer
         context['footer'] = footer

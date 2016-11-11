@@ -1,0 +1,32 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Ecobee Authorization{% endblock %}
+
+{% block this_nav_link %}{% endblock %}
+
+{% block title %}Ecobee Thermostat Authorization{% endblock %}
+
+{% block content %}
+
+<p>This page is used to obtain authorization "keys" that allow BMON to access data
+from your Ecobee thermostat account.  BMON only reads data from the thermostats and
+does *not* issue any commands to change the thermostat settings or operation.</p>
+
+<h2>Step 1:  Enter PIN into Ecobee Account to Authorize BMON App</h2>
+
+<p>Authorize the BMON application to read the data from Ecobee account by entering
+the following 4 character PIN in your account:</p>
+
+<p style="font-size:30px; text-align:center">{{ ecobee_PIN }}</p>
+
+<h2>Step 2:  Click the following Button after Completing Step 1</h2>
+
+<form method="post" style="text-align:center">{% csrf_token %}
+
+  <input type="hidden" name="auth_code" value="{{ auth_code }}">
+  <input type="hidden" name="ecobee_PIN" value="{{ ecobee_PIN }}">
+  <input type="submit" value="Click after Completing Step 1" style="font-size:20px">
+
+</form>
+
+{% endblock %}
