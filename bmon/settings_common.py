@@ -1,12 +1,6 @@
 """This file contains Django settings that are generally the same across
 different BMON installation.  You can override these settings in the settings.py
-file if the insert the overridden settings into the settings.py file after
-the execfile() statement at the end of the file.
-
-NOTE:  This file depends upon import statements and variables created in the
-settings.py file, so will not run alone.  This file is execute using the
-execfile() function from the settings.py file, and executes in the namespace
-of that file.
+file by adding the overridden settings at the end of that file.
 """
 from os.path import join, dirname, abspath
 
@@ -16,11 +10,6 @@ import settings
 # Name of this Django project.  Note that if you change this from bmon, you will also
 # have to change values in the manage.py, wsgi.py, and appache2/conf/httpd.conf files.
 BMSAPP_PROJ_NAME = 'bmon'
-
-# This is the name you gave to the Static application created in the Webfaction Control
-# Panel to serve static Django media.  This is only used to create the STATIC_ROOT setting
-# further down in this settings file.
-BMSAPP_STATIC_APP_NAME = 'bmon_static'
 
 # Determine the path to this project directory, which is one directory above
 # the directory of this file (thus the two applications of 'dirname').
@@ -58,7 +47,7 @@ USE_TZ = True
 # Don't put anything in this directory yourself; store your static files
 # in apps' "static/" subdirectories and in STATICFILES_DIRS.
 # Example: "/var/www/example.com/static/"
-STATIC_ROOT = join(PROJ_PATH, '..', '..', BMSAPP_STATIC_APP_NAME)
+STATIC_ROOT = join(PROJ_PATH, '..', '..', settings.BMSAPP_STATIC_APP_NAME)
 
 # URL prefix for static files.
 # Example: "http://example.com/static/", "http://static.example.com/"
