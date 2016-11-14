@@ -8,6 +8,10 @@ settings.py file, so will not run alone.  This file is execute using the
 execfile() function from the settings.py file, and executes in the namespace
 of that file.
 """
+from os.path import join, dirname, abspath
+
+# We need values from the user's settings file, so import it
+import settings
 
 # Name of this Django project.  Note that if you change this from bmon, you will also
 # have to change values in the manage.py, wsgi.py, and appache2/conf/httpd.conf files.
@@ -25,7 +29,7 @@ PROJ_PATH = dirname(dirname(abspath(__file__)))
 # Suprresses warning about unittests and older projects.
 TEST_RUNNER = 'django.test.runner.DiscoverRunner'
 
-MANAGERS = ADMINS
+MANAGERS = settings.ADMINS
 
 DATABASES = {
     'default': {
