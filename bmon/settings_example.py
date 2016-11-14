@@ -2,7 +2,6 @@
 # Django settings for BMON project               #
 ##################################################
 import logging
-from os.path import dirname, join, abspath
 
 #----------------- Settings Specific to the Monitoring App ----------------------
 
@@ -134,9 +133,14 @@ SERVER_EMAIL = 'valid_from_email_for_error_messages'   # this is the FROM for er
 # debug information.
 DEBUG = False
 
-# Execute in this namespace the file containing settings that are generally common to all
-# installs of BMON.
-execfile(join(dirname(abspath(__file__)), 'settings_common.py'))
+# This is the name you gave to the Static application created in the Webfaction Control
+# Panel to serve static Django media.  This is only used to create the STATIC_ROOT setting
+# in the settings_common file.
+BMSAPP_STATIC_APP_NAME = 'bmon_static'
 
-# If you need to override any of the settings in the 'settings_common.py' file
-# do so below this point in this file.
+# Import settings that are generally common to all installs of BMON.
+from settings_common import *
+
+# ----- If you need to override any of the settings in the 'settings_common.py' file
+# ----- do so below this point in this file.
+
