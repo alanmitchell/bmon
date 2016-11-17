@@ -14,6 +14,7 @@ import view_util
 import storereads
 from reports import basechart
 from readingdb import bmsdata
+import periodic_scripts.ecobee
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -304,7 +305,9 @@ def ecobee_auth(request):
 
     ctx = base_context()
     if request.method == 'GET':
-        ctx.update({'ecobee_PIN': 'Xy12', 'auth_code': 'ABcd132435@#45xaui'})
+        # Get a PIN and auth code
+        results = periodic_scripts.ecobee.get_pin()
+        ctx.update(results)
         return render(request, 'bmsapp/ecobee_auth.html', ctx)
 
     elif request.method == 'POST':
