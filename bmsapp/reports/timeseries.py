@@ -1,4 +1,5 @@
 import numpy as np, pandas as pd
+from datetime import datetime
 import bmsapp.models, bmsapp.data_util
 import basechart
 
@@ -20,7 +21,7 @@ class TimeSeries(basechart.BaseChart):
 
         # determine the Y axes that will be needed to cover the the list of sensor, based on the labels
         # of the units
-        y_axes_ids = list(set([sensor.unit.label for sensor in sensor_list]))
+        y_axes = {label:index for index, label in enumerate(list(set([sensor.unit.label for sensor in sensor_list])), start=1)}
 
         # get the requested averaging interval in hours
         averaging_hours = float(self.request_params['averaging_time'])
@@ -52,60 +53,62 @@ class TimeSeries(basechart.BaseChart):
                 ser = pd.Series(values, index=times).groupby(bmsapp.data_util.TsBin(averaging_hours).bin).mean()
                 values = ser.values
                 times = ser.index
-            # Highcharts uses milliseconds for timestamps, and convert to float because weirdly, integers have
-            # problems with JSON serialization.
-            if len(times):
-                times = times * 1000.0
-                
-            # Create series data, each item being an [ts, val] pair.  
-            # The 'yAxis' property indicates the id of the Y axis where the data should be plotted.
-            # Our convention is to use the unit label for the axis as the id.
-            series_data = [ [ts, bmsapp.data_util.round4(val)] for ts, val in zip(times, values) ]
 
+            # Plotly uses datetime strings instead of timestamps
+            times = [datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f') for ts in times]
+
+            # Format the values
+            values = [bmsapp.data_util.round4(val) for val in values]
+                
             # update point count variables
-            pts_in_series = len(series_data)
+            pts_in_series = len(times)
             pt_count += pts_in_series
             if pts_in_series > max_series_count:
                 max_series_count = pts_in_series
 
-            series_opt = {'data': series_data, 
+            series_opt = {'x': times,
+                          'y': values,
+                          'type': 'scatter',
+                          'mode': 'lines', 
                           'name': sensor.title, 
-                          'yAxis': sensor.unit.label,
-                          'lineWidth': line_width,
+                          'yaxis': 'y'+(str(y_axes[sensor.unit.label]) if y_axes[sensor.unit.label] > 1 else ''),
+                          'line': {'width': line_width},
+                         }
+
+            # Need to set the tooltip format, either through the data.text or through data.hoverinfo and layout.hovermode+axis.hoverformat
+            """
                           'tooltip': {
                               'valueSuffix': ' ' + sensor.unit.label,
                               'valueDecimals': bmsapp.data_util.decimals_needed(values, 4)
                           }
-                         }
+            """
+
             # if the sensor has defined states, make the series a Step type series.
             if sensor.unit.measure_type == 'state':
-                series_opt['step'] = 'left'
+                series_opt['line']['shape'] = 'hvh'
             series.append( series_opt )
 
-        # Choose the chart type based on number of points
-        if pt_count < 15000 and max_series_count < 5000:
-            opt = self.get_chart_options()
-            opt['xAxis']['title']['text'] =  "Date/Time (your computer's time zone)"
-            opt['xAxis']['type'] =  'datetime'
-            chart_type = 'highcharts'
-        else:
-            opt = self.get_chart_options('highstock')
-            chart_type = 'highstock'
+        # Set the basic chart options
+        chart_type = 'plotly'
+        opt = self.get_chart_options(chart_type)
+
+        # set the chart data
+        opt['data'] = series
+
+        opt['layout']['xaxis']['title'] =  "Date/Time (your computer's time zone)"
+        opt['layout']['xaxis']['type'] =  'date'
+
 
         # Make the chart y axes configuration objects
-        y_axes = [{ 'id': ax_id,
-                    'opposite': False,
-                    'title': {
-                        'text': ax_id,
-                        'style': opt['yAxis']['title']['style']
-                    },
-                    'labels': {
-                        'style': opt['yAxis']['labels']['style']
-                    }
-                  } for ax_id in  y_axes_ids]
+        for label, id in y_axes.items():
+            if id == 1:
+                opt['layout']['yaxis']['title'] = label
+            else:
+                opt['layout']['yaxis'+str(id)] = {'title': label,
+                                                  'overlaying':'y',
+                                                  'side': 'right',
+                                                  'titlefont': opt['layout']['yaxis']['titlefont']}
 
-        opt['series'] = series
-        opt['yAxis'] = y_axes
 
         # If occupied period shading is requested, do it, as long as data
         # is averaged over 1 day or less
@@ -129,9 +132,9 @@ class TimeSeries(basechart.BaseChart):
                 band['to'] = int(occ_stop * 1000)
                 bands.append(band)
 
-            opt['xAxis']['plotBands'] = bands
+            #opt['xAxis']['plotBands'] = bands
 
-        html = '<div id="chart_container"></div>'
+        html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7"></div>'
 
         return {'html': html, 'objects': [(chart_type, opt)]}
 

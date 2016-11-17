@@ -13,22 +13,28 @@ renderTo: chart_container     # the name of the div to render into
 data: []    # Trace data is programmatically added here
 
 layout:
-  titlefont:
-    family: Arial, monospace
-    size: 40
+  font:
+    family: Trebuchet MS, Helvetica, Arial, Verdana, sans-serif
     color: black
+  paper_bgcolor: '#EEEEEE'
+  titlefont:
+    size: 22
+  showlegend: true
+  legend:
+    orientation: h
+    xanchor: center
+    yanchor: top
+    x: 0.5
+    y: -0.25
+    borderwidth: 1
   xaxis:
     title: Date/Time
     titlefont:
-      family: Arial, monospace
-      size: 18
-      color: black
+      size: 16
   yaxis:
     title: Value
     titlefont:
-      family: Arial, monospace
-      size: 18
-      color: black
+      size: 16
 
 config:
   showLink: false
