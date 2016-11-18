@@ -1,5 +1,6 @@
 import numpy as np, pandas as pd
 from datetime import datetime
+import pytz
 import bmsapp.models, bmsapp.data_util
 import basechart
 
@@ -55,7 +56,8 @@ class TimeSeries(basechart.BaseChart):
                 times = ser.index
 
             # Plotly uses datetime strings instead of timestamps
-            times = [datetime.utcfromtimestamp(ts).strftime('%Y-%m-%d %H:%M:%S.%f') for ts in times]
+            tz = pytz.timezone(self.timezone)
+            times = [datetime.fromtimestamp(ts,tz).strftime('%Y-%m-%d %H:%M:%S') for ts in times]
 
             # Format the values
             values = [bmsapp.data_util.round4(val) for val in values]
@@ -95,7 +97,7 @@ class TimeSeries(basechart.BaseChart):
         # set the chart data
         opt['data'] = series
 
-        opt['layout']['xaxis']['title'] =  "Date/Time (your computer's time zone)"
+        opt['layout']['xaxis']['title'] =  "Date/Time (%s)" % self.timezone
         opt['layout']['xaxis']['type'] =  'date'
 
 
@@ -127,12 +129,21 @@ class TimeSeries(basechart.BaseChart):
 
             bands = []
             for occ_start, occ_stop in periods:
-                band = {'color': '#D0F5DD'}
-                band['from'] = int(occ_start * 1000)    # needs to be in milliseconds
-                band['to'] = int(occ_stop * 1000)
+                band = {'type': 'rect',
+                        'xref': 'x',
+                        'layer': 'below',
+                        'yref': 'paper',
+                        'fillcolor': '#d0f5dd',
+                        'opacity': 0.75,
+                        'line': {'width': 0},
+                        'x0': datetime.fromtimestamp(occ_start,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                        'y0': 0,
+                        'x1': datetime.fromtimestamp(occ_stop,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                        'y1': 1
+                        }
                 bands.append(band)
 
-            #opt['xAxis']['plotBands'] = bands
+            opt['layout']['shapes'] = bands
 
         html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7"></div>'
 

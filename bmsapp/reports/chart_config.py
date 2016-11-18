@@ -14,27 +14,33 @@ data: []    # Trace data is programmatically added here
 
 layout:
   font:
-    family: Trebuchet MS, Helvetica, Arial, Verdana, sans-serif
+    family: Open Sans, verdana, arial, sans-serif
     color: black
   paper_bgcolor: '#EEEEEE'
   titlefont:
     size: 22
+  margin:
+    l: 55
+    r: 55
+    b: 10
+    t: 75
+    pad: 5
   showlegend: true
   legend:
     orientation: h
     xanchor: center
     yanchor: top
     x: 0.5
-    y: -0.25
+    y: -0.2
     borderwidth: 1
   xaxis:
     title: Date/Time
     titlefont:
-      size: 16
+      size: 14
   yaxis:
     title: Value
     titlefont:
-      size: 16
+      size: 14
 
 config:
   showLink: false
