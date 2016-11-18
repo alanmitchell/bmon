@@ -63,20 +63,26 @@ class Histogram(basechart.BaseChart):
                 if averaging_hours:
                     select_series = select_series.groupby(bmsapp.data_util.TsBin(averaging_hours).bin).mean()
 
-                chart_series.append({'data': bmsapp.data_util.histogram_from_series(select_series),
-                                     'name': series_name,
-                                     'visible': visibility})
+                histogram_series = bmsapp.data_util.histogram_from_series(select_series)
+
+                chart_series.append({'x': [x for x,y in histogram_series],
+                                     'y': [y for x,y in histogram_series],
+                                     'type': 'scatter',
+                                     'mode': 'lines', 
+                                     'name': series_name, 
+                                     'visible': 'true' if visibility else 'legendonly'
+                                     })
         else:
             chart_series = []
 
-        opt = self.get_chart_options()
-        opt['series'] = chart_series
-        opt['yAxis']['title']['text'] = '% of Readings'
-        opt['yAxis']['min'] = 0
-        opt['xAxis']['title']['text'] = the_sensor.unit.label
-        opt['title']['text'] = the_sensor.title + ' Histogram: ' + self.building.title
-        opt['title']['style']['fontSize'] = '20px'
+        opt = self.get_chart_options('plotly')
+        opt['data'] = chart_series
+        opt['layout']['title'] = the_sensor.title + ' Histogram: ' + self.building.title
+        opt['layout']['xaxis']['title'] =  the_sensor.unit.label
+        opt['layout']['xaxis']['type'] =  'linear'
+        opt['layout']['yaxis']['title'] =  '% of Readings'
+        opt['layout']['yaxis']['rangemode'] = 'tozero'
 
-        html = '<div id="chart_container"></div>'
+        html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7"></div>'
 
-        return {'html': html, 'objects': [('highcharts', opt)]}
+        return {'html': html, 'objects': [('plotly', opt)]}

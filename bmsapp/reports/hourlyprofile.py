@@ -47,14 +47,20 @@ class HourlyProfile(basechart.BaseChart):
                           ('Sat', (5,), False),
                           ('Sun', (6,), False)]
 
-            # Make a list of the series.  create the series in a form directly usable by
-            # Highcharts.
+            # Make a list of the series.
             for nm, da_tuple, visibility in da_groups:
-                a_series = {'name': nm}
                 df_gp = df[df.da.isin(da_tuple)].drop('da', axis=1).groupby('hr').mean()
-                a_series['data'] = [bmsapp.data_util.round4(df_gp.ix[hr, 'val'])
-                                    if hr in df_gp.index else None for hr in range(24)]
-                a_series['visible'] = visibility
+                a_series = {'x': ['12a', '1a', '2a', '3a', '4a', '5a', '6a', '7a',
+                                  '8a', '9a', '10a', '11a', '12p', '1p', '2p', '3p',
+                                  '4p', '5p', '6p', '7p', '8p', '9p', '10p', '11p'],
+                            'y': [bmsapp.data_util.round4(df_gp.ix[hr, 'val'])
+                                    if hr in df_gp.index else None for hr in range(24)],
+                            'type': 'scatter',
+                            'mode': 'lines', 
+                            'name': nm, 
+                            'visible': 'true' if visibility else 'legendonly'
+                            }
+
                 series.append(a_series)
 
         # if normalization was requested, scale values 0 - 100%, with 100% being the largest
@@ -62,29 +68,27 @@ class HourlyProfile(basechart.BaseChart):
         if 'normalize' in self.request_params:
             yTitle = "%"
             # find maximum of each series
-            maxes = [max(ser['data']) for ser in series]
+            maxes = [max(ser['y']) for ser in series]
             scaler = 100.0 / max(maxes) if max(maxes) else 1.0
             # adjust the values
             for ser in series:
                 for i in range(24):
-                    if ser['data'][i]:   # don't scale None values
-                        ser['data'][i] = bmsapp.data_util.round4(ser['data'][i] * scaler)
+                    if ser['y'][i]:   # don't scale None values
+                        ser['y'][i] = bmsapp.data_util.round4(ser['y'][i] * scaler)
         else:
             yTitle = the_sensor.unit.label
 
-        opt = self.get_chart_options()
-        opt['series'] = series
-        opt['yAxis']['title']['text'] = yTitle
-        opt['xAxis']['categories'] = ['12a', '1a', '2a', '3a', '4a', '5a', '6a', '7a', '8a', '9a', 
-            '10a', '11a', '12p', '1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p', '10p', '11p']
-        opt['xAxis']['title']['text'] = 'Hour of the Day'
-        opt['title']['text'] = the_sensor.title + ' Hourly Profile: ' + self.building.title
-        opt['title']['style']['fontSize'] = '20px'
+
+        opt = self.get_chart_options('plotly')
+        opt['data'] = series
+        opt['layout']['title'] = the_sensor.title + ' Hourly Profile: ' + self.building.title
+        opt['layout']['xaxis']['title'] =  'Hour of the Day'
+        opt['layout']['xaxis']['type'] =  'category'
+        opt['layout']['yaxis']['title'] =  yTitle
         if 'normalize' in self.request_params:
-            opt['yAxis']['min'] = 0
-            opt['yAxis']['max'] = 100
+            opt['layout']['yaxis']['range'] = [0, 100]
 
-        html = '<div id="chart_container"></div>'
+        html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7"></div>'
 
-        return {'html': html, 'objects': [('highcharts', opt)]}
+        return {'html': html, 'objects': [('plotly', opt)]}
 

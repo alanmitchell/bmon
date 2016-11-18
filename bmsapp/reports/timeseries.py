@@ -33,8 +33,6 @@ class TimeSeries(basechart.BaseChart):
 
         # Create the series to plot and add up total points to plot and the points
         # in the longest series.
-        pt_count = 0
-        max_series_count = 0
         series = []
         # determine suitable line width
         line_width = 1 if len(sensor_list) > 1 else 2
@@ -62,12 +60,6 @@ class TimeSeries(basechart.BaseChart):
             # Format the values
             values = [bmsapp.data_util.round4(val) for val in values]
                 
-            # update point count variables
-            pts_in_series = len(times)
-            pt_count += pts_in_series
-            if pts_in_series > max_series_count:
-                max_series_count = pts_in_series
-
             series_opt = {'x': times,
                           'y': values,
                           'type': 'scatter',
@@ -77,7 +69,7 @@ class TimeSeries(basechart.BaseChart):
                           'line': {'width': line_width},
                          }
 
-            # Need to set the tooltip format, either through the data.text or through data.hoverinfo and layout.hovermode+axis.hoverformat
+            # TODO: Do we need to set the tooltip format, either through the data.text or through data.hoverinfo and layout.hovermode+axis.hoverformat?
             """
                           'tooltip': {
                               'valueSuffix': ' ' + sensor.unit.label,
@@ -102,6 +94,7 @@ class TimeSeries(basechart.BaseChart):
 
 
         # Make the chart y axes configuration objects
+        # TODO: still need to adjust positioning so that axes don't draw on top of each other
         for label, id in y_axes.items():
             if id == 1:
                 opt['layout']['yaxis']['title'] = label
