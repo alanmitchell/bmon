@@ -90,23 +90,21 @@ class RunScript(threading.Thread):
 
             # Assemble the parameter list to pass to the script.  It consists of the
             # combination of the configuration parameters and saved results from the
-            # last run of the script.  Both of the those sets of parameters are in YAML
-            # form.
-            params = yaml.load(self.script.script_parameters)
+            # last run of the script.  Those sets of parameters are in YAML form.
+            # There are cases where the same parameter may appear in more than one of
+            # these locations.  The highest priority is the Script Parameters, next is
+            # visible Script Results, and last is Hidden script results.  This affects
+            # the order the parameters dictionary is built.
+            param_sources = (self.script.hidden_script_results,
+                             self.script.script_results,
+                             self.script.script_parameters)
+            params = {}
 
-            last_script_results = yaml.load(self.script.script_results)
-            if type(last_script_results) != dict:
-                # There may not have been any script results, or the YAML translation
-                # did not produce a dictionary.
-                last_script_results = {}
-            params.update(last_script_results)
-
-            last_hidden_script_results = yaml.load(self.script.hidden_script_results)
-            if type(last_hidden_script_results) != dict:
-                # There may not have been any script results, or the YAML translation
-                # did not produce a dictionary.
-                last_hidden_script_results = {}
-            params.update(last_hidden_script_results)
+            for param_src in param_sources:
+                new_params = yaml.load(param_src)
+                if type(new_params) == dict:
+                    # Update only if there was a valid dictionary of hidden script results
+                    params.update(new_params)
 
             # import the periodic script module, but first strip off any extension that
             # the user may have appended
@@ -154,9 +152,10 @@ class RunScript(threading.Thread):
             # Exmaple use is to delete one-time authorization parameters
             if 'delete_params' in results:
                 params = yaml.load(self.script.script_parameters)
-                for p in results.pop('delete_params'):
-                    params.pop(p, None)  # deletes param and no error if not there
-                self.script.script_parameters = yaml.dump(params, default_flow_style=False)
+                if type(params) == dict:
+                    for p in results.pop('delete_params'):
+                        params.pop(p, None)  # deletes param and no error if not there
+                    self.script.script_parameters = yaml.dump(params, default_flow_style=False)
 
         except:
             # record the traceback of the error in the results variable

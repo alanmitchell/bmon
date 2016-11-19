@@ -5,8 +5,12 @@ This module also contains a couple functions that are used during the initial
 authorization process that is required for access to an Ecobee account.  Those
 functions are called by the "views.ecobee_auth" function.
 """
+import json
+import traceback
 from django.conf import settings
 import requests
+from datetime import datetime
+import calendar
 
 # ----- URLS and API KEY
 
@@ -17,23 +21,202 @@ AUTH_URL = 'https://api.ecobee.com/authorize'
 TOKEN_URL = 'https://api.ecobee.com/token'
 
 # Get the api key
-API_KEY = settings.BMSAPP_ECOBEE_API_KEY
+#API_KEY = settings.BMSAPP_ECOBEE_API_KEY
 
-
-def run(**kwargs):
+def run(access_token='', refresh_token='', include_occupancy=False, **kwargs):
     """
-    Gathers temperature, humidity and run-time data from an Ecobee account.  This function
-    is called by "scripts/run_periodic_scripts.py".
-
-    Parameters
-    ----------
-    kwargs
+    See EcobeeDataCollector class for documentation of input parameters.
 
     Returns
     -------
-
+    A dictionary of results, including new sensor readings, hidden access and refresh tokens,
+    and a request to delete the access and refresh token script parameters.
     """
-    return {}
+
+    # Use a EcobeeDataCollector object to do the work of collecting the data
+    data_collector = EcobeeDataCollector(API_KEY, access_token, refresh_token, include_occupancy)
+
+    return data_collector.data_results()
+
+
+class EcobeeDataCollector:
+    """
+    Gathers temperature, humidity and run-time data from an Ecobee account.
+    """
+    def __init__(self, api_key, access_token, refresh_token, include_occupancy=False):
+        """
+        Parameters
+        ----------
+        At the time of the first run of this script, there must be a Access token and a Refresh
+        token present in the script parameters.  These are manually copied into the script parameters
+        from the results of the authorization process accessed at the "ecobee_auth" URL.  For
+        subsequent runs of the script, the script results from the prior run will provide the
+        necessary access and refresh tokens.  These tokens may have been refreshed in the prior
+        run of the script, so the original tokens will be invalid.
+
+        api_key: The 32 character BMON API Key acquired from the Ecobee Developer portal.
+        access_token: 32 character access token created by the Ecobee authorization process.
+            This is provided through the Script Parameters sys admin entry on the first run,
+            and then provided by Hidden Script Results on subsequent runs. (the value in the
+            script parameters box is automatically deleted by this script).
+        refresh_token: 32 character refresh token created by the Ecobee authorization process.
+            This is provided through the Script Parameters sys admin entry on the first run,
+            and then provided by Hidden Script Results on subsequent runs. (the value in the
+            script parameters box is automatically deleted by this script).
+        include_occupancy: If True, occupancy data from the thermostat and remote sensors will
+            be collected.
+        """
+
+        # There must be access and refresh tokens present and 32 characters long.
+        if not type(access_token) in (str, unicode) or not type(refresh_token) in (str, unicode) or \
+                        len(access_token)!=32 or len(refresh_token)!=32:
+            raise ValueError('The Access or Refresh token is not present or invalid.  Reauthorize the BMON application with Ecobee at the "ecobee_auth" URL, and enter the new Access and Refresh token in the Script Parameters input box.')
+
+        if type(api_key)!=str or len(api_key)!=32:
+            raise ValueError('API Key is not present or valid.  It should be entered in the Django Settings file.')
+
+        if type(include_occupancy)!=bool:
+            raise ValueError("The 'include_occupancy' parameter must be 'True' or 'False'")
+
+        # store the parameters for use by the results() method
+        self.access_token = access_token
+        self.refresh_token = refresh_token
+        self.api_key = api_key
+        self.include_occupancy = include_occupancy
+
+    def data_results(self):
+        """Returns a dictionary of results, including new sensor readings, hidden access and refresh tokens,
+        and a request to delete the access and refresh token script parameters.
+        """
+
+        # Start a dictionary of return results
+        results = {}
+
+        # Start a readings list
+        readings = []
+
+        try:
+
+            # Get the data from the thermostats
+            for stat in self.get_thermostats():
+
+                # get the serial number for this thermostat (as a string)
+                snum = stat['identifier']
+
+                # get the UNIX timestamps for the three readings present in the
+                # ExtendedRuntime object.  The three readings are for three 5-minute
+                # intervals.  The timestamp of the last interval is given as a string.
+                # It marks the beginning of the interval, so I shift it forward to the middle
+                # of the interval here.
+                last_ts_str = stat['extendedRuntime']['lastReadingTimestamp']
+                last_ts = self.ts_from_datestr(last_ts_str)
+                tstamps = (last_ts - 450, last_ts - 150, last_ts + 150)
+
+                # get temperature values
+                vals = stat['extendedRuntime']['actualTemperature']
+                vals = [val / 10.0 for val in vals]   # they are expressed in tenths, so convert
+                readings += zip(tstamps, (snum+'_temp',)*3, vals)
+
+                # get heating setpoints
+                vals = stat['extendedRuntime']['desiredHeat']
+                vals = [val / 10.0 for val in vals]  # they are expressed in tenths, so convert
+                readings += zip(tstamps, (snum + '_heat_setpoint',) * 3, vals)
+
+                # get Humidity values
+                vals = stat['extendedRuntime']['actualHumidity']
+                readings += zip(tstamps, (snum + '_rh',) * 3, vals)
+
+                # get temperature values
+                vals = stat['extendedRuntime']['auxHeat1']
+                # convert to fractional runtime from seconds / 5 minute interval
+                vals = [val / 300.0 for val in vals]
+                readings += zip(tstamps, (snum + '_heat1_run',) * 3, vals)
+
+
+        except:
+            # Store information about the error that occurred
+            results['script_error'] = traceback.format_exc()
+
+        finally:
+            # We may have some valid access and refresh tokens, so we need to return
+            # the results variable even in cases of errors so the tokens are preserved.
+            # Store the tokens for use the next time this script is called.  Request to delete the tokens
+            # out of the Script Parameters box.
+            results['hidden'] = {'access_token': self.access_token, 'refresh_token': self.refresh_token}
+            results['delete_params'] = ['access_token', 'refresh_token']
+            results['readings'] = readings
+            return results
+
+    def get_thermostats(self):
+        """Makes a request to the API to get information about all of the registered
+        thermostats in the account.
+        Returns
+        -------
+        Returns a Python list of all of the thermostat objects in the account.
+        This can require multiple HTTP calls if there are more than 25 thermostats.
+        """
+        THERMOSTAT_URL = 'https://api.ecobee.com/1/thermostat'
+        header = {'Content-Type': 'application/json;charset=UTF-8',
+                  'Authorization': 'Bearer ' + self.access_token}
+        select = dict(selectionType='registered',
+                      includeRuntime=True,
+                      includeExtendedRuntime=True,
+                      includeSensors=True,
+                      )
+        body = {'selection': select}
+        params = {'body': json.dumps(body)}
+        resp = requests.get(THERMOSTAT_URL, headers=header, params=params)
+
+        # Check for an expired access token and refresh if necessary.
+        if resp.status_code == 500 and resp.json()['status']['code'] == 14:
+            self.refresh_tokens()
+            # call again to get thermostat data
+            header = {'Content-Type': 'application/json;charset=UTF-8',
+                      'Authorization': 'Bearer ' + self.access_token}
+            resp = requests.get(THERMOSTAT_URL, headers=header, params=params)
+
+        # If we don't have a valid response now, we're in trouble. Error out
+        if resp.status_code != requests.codes.ok:
+            raise Exception('Error retrieving thermostat data: ' + resp.text)
+
+        return resp.json()['thermostatList']
+
+    def refresh_tokens(self):
+        """
+        Gets a new access and refresh token.
+
+        Parameters
+        ----------
+        refresh_token: A valid refresh token
+
+        Returns
+        -------
+        A 2-tuple of (access token, refresh token).  If an error occurs
+        it is raised to the calling routine.
+        """
+        TOKEN_URL = 'https://api.ecobee.com/token'
+        params = {'grant_type': 'refresh_token',
+                  'refresh_token': self.refresh_token,
+                  'client_id': self.api_key}
+        response = requests.post(TOKEN_URL, params=params)
+        if response.status_code == requests.codes.ok:
+            result = response.json()
+            self.access_token = result['access_token']
+            self.refresh_token = result['refresh_token']
+        else:
+            raise Exception('Error occurred trying to refresh tokens:' + response.text)
+
+    @staticmethod
+    def ts_from_datestr(utc_date_str):
+        """Retunns a UNIX timestamp in seconds from a string in the format
+        YYYY-MM-DD HH:MM:SS, where the string is a UTC date/time.
+        """
+        dt = datetime.strptime(utc_date_str, '%Y-%m-%d %H:%M:%S')
+        return calendar.timegm(dt.timetuple())
+
+
+# ----------- Code below here is used by the Ecobee Authorization process
+#             that is initiated in the views.ecobee_auth() function.
 
 def get_pin():
     """
