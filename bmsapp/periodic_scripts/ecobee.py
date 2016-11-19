@@ -8,6 +8,17 @@ functions are called by the "views.ecobee_auth" function.
 from django.conf import settings
 import requests
 
+# ----- URLS and API KEY
+
+# The Authorization URL for Ecobee
+AUTH_URL = 'https://api.ecobee.com/authorize'
+
+# The Token request URL for Ecobee
+TOKEN_URL = 'https://api.ecobee.com/token'
+
+# Get the api key
+API_KEY = settings.BMSAPP_ECOBEE_API_KEY
+
 
 def run(**kwargs):
     """
@@ -36,15 +47,8 @@ def get_pin():
     are 'scope' ('smartRead' in this case), 'expires_in' (minutes to expiration),
     and 'interval' (minimum interval between polling for a token) key/value pairs.
     """
-
-    # The Authorization URL for Ecobee
-    AUTH_URL = 'https://api.ecobee.com/authorize'
-
-    # Get the api key needed to acquire a PIN
-    api_key = settings.BMSAPP_ECOBEE_API_KEY
-
     # parameters needed to get a PIN
-    params = {'response_type': 'ecobeePin', 'client_id': api_key, 'scope': 'smartRead'}
+    params = {'response_type': 'ecobeePin', 'client_id': API_KEY, 'scope': 'smartRead'}
 
     # Request the PIN and convert the JSON results to a Python dictionary
     results = requests.get(AUTH_URL, params=params).json()
@@ -57,24 +61,21 @@ def get_tokens(auth_code):
 
     Parameters
     ----------
-    auth_code
+    auth_code: This is the Ecobee authorization code that was returned when the PIN
+        was requested.
 
     Returns
     -------
-
+    Returns a 3-tuple:
+        success: a boolean indicating whether the token request succeeded
+        access_token: a 32 character access token, or None if request wasn't successful
+        refresh_token: a 32 character refresh token, or None if request wasn't successful
     """
-
-    # The Token request URL for Ecobee
-    AUTH_URL = 'https://api.ecobee.com/token'
-
-    # Get the api key
-    api_key = settings.BMSAPP_ECOBEE_API_KEY
-
     # parameters needed to request tokens
-    params = {'grant_type': 'ecobeePin', 'client_id': api_key, 'code': auth_code}
+    params = {'grant_type': 'ecobeePin', 'client_id': API_KEY, 'code': auth_code}
 
     # Request the Tokens
-    response = requests.post(AUTH_URL, params=params)
+    response = requests.post(TOKEN_URL, params=params)
     if response.status_code == requests.codes.ok:
         results = response.json()
         return True, results['access_token'], results['refresh_token']
