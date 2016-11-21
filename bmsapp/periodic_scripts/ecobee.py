@@ -20,8 +20,16 @@ AUTH_URL = 'https://api.ecobee.com/authorize'
 # The Token request URL for Ecobee
 TOKEN_URL = 'https://api.ecobee.com/token'
 
-# Get the api key
-API_KEY = settings.BMSAPP_ECOBEE_API_KEY
+# Get the api key.  Don't raise an error if it is not present;
+# When EcobeeDataCollector is instantiated, it will detect a lack of
+# the key and produced an error message.
+try:
+    API_KEY = settings.BMSAPP_ECOBEE_API_KEY
+except:
+    # This also enables use outside of Django, as you can:
+    #    import ecobee
+    #    ecobee.API_KEY = 'xyz....'  # set API key directly
+    API_KEY = ''
 
 def run(access_token='', refresh_token='', include_occupancy=False, **kwargs):
     """
