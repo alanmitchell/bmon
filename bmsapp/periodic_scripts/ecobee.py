@@ -159,7 +159,7 @@ class EcobeeDataCollector:
                             readings.append((sensor_ts, sens_id + 'temp', float(capability['value'])/10.0))
                         elif capability['type'] == 'occupancy' and use_occupancy:
                             val = 1 if capability['value'] == 'true' else 0
-                            readings.append((sensor_ts, sens_id + 'occupancy', val))
+                            readings.append((sensor_ts, sens_id + 'occup', val))
 
         except:
             # Store information about the error that occurred
