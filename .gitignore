@@ -11,3 +11,4 @@ settings.py
 **/.ipynb_checkpoints
 .idea
 *.exe
+*.pkl

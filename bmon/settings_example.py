@@ -73,7 +73,11 @@ BMSAPP_ARIS_URL = 'https://arisapi.ahfc.us'
 BMSAPP_ARIS_USERNAME = 'buildingmonitoringapp'
 BMSAPP_ARIS_PASSWORD = ''
 
-# The settings is the following section need to be filled out. These 
+# If you are using the "ecobee" periodic script to gather data from Ecobee thermostats
+# you need to supply an Ecobee API Key, available from the Ecobee Developer site.
+BMSAPP_ECOBEE_API_KEY = '32 Character API Key goes here'
+
+# The settings in the following section need to be filled out. These
 # are settings required for the general Django software.
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False.

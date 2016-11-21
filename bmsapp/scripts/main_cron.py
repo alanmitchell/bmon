@@ -12,6 +12,7 @@ import daily_status
 import backup_django_db
 import backup_readingdb
 import check_alerts
+import run_periodic_scripts
 
 
 def suppress_errors(func):
@@ -42,6 +43,9 @@ def run():
     hr = now.hour
     # which 5 minute period within in the hour, 0-11
     hr_div = int(now.minute / 5)
+
+    # run periodic scripts.  They all run on some multiple of five minutes.
+    suppress_errors(run_periodic_scripts.run)
 
     # at 15 and 45 minute marks in hour (roughly), run the calculate readings
     # script

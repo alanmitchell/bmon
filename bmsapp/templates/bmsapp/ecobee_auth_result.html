@@ -6,12 +6,18 @@
 
 {% block content %}
 
-<p>Copy and Paste the text below into the Script Parameters input for your
-Ecobee Periodic Script:</p>
+{% if success %}
+    <p>Copy and Paste the text below into the Script Parameters input for your
+    Ecobee Periodic Script:</p>
 
 <textarea style="font-size:15px" rows="3" cols="50">
 access_token: {{ access_token }}
 refresh_token: {{ refresh_token }}
 </textarea>
+{% else %}
+    <p>An Error occurred while attempting to Acquire Access Tokens.
+        Please try again by clicking the link below</p>
+    <p><a href="">Ecobee Authorization Page</a></p>
+{% endif %}
 
 {% endblock %}
