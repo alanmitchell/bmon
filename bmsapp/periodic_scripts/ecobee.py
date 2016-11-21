@@ -21,7 +21,7 @@ AUTH_URL = 'https://api.ecobee.com/authorize'
 TOKEN_URL = 'https://api.ecobee.com/token'
 
 # Get the api key
-#API_KEY = settings.BMSAPP_ECOBEE_API_KEY
+API_KEY = settings.BMSAPP_ECOBEE_API_KEY
 
 def run(access_token='', refresh_token='', include_occupancy=False, **kwargs):
     """
@@ -101,7 +101,7 @@ class EcobeeDataCollector:
             for stat in self.get_thermostats():
 
                 # get the serial number for this thermostat (as a string)
-                snum = stat['identifier']
+                stat_id = str(stat['identifier']) + '_'
 
                 # get the UNIX timestamps for the three readings present in the
                 # ExtendedRuntime object.  The three readings are for three 5-minute
@@ -115,23 +115,51 @@ class EcobeeDataCollector:
                 # get temperature values
                 vals = stat['extendedRuntime']['actualTemperature']
                 vals = [val / 10.0 for val in vals]   # they are expressed in tenths, so convert
-                readings += zip(tstamps, (snum+'_temp',)*3, vals)
+                readings += zip(tstamps, (stat_id+'temp',)*3, vals)
 
                 # get heating setpoints
                 vals = stat['extendedRuntime']['desiredHeat']
                 vals = [val / 10.0 for val in vals]  # they are expressed in tenths, so convert
-                readings += zip(tstamps, (snum + '_heat_setpoint',) * 3, vals)
+                readings += zip(tstamps, (stat_id + 'heat_setpoint',) * 3, vals)
 
                 # get Humidity values
                 vals = stat['extendedRuntime']['actualHumidity']
-                readings += zip(tstamps, (snum + '_rh',) * 3, vals)
+                readings += zip(tstamps, (stat_id + 'rh',) * 3, vals)
 
                 # get temperature values
                 vals = stat['extendedRuntime']['auxHeat1']
                 # convert to fractional runtime from seconds / 5 minute interval
                 vals = [val / 300.0 for val in vals]
-                readings += zip(tstamps, (snum + '_heat1_run',) * 3, vals)
+                readings += zip(tstamps, (stat_id + 'heat1_run',) * 3, vals)
 
+                # Loop through ther Remote Sensors collection, extracting data available there.
+                # Use the lastStatusModified timestamp as the indicator of the time of these
+                # readings.
+                sensor_ts_str = stat['runtime']['lastStatusModified']
+                sensor_ts = self.ts_from_datestr(sensor_ts_str)
+                for sensor in stat['remoteSensors']:
+                    # variables determining whether we will store particular types of readings
+                    # for this sensor.
+                    use_temp = False
+                    use_occupancy = False
+                    sens_id = ''        # the ID prefix to use for this sensor
+                    if sensor['type'] == 'ecobee3_remote_sensor':
+                        use_temp = True
+                        use_occupancy = self.include_occupancy
+                        sens_id = '%s_%s_' % (stat_id, str(sensor['code']))
+
+                    elif sensor['type'] == 'thermostat':
+                        use_temp = False    # we already gathered temperature for the main thermostat
+                        use_occupancy = self.include_occupancy
+                        sens_id = stat_id + '_'
+
+                    # loop through reading types of this sensor and store the requested ones
+                    for capability in sensor['capability']:
+                        if capability['type'] == 'temperature' and use_temp:
+                            readings.append((sensor_ts, sens_id + 'temp', float(capability['value'])/10.0))
+                        elif capability['type'] == 'occupancy' and use_occupancy:
+                            val = 1 if capability['value'] == 'true' else 0
+                            readings.append((sensor_ts, sens_id + 'occupancy', val))
 
         except:
             # Store information about the error that occurred
