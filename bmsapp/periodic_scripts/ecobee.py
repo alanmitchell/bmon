@@ -199,23 +199,33 @@ class EcobeeDataCollector:
                       includeExtendedRuntime=True,
                       includeSensors=True,
                       )
-        body = {'selection': select}
-        params = {'body': json.dumps(body)}
-        resp = requests.get(THERMOSTAT_URL, headers=header, params=params)
-
-        # Check for an expired access token and refresh if necessary.
-        if resp.status_code == 500 and resp.json()['status']['code'] == 14:
-            self.refresh_tokens()
-            # call again to get thermostat data
-            header = {'Content-Type': 'application/json;charset=UTF-8',
-                      'Authorization': 'Bearer ' + self.access_token}
+        page = 1
+        tstats = []     # the list of thermostats to return
+        while True:   # Loop until no more pages
+            body = {'selection': select, 'page': {'page': page}}
+            params = {'body': json.dumps(body)}
             resp = requests.get(THERMOSTAT_URL, headers=header, params=params)
 
-        # If we don't have a valid response now, we're in trouble. Error out
-        if resp.status_code != requests.codes.ok:
-            raise Exception('Error retrieving thermostat data: ' + resp.text)
+            # Check for an expired access token and refresh if necessary.
+            if resp.status_code == 500 and resp.json()['status']['code'] == 14:
+                self.refresh_tokens()
+                # call again to get thermostat data
+                header = {'Content-Type': 'application/json;charset=UTF-8',
+                          'Authorization': 'Bearer ' + self.access_token}
+                resp = requests.get(THERMOSTAT_URL, headers=header, params=params)
 
-        return resp.json()['thermostatList']
+            # If we don't have a valid response now, we're in trouble. Error out
+            if resp.status_code != requests.codes.ok:
+                raise Exception('Error retrieving thermostat data: ' + resp.text)
+
+            result = resp.json()
+            tstats += result['thermostatList']
+            if result['page']['totalPages'] <= page:
+                # All done
+                break
+            page += 1
+
+        return tstats
 
     def refresh_tokens(self):
         """
