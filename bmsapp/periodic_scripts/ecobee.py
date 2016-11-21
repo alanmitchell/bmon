@@ -146,12 +146,12 @@ class EcobeeDataCollector:
                     if sensor['type'] == 'ecobee3_remote_sensor':
                         use_temp = True
                         use_occupancy = self.include_occupancy
-                        sens_id = '%s_%s_' % (stat_id, str(sensor['code']))
+                        sens_id = '%s%s_' % (stat_id, str(sensor['code']))
 
                     elif sensor['type'] == 'thermostat':
                         use_temp = False    # we already gathered temperature for the main thermostat
                         use_occupancy = self.include_occupancy
-                        sens_id = stat_id + '_'
+                        sens_id = stat_id
 
                     # loop through reading types of this sensor and store the requested ones
                     for capability in sensor['capability']:
