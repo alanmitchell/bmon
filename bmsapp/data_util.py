@@ -33,10 +33,13 @@ def round4(val):
     '''
     Rounds a number to a 4 significant digits, unless it is an integer.
     '''
-    if val != int(val):
-        return float('%.4g' % val)
-    else:
-        return val
+    try:
+        if val != int(val):
+            return float('%.4g' % val)
+        else:
+            return val
+    except:
+        return None
 
 def decimals_needed(vals, sig_figures):
     '''Returns the number of digits past the decimal needed to ensure
