@@ -204,7 +204,7 @@ class EcobeeDataCollector:
         while True:   # Loop until no more pages
             body = {'selection': select, 'page': {'page': page}}
             params = {'body': json.dumps(body)}
-            resp = requests.get(THERMOSTAT_URL, headers=header, params=params)
+            resp = requests.get(THERMOSTAT_URL, headers=header, params=params, timeout=5)
 
             # Check for an expired access token and refresh if necessary.
             if resp.status_code == 500 and resp.json()['status']['code'] == 14:
@@ -212,7 +212,7 @@ class EcobeeDataCollector:
                 # call again to get thermostat data
                 header = {'Content-Type': 'application/json;charset=UTF-8',
                           'Authorization': 'Bearer ' + self.access_token}
-                resp = requests.get(THERMOSTAT_URL, headers=header, params=params)
+                resp = requests.get(THERMOSTAT_URL, headers=header, params=params, timeout=5)
 
             # If we don't have a valid response now, we're in trouble. Error out
             if resp.status_code != requests.codes.ok:
@@ -244,7 +244,7 @@ class EcobeeDataCollector:
         params = {'grant_type': 'refresh_token',
                   'refresh_token': self.refresh_token,
                   'client_id': self.api_key}
-        response = requests.post(TOKEN_URL, params=params)
+        response = requests.post(TOKEN_URL, params=params, timeout=5)
         if response.status_code == requests.codes.ok:
             result = response.json()
             self.access_token = result['access_token']
@@ -280,7 +280,7 @@ def get_pin():
     params = {'response_type': 'ecobeePin', 'client_id': API_KEY, 'scope': 'smartRead'}
 
     # Request the PIN and convert the JSON results to a Python dictionary
-    results = requests.get(AUTH_URL, params=params).json()
+    results = requests.get(AUTH_URL, params=params, timeout=5).json()
 
     return results
 
@@ -304,7 +304,7 @@ def get_tokens(auth_code):
     params = {'grant_type': 'ecobeePin', 'client_id': API_KEY, 'code': auth_code}
 
     # Request the Tokens
-    response = requests.post(TOKEN_URL, params=params)
+    response = requests.post(TOKEN_URL, params=params, timeout=5)
     if response.status_code == requests.codes.ok:
         results = response.json()
         return True, results['access_token'], results['refresh_token']
