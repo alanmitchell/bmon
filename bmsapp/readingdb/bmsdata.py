@@ -90,6 +90,10 @@ class BMSdata:
             # make sure sensor ID is a string
             one_id = str(one_id)
 
+            # convert value to a float. SQLite gives error if you insert
+            # an integer.
+            one_val = float(one_val)
+
             if one_ts is None:
                 # substitute current time
                 one_ts = time.time()
