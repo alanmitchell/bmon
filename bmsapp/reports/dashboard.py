@@ -25,7 +25,7 @@ class Dashboard(basechart.BaseChart):
         cur_row_num = None
 
         maxTime = time.time()
-        minTime = maxTime - (60 * 60 * 6) # 6 hours
+        minTime = maxTime - (60 * 60 * 4) # 4 hours
         tz = pytz.timezone(self.timezone)
 
         for dash_item in self.building.dashboarditem_set.all():
@@ -46,23 +46,24 @@ class Dashboard(basechart.BaseChart):
             if dash_item.sensor is not None:
                 times = []
                 values = []
+                labels = []
+                format_function = dash_item.sensor.sensor.format_func()
+
                 db_recs = self.reading_db.rowsForOneID(dash_item.sensor.sensor.sensor_id, minTime, maxTime)
 
                 if db_recs:
                     for rec in db_recs:
                         times.append(datetime.fromtimestamp(rec['ts'],tz).strftime('%Y-%m-%d %H:%M:%S'))
                         values.append(bmsapp.data_util.round4(rec['val']))
-                    if values == []:
-                        values = [cur_value]
-                        times = [datetime.fromtimestamp(last_read['ts'],tz).strftime('%Y-%m-%d %H:%M:%S')]
+                        labels.append(datetime.fromtimestamp(rec['ts'],tz).strftime('%I:%M %p').lstrip('0') + '</br>' + format_function(rec['val']) + ' ' + dash_item.sensor.sensor.unit.label)
 
-                    format_function = dash_item.sensor.sensor.format_func()
                     new_widget['value_label'] = format_function(values[-1])
                     minAxis, maxAxis = dash_item.get_axis_range()
                     new_widget.update( {'units': dash_item.sensor.sensor.unit.label,
                                         'value': values[-1],
                                         'times': times,
                                         'values': values,
+                                        'labels': labels,
                                         'minNormal': dash_item.minimum_normal_value,
                                         'maxNormal': dash_item.maximum_normal_value,
                                         'minAxis': min(minAxis, min(values)),

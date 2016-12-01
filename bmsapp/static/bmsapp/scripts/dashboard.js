@@ -1,146 +1,34 @@
 ﻿(function() {
-  var LIGHT_RED, addGauge, addLED, addLabel, addNotCurrent, addRow, addSparkline, addWidget, rowCounter, widgetCounter;
+  var LIGHT_RED, addLED, addLabel, addNotCurrent, addRow, addSparkline, addWidget, rowCounter, widgetCounter;
 
   window.ANdash = {};
 
   LIGHT_RED = '#FCC7C7';
 
-  addGauge = function(jqParent, g_info) {
-    var jqWidget, opt, ref, widgetID;
-    opt = {
-      chart: {
-        events: {
-          click: null
-        },
-        type: "gauge",
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        plotBackgroundColor: null,
-        plotBackgroundImage: null,
-        plotBorderWidth: 0,
-        plotShadow: false
-      },
-      credits: {
-        enabled: false
-      },
-      exporting: {
-        enabled: false
-      },
-      title: {
-        text: g_info.title,
-        style: {
-          fontSize: "13px"
-        }
-      },
-      pane: {
-        startAngle: -130,
-        endAngle: 130,
-        background: [
-          {
-            backgroundColor: {
-              linearGradient: {
-                x1: 0,
-                y1: 0,
-                x2: 0,
-                y2: 1
-              },
-              stops: [[0, "#FFF"], [1, "#333"]]
-            },
-            borderWidth: 0,
-            outerRadius: "109%"
-          }, {
-            backgroundColor: {
-              linearGradient: {
-                x1: 0,
-                y1: 0,
-                x2: 0,
-                y2: 1
-              },
-              stops: [[0, "#333"], [1, "#FFF"]]
-            },
-            borderWidth: 1,
-            outerRadius: "107%"
-          }, {}, {
-            backgroundColor: "#DDD",
-            borderWidth: 0,
-            outerRadius: "105%",
-            innerRadius: "103%"
-          }
-        ]
-      },
-      plotOptions: {
-        series: {
-          dataLabels: {
-            style: {
-              fontSize: "14px"
-            }
-          }
-        }
-      },
-      yAxis: {
-        min: g_info.minAxis,
-        max: g_info.maxAxis,
-        minorTickInterval: "auto",
-        minorTickWidth: 1,
-        minorTickLength: 10,
-        minorTickPosition: "inside",
-        minorTickColor: "#666",
-        tickPixelInterval: 30,
-        tickWidth: 2,
-        tickPosition: "inside",
-        tickLength: 10,
-        tickColor: "#666",
-        labels: {
-          step: 2,
-          rotation: "auto",
-          style: {
-            fontSize: "10px"
-          }
-        },
-        title: {
-          text: g_info.units
-        },
-        plotBands: [
-          {
-            from: g_info.minAxis,
-            to: g_info.minNormal,
-            color: "#DF5353"
-          }, {
-            from: g_info.minNormal,
-            to: g_info.maxNormal,
-            color: "#55BF3B"
-          }, {
-            from: g_info.maxNormal,
-            to: g_info.maxAxis,
-            color: "#DF5353"
-          }
-        ]
-      },
-      series: [
-        {
-          data: [g_info.value],
-          tooltip: {
-            valueSuffix: " " + g_info.units
-          }
-        }
-      ]
-    };
-    if (!((g_info.minNormal <= (ref = g_info.value) && ref <= g_info.maxNormal))) {
-      opt.chart.backgroundColor = LIGHT_RED;
-    }
-    widgetID = "widget" + (++widgetCounter);
-    jqParent.append("<div id=\"" + widgetID + "\" class=\"gauge\"></div>");
-    jqWidget = $("#" + widgetID);
-    jqWidget.css('cursor', 'pointer');
-    opt.chart.events.click = function(e) {
-      return AN.plot_sensor(g_info.timeChartID, g_info.sensorID);
-    };
-    return jqWidget.highcharts(opt);
-  };
-
   addSparkline = function(jqParent, g_info) {
     var config, data, jqWidget, layout, plotbands, widgetID, xvals, yvals;
     xvals = g_info.times;
     yvals = g_info.values;
+    data = [
+      {
+        x: xvals,
+        y: yvals,
+        text: g_info.labels,
+        type: 'scatter',
+        mode: 'lines',
+        hoverinfo: 'text'
+      }, {
+        x: xvals.slice(-1),
+        y: yvals.slice(-1),
+        type: 'scatter',
+        mode: 'markers',
+        hoverinfo: 'skip',
+        marker: {
+          size: 8,
+          color: 'rgba(0, 0, 0, 0.7)'
+        }
+      }
+    ];
     plotbands = [
       {
         type: 'rect',
@@ -172,25 +60,6 @@
         y1: g_info.maxAxis
       }
     ];
-    data = [
-      {
-        x: xvals,
-        y: yvals,
-        type: 'scatter',
-        mode: 'lines',
-        hoverinfo: 'x+y'
-      }, {
-        x: xvals.slice(-1),
-        y: yvals.slice(-1),
-        type: 'scatter',
-        mode: 'markers',
-        hoverinfo: 'skip',
-        marker: {
-          size: 8,
-          color: 'rgba(0, 0, 0, 0.7)'
-        }
-      }
-    ];
     layout = {
       title: g_info.title,
       titlefont: {
@@ -214,11 +83,10 @@
         side: 'left'
       },
       showlegend: false,
-      hovermode: 'closest',
       margin: {
-        l: 30,
+        l: 35,
         r: 5,
-        b: 30,
+        b: 25,
         t: 40,
         pad: 0
       },
