@@ -4,6 +4,9 @@ import bmsapp.data_util
 import bmsapp.formatters
 import basechart
 import markdown
+from datetime import datetime
+import pytz
+
 
 class Dashboard(basechart.BaseChart):
     """Class for creating Dashboard report.
@@ -20,6 +23,11 @@ class Dashboard(basechart.BaseChart):
         widgets = []
         cur_row = []
         cur_row_num = None
+
+        maxTime = time.time()
+        minTime = maxTime - (60 * 60 * 6) # 6 hours
+        tz = pytz.timezone(self.timezone)
+
         for dash_item in self.building.dashboarditem_set.all():
             if dash_item.row_number != cur_row_num:
                 if len(cur_row):
@@ -27,36 +35,59 @@ class Dashboard(basechart.BaseChart):
                 cur_row = []
                 cur_row_num = dash_item.row_number
     
-            new_widget = {'type': dash_item.widget_type}
+            new_widget = {'type': dash_item.widget_type,
+                          'timeChartID': basechart.TIME_SERIES_CHART_ID,
+                          'sensorID': dash_item.sensor.sensor.id
+                          }
+
             # Determine title, either from user entry or from sensor's title
             new_widget['title'] = dash_item.title if len(dash_item.title) or (dash_item.sensor is None) else dash_item.sensor.sensor.title
 
             if dash_item.sensor is not None:
-                last_read = dash_item.sensor.sensor.last_read(self.reading_db)
-                format_function = dash_item.sensor.sensor.format_func()
-                cur_value = float(bmsapp.data_util.formatCurVal(last_read['val']).translate(None, ',')) if last_read else None
-                new_widget['value_label'] = format_function(last_read['val']) if last_read else ''
-                age_secs = time.time() - last_read['ts'] if last_read else None    # how long ago reading occurred
-                minAxis, maxAxis = dash_item.get_axis_range()
-                new_widget.update( {'units': dash_item.sensor.sensor.unit.label,
-                                    'value': cur_value,
-                                    'minNormal': dash_item.minimum_normal_value,
-                                    'maxNormal': dash_item.maximum_normal_value,
-                                    'minAxis': min(minAxis, cur_value),
-                                    'maxAxis': max(maxAxis, cur_value),
-                                    'timeChartID': basechart.TIME_SERIES_CHART_ID,
-                                    'sensorID': dash_item.sensor.sensor.id,
-                                   } )
-                # check to see if data is older than 2 hours or missing, and change widget type if so.
-                if cur_value is None:
+                times = []
+                values = []
+                db_recs = self.reading_db.rowsForOneID(dash_item.sensor.sensor.sensor_id, minTime, maxTime)
+
+                if db_recs:
+                    for rec in db_recs:
+                        times.append(datetime.fromtimestamp(rec['ts'],tz).strftime('%Y-%m-%d %H:%M:%S'))
+                        values.append(bmsapp.data_util.round4(rec['val']))
+                    if values == []:
+                        values = [cur_value]
+                        times = [datetime.fromtimestamp(last_read['ts'],tz).strftime('%Y-%m-%d %H:%M:%S')]
+
+                    format_function = dash_item.sensor.sensor.format_func()
+                    new_widget['value_label'] = format_function(values[-1])
+                    minAxis, maxAxis = dash_item.get_axis_range()
+                    new_widget.update( {'units': dash_item.sensor.sensor.unit.label,
+                                        'value': values[-1],
+                                        'times': times,
+                                        'values': values,
+                                        'minNormal': dash_item.minimum_normal_value,
+                                        'maxNormal': dash_item.maximum_normal_value,
+                                        'minAxis': min(minAxis, min(values)),
+                                        'maxAxis': max(maxAxis, max(values)),
+                                        'minTime': datetime.fromtimestamp(minTime,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                                        'maxTime': datetime.fromtimestamp(maxTime,tz).strftime('%Y-%m-%d %H:%M:%S')
+                                       } )
+
+                else:
+                    # db_recs = None
                     new_widget['type'] = bmsapp.models.DashboardItem.NOT_CURRENT
-                    new_widget['age'] = 'Not Available'
-                elif 7200 <= age_secs < 86400:
-                    new_widget['type'] = bmsapp.models.DashboardItem.NOT_CURRENT
-                    new_widget['age'] = '%.1f hours Old' % (age_secs/3600.0)
-                elif age_secs >= 86400:
-                    new_widget['type'] = bmsapp.models.DashboardItem.NOT_CURRENT
-                    new_widget['age'] = '%.1f days Old' % (age_secs/86400.0)
+                    last_read = dash_item.sensor.sensor.last_read(self.reading_db)
+                    cur_value = float(bmsapp.data_util.formatCurVal(last_read['val']).translate(None, ',')) if last_read else None
+                    if cur_value is None:
+                        new_widget['age'] = 'Not Available'
+                    else:
+                        age_secs = time.time() - last_read['ts']    # how long ago reading occurred
+                        if age_secs < 86400:
+                            new_widget['age'] = '%.1f hours Old' % (age_secs/3600.0)
+                        elif age_secs >= 86400:
+                            new_widget['age'] = '%.1f days Old' % (age_secs/86400.0)
+            else:
+                # dash_item.sensor = None
+                new_widget['type'] = bmsapp.models.DashboardItem.NOT_CURRENT
+                new_widget['age'] = 'Not Available'
 
             cur_row.append(new_widget)
 

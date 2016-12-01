@@ -128,6 +128,111 @@ addGauge = (jqParent, g_info) ->
   jqWidget.highcharts(opt)        # return the jQuery element holding the gauge
 
 
+# Adds a sparkline gauge control under the container identified by 'jqParent', a jQuery element.
+# 'gauge' is an object containing the configuration and value info for the gauge.
+# Returns the jQuery div element holding the gauge.
+addSparkline = (jqParent, g_info) ->
+  xvals = g_info.times
+  yvals = g_info.values
+  plotbands = [
+    type: 'rect',
+    layer: 'below',
+    xref: 'paper',
+    yref: 'y',
+    fillcolor: 'red',
+    opacity: 0.6,
+    line: {'width': 0},
+    x0: 0,
+    y0: g_info.minAxis,
+    x1: 1,
+    y1: g_info.minNormal
+   ,
+    type: 'rect',
+    layer: 'below',
+    xref: 'paper',
+    yref: 'y',
+    fillcolor: 'red',
+    opacity: 0.6,
+    line: {'width': 0},
+    x0: 0,
+    y0: g_info.maxNormal,
+    x1: 1,
+    y1: g_info.maxAxis
+   ]
+  data = [
+    x: xvals
+    y: yvals
+    type: 'scatter'
+    mode: 'lines'
+    hoverinfo: 'x+y'
+   ,
+    x: xvals.slice(-1)
+    y: yvals.slice(-1)
+    type: 'scatter'
+    mode: 'markers'
+    hoverinfo: 'skip'
+    marker:
+      size: 8
+      color: 'rgba(0, 0, 0, 0.7)'          
+  ]
+  
+  layout = 
+    title: g_info.title
+    titlefont:
+      color: 'black'
+    xaxis:
+      range: [g_info.minTime, g_info.maxTime]
+      fixedrange: true
+      showgrid: false
+      zeroline: false
+      showline: false
+      ticks: ''
+      showticklabels: false
+    yaxis:
+      range: [g_info.minAxis, g_info.maxAxis]
+      fixedrange: true
+      showgrid: false
+      zeroline: false
+      ticks: 'outside'
+      side: 'left'
+    showlegend: false
+    hovermode: 'closest'
+    margin:
+      l: 30
+      r: 5
+      b: 30
+      t: 40
+      pad: 0
+    shapes: plotbands
+    annotations: [
+      xref: 'paper'
+      yref: 'paper'
+      x: 1
+      xanchor: 'right'
+      y: 0
+      yanchor: 'top'
+      text: '<b>' + g_info.value_label + ' ' + g_info.units + '</b>'
+      showarrow: false
+     ]
+
+  
+  config =
+    showLink: false
+    displaylogo: false
+    scrollZoom: true
+    displayModeBar: false
+      
+  # Add the div with id that will hold this gauge.
+  widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
+  jqParent.append( "<div id=\"#{widgetID}\" class=\"gauge\"></div>" )
+  jqWidget = $("##{widgetID}")
+  jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
+  jqWidget.click((e) -> AN.plot_sensor(g_info.timeChartID, g_info.sensorID))
+  Plotly.newPlot(jqWidget[0], data, layout, config)
+  
+  jqWidget        # return the jQuery element holding the gauge
+  
+  
 # Adds an LED widget to dashboard row identified by jQuery elemernt 'jqParent'.
 # Info for making LED is in object LED_info.  Returns jQuery div element holding
 # LED.
@@ -190,7 +295,7 @@ rowCounter = 0
 # widget.
 addWidget = (jqRow, widget_info) ->
   switch widget_info.type
-    when "gauge" then addGauge(jqRow, widget_info)
+    when "gauge" then addSparkline(jqRow, widget_info)
     when "LED" then addLED(jqRow, widget_info)
     when "stale" then addNotCurrent(jqRow, widget_info)
     when "label" then addLabel(jqRow, widget_info)
@@ -204,7 +309,7 @@ addRow = (jqParent, widgetRow) ->
   totalWidth = 0
   jqRow = $("##{rowID}")   # a jQuery element for the new row
   totalWidth += addWidget(jqRow, widget_info).width() for widget_info in widgetRow
-  jqRow.width totalWidth     # set the row width = total of widget widths
+  # jqRow.width totalWidth     # set the row width = total of widget widths
 
 # Public method for library.  Used to create an entire dashboard.
 # "dashConfig.widgets" contains the information for each widget, organized

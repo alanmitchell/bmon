@@ -1,17 +1,27 @@
 .row {
 	margin: 0 auto;
+    text-align: center;
+    background: #d4e7f7
 }
 .gauge {
 	width: 230px; 
 	height: 230px; 
-	float: left; 
-	margin: 0 auto;
+	display: inline-block;
+    vertical-align: top; 
+    margin: 2px;
+    border-style: solid; 
+    border-width:2px; 
+    border-color:#4572A7
 }
 .led, .not-current {
     width: 150px;
 	height: 230px;
-    float: left;
-    margin: 0 auto;
+	display: inline-block;
+    vertical-align: top; 
+    margin: 2px;
+    border-style: solid; 
+    border-width:2px; 
+    border-color:#4572A7
 }
 .led-circle {
     border-radius: 50%;
@@ -23,8 +33,12 @@
 .dash-label {
     width: 130px;
 	height: 230px;
-    float: left;
-    margin: 0 auto;
+	display: inline-block; 
+    vertical-align: top; 
+    margin: 2px;
+    border-style: solid; 
+    border-width:2px; 
+    border-color:#4572A7
 }
 .led h2, .not-current h2 {
     padding: 5px;
