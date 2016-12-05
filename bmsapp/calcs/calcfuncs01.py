@@ -2,6 +2,7 @@
 """
 
 import time
+import math
 import pandas as pd
 import calcreadings
 import internetwx
@@ -70,6 +71,23 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         """
         obs = internetwx.getWeatherObservation(stnCode)
         return [int(time.time())], [obs.wind_speed.value() * 1.1508]  # mph
+
+    def getInternetRH(self, stnCode):
+        """** No parameters are sensor reading arrays **
+
+        Returns a Relative Humidity value in % (0 - 100) from an NWS
+        weather station.  Uses the August-Roche-Magnus approximation.
+        Returns just one record of information, timestamped with the current time.
+        """
+        obs = internetwx.getWeatherObservation(stnCode)
+        if obs.dewpt is not None and obs.temp is not None:
+            dewpt = obs.dewpt.value()
+            temp = obs.temp.value()
+            RH = 100.0*(math.exp((17.625*dewpt)/(243.04+dewpt))/math.exp((17.625*temp)/(243.04+temp)))
+            return [int(time.time())], [RH]
+        else:
+            # not info info available for calculation.
+            return [], []
 
     def getWUtemperature(self, stn, stn2=None):
         """** No parameters are sensor reading arrays **
