@@ -2,6 +2,7 @@
 Script to collect sensor readings from an OkoFEN pellet boiler.
 '''
 from datetime import datetime, timedelta, date
+import sys
 import StringIO
 import urlparse
 import traceback
@@ -10,6 +11,18 @@ import calendar
 import requests
 import pandas as pd
 import pytz
+
+# Parameters that are State-type values instead of continuous analog values.
+# The name of the parameter here should be the PXXX number, or the sensor ID
+# for a sensor that does not have a PXXX number.  e.g. the "Boiler 1" sensor
+# would be shown as 'boiler_1'.
+STATE_PARAMS = (
+    'P112',
+    'P241',
+)
+
+# Compiled RegEx used to find parameter number in a parameter name
+P_REGEX = re.compile('^P\d{3}\s')
 
 def run(url= '', site_id='', tz_data='US/Alaska', last_date_loaded='2016-01-01', **kwargs):
     """
@@ -88,17 +101,16 @@ def run(url= '', site_id='', tz_data='US/Alaska', last_date_loaded='2016-01-01',
                 # clean up the column names
                 cols = []
                 for col in df.columns:
-                    col = re.sub('^P\d{3}\s', '', col)  # remove PXXX identifier
-                    col = col.replace('.', '').replace(' ', '_').replace('/', '_').lower()
+                    match_res = P_REGEX.match(col)
+                    if match_res:
+                        # there was a parameter number in the column name
+                        col = match_res.group(0).strip()
+                    else:
+                        # no parameter number, so make a clean column name
+                        col = col.replace('.', '').replace(' ', '_').replace('/', '_').lower()
                     cols.append(col)
                 cols[0] = 'datetime'
                 df.columns = cols
-
-                # *** TESTING ONLY ***
-                # Take every third record
-                # Drop this eventually and replace with data aggregation and selection
-                every_third = [x % 3 == 0 for x in range(len(df))]
-                df = df[every_third]
 
                 # make a list of UNIX timestamps and then dispose of the datetime
                 # column since it is not a sensor reading column.
@@ -110,7 +122,11 @@ def run(url= '', site_id='', tz_data='US/Alaska', last_date_loaded='2016-01-01',
                 for col in df.columns:
                     sensor_id = '%s_%s' % (site_id, col)
                     sensor_ids.append(sensor_id)    # list used later to return info on sensors read
-                    new_reads = zip(tstamps, (sensor_id,) * len(df), df[col].values)
+                    # get a set of filtered sensor readings, filtered to show significant changes.
+                    filtered_ts, filtered_vals = find_changes(tstamps,
+                                                              df[col].values,
+                                                              state_change=(col in STATE_PARAMS))
+                    new_reads = zip(filtered_ts, (sensor_id,) * len(filtered_ts), filtered_vals)
                     readings += new_reads
 
                 # successfully loaded this date, so update the tracking variable
@@ -142,3 +158,46 @@ def ts_from_datestr(datestr, tzname):
     dt = datetime.strptime(datestr, '%Y-%m-%d %H:%M')
     dt_aware = tz.localize(dt)
     return calendar.timegm(dt_aware.utctimetuple())
+
+
+def find_changes(times, vals, state_change=False, min_change=0.02, max_spacing=600):
+    """Finds significant analog or state changes in a set of sensor readings for one
+    sensor, and returns those filtered readings.  This is primarily used to reduce
+    the number of sensor readings stored.
+
+    Parameters
+    ----------
+    times: Iterable of UNIX timestamps (seconds past Epoch) for the sensor readings
+    vals: Iterable of sensor reading values
+    state_change: If True, treats the sensor readings as State values, not continuous
+        analog values.  For this type of reading, every change is considered significant
+        and is returned in the filtered list.
+    min_change:  This determines what is considered a significant change for an analog
+        sensor reading.  This argument is expressed as the fraction of the difference
+        between the minimum and maximum sensor reading in the input set.
+    max_spacing: If no significant change has occurred in 'max_spacing' number of seconds
+        then a sensor reading is returned anyway.
+
+    Returns
+    -------
+    A two-tuple, the first element being a list of timestamps of the filtered readings,
+    and the second element being a list of filtered readings.
+    """
+    if state_change:
+        # any change at all counts as a change.  Use smallest float as trigger
+        chg_trigger = sys.float_info.min
+    else:
+        chg_trigger = (max(vals) - min(vals)) * min_change  # 2% change trigger reading
+        if chg_trigger == 0.0:
+            chg_trigger = sys.float_info.min  # must be some change to record a reading
+
+    # Always include first point
+    filtered_ts = [times[0]]
+    filtered_vals = [vals[0]]
+
+    for ts, val in zip(times[1:], vals[1:]):
+        if abs(val - filtered_vals[-1]) >= chg_trigger or (ts - filtered_ts[-1]) >= max_spacing:
+            filtered_ts.append(ts)
+            filtered_vals.append(val)
+
+    return filtered_ts, filtered_vals
