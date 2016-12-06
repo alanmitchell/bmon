@@ -2,6 +2,18 @@
 This module contains dictionaries of formatting codes used by formatters.py
 """
 
+# Okofen Pellet Boiler status codes
+okofen_status_codes = {
+ 0: 'Standby',
+ 1: 'Ignition 1',
+ 2: 'Ignition 2',
+ 3: 'Ignition 3',
+ 4: 'Ignition 4',
+ 5: 'Ignited/Burning',
+ 6: 'Shutdown/Burnout Process',
+ 7: 'Ash Vac Cleanout',
+}
+
 aerco_fault_code_bitmask_dictionary = \
     {0: 'Outside Air Sensor Error',
      1: 'Header Sensor Error',

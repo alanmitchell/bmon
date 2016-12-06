@@ -86,6 +86,14 @@ def run(url= '', site_id='', tz_data='US/Alaska', last_date_loaded='2016-01-01',
         # but limit this to two weeks ago
         next_date = max(next_date, date.today() - timedelta(days=14))
 
+        # Each sensor reading type can have a "converter" function applied
+        # to it prior to storing.  List the function in the dictionary below
+        # if such conversion is required.
+        converters = {
+            'P116': lambda x: x / 10.0,
+            'P117': lambda x: x / 10.0,
+        }
+
         while next_date <= date.today():
             try:
                 # make the CSV file name
@@ -122,10 +130,17 @@ def run(url= '', site_id='', tz_data='US/Alaska', last_date_loaded='2016-01-01',
                 for col in df.columns:
                     sensor_id = '%s_%s' % (site_id, col)
                     sensor_ids.append(sensor_id)    # list used later to return info on sensors read
+
+                    # apply a converter function to the values if necessary
+                    if col in converters:
+                        vals = converters[col](df[col].values)
+                    else:
+                        vals = df[col].values
+
                     # get a set of filtered sensor readings, filtered to show significant changes.
-                    filtered_ts, filtered_vals = find_changes(tstamps,
-                                                              df[col].values,
+                    filtered_ts, filtered_vals = find_changes(tstamps, vals,
                                                               state_change=(col in STATE_PARAMS))
+
                     new_reads = zip(filtered_ts, (sensor_id,) * len(filtered_ts), filtered_vals)
                     readings += new_reads
 

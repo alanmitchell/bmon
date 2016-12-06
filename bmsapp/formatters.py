@@ -3,6 +3,11 @@ This module contains formatting functions for sensor values
 """
 import formatter_codes
 
+def okofen_status(coded_value):
+    """Okofen Pellet Boiler status codes.
+    """
+    return formatter_codes.okofen_status_codes.get(coded_value,
+                                                   'Unknown Code: %s' % coded_value)
 
 def alarm_formatter(coded_value):
     """Code of 0 indicates OK, and anything else indicates an
