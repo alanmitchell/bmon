@@ -1,12 +1,13 @@
 ﻿(function() {
-  var LIGHT_RED, addLED, addLabel, addNotCurrent, addRow, addSparkline, addWidget, rowCounter, widgetCounter;
+  var LIGHT_RED, addLED, addLabel, addNotCurrent, addRow, addSparkline, addWidget, rowCounter, widgetCounter,
+    slice = [].slice;
 
   window.ANdash = {};
 
   LIGHT_RED = '#FCC7C7';
 
   addSparkline = function(jqParent, g_info) {
-    var config, data, jqWidget, layout, plotbands, widgetID, xvals, yvals;
+    var alert, alert_annotation, alert_labels, config, data, i, jqWidget, layout, len, plotbands, ref, ref1, widgetID, xvals, yvals;
     xvals = g_info.times;
     yvals = g_info.values;
     data = [
@@ -16,6 +17,11 @@
         text: g_info.labels,
         type: 'scatter',
         mode: 'lines',
+        line: {
+          shape: (ref = g_info.unitMeasureType === 'state') != null ? ref : {
+            'hv': 'linear'
+          }
+        },
         hoverinfo: 'text'
       }, {
         x: xvals.slice(-1),
@@ -60,6 +66,33 @@
         y1: g_info.maxAxis
       }
     ];
+    alert_labels = [];
+    ref1 = g_info.alerts;
+    for (i = 0, len = ref1.length; i < len; i++) {
+      alert = ref1[i];
+      alert_annotation = {
+        xref: 'paper',
+        yref: 'y',
+        x: 0,
+        y: alert.value,
+        ax: 25,
+        ay: 0,
+        xanchor: 'left',
+        yanchor: 'middle',
+        text: alert.condition,
+        font: {
+          color: 'black',
+          size: 14
+        },
+        bordercolor: 'red',
+        bgcolor: 'white',
+        showarrow: true,
+        arrowcolor: 'red',
+        arrowhead: 7,
+        arrowsize: .75
+      };
+      alert_labels.push(alert_annotation);
+    }
     layout = {
       title: g_info.title,
       titlefont: {
@@ -75,7 +108,7 @@
         showticklabels: false
       },
       yaxis: {
-        range: [g_info.minAxis, g_info.maxAxis],
+        range: [g_info.minAxis - (g_info.maxAxis - g_info.minAxis) / 20, g_info.maxAxis + (g_info.maxAxis - g_info.minAxis) / 20],
         fixedrange: true,
         showgrid: false,
         zeroline: false,
@@ -91,8 +124,7 @@
         pad: 0
       },
       shapes: plotbands,
-      annotations: [
-        {
+      annotations: slice.call(alert_labels).concat([{
           xref: 'paper',
           yref: 'paper',
           x: 1,
@@ -101,8 +133,7 @@
           yanchor: 'top',
           text: '<b>' + g_info.value_label + ' ' + g_info.units + '</b>',
           showarrow: false
-        }
-      ]
+        }])
     };
     config = {
       showLink: false,

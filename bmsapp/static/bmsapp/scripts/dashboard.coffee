@@ -17,6 +17,7 @@ addSparkline = (jqParent, g_info) ->
     text: g_info.labels
     type: 'scatter'
     mode: 'lines'
+    line: {shape: ((g_info.unitMeasureType == 'state') ? 'hv' : 'linear')}
     hoverinfo: 'text'
    ,
     x: xvals.slice(-1)
@@ -54,7 +55,31 @@ addSparkline = (jqParent, g_info) ->
     x1: 1,
     y1: g_info.maxAxis
    ]
+  
+  alert_labels = []
+  for alert in g_info.alerts
+    alert_annotation =
+        xref: 'paper'
+        yref: 'y'
+        x: 0
+        y: alert.value
+        ax: 25
+        ay: 0
+        xanchor: 'left'
+        yanchor: 'middle'
+        text: alert.condition
+        font:
+            color: 'black'
+            size: 14
+        bordercolor: 'red'
+        bgcolor: 'white'
+        showarrow: true
+        arrowcolor: 'red'
+        arrowhead: 7
+        arrowsize: .75
 
+    alert_labels.push alert_annotation
+  
   layout = 
     title: g_info.title
     titlefont:
@@ -68,7 +93,7 @@ addSparkline = (jqParent, g_info) ->
       ticks: ''
       showticklabels: false
     yaxis:
-      range: [g_info.minAxis, g_info.maxAxis]
+      range: [g_info.minAxis - (g_info.maxAxis - g_info.minAxis) / 20, g_info.maxAxis + (g_info.maxAxis - g_info.minAxis) / 20]
       fixedrange: true
       showgrid: false
       zeroline: false
@@ -82,7 +107,7 @@ addSparkline = (jqParent, g_info) ->
       t: 40
       pad: 0
     shapes: plotbands
-    annotations: [
+    annotations: [alert_labels...,
       xref: 'paper'
       yref: 'paper'
       x: 1

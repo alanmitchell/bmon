@@ -14,7 +14,7 @@
     border-color:#4572A7
 }
 .led, .not-current {
-    width: 150px;
+    width: 230px;
 	height: 230px;
 	display: inline-block;
     vertical-align: top; 

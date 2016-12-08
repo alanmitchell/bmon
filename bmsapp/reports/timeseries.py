@@ -79,7 +79,7 @@ class TimeSeries(basechart.BaseChart):
 
             # if the sensor has defined states, make the series a Step type series.
             if sensor.unit.measure_type == 'state':
-                series_opt['line']['shape'] = 'hvh'
+                series_opt['line']['shape'] = 'hv'
             series.append( series_opt )
 
         # Set the basic chart options

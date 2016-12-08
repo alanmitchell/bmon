@@ -49,6 +49,19 @@ class Dashboard(basechart.BaseChart):
                 labels = []
                 format_function = dash_item.sensor.sensor.format_func()
 
+                # Retrieve active alert settings
+                alerts = []
+                try:
+                    for alert_condx in bmsapp.models.AlertCondition.objects.filter(sensor__pk=dash_item.sensor.sensor.pk):
+                        if alert_condx.only_if_bldg is not None and alert_condx.only_if_bldg_mode is not None:
+                            bldg_mode_test = (alert_condx.only_if_bldg.current_mode == alert_condx.only_if_bldg_mode)
+                        else:
+                            bldg_mode_test = True
+                        if bldg_mode_test:
+                            alerts.append({'condition': alert_condx.condition, 'value': alert_condx.test_value})
+                except Exception as e:
+                    pass
+
                 db_recs = self.reading_db.rowsForOneID(dash_item.sensor.sensor.sensor_id, minTime, maxTime)
 
                 if db_recs:
@@ -69,7 +82,9 @@ class Dashboard(basechart.BaseChart):
                                         'minAxis': min(minAxis, min(values)),
                                         'maxAxis': max(maxAxis, max(values)),
                                         'minTime': datetime.fromtimestamp(minTime,tz).strftime('%Y-%m-%d %H:%M:%S'),
-                                        'maxTime': datetime.fromtimestamp(maxTime,tz).strftime('%Y-%m-%d %H:%M:%S')
+                                        'maxTime': datetime.fromtimestamp(maxTime,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                                        'unitMeasureType': dash_item.sensor.sensor.unit.measure_type,
+                                        'alerts': alerts
                                        } )
 
                 else:
