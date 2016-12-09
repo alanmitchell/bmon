@@ -1,15 +1,24 @@
 ﻿(function() {
-  var LIGHT_RED, addLED, addLabel, addNotCurrent, addRow, addSparkline, addWidget, rowCounter, widgetCounter,
-    slice = [].slice;
+  var LIGHT_RED, addLED, addLabel, addNotCurrent, addRow, addSparkline, addWidget, rowCounter, widgetCounter;
 
   window.ANdash = {};
 
   LIGHT_RED = '#FCC7C7';
 
   addSparkline = function(jqParent, g_info) {
-    var alert, alert_annotation, alert_labels, config, data, i, jqWidget, layout, len, plotbands, ref, ref1, widgetID, xvals, yvals;
+    var alert, alert_level, config, data, i, jqWidget, layout, len, line_shape, plotbands, ref, value_color, widgetID, xvals, yvals;
     xvals = g_info.times;
     yvals = g_info.values;
+    if (g_info.unitMeasureType === 'state') {
+      line_shape = 'hv';
+    } else {
+      line_shape = 'linear';
+    }
+    if (g_info.value_is_normal) {
+      value_color = 'black';
+    } else {
+      value_color = 'red';
+    }
     data = [
       {
         x: xvals,
@@ -18,9 +27,7 @@
         type: 'scatter',
         mode: 'lines',
         line: {
-          shape: (ref = g_info.unitMeasureType === 'state') != null ? ref : {
-            'hv': 'linear'
-          }
+          shape: line_shape
         },
         hoverinfo: 'text'
       }, {
@@ -31,70 +38,51 @@
         hoverinfo: 'skip',
         marker: {
           size: 8,
-          color: 'rgba(0, 0, 0, 0.7)'
+          color: value_color
         }
       }
     ];
+    ref = g_info.alerts;
+    for (i = 0, len = ref.length; i < len; i++) {
+      alert = ref[i];
+      alert_level = {
+        x: [g_info.minTime, g_info.maxTime],
+        y: [alert.value, alert.value],
+        text: ['Alert if value ' + alert.condition + ' ' + alert.value + ' ' + g_info.units],
+        type: 'scatter',
+        mode: 'markers+lines',
+        marker: {
+          size: 2,
+          color: 'black'
+        },
+        line: {
+          color: 'red',
+          width: 0.5,
+          dash: 'dot'
+        },
+        hoverinfo: 'text'
+      };
+      data.push(alert_level);
+    }
     plotbands = [
       {
         type: 'rect',
         layer: 'below',
         xref: 'paper',
         yref: 'y',
-        fillcolor: 'red',
-        opacity: 0.6,
+        fillcolor: 'green',
+        opacity: 0.15,
         line: {
           'width': 0
         },
         x0: 0,
-        y0: g_info.minAxis,
+        y0: g_info.minNormal,
         x1: 1,
-        y1: g_info.minNormal
-      }, {
-        type: 'rect',
-        layer: 'below',
-        xref: 'paper',
-        yref: 'y',
-        fillcolor: 'red',
-        opacity: 0.6,
-        line: {
-          'width': 0
-        },
-        x0: 0,
-        y0: g_info.maxNormal,
-        x1: 1,
-        y1: g_info.maxAxis
+        y1: g_info.maxNormal
       }
     ];
-    alert_labels = [];
-    ref1 = g_info.alerts;
-    for (i = 0, len = ref1.length; i < len; i++) {
-      alert = ref1[i];
-      alert_annotation = {
-        xref: 'paper',
-        yref: 'y',
-        x: 0,
-        y: alert.value,
-        ax: 25,
-        ay: 0,
-        xanchor: 'left',
-        yanchor: 'middle',
-        text: alert.condition,
-        font: {
-          color: 'black',
-          size: 14
-        },
-        bordercolor: 'red',
-        bgcolor: 'white',
-        showarrow: true,
-        arrowcolor: 'red',
-        arrowhead: 7,
-        arrowsize: .75
-      };
-      alert_labels.push(alert_annotation);
-    }
     layout = {
-      title: g_info.title,
+      title: '<b>' + g_info.title + '</b>',
       titlefont: {
         color: 'black'
       },
@@ -124,16 +112,21 @@
         pad: 0
       },
       shapes: plotbands,
-      annotations: slice.call(alert_labels).concat([{
+      annotations: [
+        {
           xref: 'paper',
           yref: 'paper',
           x: 1,
           xanchor: 'right',
           y: 0,
           yanchor: 'top',
-          text: '<b>' + g_info.value_label + ' ' + g_info.units + '</b>',
+          text: '<b>' + g_info.value_label + '</b>',
+          font: {
+            color: value_color
+          },
           showarrow: false
-        }])
+        }
+      ]
     };
     config = {
       showLink: false,
