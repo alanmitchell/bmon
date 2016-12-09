@@ -99,7 +99,7 @@ def run(url= '', site_id='', tz_data='US/Alaska', last_date_loaded='2016-01-01',
                 # make the CSV file name
                 fname = next_date.strftime('csv/%Y-%m-%d_00-00.csv')
 
-                resp = requests.get(urlparse.urljoin(url, fname), timeout=6)
+                resp = requests.get(urlparse.urljoin(url, fname), timeout=10)
                 doc = resp.text
                 df = pd.read_csv(StringIO.StringIO(doc),
                                  sep=';',
