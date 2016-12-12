@@ -31,35 +31,48 @@ class TimeSeries(basechart.BaseChart):
         # records to get the needed dataset
         st_ts, end_ts = self.get_ts_range()
 
+        # Get the timezone for the building
+        tz = pytz.timezone(self.timezone)
+
         # Create the series to plot and add up total points to plot and the points
         # in the longest series.
         series = []
         # determine suitable line width
         line_width = 1 if len(sensor_list) > 1 else 2
         for sensor in sensor_list:
+
+            # get the database records
             db_recs = self.reading_db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
-            # put timestamps and values into arrays
-            times = []
-            values = []
-            for rec in db_recs:
-                times.append(rec['ts'])
-                values.append(rec['val'])
-            # convert timestamps to a numpy array to be consistent with Pandas index below and 
-            # to allow easy multiplication
-            times = np.array(times)
-            if averaging_hours:
-                # averaging is requested, so do it using a Pandas Series
-                ser = pd.Series(values, index=times).groupby(bmsapp.data_util.TsBin(averaging_hours).bin).mean()
-                values = ser.values
-                times = ser.index
 
-            # Plotly uses datetime strings instead of timestamps
-            tz = pytz.timezone(self.timezone)
-            times = [datetime.fromtimestamp(ts,tz).strftime('%Y-%m-%d %H:%M:%S') for ts in times]
+            if db_recs:
+                # create a pandas dataframe from the database records
+                df = pd.DataFrame(db_recs)
+                df.index = df.ts
 
-            # Format the values
-            values = [bmsapp.data_util.round4(val) for val in values]
-                
+                '''
+                # perform average (if requested) using old bin method on timestamps
+                if averaging_hours:
+                    df = df.groupby(bmsapp.data_util.TsBin(averaging_hours).bin).mean()
+                '''
+
+                # convert timestamps to date/time strings
+                df.index = pd.DatetimeIndex(pd.to_datetime(df.index, unit='s')).tz_localize(pytz.utc).tz_convert(tz)
+
+                # perform average (if requested) using pandas
+                if averaging_hours:
+                    if averaging_hours.is_integer():
+                        resample_by = str(int(averaging_hours))+'H'
+                    else:
+                        resample_by = str(int(averaging_hours * 60)) + 'min'
+                    df = df.resample(resample_by).mean().dropna()
+
+                # create lists for plotly
+                values = np.char.mod('%.4g',df.val.values).astype(float).tolist()
+                times = df.index.strftime('%Y-%m-%d %H:%M:%S').tolist()
+            else:
+                times = []
+                values = []
+
             series_opt = {'x': times,
                           'y': values,
                           'type': 'scatter',
@@ -70,6 +83,7 @@ class TimeSeries(basechart.BaseChart):
                          }
 
             # TODO: Do we need to set the tooltip format, either through the data.text or through data.hoverinfo and layout.hovermode+axis.hoverformat?
+            #       this was done in highcharts, but works differently in plotly
             """
                           'tooltip': {
                               'valueSuffix': ' ' + sensor.unit.label,
