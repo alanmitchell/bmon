@@ -150,3 +150,27 @@ def histogram_from_series(pandas_series):
     # convert counts to float to avoid the error.  Also, round bin average
     # to 4 significant figures
     return zip(avg_bins, cts)
+
+def resample_timeseries(pandas_dataframe, averaging_hours):
+    '''
+    Returns a new pandas dataframe that is resampled at the specified interval
+    '''
+
+    interval_lookup = {
+        0.5: {'rule':'30min', 'loffset': '15min'}, 
+        1: {'rule': '1H', 'loffset': '30min'},
+        2: {'rule': '2H', 'loffset': '1H'},
+        4: {'rule': '4H', 'loffset': '2H'},
+        8: {'rule': '8H', 'loffset': '8H'},
+        24: {'rule': '1D', 'loffset': '12H'},
+        168: {'rule': '1W-MON', 'loffset': '4D'},
+        336: {'rule': '2W-MON', 'loffset': '7D'},
+        720: {'rule': '1M', 'loffset': '16D'},
+        8760: {'rule': 'AS', 'loffset': '6M'}
+        }
+
+    params = interval_lookup.get(averaging_hours, {'rule':str(int(averaging_hours * 60)) + 'min', 'loffset':str(int(averaging_hours * 30)) + 'min'})
+
+    new_df = pandas_dataframe.resample(rule=params['rule'], loffset=params['loffset'],label='left').mean().dropna()
+
+    return new_df

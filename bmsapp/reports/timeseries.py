@@ -45,26 +45,13 @@ class TimeSeries(basechart.BaseChart):
             db_recs = self.reading_db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
 
             if db_recs:
-                # create a pandas dataframe from the database records
+                # create a pandas dataframe from the database records with a timeseries index
                 df = pd.DataFrame(db_recs)
-                df.index = df.ts
-
-                '''
-                # perform average (if requested) using old bin method on timestamps
-                if averaging_hours:
-                    df = df.groupby(bmsapp.data_util.TsBin(averaging_hours).bin).mean()
-                '''
-
-                # convert timestamps to date/time strings
-                df.index = pd.DatetimeIndex(pd.to_datetime(df.index, unit='s')).tz_localize(pytz.utc).tz_convert(tz)
+                df.index = pd.DatetimeIndex(pd.to_datetime(df.ts, unit='s')).tz_localize(pytz.utc).tz_convert(tz)
 
                 # perform average (if requested) using pandas
                 if averaging_hours:
-                    if averaging_hours.is_integer():
-                        resample_by = str(int(averaging_hours))+'H'
-                    else:
-                        resample_by = str(int(averaging_hours * 60)) + 'min'
-                    df = df.resample(resample_by).mean().dropna()
+                    df = bmsapp.data_util.resample_timeseries(df,averaging_hours)
 
                 # create lists for plotly
                 values = np.char.mod('%.4g',df.val.values).astype(float).tolist()
