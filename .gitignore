@@ -11,3 +11,8 @@ settings.py
 **/.ipynb_checkpoints
 .idea
 *.exe
+bin/
+obj/
+*.pyproj
+*.suo
+*.config
