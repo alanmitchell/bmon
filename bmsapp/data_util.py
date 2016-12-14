@@ -75,6 +75,9 @@ class TsBin:
     Class to determine a timestamp bin value (UNIX seconds) for purposes of time-averaging
     data.  Bins are aligned to the start of a Monday, standard time, in the requested timezone.
     No accounting of daylight savings time occurs for establishment of the bins.
+
+    The 'data_util.resample_timeseries()' function is a better replacement for this and is now
+    primarily being used in the reports.
     '''
 
     def __init__(self, bin_width, tz=default_tz):
@@ -138,7 +141,7 @@ def histogram_from_series(pandas_series):
     cts, bins = np.histogram(pandas_series.values, 20)   # 20 bin histogram
     avg_bins = (bins[:-1] + bins[1:]) / 2.0       # calculate midpoint of bins
 
-    # round these values for better display in Highcharts
+    # round these values for better display in charts
     avg_bins = [round4(x) for x in avg_bins]
 
     # Convert count bins into % of total reading count
@@ -161,15 +164,16 @@ def resample_timeseries(pandas_dataframe, averaging_hours):
         1: {'rule': '1H', 'loffset': '30min'},
         2: {'rule': '2H', 'loffset': '1H'},
         4: {'rule': '4H', 'loffset': '2H'},
-        8: {'rule': '8H', 'loffset': '8H'},
+        8: {'rule': '8H', 'loffset': '4H'},
         24: {'rule': '1D', 'loffset': '12H'},
-        168: {'rule': '1W-MON', 'loffset': '4D'},
+        168: {'rule': '1W-MON', 'loffset': '84H'},
         336: {'rule': '2W-MON', 'loffset': '7D'},
         720: {'rule': '1M', 'loffset': '16D'},
         8760: {'rule': 'AS', 'loffset': '6M'}
         }
-
     params = interval_lookup.get(averaging_hours, {'rule':str(int(averaging_hours * 60)) + 'min', 'loffset':str(int(averaging_hours * 30)) + 'min'})
+
+    # For some reason the pandas resampling sometimes fails if the datetime index is timezone aware...
 
     new_df = pandas_dataframe.resample(rule=params['rule'], loffset=params['loffset'],label='left').mean().dropna()
 

@@ -42,14 +42,10 @@ class TimeSeries(basechart.BaseChart):
         for sensor in sensor_list:
 
             # get the database records
-            db_recs = self.reading_db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
+            df = self.reading_db.dataframeForOneID(sensor.sensor_id, st_ts, end_ts,tz)
 
-            if db_recs:
-                # create a pandas dataframe from the database records with a timeseries index
-                df = pd.DataFrame(db_recs)
-                df.index = pd.DatetimeIndex(pd.to_datetime(df.ts, unit='s')).tz_localize(pytz.utc).tz_convert(tz)
-
-                # perform average (if requested) using pandas
+            if not df.empty:
+                # perform average (if requested)
                 if averaging_hours:
                     df = bmsapp.data_util.resample_timeseries(df,averaging_hours)
 
@@ -69,15 +65,6 @@ class TimeSeries(basechart.BaseChart):
                           'line': {'width': line_width},
                          }
 
-            # TODO: Do we need to set the tooltip format, either through the data.text or through data.hoverinfo and layout.hovermode+axis.hoverformat?
-            #       this was done in highcharts, but works differently in plotly
-            """
-                          'tooltip': {
-                              'valueSuffix': ' ' + sensor.unit.label,
-                              'valueDecimals': bmsapp.data_util.decimals_needed(values, 4)
-                          }
-            """
-
             # if the sensor has defined states, make the series a Step type series.
             if sensor.unit.measure_type == 'state':
                 series_opt['line']['shape'] = 'hv'
@@ -96,14 +83,36 @@ class TimeSeries(basechart.BaseChart):
 
         # Make the chart y axes configuration objects
         # TODO: still need to adjust positioning so that axes don't draw on top of each other
-        for label, id in y_axes.items():
-            if id == 1:
-                opt['layout']['yaxis']['title'] = label
-            else:
-                opt['layout']['yaxis'+str(id)] = {'title': label,
-                                                  'overlaying':'y',
-                                                  'side': 'right',
-                                                  'titlefont': opt['layout']['yaxis']['titlefont']}
+        if len(y_axes) == 1:
+            opt['layout']['margin']['l'] = 60
+            opt['layout']['margin']['r'] = 20
+            opt['layout']['yaxis']['title'] = y_axes.keys()[0]
+        elif len(y_axes) == 2:
+            opt['layout']['margin']['l'] = 60
+            opt['layout']['margin']['r'] = 60
+            y_axes_by_id = {v: k for k, v in y_axes.iteritems()}
+            opt['layout']['yaxis']['title'] = y_axes_by_id[1]
+            opt['layout']['yaxis2'] = {'title': y_axes_by_id[2],
+                                              'overlaying':'y',
+                                              'side': 'right',
+                                              'titlefont': opt['layout']['yaxis']['titlefont']}
+        else:
+            opt['layout']['margin']['l'] = 60
+            opt['layout']['margin']['r'] = 20           
+            opt['layout']['xaxis']['domain'] = [0.10 * (len(y_axes) - 1), 1]          
+            for label, id in y_axes.items():
+                if id == 1:
+                    opt['layout']['yaxis']['title'] = label
+                else:
+                    opt['layout']['yaxis'+str(id)] = {'title': label,
+                                                      'overlaying':'y',
+                                                      'side': 'left',
+                                                      'anchor': 'free',
+                                                      'position': 0.10 * (id - 2),
+                                                      'ticks': 'outside',
+                                                      'ticklen': 8,
+                                                      'tickwidth': 1,
+                                                      'titlefont': opt['layout']['yaxis']['titlefont']}
 
 
         # If occupied period shading is requested, do it, as long as data

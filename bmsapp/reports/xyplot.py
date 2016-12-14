@@ -37,21 +37,18 @@ class XYplot(basechart.BaseChart):
         div_dt = tz.localize(parser.parse(div_datestring)) if len(div_datestring) else None
 
 
-        # The list that will hold each Highcharts series
+        # The list that will hold each series
         series = []
 
         # get the X and Y sensor records and perform the requested averaging
-        db_recsX = self.reading_db.rowsForOneID(sensorX.sensor_id, st_ts, end_ts)
-        db_recsY = self.reading_db.rowsForOneID(sensorY.sensor_id, st_ts, end_ts)
-        if len(db_recsX)>0 and len(db_recsY)>0:  # both sensors have some data, so proceed to average the data points
+        dfX = self.reading_db.dataframeForOneID(sensorX.sensor_id, st_ts, end_ts,tz)
+        dfY = self.reading_db.dataframeForOneID(sensorY.sensor_id, st_ts, end_ts,tz)
+
+        if not dfX.empty and not dfY.empty:  # both sensors have some data, so proceed to average the data points
             
-            dfX = pd.DataFrame(db_recsX)
-            dfX.index = pd.DatetimeIndex(pd.to_datetime(dfX.ts, unit='s')).tz_localize(pytz.utc).tz_convert(tz)
             dfX = bmsapp.data_util.resample_timeseries(dfX,averaging_hours)
             dfX.rename(columns = {'val':'X'}, inplace = True)
 
-            dfY = pd.DataFrame(db_recsY)
-            dfY.index = pd.DatetimeIndex(pd.to_datetime(dfY.ts, unit='s')).tz_localize(pytz.utc).tz_convert(tz)
             dfY = bmsapp.data_util.resample_timeseries(dfY,averaging_hours)
             dfY.rename(columns = {'val':'Y','ts':'tsY'}, inplace = True)
 
@@ -74,11 +71,11 @@ class XYplot(basechart.BaseChart):
             # Set up the parameters for the different series of data
             # Required Info is (starting datetime, ending datetime, occupied status (0 or 1), series name, 
             # series color, series symbol, series radius, series zindex).
-            now_dt = datetime.now(tz)
+            now_dt = datetime.now()
             if div_dt:
                 # A dividing date was provided by the user.
-                ser_params = ( (datetime(1970,1,1,tzinfo=tz), div_dt, 1, 'Prior to %s' % div_datestring, '#2f7ed8', 'circle', 4.5),
-                               (datetime(1970,1,1,tzinfo=tz), div_dt, 0, 'Prior to %s, Unoccupied' % div_datestring, '#2f7ed8', 'triangle-up', 3),
+                ser_params = ( (datetime(1970,1,1), div_dt, 1, 'Prior to %s' % div_datestring, '#2f7ed8', 'circle', 4.5),
+                               (datetime(1970,1,1), div_dt, 0, 'Prior to %s, Unoccupied' % div_datestring, '#2f7ed8', 'triangle-up', 3),
                                (div_dt, now_dt, 1, '%s and beyond' % div_datestring, '#FF0000', 'circle', 4.5),
                                (div_dt, now_dt, 0, '%s and beyond, Unoccupied' % div_datestring, '#FF0000', 'triangle-up', 3) )
             else:
@@ -87,10 +84,9 @@ class XYplot(basechart.BaseChart):
                                (now_dt - timedelta(days=1), now_dt, 0, 'Last 24 Hours, Unoccupied', '#FF0000', 'triangle-up', 3),
                                (now_dt - timedelta(days=7), now_dt - timedelta(days=1), 1, 'Last 7 Days', '#00CC00', 'circle', 4.5),
                                (now_dt - timedelta(days=7), now_dt - timedelta(days=1), 0, 'Last 7 Days, Unoccupied', '#00CC00', 'triangle-up', 3),
-                               (datetime(1970,1,1,tzinfo=tz), now_dt - timedelta(days=7), 1, '7+ Days Old', '#2f7ed8', 'circle', 4.5),
-                               (datetime(1970,1,1,tzinfo=tz), now_dt - timedelta(days=7), 0, '7+ Days Old, Unoccupied', '#2f7ed8', 'triangle-up', 3),
+                               (datetime(1970,1,1), now_dt - timedelta(days=7), 1, '7+ Days Old', '#2f7ed8', 'circle', 4.5),
+                               (datetime(1970,1,1), now_dt - timedelta(days=7), 0, '7+ Days Old, Unoccupied', '#2f7ed8', 'triangle-up', 3),
                               )
-            series = []
 
             for t_start, t_end, occup, ser_name, ser_color, ser_symbol, radius in reversed(ser_params):
                 mask = (df_all.index >= t_start) & (df_all.index < t_end) & (df_all.occupied==occup)
@@ -107,7 +103,7 @@ class XYplot(basechart.BaseChart):
                                               }
                                     } )
 
-        # create the X and Y axis labels and the series in Highcharts format
+        # create the X and Y axis labels and the series
         x_label = '%s, %s' % (sensorX.title, sensorX.unit.label)
         y_label = '%s, %s' % (sensorY.title, sensorY.unit.label)
 

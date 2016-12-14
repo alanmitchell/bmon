@@ -4,8 +4,8 @@
     background: #d4e7f7
 }
 .gauge {
-	width: 230px; 
-	height: 230px; 
+	width: 220px; 
+	height: 220px; 
 	display: inline-block;
     vertical-align: top; 
     margin: 2px;
@@ -14,8 +14,8 @@
     border-color:#4572A7
 }
 .led, .not-current {
-    width: 230px;
-	height: 230px;
+    width: 220px;
+	height: 220px;
 	display: inline-block;
     vertical-align: top; 
     margin: 2px;
@@ -32,7 +32,7 @@
 }
 .dash-label {
     width: 130px;
-	height: 230px;
+	height: 220px;
 	display: inline-block; 
     vertical-align: top; 
     margin: 2px;

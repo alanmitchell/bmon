@@ -12,6 +12,7 @@ import glob
 import calendar
 import pytz
 from dateutil import parser
+import pandas as pd
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -168,6 +169,31 @@ class BMSdata:
 
         self.cursor.execute(sql)
         return [dict(r) for r in self.cursor.fetchall()]
+
+    def dataframeForOneID(self, sensor_id, start_ts=None, end_ts=None, tz=None):
+        """Returns a pandas dataframe having a 'ts' and 'val' columns.  The
+        rows are for a particular sensor ID, and can be further limited by a time range.
+        'start_tm' and 'end_tm' are UNIX timestamps.  If either are not provided, no limit
+        is imposed.  The rows are returned in timestamp order with a datetime index.
+        """
+
+        sql = 'SELECT ts, val FROM [%s] WHERE 1' % sensor_id
+        if start_ts is not None:
+            sql += ' AND ts>=%s' % int(start_ts)
+        if end_ts is not None:
+            sql += ' AND ts<=%s' % int(end_ts)
+        sql += ' ORDER BY ts'
+
+        df = pd.read_sql_query(sql,self.conn)
+        df.index = pd.DatetimeIndex(pd.to_datetime(df.ts, unit='s'))
+
+        if tz:
+            # Convert the dates to the specified timezone...
+            # But, for some reason pandas resampling sometimes fails if the datetime index is timezone aware,
+            # so after converting the dates we make them timezone naive again.
+            df.index = df.index.tz_localize('UTC').tz_convert(tz).tz_localize(None)
+
+        return df
 
     def readingCount(self, startTime=0):
         """Returns the number of readings in the reading table inserted after the specified

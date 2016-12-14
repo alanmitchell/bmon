@@ -119,5 +119,7 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
 
         html = '<div id="chart_container"></div>'
 
+        # TODO: this class needs to be converted to use Plotly instead of highcharts
+
         return {'html': html, 'objects': [('highcharts', opt)]}
 
