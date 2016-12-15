@@ -1,4 +1,4 @@
-import numpy as np, pandas as pd
+﻿import numpy as np, pandas as pd
 from datetime import datetime
 import pytz
 import bmsapp.models, bmsapp.data_util
@@ -79,10 +79,9 @@ class TimeSeries(basechart.BaseChart):
 
         opt['layout']['xaxis']['title'] =  "Date/Time (%s)" % self.timezone
         opt['layout']['xaxis']['type'] =  'date'
-
+        opt['layout']['xaxis']['hoverformat'] = '%a %m/%d/%y %H:%M'
 
         # Make the chart y axes configuration objects
-        # TODO: still need to adjust positioning so that axes don't draw on top of each other
         if len(y_axes) == 1:
             opt['layout']['margin']['l'] = 60
             opt['layout']['margin']['r'] = 20

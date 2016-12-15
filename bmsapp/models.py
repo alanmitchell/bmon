@@ -1,4 +1,4 @@
-import time
+﻿import time
 import json
 import logging
 from django.db import models
@@ -252,7 +252,7 @@ class DashboardItem(models.Model):
     LABEL = 'label'
     NOT_CURRENT = 'stale'      # data is not current. Don't include as a User choice.
     DISPLAY_WIDGET_CHOICES = (
-        (GAUGE, 'Gauge'),
+        (GAUGE, 'Graph'),
         (LED, 'Red/Green LED'),
         (LABEL, 'Label'),
     )
