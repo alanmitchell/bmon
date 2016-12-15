@@ -52,11 +52,7 @@ class Histogram(basechart.BaseChart):
                     select_df = df[mask]
 
                 if averaging_hours:
-                    try:
-                        select_df = bmsapp.data_util.resample_timeseries(select_df, averaging_hours)
-                    except:
-                        # ignore error to get around infrequent and temporary pandas bug
-                        series_name = series_name + ' (not averaged)'
+                    select_df = bmsapp.data_util.resample_timeseries(select_df, averaging_hours)
 
                 histogram_series = bmsapp.data_util.histogram_from_series(select_df.val)
 

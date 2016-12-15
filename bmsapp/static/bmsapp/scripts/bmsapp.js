@@ -48,6 +48,8 @@
         switch (obj_type) {
           case 'plotly':
             return Plotly.plot(obj_config.renderTo, obj_config.data, obj_config.layout, obj_config.config);
+          case 'dashboard':
+            return ANdash.createDashboard(obj_config);
         }
       });
     }).fail(function(jqxhr, textStatus, error) {

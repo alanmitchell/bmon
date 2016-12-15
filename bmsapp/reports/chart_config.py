@@ -20,7 +20,7 @@ layout:
   titlefont:
     size: 22
   margin:
-    l: 60
+    l: 65
     r: 20
     b: 10
     t: 75

@@ -157,6 +157,8 @@ def histogram_from_series(pandas_series):
 def resample_timeseries(pandas_dataframe, averaging_hours):
     '''
     Returns a new pandas dataframe that is resampled at the specified interval
+    
+    For some reason the pandas resampling sometimes fails if the datetime index is timezone aware...
     '''
 
     interval_lookup = {
@@ -166,14 +168,12 @@ def resample_timeseries(pandas_dataframe, averaging_hours):
         4: {'rule': '4H', 'loffset': '2H'},
         8: {'rule': '8H', 'loffset': '4H'},
         24: {'rule': '1D', 'loffset': '12H'},
-        168: {'rule': '1W-MON', 'loffset': '84H'},
-        336: {'rule': '2W-MON', 'loffset': '7D'},
+        168: {'rule': '1W', 'loffset': '108H'},
+        336: {'rule': '2W', 'loffset': '8D'},
         720: {'rule': '1M', 'loffset': '16D'},
         8760: {'rule': 'AS', 'loffset': '6M'}
         }
     params = interval_lookup.get(averaging_hours, {'rule':str(int(averaging_hours * 60)) + 'min', 'loffset':str(int(averaging_hours * 30)) + 'min'})
-
-    # For some reason the pandas resampling sometimes fails if the datetime index is timezone aware...
 
     new_df = pandas_dataframe.resample(rule=params['rule'], loffset=params['loffset'],label='left').mean().dropna()
 

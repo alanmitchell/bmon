@@ -105,21 +105,18 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
                 values.append( round(total_values / total_dd / bldg_params['floor_area'], 2) )
 
         opt = self.get_chart_options()
-        opt['chart']['type'] =  'column'
-        opt['legend']['enabled'] = False
-        opt['series'] = [{'data': values}]
-        opt['xAxis']['categories'] = bldg_names
-        opt['yAxis']['title']['text'] = self.chart_params["value_units"] + '/ft2/degree-day'
-        opt['yAxis']['min'] = 0
-        opt['xAxis']['labels'] = {
-                    'rotation': -45,
-                    'align': 'right',
-                    'style': {'fontSize': '13px'}
-                    }
+        opt['data'] = [{
+                        'x': bldg_names,
+                        'y': values,
+                        'type': 'bar'
+                        }]
+        opt['layout']['showlegend'] = False
+        opt['layout']['yaxis']['title'] =  self.chart_params["value_units"] + '/ft2/degree-day'
+        opt['layout']['yaxis']['rangemode'] = 'tozero'
+        opt['layout']['xaxis']['title'] =  ''
+        opt['layout']['xaxis']['tickangle'] = -45
+        opt['layout']['margin']['b'] = 100           
 
         html = '<div id="chart_container"></div>'
 
-        # TODO: this class needs to be converted to use Plotly instead of highcharts
-
-        return {'html': html, 'objects': [('highcharts', opt)]}
-
+        return {'html': html, 'objects': [('plotly', opt)]}

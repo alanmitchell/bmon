@@ -37,8 +37,8 @@ class ExportData(basechart.BaseChart):
         ws.write(0, 0, "Timestamp", t1_style)
         ws.col(0).width = 4300
 
-        # make a timestamp binning object
-        binner = bmsapp.data_util.TsBin(float(self.request_params['averaging_time_export']))
+        # get the averaging interval
+        averaging_hours = float(self.request_params['averaging_time_export'])
 
         # walk through sensors, setting column titles and building a Pandas DataFrame
         # that aligns the averaged timestamps of the different sensors.
@@ -55,11 +55,11 @@ class ExportData(basechart.BaseChart):
             # determine the start time for selecting records and make a DataFrame from
             # the records
             st_ts, end_ts = self.get_ts_range()
-            db_recs = self.reading_db.rowsForOneID(sensor.sensor_id, st_ts, end_ts)
-            if len(db_recs)!=0:
-                df_new = pd.DataFrame(db_recs).set_index('ts')
-                df_new.columns = ['col%03d' % col]
-                df_new = df_new.groupby(binner.bin).mean()    # do requested averaging
+            df_new = self.reading_db.dataframeForOneID(sensor.sensor_id, st_ts, end_ts, self.timezone)
+            if not df_new.empty:
+                df_new = bmsapp.data_util.resample_timeseries(df_new, averaging_hours)
+                df_new.drop('ts', axis=1, inplace=True) # drop the timestamp column
+                df_new.rename(columns = {'val': 'col%03d' % col}, inplace = True) # rename the value column
 
                 # join this with the existing DataFrame, taking the union of all timestamps
                 df = df.join(df_new, how='outer')
@@ -74,13 +74,14 @@ class ExportData(basechart.BaseChart):
         # add any blank columns to the dataframe
         for col_name in blank_col_names:
             df[col_name] = np.NaN
+
         # but now need sort the columns back to order they arrived
         df = df.sort_index(axis=1)
 
         # put the data in the spreadsheet
         row = 1
         for ix, ser in df.iterrows():
-            ws.write(row, 0, bmsapp.data_util.ts_to_datetime(ix), dt_style)
+            ws.write(row, 0, ix, dt_style)
             col = 1
             for v in ser.values:
                 if not np.isnan(v):

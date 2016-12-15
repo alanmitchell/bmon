@@ -84,7 +84,8 @@
     layout = {
       title: '<b>' + g_info.title + '</b>',
       titlefont: {
-        color: 'black'
+        color: 'black',
+        size: 14
       },
       xaxis: {
         range: [g_info.minTime, g_info.maxTime],
@@ -150,9 +151,9 @@
     widgetID = "widget" + (++widgetCounter);
     jqParent.append("<div id=\"" + widgetID + "\" class=\"led\"> <h2>" + LED_info.title + "</h2> <div class=\"led-circle\"></div> <div class=\"value-label\">" + LED_info.value_label + "</div> </div>");
     jqWidget = $("#" + widgetID);
-    if (LED_info.value < LED_info.minNormal || LED_info.value > LED_info.maxNormal) {
+    if (!LED_info.value_is_normal) {
       jqWidget.children(".led-circle").css('background-color', '#FF0000');
-      jqWidget.css('background-color', LIGHT_RED);
+      jqWidget.children(".value-label").css('color', '#FF0000');
     }
     jqWidget.css('cursor', 'pointer');
     jqWidget.click(function() {

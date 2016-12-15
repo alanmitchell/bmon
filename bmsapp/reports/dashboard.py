@@ -37,7 +37,6 @@ class Dashboard(basechart.BaseChart):
     
             new_widget = {'type': dash_item.widget_type,
                           'timeChartID': basechart.TIME_SERIES_CHART_ID,
-                          'sensorID': dash_item.sensor.sensor.id,
                           'title': dash_item.title if len(dash_item.title) or (dash_item.sensor is None) else dash_item.sensor.sensor.title
                           }
 
@@ -70,7 +69,10 @@ class Dashboard(basechart.BaseChart):
                         labels.append(datetime.fromtimestamp(rec['ts'],tz).strftime('%I:%M %p').lstrip('0') + '</br>' + format_function(rec['val']) + ' ' + dash_item.sensor.sensor.unit.label)
                     minAxis = min(minAxis, min(values))
                     maxAxis = max(maxAxis, max(values))
-                    value_label = format_function(values[-1]) + ' ' + dash_item.sensor.sensor.unit.label
+                    if dash_item.sensor.sensor.unit.label not in ['code','1=On 0=Off']:
+                        value_label = format_function(values[-1]) + ' ' + dash_item.sensor.sensor.unit.label
+                    else:
+                        value_label = format_function(values[-1])
                     if dash_item.minimum_normal_value <= values[-1] <= dash_item.maximum_normal_value:
                         value_is_normal = True
                     else:
@@ -90,6 +92,7 @@ class Dashboard(basechart.BaseChart):
                             value_label = 'Last reading was %.1f days ago' % (age_secs/86400.0)
 
                 new_widget.update( {
+                    'sensorID': dash_item.sensor.sensor.id,
                     'value_label': value_label,
                     'value_is_normal': value_is_normal,
                     'times': times,
@@ -108,8 +111,7 @@ class Dashboard(basechart.BaseChart):
     
             else:
                 # dash_item.sensor = None
-                new_widget['type'] = bmsapp.models.DashboardItem.NOT_CURRENT
-                new_widget['age'] = 'Not Available'
+                pass
 
             cur_row.append(new_widget)
 
