@@ -71,18 +71,25 @@ class NormalizedByFt2(basechart.BaseChart):
                 values.append( round( normalized_val, 2) )
 
         opt = self.get_chart_options()
-        opt['chart']['type'] =  'column'
-        opt['legend']['enabled'] = False
-        opt['series'] = [{'data': values}]
-        opt['xAxis']['categories'] = bldg_names
-        opt['yAxis']['title']['text'] = self.chart_params["value_units"] + '/ft2'
-        opt['yAxis']['min'] = 0
+        opt['data'] = [{
+                        'x': bldg_names,
+                        'y': values,
+                        'type': 'bar'
+                        }]
+        opt['layout']['showlegend'] = False
+        opt['layout']['yaxis']['title'] =  self.chart_params["value_units"] + '/ft2'
+        opt['layout']['yaxis']['rangemode'] = 'tozero'
+        opt['layout']['xaxis']['title'] =  ''
+        opt['layout']['xaxis']['tickangle'] = -45
+        opt['layout']['margin']['b'] = 120           
+
+        '''
         opt['xAxis']['labels'] = {
-                    'rotation': -45,
                     'align': 'right',
                     'style': {'fontSize': '13px'}
                     }
+        '''
 
         html = '<div id="chart_container"></div>'
 
-        return {'html': html, 'objects': [('highcharts', opt)]}
+        return {'html': html, 'objects': [('plotly', opt)]}

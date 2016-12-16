@@ -183,24 +183,20 @@ class BaseChart(object):
 
         return st_ts, end_ts
 
-    def get_chart_options(self, chart_type='highcharts'):
+    def get_chart_options(self, chart_type='plotly'):
         """
-        Returns a configuration object for a Highcharts or Highstock chart.  Must make a
+        Returns a configuration object for the chart.  Must make a
         copy of the original so that it is not modified.
         """
-        if chart_type == 'highcharts':
-            opt = chart_config.highcharts_opt
-        elif chart_type == 'highstock':
-            opt = chart_config.highstock_opt
-        elif chart_type == 'heatmap':
-            opt = chart_config.heatmap_opt
+        if chart_type == 'plotly':
+            opt = chart_config.plotly_opt
         else:
             raise ValueError('Invalid Chart Type.')
         opt = copy.deepcopy(opt)
         if hasattr(self, 'building'):
-            opt['title']['text'] = '%s: %s' % (self.chart_info.title, self.building.title)
+            opt['layout']['title'] = '%s: %s' % (self.chart_info.title, self.building.title)
         else:
-            opt['title']['text'] = self.chart_info.title
+            opt['layout']['title'] = self.chart_info.title
         return opt
 
     def occupied_resolution(self):

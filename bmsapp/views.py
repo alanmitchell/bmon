@@ -88,7 +88,7 @@ def get_report_results(request):
         chart_obj = basechart.get_chart_object(request.GET)
         result = chart_obj.result()
     
-    except:
+    except Exception as e:
         _logger.exception('Error in get_report_results')
         result = {'html': 'Error in get_report_results', 'objects': []}
 

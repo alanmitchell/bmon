@@ -50,8 +50,7 @@ update_results = ->
     $.each results.objects, (ix, obj) ->
       [obj_type, obj_config] = obj
       switch obj_type
-        when 'highcharts' then new Highcharts.Chart(obj_config)
-        when 'highstock' then new Highcharts.StockChart(obj_config)
+        when 'plotly' then Plotly.plot(obj_config.renderTo, obj_config.data, obj_config.layout, obj_config.config)
         when 'dashboard' then ANdash.createDashboard(obj_config)
   ).fail (jqxhr, textStatus, error) ->
     $("body").css "cursor", "default"   # remove hourglass cursor
@@ -148,10 +147,6 @@ $ ->
 
   # enable jQuery UI tooltips
   $(document).tooltip()
-
-  # Make Highcharts display in the timezone of the client's computer
-  Highcharts.setOptions global:
-    useUTC: false
 
   # Configure many of the elements that commonly appear in chart configuration
   # form.

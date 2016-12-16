@@ -12,3 +12,9 @@ settings.py
 .idea
 *.exe
 *.pkl
+bin/
+obj/
+*.pyproj
+*.suo
+*.config
+*.sln

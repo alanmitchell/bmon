@@ -29,30 +29,46 @@ class HourlyHeatMap(basechart.BaseChart):
             dt = bmsapp.data_util.ts_to_datetime(rec['ts'])
             recs.append({'da': dt.weekday(), 'hr': dt.hour, 'val': rec['val']})
 
-        data = []
         if len(recs):
-            # make a pandas DataFrame that has average values for each weekday / hour
-            # combination.  Remove the multi-index so that it easier to select certain days
-            df = pd.DataFrame(recs).groupby(('da', 'hr')).mean().reset_index()
-            for i in range(len(df)):
-                data.append([int(df.xs(i)['hr']), int(df.xs(i)['da']), bmsapp.data_util.round4(df.xs(i)['val'])])
+            df = pd.DataFrame(recs)
+            z_list = []
+            text_list = []
+            for da in range(0,7):
+                z_vals = []
+                text_vals = []
+                for hr in range(0,24):
+                    val = bmsapp.data_util.round4(df.loc[(df['da'] == da) & (df['hr'] == hr), 'val'].mean())
+                    z_vals.append(val)
+                    text_vals.append('Avg: '+str(val)+' '+the_sensor.unit.label)
+                z_list.append(z_vals)
+                text_list.append(text_vals)
+        else:
+            z_list = [[None for hr in range(0,24)] for da in range(0,7)]
+            text_list = z_list
 
-        series = {'data': data,
-                  'name': 'Hourly Average',
-                  'borderWidth': 1,
-                 }
-        opt = self.get_chart_options('heatmap')
+        data = [{'z': z_list,
+                 'x': ['12a', '1a', '2a', '3a', '4a', '5a', '6a', '7a',
+                       '8a', '9a', '10a', '11a', '12p', '1p', '2p', '3p',
+                       '4p', '5p', '6p', '7p', '8p', '9p', '10p', '11p'],
+                 'y': ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday','Saturday', 'Sunday'],
+                 'text': text_list,
+                 'name': 'Hourly Average',
+                 'type': 'heatmap',
+                 'colorscale': [[0, '#FFFFFF'],[1,'#0066FF']],
+                 'hoverinfo': 'x+y+text',
+                 'xgap': 1,
+                 'ygap': 1
+                 }]
 
-        opt['series'] = [series]
-        opt['xAxis']['categories'] = ['12a', '1a', '2a', '3a', '4a', '5a', '6a', '7a', '8a', '9a',
-            '10a', '11a', '12p', '1p', '2p', '3p', '4p', '5p', '6p', '7p', '8p', '9p', '10p', '11p']
-        opt['yAxis']['categories'] = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday',
-                                      'Saturday', 'Sunday']
-        opt['yAxis']['title'] = None
-        opt['title']['text'] = the_sensor.title + ' Hourly Profile: ' + self.building.title
-        opt['tooltip']['pointFormat'] = "<b>{point.value} %s</b>" % (the_sensor.unit.label)
+        opt = self.get_chart_options('plotly')
+        opt['data'] = data
+        opt['layout']['title'] = the_sensor.title + ' Hourly Profile: ' + self.building.title
+        opt['layout']['xaxis']['title'] =  'Hour of the Day'
+        opt['layout']['yaxis']['title'] =  ''
+        opt['layout']['margin']['b'] =  60
+        opt['layout']['margin']['l'] =  80
 
-        html = '<div id="chart_container"></div>'
+        html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7"></div>'
 
-        return {'html': html, 'objects': [('highcharts', opt)]}
+        return {'html': html, 'objects': [('plotly', opt)]}
 

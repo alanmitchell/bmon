@@ -1,46 +1,59 @@
 .row {
 	margin: 0 auto;
+    text-align: center;
+    background: #d4e7f7
 }
 .gauge {
-	width: 230px; 
-	height: 230px; 
-	float: left; 
-	margin: 0 auto;
+	width: 220px; 
+	height: 220px; 
+	display: inline-block;
+    vertical-align: top; 
+    margin: 2px;
+    border-style: solid; 
+    border-width:2px; 
+    border-color:#4572A7
 }
 .led, .not-current {
-    width: 150px;
-	height: 230px;
-    float: left;
-    margin: 0 auto;
+    width: 220px;
+	height: 220px;
+	display: inline-block;
+    vertical-align: top; 
+    margin: 2px;
+    border-style: solid; 
+    border-width:2px; 
+    border-color:#4572A7;
+    background-color: white;
 }
 .led-circle {
     border-radius: 50%;
     width: 50px;
     height: 50px;
     background-color: #00BB00;
-    margin: 5px auto;
+    margin: 40px auto;
 }
 .dash-label {
     width: 130px;
-	height: 230px;
-    float: left;
-    margin: 0 auto;
+	height: 220px;
+	display: inline-block; 
+    vertical-align: top; 
+    margin: 2px;
 }
 .led h2, .not-current h2 {
     padding: 5px;
     text-align: center;
-    font-family: arial,sans-serif;
-    font-size: 18px;
+    font-family: "Open Sans", verdana, arial, sans-serif;
+    font-size: 14px;
 }
 .dash-label h2 {
     padding: 55px 0 0 0;
     text-align: center;
-    font-family: arial,sans-serif;
+    font-family: "Open Sans", verdana, arial, sans-serif;
     font-size: 18px;
 }
 .value-label {
     padding: 5px;
     text-align: center;
-    font-family: arial,sans-serif;
-    font-size: 14px;
+    font-family: "Open Sans", verdana, arial, sans-serif;
+    font-size: 12px;
+    font-weight: bold;
 }
