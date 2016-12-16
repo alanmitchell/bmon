@@ -1,4 +1,4 @@
-from __future__ import division
+﻿from __future__ import division
 import pandas as pd
 import yaml
 import bmsapp.models, bmsapp.data_util
@@ -39,9 +39,6 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
         # get the time range  used in the analysis
         st_ts, end_ts = self.get_ts_range()
 
-        # make a timestamp binning object to bin the data into 1 hour intervals
-        binner = bmsapp.data_util.TsBin(1.0)
-
         # get the base temperature for degree day calculations
         base_temp = self.chart_params['base_temp']
 
@@ -65,20 +62,20 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
             bldg_params = yaml.load(bldg_info.parameters)
 
             # get the value records and average into one hour intervals
-            db_recs = self.reading_db.rowsForOneID(bldg_params['id_value'], st_ts, end_ts)
-            if len(db_recs)==0:
+            df = self.reading_db.dataframeForOneID(bldg_params['id_value'], st_ts, end_ts, self.timezone)
+            if len(df)==0:
                 continue
-            df = pd.DataFrame(db_recs).set_index('ts')
-            df.columns = ['value']
-            df = df.groupby(binner.bin).mean()    # do one hour averaging
+            df.drop('ts', 1, inplace=True)        # delete ts column
+            df.columns = ['value']                # rename to value
+            df = bmsapp.data_util.resample_timeseries(df, 1)    # do one hour averaging
 
             # get outdoor temp data and average into one hour intervals.  
-            db_recs = self.reading_db.rowsForOneID(bldg_params['id_out_temp'], st_ts, end_ts)
-            if len(db_recs)==0:
+            df_temp = self.reading_db.dataframeForOneID(bldg_params['id_out_temp'], st_ts, end_ts, self.timezone)
+            if len(df_temp)==0:
                 continue
-            df_temp = pd.DataFrame(db_recs).set_index('ts')
-            df_temp.columns = ['temp']
-            df_temp = df_temp.groupby(binner.bin).mean()    # do one hour averaging
+            df_temp.drop('ts', 1, inplace=True)        # delete ts column
+            df_temp.columns = ['temp']            # rename to temp
+            df_temp = bmsapp.data_util.resample_timeseries(df_temp, 1)    # do one hour averaging
 
             # inner join, matching timestamps
             df = df.join(df_temp, how='inner') 
@@ -89,7 +86,7 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
             # make sure the data spans at least 80% of the requested interval.
             # if not, skip this building.
             actual_span = df.index[-1] - df.index[0]
-            if actual_span / float(end_ts - st_ts) < 0.8:
+            if actual_span.total_seconds() / float(end_ts - st_ts) < 0.8:
                 continue
 
             # calculate total degree-days; each period is an hour, so need to divide by
