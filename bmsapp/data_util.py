@@ -107,7 +107,6 @@ def resample_timeseries(pandas_dataframe, averaging_hours):
         8: {'rule': '8H', 'loffset': '4H'},
         24: {'rule': '1D', 'loffset': '12H'},
         168: {'rule': '1W', 'loffset': '108H'},
-        360: {'rule': 'SM', 'loffset': '180H'},
         720: {'rule': '1M', 'loffset': '16D'},
         8760: {'rule': 'AS', 'loffset': '6M'}
         }
