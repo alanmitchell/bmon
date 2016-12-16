@@ -9,10 +9,10 @@
 
 django-extensions==1.7.4
 
-# numpy==1.11.0 must be installed prior to running this requirements file
+# numpy==1.11.2 must be installed prior to running this requirements file
 # due to numexpr install requiring it.
 # install numpy with:  
-#     pip install -I --user numpy==1.11.0
+#     pip install -I --user numpy==1.11.2
 # as is done in the "install_packages.sh" script.
 numexpr==2.5.2
 
