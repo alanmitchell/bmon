@@ -79,7 +79,7 @@ class TimeSeries(basechart.BaseChart):
 
         opt['layout']['xaxis']['title'] =  "Date/Time (%s)" % self.timezone
         opt['layout']['xaxis']['type'] =  'date'
-        opt['layout']['xaxis']['hoverformat'] = '%a %m/%d/%y %H:%M'
+        opt['layout']['xaxis']['hoverformat'] = '%a %m/%d %H:%M'
 
         # Make the chart y axes configuration objects
         if len(y_axes) == 1:
