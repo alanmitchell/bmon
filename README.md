@@ -12,8 +12,6 @@ Here is a link to the [AHFC BMON Web Site](https://bms.ahfc.us/).  Here is a scr
 
 ![AHFC BMON Screenshot](../../wiki/images/sample_screen.png)
 
-Please note that this project uses the [Highcharts and Highstock](http://www.highcharts.com/) charting libraries, which are *not* open source.  Please see the [Licensing Page](http://shop.highsoft.com/highcharts.html) and the [Licensing FAQ](http://shop.highsoft.com/faq#licensing-faq) for these products to ensure that you comply with the licensing requirements.
-
 For detailed information about this software: 
 
 ### Please see the [BMON Wiki](../../wiki)
