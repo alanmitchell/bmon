@@ -60,7 +60,7 @@ class XYplot(basechart.BaseChart):
             if len(df_all):
 
                 # add a point name column to be used in the tooltip.
-                df_all['name'] = df_all.index.strftime('%Y-%m-%d %H:%M')
+                df_all['name'] = df_all.index.strftime('%a %m/%d/%y %H:%M')
 
                 # add a column identifying whether point is in occupied or unoccupied period.
                 resolution = self.occupied_resolution()
