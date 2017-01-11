@@ -90,6 +90,10 @@ a.selected-nav-link:hover {
     font-size: 85%;
 }
 
+.ui-datepicker {
+    z-index: 9999 !important;
+}
+
 table {
     background: #FFFFFF;
     border-collapse: collapse;
