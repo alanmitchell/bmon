@@ -146,6 +146,28 @@ class TimeSeries(basechart.BaseChart):
                 bands.append(band)
 
             opt['layout']['shapes'] = bands
+        
+                # If the building has timeline annotations, add them to the chart
+        if self.building.timeline_annotations:
+            annotations = []
+            # Parse the timeline_annotations string
+            t_a_list = self.building.timeline_annotations.splitlines()
+            for t_a in t_a_list:
+                t_a_text, t_a_datetimestring = t_a.split(":",1)
+                t_a_ts = bmsapp.data_util.datestr_to_ts(t_a_datetimestring, tz)
+                if t_a_ts >= st_ts and t_a_ts <= end_ts:
+                    annotations.append({ 'x': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                                         'y': 0,
+                                         'xref': 'x',
+                                         'yref': 'paper',
+                                         'text': t_a_text,
+                                         'showarrow': True,
+                                         'arrowhead': 7,
+                                         'ax': 0,
+                                         'ayref': 'pixel',
+                                         'ay': -375
+                                      })
+            opt['layout']['annotations'] = annotations
 
         html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7"></div>'
 

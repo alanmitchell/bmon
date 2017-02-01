@@ -183,6 +183,9 @@ class Building(models.Model):
     # Occupied schedule for building.  No entry means continually occupied.
     schedule = models.TextField("Occupied Schedule of Facility (e.g. M-F: 8a-5p)", blank=True)
 
+    # Timeline annotations
+    timeline_annotations = models.TextField("Annotations for events in the building's timeline (e.g. Boiler Replaced: 1/1/2017)", help_text="One annotation per line. Use a colon between the annotation and the date/time.", blank=True)
+
     # the sensors and calculated values associated with this building
     sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True)
 
