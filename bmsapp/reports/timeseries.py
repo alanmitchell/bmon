@@ -1,6 +1,7 @@
 ﻿import numpy as np, pandas as pd
 from datetime import datetime
 import pytz
+import textwrap
 import bmsapp.models, bmsapp.data_util
 import basechart
 
@@ -81,6 +82,9 @@ class TimeSeries(basechart.BaseChart):
         opt['layout']['xaxis']['type'] =  'date'
         opt['layout']['xaxis']['hoverformat'] = '%a %m/%d %H:%M'
 
+        opt['layout']['annotations'] = []
+        opt['layout']['shapes'] = []
+
         # Make the chart y axes configuration objects
         if len(y_axes) == 1:
             opt['layout']['margin']['l'] = 60
@@ -129,7 +133,6 @@ class TimeSeries(basechart.BaseChart):
             else:
                 periods = self.schedule.occupied_periods(st_ts, end_ts, resolution=resolution)
 
-            bands = []
             for occ_start, occ_stop in periods:
                 band = {'type': 'rect',
                         'xref': 'x',
@@ -143,31 +146,37 @@ class TimeSeries(basechart.BaseChart):
                         'x1': datetime.fromtimestamp(occ_stop,tz).strftime('%Y-%m-%d %H:%M:%S'),
                         'y1': 1
                         }
-                bands.append(band)
-
-            opt['layout']['shapes'] = bands
+                opt['layout']['shapes'].append(band)
         
-                # If the building has timeline annotations, add them to the chart
+        # If the building has timeline annotations, add them to the chart
         if self.building.timeline_annotations:
-            annotations = []
             # Parse the timeline_annotations string
             t_a_list = self.building.timeline_annotations.splitlines()
             for t_a in t_a_list:
                 t_a_text, t_a_datetimestring = t_a.split(":",1)
                 t_a_ts = bmsapp.data_util.datestr_to_ts(t_a_datetimestring, tz)
                 if t_a_ts >= st_ts and t_a_ts <= end_ts:
-                    annotations.append({ 'x': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
-                                         'y': 0,
-                                         'xref': 'x',
-                                         'yref': 'paper',
-                                         'text': t_a_text,
-                                         'showarrow': True,
-                                         'arrowhead': 7,
-                                         'ax': 0,
-                                         'ayref': 'pixel',
-                                         'ay': -375
-                                      })
-            opt['layout']['annotations'] = annotations
+                    # Add the text annotation to the top of the chart
+                    opt['layout']['annotations'].append({
+                                                         'x': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                                                         'y': 1,
+                                                         'xref': 'x',
+                                                         'yref': 'paper',
+                                                         'text': "<br>".join(textwrap.wrap(t_a_text,8,break_long_words=False)),
+                                                         'showarrow': False,
+                                                         'bgcolor': 'white'
+                                                      })
+                    # Add a vertical dotted line to the chart
+                    opt['layout']['shapes'].append({
+                                                    'type': 'line',
+                                                    'xref': 'x',
+                                                    'yref': 'paper',
+                                                    'line': {'width': 1.25, 'color': 'black', 'dash': 'dot'},
+                                                    'x0': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                                                    'y0': 0,
+                                                    'x1': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                                                    'y1': 1
+                                                    })
 
         html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7"></div>'
 
