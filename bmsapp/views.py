@@ -1,4 +1,4 @@
-# Create your views here.
+﻿# Create your views here.
 import sys, logging, json, random, time
 
 from django.http import HttpResponse
@@ -162,6 +162,7 @@ def store_readings(request):
         if store_key_is_valid(storeKey):
             # remove storeKey for security
             del(req_data['storeKey'])
+            _logger.debug('Sensor Readings: %s' % req_data)
             msg = storereads.store_many(req_data)
             return HttpResponse(msg)
         else:

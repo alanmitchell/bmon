@@ -1,12 +1,19 @@
-'''
+﻿'''
 Module used to store incoming sensor readings in the database.
 '''
 
-import dateutil.parser, calendar, re, time
+import dateutil.parser
+import calendar
+import re
+import time
+import logging
 
 import models
 from readingdb import bmsdata
 from calcs import transforms
+
+# Make a logger for this module
+_logger = logging.getLogger('bms.' + __name__)
 
 def convert_val(ts, reading_id, val, db):
     """Takes a raw reading values 'ts', 'reading_id', and 'val' and converts them
@@ -113,13 +120,16 @@ def store_many(req_data):
         #         the value before storage.
 
         for ts, reading_id, val in req_data['readings']:
-            ts = int(ts) if ts is not None else int(time.time())
+            try:
+                ts = int(ts) if ts is not None else int(time.time())
 
-            # Convert/transform the fields for storage.
-            ts, reading_id, val = convert_val(ts, reading_id, val, db)
-            ts_lst.append(ts)
-            reading_id_lst.append(reading_id)
-            val_lst.append(val)  # could be None, but insert_reading() will ignore it
+                # Convert/transform the fields for storage.
+                ts, reading_id, val = convert_val(ts, reading_id, val, db)
+                ts_lst.append(ts)
+                reading_id_lst.append(reading_id)
+                val_lst.append(val)  # could be None, but insert_reading() will ignore it
+            except Exception as e:
+                _logger.exception('Error storing %s, %s, %s' % (ts, reading_id, val))
 
     elif req_data['format'] == 'monnit':
         # This is the fomrat used my Monnit Webhooks.  See documentation at:
@@ -129,17 +139,20 @@ def store_many(req_data):
             # loop through and insert all of the sensor readings present in the
             # data payload
             for reading in req_data['sensorMessages']:
+                try:
+                    ts = int(calendar.timegm(dateutil.parser.parse(reading['messageDate']).timetuple()))
+                    val = float(reading['plotValues'])
+                    reading_id = reading['sensorID']
 
-                ts = int(calendar.timegm(dateutil.parser.parse(reading['messageDate']).timetuple()))
-                val = float(reading['plotValues'])
-                reading_id = reading['sensorID']
+                    # apply any requested conversions
+                    ts, reading_id, val = convert_val(ts, reading_id, val, db)
 
-                # apply any requested conversions
-                ts, reading_id, val = convert_val(ts, reading_id, val, db)
+                    ts_lst.append(ts)
+                    val_lst.append(val)
+                    reading_id_lst.append(reading_id)
 
-                ts_lst.append(ts)
-                val_lst.append(val)
-                reading_id_lst.append(reading_id)
+                except Exception as e:
+                    _logger.exception('Error storing %s' % reading)
 
     elif req_data['format'] == 'particle':
         # data from a Particle device, such as a Photon or Electron.  The important
@@ -188,19 +201,23 @@ def store_many(req_data):
         for ky in data.keys():
             reading_id = '%s_%s' % (base_id, ky)
             val = data[ky]
-            if val[-1]=='a':
-                # use an adjusted time
-                ts = ts_base - ts_adj
-                val = float(val[:-1])
-            else:
-                ts = ts_base
-                val = float(val)
+            try:
+                if val[-1]=='a':
+                    # use an adjusted time
+                    ts = ts_base - ts_adj
+                    val = float(val[:-1])
+                else:
+                    ts = ts_base
+                    val = float(val)
 
-            # Convert/transform the fields for storage.
-            ts, reading_id, val = convert_val(ts, reading_id, val, db)
-            ts_lst.append(ts)
-            reading_id_lst.append(reading_id)
-            val_lst.append(val)  # could be None, but insert_reading() will ignore it
+                # Convert/transform the fields for storage.
+                ts, reading_id, val = convert_val(ts, reading_id, val, db)
+                ts_lst.append(ts)
+                reading_id_lst.append(reading_id)
+                val_lst.append(val)  # could be None, but insert_reading() will ignore it
+
+            except Exception as e:
+                _logger.exception('Error storing %s, %s' % (reading_id, val))
 
     # insert the readings into the database
     msg = db.insert_reading(ts_lst, reading_id_lst, val_lst)
