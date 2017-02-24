@@ -1,4 +1,4 @@
-"""Class to encapsulate the BMON Reading database.  Uses the SQLite database.
+﻿"""Class to encapsulate the BMON Reading database.  Uses the SQLite database.
 """
 
 import sqlite3
@@ -87,6 +87,10 @@ class BMSdata:
         rejected_count = 0
         success_count = 0
         for one_ts, one_id, one_val in recs:
+
+            # If value is None, don't insert
+            if one_val is None:
+                continue
 
             # make sure sensor ID is a string
             one_id = str(one_id)
