@@ -141,7 +141,11 @@ def store_many(req_data):
             for reading in req_data['sensorMessages']:
                 try:
                     ts = int(calendar.timegm(dateutil.parser.parse(reading['messageDate']).timetuple()))
-                    val = float(reading['plotValues'])
+
+                    # sometimes multiple plot values are encoded by separating with the pipe character
+                    # This happens with the CO sensor.  Use the first value.
+                    val = float(reading['plotValues'].split('|')[0])
+
                     reading_id = reading['sensorID']
 
                     # apply any requested conversions
