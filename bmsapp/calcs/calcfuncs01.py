@@ -1,9 +1,10 @@
-"""One set of functions for calculated readings.
+﻿"""One set of functions for calculated readings.
 """
 
 import time
 import math
 import pandas as pd
+import numpy as np
 import calcreadings
 import internetwx
 import aris_web_api
@@ -49,6 +50,16 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         Any parameters can be passed to 'processCalc' as sensor IDs.
         """
         return A + B + C + D
+
+    def OkoValueFromStatus(self, status, value=1.0):
+        """Returns a specified value if the status of the Okofen boiler 
+        is either 5 or 6.  For other status codes, 0.0 is returned.
+        The 'status' parameter should be an 'id_' type parameter, specifying 
+        the Sensor ID giving the boiler status. The 'value' parameter is the
+        value to return if the status is either 5 or 6.
+        """
+        return np.where((status==5) | (status==6), value, 0.0)
+
     
     # ******** The following functions don't receive arrays of sensor values as
     # The functions below must return two items: a list (or numpy array) of timestamps
