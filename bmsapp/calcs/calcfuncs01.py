@@ -50,16 +50,6 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         Any parameters can be passed to 'processCalc' as sensor IDs.
         """
         return A + B + C + D
-
-    def OkoValueFromStatus(self, status, value=1.0):
-        """Returns a specified value if the status of the Okofen boiler 
-        is either 5 or 6.  For other status codes, 0.0 is returned.
-        The 'status' parameter should be an 'id_' type parameter, specifying 
-        the Sensor ID giving the boiler status. The 'value' parameter is the
-        value to return if the status is either 5 or 6.
-        """
-        return np.where((status==5) | (status==6), value, 0.0)
-
     
     # ******** The following functions don't receive arrays of sensor values as
     # The functions below must return two items: a list (or numpy array) of timestamps
@@ -126,15 +116,18 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         else:
             return [], []
     
-    def runtimeFromOnOff(self, onOffID, runtimeInterval=30):
+    def runtimeFromOnOff(self, onOffID, runtimeInterval=30, state_xform_func=None):
         """** No parameters are sensor reading arrays **
 
         Calculates runtime fraction data for a sensor having the id of 'onOffID' that produces
         On/Off state change values.  The state change values are either 0.0 (Turns Off) or 
         1.0 (Turns On).  The calculated runtime fractions vary from 0.0 to 1.0, indicating the 
         fraction of the time that the device was On in a particular time interval.  
-        'runtimeInterval' is the width of the runtime intervals produced in minutes.  The
-        timestamp returned for each interval is placed at the midpoint of the interval.  Records
+        'runtimeInterval' is the width of the runtime intervals produced in minutes.
+        If 'state_xform_func' is provided (not None), it will be applied to the 
+        'onOffID' sensor values to convert them into 0.0 or 1.0 On/Off values; it is useful
+        if the sensor values are *not* already 0.0 or 1.0.
+        The timestamp returned for each interval is placed at the midpoint of the interval.  Records
         are returned for times after the last stored runtime reading, subject to the reach_back
         constraint established in the constructor of this class.
         """
@@ -151,7 +144,10 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         state = []
         for rec in self.db.rowsForOneID(onOffID, start_tm=last_ts - 7200):
             ts_state.append(rec['ts'])
-            state.append(rec['val'])
+            if state_xform_func:
+                state.append(state_xform_func(rec['val']))
+            else:
+                state.append(rec['val'])
         states = pd.Series(state, index=ts_state)
         
         # must be at least two records to produce runtime data
@@ -175,6 +171,32 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         
         # return the timestamps and runtime values
         return ser_runtime.index.values, ser_runtime.values
+
+    def OkoValueFromStatus(self, statusID, value=1.0):
+        """Converts Okofen Boiler Status values into Pellet Consumption
+        of Heat output values.  When the Boiler status value is 5 or 6
+        the boiler is consuming pellets and producing output.  This function
+        returns a set of 5 minute average pellet consumption or output values
+        based on those status values.
+        The 'statusID' parameter is the Sensor ID giving the boiler Status.
+        The 'value' parameter is the pellet consumption rate or heat output
+        rate that occurs when status is 5 or 6.
+        Note: this function is somewhat complicated because it does not just 
+        provide a consumption point for each Status value, because the Status
+        values are *not* evenly spaced in time; Status values are produced at
+        every state change or every 10 minutes, whichever comes first.  To determine
+        average pellet use or heat output, it is important to consider is uneven
+        spacing of Status values, which this function does.
+        """
+        # function to convert a status of 5 or 6 to a value of 1.0
+        convert_func = lambda x: 1.0 if x==5.0 or x==6.0 else 0.0
+
+        # Use the Runtime from On/Off function to get 5 minute average runtime averages
+        tstamps, vals = self.runtimeFromOnOff(statusID, 5, convert_func)
+        # convert runtime averages to the desired consumption rate
+        vals = vals * value
+
+        return tstamps, vals
 
     def getUsageFromARIS(self,
                          building_id,
