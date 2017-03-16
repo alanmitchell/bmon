@@ -42,20 +42,20 @@ addSparkline = (jqParent, g_info) ->
   
   for alert in g_info.alerts
     alert_level =
-        x: [g_info.minTime, g_info.maxTime]
-        y: [alert.value, alert.value]
-        text: ['Alert if value ' + alert.condition + ' ' + alert.value + ' ' + g_info.units]
-        type: 'scatter'
-        mode: 'markers+lines'
-        marker:
-            size: 2
-            color: 'black'
-        line:
-            color: 'red'
-            width: 0.5
-            dash: 'dot'
-        hoverinfo: 'text'
-     data.push alert_level
+      x: [g_info.minTime, g_info.maxTime]
+      y: [alert.value, alert.value]
+      text: ['Alert if value ' + alert.condition + ' ' + alert.value + ' ' + g_info.units]
+      type: 'scatter'
+      mode: 'markers+lines'
+      marker:
+        size: 2
+        color: 'black'
+      line:
+        color: 'red'
+        width: 0.5
+        dash: 'dot'
+      hoverinfo: 'text'
+    data.push alert_level
     
   plotbands = [
     type: 'rect'
@@ -72,10 +72,7 @@ addSparkline = (jqParent, g_info) ->
    ]
   
   layout = 
-    title: '<b>' + g_info.title + '</b>'
-    titlefont:
-      color: 'black'
-      size: 14
+    title: ''
     xaxis:
       range: [g_info.minTime, g_info.maxTime]
       fixedrange: true
@@ -95,24 +92,11 @@ addSparkline = (jqParent, g_info) ->
     margin:
       l: 35
       r: 5
-      b: 25
-      t: 40
+      b: 5
+      t: 5
       pad: 0
     shapes: plotbands
-    annotations: [
-      xref: 'paper'
-      yref: 'paper'
-      x: 1
-      xanchor: 'right'
-      y: 0
-      yanchor: 'top'
-      text: '<b>' + g_info.value_label + '</b>'
-      font:
-        color: value_color
-      showarrow: false
-     ]
 
-  
   config =
     showLink: false
     displaylogo: false
@@ -121,11 +105,21 @@ addSparkline = (jqParent, g_info) ->
       
   # Add the div with id that will hold this gauge.
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
-  jqParent.append( "<div id=\"#{widgetID}\" class=\"graph\"></div>" )
+  jqParent.append( "<div id=\"#{widgetID}\" class=\"dash-widget\">
+                        <div class=\"widget-title\">#{g_info.title}</div>
+                        <div class=\"graph\"></div>
+                        <div class=\"value-label\">#{g_info.value_label}</div>
+                    </div>" )
   jqWidget = $("##{widgetID}")
   jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
   jqWidget.click((e) -> AN.plot_sensor(g_info.timeChartID, g_info.sensorID))
-  Plotly.newPlot(jqWidget[0], data, layout, config)
+  
+  # change the color to red if not value_is_normal
+  if not g_info.value_is_normal
+    jqWidget.children(".value-label").css('color', '#FF0000')
+      
+  # Draw the graph
+  Plotly.newPlot(jqWidget[0].children[1], data, layout, config)
   
   jqWidget        # return the jQuery element holding the graph
 
@@ -137,7 +131,7 @@ addGauge = (jqParent, g_info) ->
       
   # Add the div with id that will hold this gauge.
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
-  jqParent.append( "<div id=\"#{widgetID}\" class=\"gauge\">
+  jqParent.append( "<div id=\"#{widgetID}\" class=\"dash-widget\">
                         <div class=\"widget-title\">#{g_info.title}</div>
                         <canvas class=\"gauge-canvas\"></canvas>
                         <div class=\"value-label\">#{g_info.value_label}</div>
@@ -186,7 +180,7 @@ addGauge = (jqParent, g_info) ->
 addLED = (jqParent, LED_info) ->
   # Add the div with id that will hold this LED.
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
-  jqParent.append "<div id=\"#{widgetID}\" class=\"led\">
+  jqParent.append "<div id=\"#{widgetID}\" class=\"dash-widget\">
                      <div class=\"widget-title\">#{LED_info.title}</div>
                      <div class=\"led-circle\"></div>
                      <div class=\"value-label\">#{LED_info.value_label}</div>
@@ -210,7 +204,7 @@ addLED = (jqParent, LED_info) ->
 addNotCurrent = (jqParent, widget_info) ->
   # Add the div with id that will hold this LED.
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
-  jqParent.append "<div id=\"#{widgetID}\" class=\"not-current\">
+  jqParent.append "<div id=\"#{widgetID}\" class=\"dash-widget\">
                      <div class=\"widget-title\">#{widget_info.title}</div>
                      <h2><i>Data is #{widget_info.age}</i></h2>
                    </div>"

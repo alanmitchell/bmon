@@ -82,11 +82,7 @@
       }
     ];
     layout = {
-      title: '<b>' + g_info.title + '</b>',
-      titlefont: {
-        color: 'black',
-        size: 14
-      },
+      title: '',
       xaxis: {
         range: [g_info.minTime, g_info.maxTime],
         fixedrange: true,
@@ -108,26 +104,11 @@
       margin: {
         l: 35,
         r: 5,
-        b: 25,
-        t: 40,
+        b: 5,
+        t: 5,
         pad: 0
       },
-      shapes: plotbands,
-      annotations: [
-        {
-          xref: 'paper',
-          yref: 'paper',
-          x: 1,
-          xanchor: 'right',
-          y: 0,
-          yanchor: 'top',
-          text: '<b>' + g_info.value_label + '</b>',
-          font: {
-            color: value_color
-          },
-          showarrow: false
-        }
-      ]
+      shapes: plotbands
     };
     config = {
       showLink: false,
@@ -136,20 +117,23 @@
       displayModeBar: false
     };
     widgetID = "widget" + (++widgetCounter);
-    jqParent.append("<div id=\"" + widgetID + "\" class=\"graph\"></div>");
+    jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + g_info.title + "</div> <div class=\"graph\"></div> <div class=\"value-label\">" + g_info.value_label + "</div> </div>");
     jqWidget = $("#" + widgetID);
     jqWidget.css('cursor', 'pointer');
     jqWidget.click(function(e) {
       return AN.plot_sensor(g_info.timeChartID, g_info.sensorID);
     });
-    Plotly.newPlot(jqWidget[0], data, layout, config);
+    if (!g_info.value_is_normal) {
+      jqWidget.children(".value-label").css('color', '#FF0000');
+    }
+    Plotly.newPlot(jqWidget[0].children[1], data, layout, config);
     return jqWidget;
   };
 
   addGauge = function(jqParent, g_info) {
     var gauge, gauge_normal_color, gauge_zone_color, jqWidget, opts, widgetID;
     widgetID = "widget" + (++widgetCounter);
-    jqParent.append("<div id=\"" + widgetID + "\" class=\"gauge\"> <div class=\"widget-title\">" + g_info.title + "</div> <canvas class=\"gauge-canvas\"></canvas> <div class=\"value-label\">" + g_info.value_label + "</div> </div>");
+    jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + g_info.title + "</div> <canvas class=\"gauge-canvas\"></canvas> <div class=\"value-label\">" + g_info.value_label + "</div> </div>");
     jqWidget = $("#" + widgetID);
     jqWidget.css('cursor', 'pointer');
     jqWidget.click(function(e) {
@@ -201,7 +185,7 @@
   addLED = function(jqParent, LED_info) {
     var jqWidget, widgetID;
     widgetID = "widget" + (++widgetCounter);
-    jqParent.append("<div id=\"" + widgetID + "\" class=\"led\"> <div class=\"widget-title\">" + LED_info.title + "</div> <div class=\"led-circle\"></div> <div class=\"value-label\">" + LED_info.value_label + "</div> </div>");
+    jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + LED_info.title + "</div> <div class=\"led-circle\"></div> <div class=\"value-label\">" + LED_info.value_label + "</div> </div>");
     jqWidget = $("#" + widgetID);
     if (!LED_info.value_is_normal) {
       jqWidget.children(".led-circle").css('background-color', '#FF0000');
@@ -217,7 +201,7 @@
   addNotCurrent = function(jqParent, widget_info) {
     var jqWidget, widgetID;
     widgetID = "widget" + (++widgetCounter);
-    jqParent.append("<div id=\"" + widgetID + "\" class=\"not-current\"> <div class=\"widget-title\">" + widget_info.title + "</div> <h2><i>Data is " + widget_info.age + "</i></h2> </div>");
+    jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + widget_info.title + "</div> <h2><i>Data is " + widget_info.age + "</i></h2> </div>");
     jqWidget = $("#" + widgetID);
     jqWidget.css('background-color', LIGHT_RED);
     jqWidget.css('cursor', 'pointer');
