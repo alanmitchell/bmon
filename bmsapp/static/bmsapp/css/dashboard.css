@@ -18,7 +18,7 @@
     margin: auto;
     display: block;
     width: 200px;
-    height: 125px;
+    height: 120px;
     position: absolute;
     top: 0;
     bottom: 0;
@@ -69,7 +69,7 @@
     padding: 5px;
     text-align: center;
     font-family: "Open Sans", verdana, arial, sans-serif;
-    font-size: 15px;
+    font-size: 16px;
     font-weight: bold;
     position: absolute;
     top: 0;
@@ -81,7 +81,7 @@
     padding: 5px;
     text-align: center;
     font-family: "Open Sans", verdana, arial, sans-serif;
-    font-size: 13px;
+    font-size: 14px;
     font-weight: bold;
     position: absolute;
     bottom: 0;

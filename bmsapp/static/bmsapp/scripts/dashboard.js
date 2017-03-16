@@ -48,7 +48,7 @@
       alert_level = {
         x: [g_info.minTime, g_info.maxTime],
         y: [alert.value, alert.value],
-        text: ['Alert if value ' + alert.condition + ' ' + alert.value + ' ' + g_info.units],
+        text: ['Alert if value' + ' ' + alert.condition + ' ' + alert.value + ' ' + g_info.units],
         type: 'scatter',
         mode: 'markers+lines',
         marker: {
@@ -105,7 +105,7 @@
         l: 35,
         r: 5,
         b: 5,
-        t: 5,
+        t: 10,
         pad: 0
       },
       shapes: plotbands
