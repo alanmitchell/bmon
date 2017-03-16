@@ -1,11 +1,11 @@
-# A global object variable to attach public methods to 
+# A global object variable to attach public methods to
 window.ANdash = {}
 
 # Light red color used to signify value out of normal range.
 LIGHT_RED = '#FCC7C7'
 
-# Adds a sparkline gauge control under the container identified by 'jqParent', a jQuery element.
-# 'gauge' is an object containing the configuration and value info for the gauge.
+# Adds a sparkline graph control under the container identified by 'jqParent', a jQuery element.
+# 'graph' is an object containing the configuration and value info for the gauge.
 # Returns the jQuery div element holding the gauge.
 addSparkline = (jqParent, g_info) ->
   xvals = g_info.times
@@ -121,15 +121,65 @@ addSparkline = (jqParent, g_info) ->
       
   # Add the div with id that will hold this gauge.
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
-  jqParent.append( "<div id=\"#{widgetID}\" class=\"gauge\"></div>" )
+  jqParent.append( "<div id=\"#{widgetID}\" class=\"graph\"></div>" )
   jqWidget = $("##{widgetID}")
   jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
   jqWidget.click((e) -> AN.plot_sensor(g_info.timeChartID, g_info.sensorID))
   Plotly.newPlot(jqWidget[0], data, layout, config)
   
+  jqWidget        # return the jQuery element holding the graph
+
+
+# Adds a gauge control under the container identified by 'jqParent', a jQuery element.
+# 'gauge' is an object containing the configuration and value info for the gauge.
+# Returns the jQuery div element holding the gauge.
+addGauge = (jqParent, g_info) ->
+      
+  # Add the div with id that will hold this gauge.
+  widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
+  jqParent.append( "<div id=\"#{widgetID}\" class=\"gauge\">
+                        <div class=\"widget-title\">#{g_info.title}</div>
+                        <canvas class=\"gauge-canvas\"></canvas>
+                        <div class=\"value-label\">#{g_info.value_label}</div>
+                    </div>" )
+  
+  jqWidget = $("##{widgetID}")
+  jqWidget.css('cursor', 'pointer')   # makes the click hand appear when hovering
+  jqWidget.click((e) -> AN.plot_sensor(g_info.timeChartID, g_info.sensorID))
+  
+  # change the color to red if not value_is_normal
+  if g_info.value_is_normal
+    gauge_zone_color = "#E0E0E0"
+    gauge_normal_color = "#BFDFBF"
+  else
+    jqWidget.children(".value-label").css('color', '#FF0000')
+    gauge_zone_color = "red"
+    gauge_normal_color = "#BFDFBF"
+    
+  # Initiate the gauge
+  opts =
+      angle: -0.1, # The span of the gauge arc
+      radiusScale: 0.85, 
+      pointer:
+        length: 0.6 # Relative to gauge radius
+      staticLabels:
+        font: "12px 'Open Sans', verdana, arial, sans-serif",
+        labels: [g_info.minAxis, g_info.minNormal, g_info.maxNormal, g_info.maxAxis],  # Print labels at these values
+        color: "#000000",  # Label text color
+        fractionDigits: 0  # Numerical precision
+      staticZones: [
+         {strokeStyle: gauge_zone_color, min: g_info.minAxis, max: g_info.minNormal},
+         {strokeStyle: gauge_normal_color, min: g_info.minNormal, max: g_info.maxNormal},
+         {strokeStyle: gauge_zone_color, min: g_info.maxNormal, max: g_info.maxAxis}
+        ]
+  gauge = new Gauge(jqWidget[0].children[1]).setOptions(opts) # create gauge
+  gauge.maxValue = g_info.maxAxis
+  gauge.setMinValue(g_info.minAxis)
+  gauge.set(g_info.values.slice(-1)) # set gauge value
+    
   jqWidget        # return the jQuery element holding the gauge
-  
-  
+
+    
 # Adds an LED widget to dashboard row identified by jQuery elemernt 'jqParent'.
 # Info for making LED is in object LED_info.  Returns jQuery div element holding
 # LED.
@@ -137,7 +187,7 @@ addLED = (jqParent, LED_info) ->
   # Add the div with id that will hold this LED.
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
   jqParent.append "<div id=\"#{widgetID}\" class=\"led\">
-                     <h2>#{LED_info.title}</h2>
+                     <div class=\"widget-title\">#{LED_info.title}</div>
                      <div class=\"led-circle\"></div>
                      <div class=\"value-label\">#{LED_info.value_label}</div>
                    </div>"
@@ -161,7 +211,7 @@ addNotCurrent = (jqParent, widget_info) ->
   # Add the div with id that will hold this LED.
   widgetID = "widget#{++widgetCounter}"    # this increments the counter as well
   jqParent.append "<div id=\"#{widgetID}\" class=\"not-current\">
-                     <h2>#{widget_info.title}</h2>
+                     <div class=\"widget-title\">#{widget_info.title}</div>
                      <h2><i>Data is #{widget_info.age}</i></h2>
                    </div>"
   jqWidget = $("##{widgetID}")   # make a jQuery element
@@ -193,7 +243,8 @@ rowCounter = 0
 # widget.
 addWidget = (jqRow, widget_info) ->
   switch widget_info.type
-    when "gauge" then addSparkline(jqRow, widget_info)
+    when "graph" then addSparkline(jqRow, widget_info)
+    when "gauge" then addGauge(jqRow, widget_info)
     when "LED" then addLED(jqRow, widget_info)
     when "stale" then addNotCurrent(jqRow, widget_info)
     when "label" then addLabel(jqRow, widget_info)
