@@ -1,5 +1,5 @@
 ﻿(function() {
-  var LIGHT_RED, addLED, addLabel, addNotCurrent, addRow, addSparkline, addWidget, rowCounter, widgetCounter;
+  var LIGHT_RED, addGauge, addLED, addLabel, addNotCurrent, addRow, addSparkline, addWidget, rowCounter, widgetCounter;
 
   window.ANdash = {};
 
@@ -48,7 +48,7 @@
       alert_level = {
         x: [g_info.minTime, g_info.maxTime],
         y: [alert.value, alert.value],
-        text: ['Alert if value ' + alert.condition + ' ' + alert.value + ' ' + g_info.units],
+        text: ['Alert if value' + ' ' + alert.condition + ' ' + alert.value + ' ' + g_info.units],
         type: 'scatter',
         mode: 'markers+lines',
         marker: {
@@ -82,11 +82,7 @@
       }
     ];
     layout = {
-      title: '<b>' + g_info.title + '</b>',
-      titlefont: {
-        color: 'black',
-        size: 14
-      },
+      title: '',
       xaxis: {
         range: [g_info.minTime, g_info.maxTime],
         fixedrange: true,
@@ -108,26 +104,11 @@
       margin: {
         l: 35,
         r: 5,
-        b: 25,
-        t: 40,
+        b: 5,
+        t: 10,
         pad: 0
       },
-      shapes: plotbands,
-      annotations: [
-        {
-          xref: 'paper',
-          yref: 'paper',
-          x: 1,
-          xanchor: 'right',
-          y: 0,
-          yanchor: 'top',
-          text: '<b>' + g_info.value_label + '</b>',
-          font: {
-            color: value_color
-          },
-          showarrow: false
-        }
-      ]
+      shapes: plotbands
     };
     config = {
       showLink: false,
@@ -136,20 +117,75 @@
       displayModeBar: false
     };
     widgetID = "widget" + (++widgetCounter);
-    jqParent.append("<div id=\"" + widgetID + "\" class=\"gauge\"></div>");
+    jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + g_info.title + "</div> <div class=\"graph\"></div> <div class=\"value-label\">" + g_info.value_label + "</div> </div>");
     jqWidget = $("#" + widgetID);
     jqWidget.css('cursor', 'pointer');
     jqWidget.click(function(e) {
       return AN.plot_sensor(g_info.timeChartID, g_info.sensorID);
     });
-    Plotly.newPlot(jqWidget[0], data, layout, config);
+    if (!g_info.value_is_normal) {
+      jqWidget.children(".value-label").css('color', '#FF0000');
+    }
+    Plotly.newPlot(jqWidget[0].children[1], data, layout, config);
+    return jqWidget;
+  };
+
+  addGauge = function(jqParent, g_info) {
+    var gauge, gauge_normal_color, gauge_zone_color, jqWidget, opts, widgetID;
+    widgetID = "widget" + (++widgetCounter);
+    jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + g_info.title + "</div> <canvas class=\"gauge-canvas\"></canvas> <div class=\"value-label\">" + g_info.value_label + "</div> </div>");
+    jqWidget = $("#" + widgetID);
+    jqWidget.css('cursor', 'pointer');
+    jqWidget.click(function(e) {
+      return AN.plot_sensor(g_info.timeChartID, g_info.sensorID);
+    });
+    if (g_info.value_is_normal) {
+      gauge_zone_color = "#E0E0E0";
+      gauge_normal_color = "#BFDFBF";
+    } else {
+      jqWidget.children(".value-label").css('color', '#FF0000');
+      gauge_zone_color = "red";
+      gauge_normal_color = "#BFDFBF";
+    }
+    opts = {
+      angle: -0.1,
+      radiusScale: 0.85,
+      pointer: {
+        length: 0.6
+      },
+      staticLabels: {
+        font: "12px 'Open Sans', verdana, arial, sans-serif",
+        labels: [g_info.minAxis, g_info.minNormal, g_info.maxNormal, g_info.maxAxis],
+        color: "#000000",
+        fractionDigits: 0
+      },
+      staticZones: [
+        {
+          strokeStyle: gauge_zone_color,
+          min: g_info.minAxis,
+          max: g_info.minNormal
+        }, {
+          strokeStyle: gauge_normal_color,
+          min: g_info.minNormal,
+          max: g_info.maxNormal
+        }, {
+          strokeStyle: gauge_zone_color,
+          min: g_info.maxNormal,
+          max: g_info.maxAxis
+        }
+      ]
+    };
+    gauge = new Gauge(jqWidget[0].children[1]).setOptions(opts);
+    gauge.maxValue = g_info.maxAxis;
+    gauge.setMinValue(g_info.minAxis);
+    gauge.set(g_info.values.slice(-1));
     return jqWidget;
   };
 
   addLED = function(jqParent, LED_info) {
     var jqWidget, widgetID;
     widgetID = "widget" + (++widgetCounter);
-    jqParent.append("<div id=\"" + widgetID + "\" class=\"led\"> <h2>" + LED_info.title + "</h2> <div class=\"led-circle\"></div> <div class=\"value-label\">" + LED_info.value_label + "</div> </div>");
+    jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + LED_info.title + "</div> <div class=\"led-circle\"></div> <div class=\"value-label\">" + LED_info.value_label + "</div> </div>");
     jqWidget = $("#" + widgetID);
     if (!LED_info.value_is_normal) {
       jqWidget.children(".led-circle").css('background-color', '#FF0000');
@@ -165,7 +201,7 @@
   addNotCurrent = function(jqParent, widget_info) {
     var jqWidget, widgetID;
     widgetID = "widget" + (++widgetCounter);
-    jqParent.append("<div id=\"" + widgetID + "\" class=\"not-current\"> <h2>" + widget_info.title + "</h2> <h2><i>Data is " + widget_info.age + "</i></h2> </div>");
+    jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + widget_info.title + "</div> <h2><i>Data is " + widget_info.age + "</i></h2> </div>");
     jqWidget = $("#" + widgetID);
     jqWidget.css('background-color', LIGHT_RED);
     jqWidget.css('cursor', 'pointer');
@@ -188,8 +224,10 @@
 
   addWidget = function(jqRow, widget_info) {
     switch (widget_info.type) {
-      case "gauge":
+      case "graph":
         return addSparkline(jqRow, widget_info);
+      case "gauge":
+        return addGauge(jqRow, widget_info);
       case "LED":
         return addLED(jqRow, widget_info);
       case "stale":

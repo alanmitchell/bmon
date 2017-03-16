@@ -3,33 +3,54 @@
     text-align: center;
     background: #d4e7f7
 }
-.gauge {
+.dash-widget {
 	width: 220px; 
 	height: 220px; 
 	display: inline-block;
+    position: relative;
     vertical-align: top; 
     margin: 2px;
-    border-style: solid; 
-    border-width:2px; 
-    border-color:#4572A7
-}
-.led, .not-current {
-    width: 220px;
-	height: 220px;
-	display: inline-block;
-    vertical-align: top; 
-    margin: 2px;
-    border-style: solid; 
-    border-width:2px; 
-    border-color:#4572A7;
+    border: 2px solid #4572A7;
     background-color: white;
+}
+.graph {
+    padding: 0;
+    margin: auto;
+    display: block;
+    width: 200px;
+    height: 120px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
+}
+.gauge-canvas {
+    padding: 0;
+    margin: auto;
+    display: block;
+    width: 210px;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
 }
 .led-circle {
     border-radius: 50%;
     width: 50px;
     height: 50px;
     background-color: #00BB00;
-    margin: 40px auto;
+    margin: auto;
+    display: block;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 0;
 }
 .dash-label {
     width: 130px;
@@ -38,22 +59,33 @@
     vertical-align: top; 
     margin: 2px;
 }
-.led h2, .not-current h2 {
-    padding: 5px;
-    text-align: center;
-    font-family: "Open Sans", verdana, arial, sans-serif;
-    font-size: 14px;
-}
 .dash-label h2 {
     padding: 55px 0 0 0;
     text-align: center;
     font-family: "Open Sans", verdana, arial, sans-serif;
     font-size: 18px;
 }
+.widget-title {
+    padding: 5px;
+    text-align: center;
+    font-family: "Open Sans", verdana, arial, sans-serif;
+    font-size: 16px;
+    font-weight: bold;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
+}
 .value-label {
     padding: 5px;
     text-align: center;
     font-family: "Open Sans", verdana, arial, sans-serif;
-    font-size: 12px;
+    font-size: 14px;
     font-weight: bold;
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1;
 }

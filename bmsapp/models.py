@@ -250,18 +250,20 @@ class DashboardItem(models.Model):
     building = models.ForeignKey(Building)
 
     # The Widget type to be used for display of this sensor on the Dashboard.
+    GRAPH = 'graph'
     GAUGE = 'gauge'
     LED = 'LED'
     LABEL = 'label'
     NOT_CURRENT = 'stale'      # data is not current. Don't include as a User choice.
     DISPLAY_WIDGET_CHOICES = (
-        (GAUGE, 'Graph'),
+        (GRAPH, 'Graph'),
+        (GAUGE, 'Gauge'),
         (LED, 'Red/Green LED'),
         (LABEL, 'Label'),
     )
     widget_type = models.CharField(max_length=15,
                                    choices=DISPLAY_WIDGET_CHOICES,
-                                   default=GAUGE)
+                                   default=GRAPH)
 
     # The row number on the Dashboard that this item will appear in.  Numbering can start
     # at any value and skip values; only the order matters.
