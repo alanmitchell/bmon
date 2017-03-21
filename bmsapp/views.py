@@ -102,6 +102,35 @@ def get_report_results(request):
             # the result from the chart object is assumed to be a JSON object.
             return HttpResponse(json.dumps(result), content_type="application/json")
 
+def get_embedded_results(request):
+    """Method called to return the main content of a particular chart
+    or report embedded as javascript.
+    """
+    try:
+        # Make the chart object
+        chart_obj = basechart.get_chart_object(request.GET)
+        result = chart_obj.result()
+    
+    except Exception as e:
+        _logger.exception('Error in get_report_results')
+        result = {'html': 'Error in get_report_results', 'objects': []}
+
+    finally:
+        if type(result) is HttpResponse:
+            # the chart object directly produced an HttpResponse object
+            # so just return it directly.
+            return result
+        else:
+            script_content = 'var content = ' + json.dumps(result) + ";\n"
+            script_content += 'var newDiv = document.createElement("div");\n'
+            script_content += 'newDiv.innerHTML = content["html"];\n'
+            script_content += 'var insertLocation = document.getElementById("' + str(hash(request.GET.urlencode())) + '");\n'
+            script_content += 'insertLocation.parentElement.insertBefore(newDiv, insertLocation);\n'
+            if result["objects"]:
+                script_content += 'var obj_config = content["objects"][0][1];\n'
+                script_content += 'Plotly.plot(obj_config.renderTo, obj_config.data, obj_config.layout, obj_config.config);\n'
+                script_content += 'document.getElementById(obj_config.renderTo).removeAttribute("id");\n'
+            return HttpResponse(script_content, content_type="application/javascript")
 
 def store_key_is_valid(the_key):
     '''Returns True if the 'the_key' is a valid sensor reading storage key.

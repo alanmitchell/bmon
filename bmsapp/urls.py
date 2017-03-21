@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^reports/$', views.reports, name='reports'),
     url(r'^reports/results/$', views.get_report_results),
+    url(r'^reports/embed/$', views.get_embedded_results), # javascript embedded version of report results
     url(r'^reports/(\d+)/$', views.reports),
     url(r'^show_log/$', views.show_log),
     url(r'^bldg_list/(\d+)/$', views.bldg_list),
