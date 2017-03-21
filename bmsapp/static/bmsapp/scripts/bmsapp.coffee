@@ -57,6 +57,11 @@ update_results = ->
     err = textStatus + ", " + error
     alert "Error Occurred: " + err
 
+# copies a link to embed the current report into another page
+get_embed_link = ->
+  link = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + $("#content select, #content input").serialize() + '" style="width: 300px" async></script>'
+  prompt("Here's the text to embed this report in another page:", link)
+  
 # Sets the visibility of elements in the list of ids 'ctrl_list'.
 # If 'show' is true then the element is shown, hidden otherwise.
 set_visibility = (ctrl_list, show) ->
@@ -166,10 +171,11 @@ $ ->
       $("#custom_dates").show()
 
   # make refresh button a jQuery button & call update when clicked
-  $("#refresh").button().click update_results     
+  $("#refresh").button().click update_results
+  $("#get_embed_link").click get_embed_link     
   $("#normalize").button()   # checkbox to create normalized (0-100%) hourly profile
   $("#show_occupied").button()   # checkbox to create normalized (0-100%) hourly profile
-  $("#divide_date").datepicker dateFormat: "mm/dd/yy"   # for xy plot
+  $("#div_date").datepicker dateFormat: "mm/dd/yy"   # for xy plot
 
   # special handling of the Excel Export button because the content for this report
   # is not displayed in a normal results div.
@@ -184,7 +190,7 @@ $ ->
 
   # Set up change handlers for inputs.
   ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 
-    'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'divide_date', 
+    'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date', 
     'time_period']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
 

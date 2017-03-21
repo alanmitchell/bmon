@@ -1,5 +1,5 @@
 ﻿(function() {
-  var REFRESH_MS, SENSOR_MULTI_CONFIG, _auto_recalc, _refresh_timer, inputs_changed, process_chart_change, set_visibility, update_bldg_list, update_chart_sensor_lists, update_results;
+  var REFRESH_MS, SENSOR_MULTI_CONFIG, _auto_recalc, _refresh_timer, get_embed_link, inputs_changed, process_chart_change, set_visibility, update_bldg_list, update_chart_sensor_lists, update_results;
 
   window.AN = {};
 
@@ -58,6 +58,12 @@
       err = textStatus + ", " + error;
       return alert("Error Occurred: " + err);
     });
+  };
+
+  get_embed_link = function() {
+    var link;
+    link = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + $("#content select, #content input").serialize() + '" style="width: 300px" async></script>';
+    return prompt("Here's the text to embed this report in another page:", link);
   };
 
   set_visibility = function(ctrl_list, show) {
@@ -163,9 +169,10 @@
       }
     });
     $("#refresh").button().click(update_results);
+    $("#get_embed_link").click(get_embed_link);
     $("#normalize").button();
     $("#show_occupied").button();
-    $("#divide_date").datepicker({
+    $("#div_date").datepicker({
       dateFormat: "mm/dd/yy"
     });
     $("#download_many").button().click(function() {
@@ -174,7 +181,7 @@
     $("#select_group").change(update_bldg_list);
     $("#select_bldg").change(update_chart_sensor_lists);
     $("#select_chart").change(process_chart_change);
-    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'divide_date', 'time_period'];
+    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date', 'time_period'];
     for (i = 0, len = ctrls.length; i < len; i++) {
       ctrl = ctrls[i];
       $("#" + ctrl).change(inputs_changed);

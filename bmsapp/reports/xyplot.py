@@ -33,7 +33,7 @@ class XYplot(basechart.BaseChart):
         st_ts, end_ts = self.get_ts_range()
 
         # get the dividing date, if there is one
-        div_datestring = self.request_params['divide_date']
+        div_datestring = self.request_params['div_date']
         div_dt = tz.localize(parser.parse(div_datestring)) if len(div_datestring) else None
 
 

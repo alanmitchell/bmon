@@ -121,15 +121,42 @@ def get_embedded_results(request):
             # so just return it directly.
             return result
         else:
-            script_content = 'var content = ' + json.dumps(result) + ";\n"
-            script_content += 'var newDiv = document.createElement("div");\n'
-            script_content += 'newDiv.innerHTML = content["html"];\n'
-            script_content += 'var insertLocation = document.getElementById("' + str(hash(request.GET.urlencode())) + '");\n'
-            script_content += 'insertLocation.parentElement.insertBefore(newDiv, insertLocation);\n'
-            if result["objects"]:
-                script_content += 'var obj_config = content["objects"][0][1];\n'
-                script_content += 'Plotly.plot(obj_config.renderTo, obj_config.data, obj_config.layout, obj_config.config);\n'
-                script_content += 'document.getElementById(obj_config.renderTo).removeAttribute("id");\n'
+            script_content = '''
+var loadingPlotly;
+(function(){
+  var content = json_result_string;
+  var newDiv = document.createElement("div");
+  newDiv.innerHTML = content["html"];
+  var scriptTag = document.querySelector(\'script[src="request_path_string"]\');
+  newDiv.style.cssText = scriptTag.style.cssText;
+  scriptTag.parentElement.replaceChild(newDiv, scriptTag);
+                            '''.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
+
+            if result["objects"] and result["objects"][0][0] == 'plotly':
+                script_content += '''
+  var drawGraph = (function(){
+      // Load the Plotly script if undefined, and add the chart
+      if (typeof Plotly == 'undefined') {
+          if (!loadingPlotly) {
+            console.log('loading plotly')
+            loadingPlotly = true;
+            script = document.createElement('script');
+            script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+            document.getElementsByTagName('head')[0].appendChild(script);
+          }
+          console.log('waiting for plotly')
+          setTimeout(drawGraph, 100);
+      } else {
+        Plotly.plot(obj_config.renderTo, obj_config.data, obj_config.layout, obj_config.config);
+        document.getElementById(obj_config.renderTo).removeAttribute("id");
+      }});
+  
+  var obj_config = content['objects'][0][1];
+  drawGraph();
+                '''
+
+            script_content += '})();' #close the javascript function declaration
+
             return HttpResponse(script_content, content_type="application/javascript")
 
 def store_key_is_valid(the_key):
