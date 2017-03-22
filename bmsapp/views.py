@@ -126,11 +126,12 @@ def get_embedded_results(request):
 (function(){
   var content = json_result_string;
 
+  var scriptTag = document.querySelector(\'script[src="request_path_string"]\');
+
   var newDiv = document.createElement("div");
   newDiv.innerHTML = content["html"];
   newDiv.style.cssText = scriptTag.style.cssText;
   
-  var scriptTag = document.querySelector(\'script[src="request_path_string"]\');
   scriptTag.parentElement.replaceChild(newDiv, scriptTag);
 '''
             script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
@@ -201,6 +202,28 @@ def get_embedded_results(request):
             script_content += '})();' #close the javascript function declaration
 
             return HttpResponse(script_content, content_type="application/javascript")
+
+def customReportList(request):
+    '''
+    The main Custom Reports page - lists all available custom reports
+    '''
+
+    ctx = base_context()
+    ctx.update({'customReports': view_util.customReports()})
+    
+    return render_to_response('bmsapp/customReports.html', ctx)
+
+def customReport(request, requested_report):
+    '''
+    Display a specific custom report
+    '''
+
+    report_title = requested_report
+
+    ctx = base_context()
+    ctx.update({'report_title': report_title, 'report_content': view_util.customReportHTML(report_title)})
+    
+    return render_to_response('bmsapp/customReport.html', ctx)
 
 def store_key_is_valid(the_key):
     '''Returns True if the 'the_key' is a valid sensor reading storage key.

@@ -1,0 +1,60 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Custom Reports{% endblock %}
+{% block head %}
+    <style>
+        #report_list {
+            margin-left: 30px; 
+            margin-top: 40px;
+        }
+
+        #report_list ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .report_groups a {
+            display: block;
+            padding: 5px 10px;
+            margin-top: 20px;
+            width: 800px;
+            color: #000;
+            background-color: #B2DBFF;
+            font-weight: bold;
+            }
+
+        .reports a {
+            display: block;
+            padding: 5px 5px 5px 50px;
+            margin-top: 1px;
+            width: 765px;
+            color: #000;
+            background-color: #D4E7F7;
+            font-weight: normal;
+            }
+
+        .reports a:hover {
+            color: #fff;
+            background-color: #69C;
+            }
+    </style>
+{% endblock %}
+
+{% block this_nav_link %}link_customReports{% endblock %}
+
+{% block content %}
+
+<div id="report_list">
+    <ul class="report_groups">
+    {% for group, reports in customReports %}
+        <li class="report_groups"><a class="report_groups">{{ group }}</a></li>
+        <ul class="reports">
+        {% for report in reports %}
+            <li class="reports"><a  class="reports" href="{{ report.title }}">{{ report.title }}</a></li>
+        {% endfor %}
+        </ul>
+    {% endfor %}
+    </ul>
+</div>
+
+{% endblock %}

@@ -3,7 +3,7 @@ This file configures the Admin interface, which allows for editing of the Models
 '''
 
 from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, DashboardItem, Unit
-from bmsapp.models import MultiBuildingChart, ChartBuildingInfo
+from bmsapp.models import MultiBuildingChart, ChartBuildingInfo, CustomReport
 from bmsapp.models import BuildingGroup, BuildingMode
 from bmsapp.models import AlertCondition, AlertRecipient, PeriodicScript
 from django.contrib import admin
@@ -203,4 +203,10 @@ class SensorAdmin(admin.ModelAdmin):
     readonly_fields = ('script_results',)
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 8, 'cols': 80})},
+    }
+
+@admin.register(CustomReport)
+class CustomReportAdmin(admin.ModelAdmin):
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':20, 'cols':80})},
     }

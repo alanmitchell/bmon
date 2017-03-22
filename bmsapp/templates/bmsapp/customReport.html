@@ -1,0 +1,12 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}{{report_title}}{% endblock %}
+{% block head %}{% endblock %}
+
+{% block this_nav_link %}link_customReports{% endblock %}
+
+{% block content %}
+
+{{ report_content|safe }}
+
+{% endblock %}

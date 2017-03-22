@@ -15,6 +15,8 @@ urlpatterns = [
     url(r'^reports/results/$', views.get_report_results),
     url(r'^reports/embed/$', views.get_embedded_results), # javascript embedded version of report results
     url(r'^reports/(\d+)/$', views.reports),
+    url(r'^customReports/$', views.customReportList),
+    url(r'^customReports/(\w+)$', views.customReport),
     url(r'^show_log/$', views.show_log),
     url(r'^bldg_list/(\d+)/$', views.bldg_list),
     url(r'^chart_sensor_list/(\d+)/(multi)/$', views.chart_sensor_list),

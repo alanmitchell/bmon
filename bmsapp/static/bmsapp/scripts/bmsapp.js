@@ -62,7 +62,7 @@
 
   get_embed_link = function() {
     var link;
-    link = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + $("#content select, #content input").serialize() + '" style="width: 300px" async></script>';
+    link = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + $("#content select, #content input").serialize() + '" style="width: 930px" async></script>';
     return prompt("Here's the text to embed this report in another page:", link);
   };
 

@@ -59,7 +59,7 @@ update_results = ->
 
 # copies a link to embed the current report into another page
 get_embed_link = ->
-  link = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + $("#content select, #content input").serialize() + '" style="width: 300px" async></script>'
+  link = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + $("#content select, #content input").serialize() + '" style="width: 930px" async></script>'
   prompt("Here's the text to embed this report in another page:", link)
   
 # Sets the visibility of elements in the list of ids 'ctrl_list'.
