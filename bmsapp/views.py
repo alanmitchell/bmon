@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.templatetags.static import static
 
 import models
 import logging_setup
@@ -112,8 +113,8 @@ def get_embedded_results(request):
         result = chart_obj.result()
     
     except Exception as e:
-        _logger.exception('Error in get_report_results')
-        result = {'html': 'Error in get_report_results', 'objects': []}
+        _logger.exception('Error in get_embedded_results')
+        result = {'html': 'Error in get_embedded_results', 'objects': []}
 
     finally:
         if type(result) is HttpResponse:
@@ -122,27 +123,69 @@ def get_embedded_results(request):
             return result
         else:
             script_content = '''
-var loadingPlotly;
 (function(){
   var content = json_result_string;
+
   var newDiv = document.createElement("div");
   newDiv.innerHTML = content["html"];
-  var scriptTag = document.querySelector(\'script[src="request_path_string"]\');
   newDiv.style.cssText = scriptTag.style.cssText;
+  
+  var scriptTag = document.querySelector(\'script[src="request_path_string"]\');
   scriptTag.parentElement.replaceChild(newDiv, scriptTag);
-                            '''.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
+'''
+            script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
 
-            if result["objects"] and result["objects"][0][0] == 'plotly':
+            if result["objects"] and result["objects"][0][0] == 'dashboard':
+                script_content = 'var loadingDashboard;\n' + script_content
                 script_content += '''
+
+  var renderDashboard = (function(){
+      // Load the dashboard script if undefined, and add the chart
+      if ((typeof ANdash == 'undefined') || (typeof Gauge == 'undefined')) {
+          if (!loadingDashboard) {
+            loadingDashboard = true;
+            console.log('loading dashboard')
+
+            var dashboard_css = document.createElement('link');
+            dashboard_css.rel = 'stylesheet';
+            dashboard_css.type = 'text/css';
+            dashboard_css.href = 'dashboard_css_url';
+            document.getElementsByTagName('head')[0].appendChild(dashboard_css);
+
+            var dashboard_script = document.createElement('script');
+            dashboard_script.src = 'dashboard_script_url';
+            document.getElementsByTagName('head')[0].appendChild(dashboard_script);
+
+            var gauge_script = document.createElement('script');
+            gauge_script.src = 'gauge_script_url';
+            document.getElementsByTagName('head')[0].appendChild(gauge_script);
+          }
+          console.log('waiting for dashboard')
+          setTimeout(renderDashboard, 100);
+      } else {
+        ANdash.createDashboard(obj_config);
+      }});
+  
+  var obj_config = content['objects'][0][1];
+  renderDashboard();
+'''
+                script_content = script_content.replace('dashboard_css_url',request.build_absolute_uri(static('bmsapp/css/dashboard.css')) + '?t=' + str(int(time.time())))
+                script_content = script_content.replace('dashboard_script_url',request.build_absolute_uri(static('bmsapp/scripts/dashboard.js')) + '?t=' + str(int(time.time())))
+                script_content = script_content.replace('gauge_script_url',request.build_absolute_uri(static('bmsapp/scripts/gauge.min.js')))
+            elif result["objects"] and result["objects"][0][0] == 'plotly':
+                script_content = 'var loadingPlotly;\n' + script_content
+                script_content += '''
+
   var drawGraph = (function(){
       // Load the Plotly script if undefined, and add the chart
       if (typeof Plotly == 'undefined') {
           if (!loadingPlotly) {
             console.log('loading plotly')
             loadingPlotly = true;
-            script = document.createElement('script');
-            script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
-            document.getElementsByTagName('head')[0].appendChild(script);
+
+            var plotly_script = document.createElement('script');
+            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+            document.getElementsByTagName('head')[0].appendChild(plotly_script);
           }
           console.log('waiting for plotly')
           setTimeout(drawGraph, 100);
@@ -153,7 +196,7 @@ var loadingPlotly;
   
   var obj_config = content['objects'][0][1];
   drawGraph();
-                '''
+'''
 
             script_content += '})();' #close the javascript function declaration
 
