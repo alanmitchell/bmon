@@ -50,7 +50,7 @@
         <li class="report_groups"><a class="report_groups">{{ group }}</a></li>
         <ul class="reports">
         {% for report in reports %}
-            <li class="reports"><a  class="reports" href="{{ report.title }}">{{ report.title }}</a></li>
+            <li class="reports"><a  class="reports" href="{{ report.title|urlencode }}">{{ report.title }}</a></li>
         {% endfor %}
         </ul>
     {% endfor %}

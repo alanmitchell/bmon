@@ -138,6 +138,7 @@ def get_embedded_results(request):
 
             if result["objects"] and result["objects"][0][0] == 'dashboard':
                 script_content = 'var loadingDashboard;\n' + script_content
+                script_content = 'var loadingPlotly;\n' + script_content
                 script_content += '''
 
   var renderDashboard = (function(){
@@ -162,6 +163,17 @@ def get_embedded_results(request):
             document.getElementsByTagName('head')[0].appendChild(gauge_script);
           }
           console.log('waiting for dashboard')
+          setTimeout(renderDashboard, 100);
+      } else if (typeof Plotly == 'undefined') {
+          if (!loadingPlotly) {
+            console.log('loading plotly')
+            loadingPlotly = true;
+
+            var plotly_script = document.createElement('script');
+            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+            document.getElementsByTagName('head')[0].appendChild(plotly_script);
+          }
+          console.log('waiting for plotly')
           setTimeout(renderDashboard, 100);
       } else {
         ANdash.createDashboard(obj_config);
