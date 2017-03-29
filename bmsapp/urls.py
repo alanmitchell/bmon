@@ -1,4 +1,4 @@
-'''
+﻿'''
 URLs for the BMS Application
 '''
 
@@ -13,16 +13,19 @@ urlpatterns = [
     url(r'^$', views.index, name='index'),
     url(r'^reports/$', views.reports, name='reports'),
     url(r'^reports/results/$', views.get_report_results),
+    url(r'^reports/embed/$', views.get_embedded_results), # javascript embedded version of report results
     url(r'^reports/(\d+)/$', views.reports),
-    url(r'^show_log/$', views.show_log),
-    url(r'^bldg_list/(\d+)/$', views.bldg_list),
-    url(r'^chart_sensor_list/(\d+)/(multi)/$', views.chart_sensor_list),
-    url(r'^chart_sensor_list/(\d+)/(\d+)/$', views.chart_sensor_list),
-    url(r'^map_json/$', views.map_json, name='map-json'),
+    url(r'^custom-reports/$', views.custom_report_list),
+    url(r'^custom-reports/(.+)$', views.custom_report),
+    url(r'^show-log/$', views.show_log),
+    url(r'^bldg-list/(\d+)/$', views.bldg_list),
+    url(r'^chart-sensor-list/(\d+)/(multi)/$', views.chart_sensor_list),
+    url(r'^chart-sensor-list/(\d+)/(\d+)/$', views.chart_sensor_list),
+    url(r'^map-json/$', views.map_json, name='map-json'),
     url(r'^training/video/(\w+)/(\d+)/(\d+)/$', views.show_video, name='show-video'),
-    url(r'^make_store_key/$', views.make_store_key),
-    url(r'^ecobee_auth/$', views.ecobee_auth),
+    url(r'^make-store-key/$', views.make_store_key),
+    url(r'^ecobee-auth/$', views.ecobee_auth),
 
     # catches URLs that don't match the above patterns.  Assumes they give a template name to render.
-    url(r'^(\w+)/$', views.wildcard, name='wildcard'),
+    url(r'^([^.]+)/$', views.wildcard, name='wildcard'),
 ]
