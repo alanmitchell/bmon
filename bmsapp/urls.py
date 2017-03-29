@@ -27,5 +27,5 @@ urlpatterns = [
     url(r'^ecobee-auth/$', views.ecobee_auth),
 
     # catches URLs that don't match the above patterns.  Assumes they give a template name to render.
-    url(r'^(\w+)/$', views.wildcard, name='wildcard'),
+    url(r'^(.+)/$', views.wildcard, name='wildcard'),
 ]
