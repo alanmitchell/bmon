@@ -90,6 +90,6 @@ class NormalizedByFt2(basechart.BaseChart):
                     }
         '''
 
-        html = '<div id="chart_container"></div>'
+        html = basechart.chart_config.chart_container_html
 
         return {'html': html, 'objects': [('plotly', opt)]}

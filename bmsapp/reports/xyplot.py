@@ -117,7 +117,7 @@ class XYplot(basechart.BaseChart):
         opt['layout']['yaxis']['title'] =  y_label
         opt['layout']['legend']['traceorder'] = 'reversed'
 
-        html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7"></div>'
+        html = basechart.chart_config.chart_container_html
 
         return {'html': html, 'objects': [('plotly', opt)]}
 

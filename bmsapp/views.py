@@ -131,6 +131,8 @@ def get_embedded_results(request):
   var newDiv = document.createElement("div");
   newDiv.innerHTML = content["html"];
   newDiv.style.cssText = scriptTag.style.cssText;
+  newDiv.style.display = "flex";
+  newDiv.style.flexDirection = "column";
   
   scriptTag.parentElement.replaceChild(newDiv, scriptTag);
 '''
@@ -230,10 +232,15 @@ def custom_report(request, requested_report):
     Display a specific custom report
     '''
 
-    report_title = requested_report
-
+    report_id = requested_report
     ctx = base_context()
-    ctx.update({'report_title': report_title, 'report_content': view_util.custom_report_html(report_title)})
+
+    try:
+        report = models.CustomReport.objects.get(id=report_id)
+        report_title = report.title
+        ctx.update({'report_title': report_title, 'report_content': view_util.custom_report_html(report_id)})
+    except Exception as ex:
+        ctx.update({'report_title': 'Report Not Found', 'report_content': 'Report Not Found: ' + ex.message})
     
     return render_to_response('bmsapp/customReport.html', ctx)
 

@@ -19,6 +19,7 @@ layout:
   paper_bgcolor: '#EEEEEE'
   titlefont:
     size: 22
+  autosize: true
   margin:
     l: 65
     r: 20
@@ -47,3 +48,5 @@ config:
   displaylogo: false
   scrollZoom: true
 ''')
+
+chart_container_html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7; flex-grow:1"></div>'
