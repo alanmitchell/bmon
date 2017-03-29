@@ -1,4 +1,4 @@
-'''
+﻿'''
 Helper functions for the views in this BMS application.
 '''
 import importlib
@@ -166,7 +166,7 @@ def sensor_list_html(bldg_id):
 
     return html
 
-def customReports():
+def custom_reports():
     """Returns a sorted list of Custom Reports.
     """
 
@@ -187,7 +187,7 @@ def customReports():
 
     return reports_list
 
-def customReportHTML(report_title):
+def custom_report_html(report_title):
     report_info = models.CustomReport.objects.get(title=report_title)
     report_html = markdown.markdown(report_info.markdown_text)
 

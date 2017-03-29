@@ -1,4 +1,4 @@
-##################################################
+﻿##################################################
 # Django settings for BMON project               #
 ##################################################
 import logging
@@ -108,7 +108,7 @@ LANGUAGE_CODE = 'en-us'
 # in front of each tuple.
 # See documentation at https://docs.djangoproject.com/en/1.7/ref/settings/#std:setting-ADMINS
 # NOTE:  You can also view the error log for the BMON application by browsing to the page:
-#     <application URL>/show_log
+#     <application URL>/show-log
 ADMINS = (
     # ('Admin Name Here', 'Admin Email Address Here'),
 )

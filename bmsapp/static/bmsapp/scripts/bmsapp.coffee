@@ -126,7 +126,7 @@ process_chart_change = ->
 # updating the list of apprpriate charts and sensors.
 update_chart_sensor_lists = (event, chart_id, sensor_id) ->
   # load the options from a AJAX query for the selected building
-  url = "#{$("#BaseURL").text()}chart_sensor_list/#{$("#select_group").val()}/#{$("#select_bldg").val()}/"
+  url = "#{$("#BaseURL").text()}chart-sensor-list/#{$("#select_group").val()}/#{$("#select_bldg").val()}/"
   $.getJSON url, (data) ->
     $("#select_chart").html(data.charts)
     $("#select_sensor").html(data.sensors)
@@ -141,7 +141,7 @@ update_chart_sensor_lists = (event, chart_id, sensor_id) ->
 # Updates the list of buildings associated with the Building Group selected.
 update_bldg_list = ->
   # load the building choices from a AJAX query for the selected building group
-  $("#select_bldg").load "#{$("#BaseURL").text()}bldg_list/#{$("#select_group").val()}/", ->
+  $("#select_bldg").load "#{$("#BaseURL").text()}bldg-list/#{$("#select_group").val()}/", ->
     # trigger the change event of the building selector to get the 
     # selected option to process.
     $("#select_bldg").trigger "change"

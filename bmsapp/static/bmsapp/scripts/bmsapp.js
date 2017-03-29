@@ -128,7 +128,7 @@
 
   update_chart_sensor_lists = function(event, chart_id, sensor_id) {
     var url;
-    url = ($("#BaseURL").text()) + "chart_sensor_list/" + ($("#select_group").val()) + "/" + ($("#select_bldg").val()) + "/";
+    url = ($("#BaseURL").text()) + "chart-sensor-list/" + ($("#select_group").val()) + "/" + ($("#select_bldg").val()) + "/";
     return $.getJSON(url, function(data) {
       $("#select_chart").html(data.charts);
       $("#select_sensor").html(data.sensors);
@@ -143,7 +143,7 @@
   };
 
   update_bldg_list = function() {
-    return $("#select_bldg").load(($("#BaseURL").text()) + "bldg_list/" + ($("#select_group").val()) + "/", function() {
+    return $("#select_bldg").load(($("#BaseURL").text()) + "bldg-list/" + ($("#select_group").val()) + "/", function() {
       return $("#select_bldg").trigger("change");
     });
   };

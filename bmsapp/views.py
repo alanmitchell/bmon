@@ -215,17 +215,17 @@ def get_embedded_results(request):
 
             return HttpResponse(script_content, content_type="application/javascript")
 
-def customReportList(request):
+def custom_report_list(request):
     '''
     The main Custom Reports page - lists all available custom reports
     '''
 
     ctx = base_context()
-    ctx.update({'customReports': view_util.customReports()})
+    ctx.update({'customReports': view_util.custom_reports()})
     
     return render_to_response('bmsapp/customReports.html', ctx)
 
-def customReport(request, requested_report):
+def custom_report(request, requested_report):
     '''
     Display a specific custom report
     '''
@@ -233,7 +233,7 @@ def customReport(request, requested_report):
     report_title = requested_report
 
     ctx = base_context()
-    ctx.update({'report_title': report_title, 'report_content': view_util.customReportHTML(report_title)})
+    ctx.update({'report_title': report_title, 'report_content': view_util.custom_report_html(report_title)})
     
     return render_to_response('bmsapp/customReport.html', ctx)
 
