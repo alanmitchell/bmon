@@ -184,11 +184,13 @@ def custom_reports():
     else:
         if not current_group is None:
             reports_list.append((current_group,group_reports))
+        else:
+            reports_list.append(('Contact your BMON System Administrator to set up custom reports',[]))
 
     return reports_list
 
-def custom_report_html(report_title):
-    report_info = models.CustomReport.objects.get(title=report_title)
+def custom_report_html(report_id):
+    report_info = models.CustomReport.objects.get(id=report_id)
     report_html = markdown.markdown(report_info.markdown_text)
 
     return report_html
