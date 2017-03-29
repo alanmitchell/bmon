@@ -207,6 +207,5 @@ class SensorAdmin(admin.ModelAdmin):
 
 @admin.register(CustomReport)
 class CustomReportAdmin(admin.ModelAdmin):
-    formfield_overrides = {
-        models.TextField: {'widget': Textarea(attrs={'rows':20, 'cols':80})},
-    }
+    list_display = ('title', 'group')
+    formfield_overrides = {models.TextField: {'widget': Textarea(attrs={'rows':20, 'cols':80})}}

@@ -654,7 +654,7 @@ class CustomReport(models.Model):
     group = models.CharField(max_length=80)
 
     # Name of the report
-    title = models.CharField(max_length=80, unique=True)
+    title = models.CharField(max_length=80)
     
     # Determines the order within the group that the report will be presented in the UI
     sort_order = models.IntegerField(default=999)
