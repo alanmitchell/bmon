@@ -646,6 +646,28 @@ class PeriodicScript(models.Model):
     def __unicode__(self):
         return '%s -- %s' % (self.script_file_name, self.script_parameters.replace('\n', ', '))
 
+class CustomReport(models.Model):
+    """Defines a custom report with text and widgets defined by the user.
+    """
+    
+    # Name of the group that the report is listed under
+    group = models.CharField(max_length=80)
+
+    # Name of the report
+    title = models.CharField(max_length=80, unique=True)
+    
+    # Determines the order within the group that the report will be presented in the UI
+    sort_order = models.IntegerField(default=999)
+    
+    # Markdown text that defines what will appear in the report
+    markdown_text = models.TextField(verbose_name='Report Content (in markdown):', help_text='Use <a href="http://markdowntutorial.com/">markdown syntax</a> to add links, pictures, etc.  Note that you <b>must</b> include the url prefix (e.g. <i>http://</i>) in any external links.', blank=True)    
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['group','sort_order', 'title']
+        
 
 def choice_text(val, choices):
     """Returns the display text associated with the choice value 'val'

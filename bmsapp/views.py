@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.conf import settings
+from django.templatetags.static import static
 
 import models
 import logging_setup
@@ -102,6 +103,139 @@ def get_report_results(request):
             # the result from the chart object is assumed to be a JSON object.
             return HttpResponse(json.dumps(result), content_type="application/json")
 
+def get_embedded_results(request):
+    """Method called to return the main content of a particular chart
+    or report embedded as javascript.
+    """
+    try:
+        # Make the chart object
+        chart_obj = basechart.get_chart_object(request.GET)
+        result = chart_obj.result()
+    
+    except Exception as e:
+        _logger.exception('Error in get_embedded_results')
+        result = {'html': 'Error in get_embedded_results', 'objects': []}
+
+    finally:
+        if type(result) is HttpResponse:
+            # the chart object directly produced an HttpResponse object
+            # so just return it directly.
+            return result
+        else:
+            script_content = '''
+(function(){
+  var content = json_result_string;
+
+  var scriptTag = document.querySelector(\'script[src="request_path_string"]\');
+
+  var newDiv = document.createElement("div");
+  newDiv.innerHTML = content["html"];
+  newDiv.style.cssText = scriptTag.style.cssText;
+  
+  scriptTag.parentElement.replaceChild(newDiv, scriptTag);
+'''
+            script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
+
+            if result["objects"] and result["objects"][0][0] == 'dashboard':
+                script_content = 'var loadingDashboard;\n' + script_content
+                script_content = 'var loadingPlotly;\n' + script_content
+                script_content += '''
+
+  var renderDashboard = (function(){
+      // Load the dashboard script if undefined, and add the chart
+      if ((typeof ANdash == 'undefined') || (typeof Gauge == 'undefined')) {
+          if (!loadingDashboard) {
+            loadingDashboard = true;
+            console.log('loading dashboard')
+
+            var dashboard_css = document.createElement('link');
+            dashboard_css.rel = 'stylesheet';
+            dashboard_css.type = 'text/css';
+            dashboard_css.href = 'dashboard_css_url';
+            document.getElementsByTagName('head')[0].appendChild(dashboard_css);
+
+            var dashboard_script = document.createElement('script');
+            dashboard_script.src = 'dashboard_script_url';
+            document.getElementsByTagName('head')[0].appendChild(dashboard_script);
+
+            var gauge_script = document.createElement('script');
+            gauge_script.src = 'gauge_script_url';
+            document.getElementsByTagName('head')[0].appendChild(gauge_script);
+          }
+          console.log('waiting for dashboard')
+          setTimeout(renderDashboard, 100);
+      } else if (typeof Plotly == 'undefined') {
+          if (!loadingPlotly) {
+            console.log('loading plotly')
+            loadingPlotly = true;
+
+            var plotly_script = document.createElement('script');
+            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+            document.getElementsByTagName('head')[0].appendChild(plotly_script);
+          }
+          console.log('waiting for plotly')
+          setTimeout(renderDashboard, 100);
+      } else {
+        ANdash.createDashboard(obj_config);
+      }});
+  
+  var obj_config = content['objects'][0][1];
+  renderDashboard();
+'''
+                script_content = script_content.replace('dashboard_css_url',request.build_absolute_uri(static('bmsapp/css/dashboard.css')) + '?t=' + str(int(time.time())))
+                script_content = script_content.replace('dashboard_script_url',request.build_absolute_uri(static('bmsapp/scripts/dashboard.js')) + '?t=' + str(int(time.time())))
+                script_content = script_content.replace('gauge_script_url',request.build_absolute_uri(static('bmsapp/scripts/gauge.min.js')))
+            elif result["objects"] and result["objects"][0][0] == 'plotly':
+                script_content = 'var loadingPlotly;\n' + script_content
+                script_content += '''
+
+  var drawGraph = (function(){
+      // Load the Plotly script if undefined, and add the chart
+      if (typeof Plotly == 'undefined') {
+          if (!loadingPlotly) {
+            console.log('loading plotly')
+            loadingPlotly = true;
+
+            var plotly_script = document.createElement('script');
+            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+            document.getElementsByTagName('head')[0].appendChild(plotly_script);
+          }
+          console.log('waiting for plotly')
+          setTimeout(drawGraph, 100);
+      } else {
+        Plotly.plot(obj_config.renderTo, obj_config.data, obj_config.layout, obj_config.config);
+        document.getElementById(obj_config.renderTo).removeAttribute("id");
+      }});
+  
+  var obj_config = content['objects'][0][1];
+  drawGraph();
+'''
+
+            script_content += '})();' #close the javascript function declaration
+
+            return HttpResponse(script_content, content_type="application/javascript")
+
+def custom_report_list(request):
+    '''
+    The main Custom Reports page - lists all available custom reports
+    '''
+
+    ctx = base_context()
+    ctx.update({'customReports': view_util.custom_reports()})
+    
+    return render_to_response('bmsapp/customReports.html', ctx)
+
+def custom_report(request, requested_report):
+    '''
+    Display a specific custom report
+    '''
+
+    report_title = requested_report
+
+    ctx = base_context()
+    ctx.update({'report_title': report_title, 'report_content': view_util.custom_report_html(report_title)})
+    
+    return render_to_response('bmsapp/customReport.html', ctx)
 
 def store_key_is_valid(the_key):
     '''Returns True if the 'the_key' is a valid sensor reading storage key.

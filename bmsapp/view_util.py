@@ -1,10 +1,11 @@
-'''
+﻿'''
 Helper functions for the views in this BMS application.
 '''
 import importlib
 from django.template import loader
 
 import models, reports.basechart
+import markdown
 
 def to_int(val):
     '''
@@ -164,3 +165,30 @@ def sensor_list_html(bldg_id):
     html += '</optgroup>'
 
     return html
+
+def custom_reports():
+    """Returns a sorted list of Custom Reports.
+    """
+
+    reports_list = []
+    current_group = None
+    group_reports = []
+
+    for report in models.CustomReport.objects.all():
+        if report.group != current_group:
+            if not current_group is None:
+                reports_list.append((current_group,group_reports))
+            current_group = report.group
+            group_reports = []
+        group_reports.append(report)
+    else:
+        if not current_group is None:
+            reports_list.append((current_group,group_reports))
+
+    return reports_list
+
+def custom_report_html(report_title):
+    report_info = models.CustomReport.objects.get(title=report_title)
+    report_html = markdown.markdown(report_info.markdown_text)
+
+    return report_html

@@ -1,4 +1,4 @@
-##################################################
+﻿##################################################
 # Django settings for BMON project               #
 ##################################################
 import logging
@@ -38,14 +38,16 @@ of the source code for this website.'''
 #     First item in tuple is Text that will be shown for the link.
 #     Second item is the name of the template that will be rendered to produce the page.
 #          'reports' is a special name that will cause the main reports/charts page to be
-#          rendered.  For other names in this position, there must be a corresponding 
+#          rendered. 'custom-reports' is also special and will cause a page showing the 
+#          available custom reports. For other names in this position, there must be a corresponding 
 #          [template name].html file present in the templates/bmsapp directory.  The custom
 #          template cannot match any of the URLs listed in urls.py.
 #     The third item (optional) is True if this item should be the default index page for
 #         the application.
 BMSAPP_NAV_LINKS = ( ('Map', 'map'),
                      ('Data Charts and Reports', 'reports', True),
-                     ('Training Videos and Project Reports', 'training_anthc'),
+                     ('Custom Reports', 'custom-reports'),
+                     ('Training Videos and Project Reports', 'training-anthc'),
                    )
 
 # The number of hours before a sensor is considered to be inactive (not posting data).
@@ -108,7 +110,7 @@ LANGUAGE_CODE = 'en-us'
 # in front of each tuple.
 # See documentation at https://docs.djangoproject.com/en/1.7/ref/settings/#std:setting-ADMINS
 # NOTE:  You can also view the error log for the BMON application by browsing to the page:
-#     <application URL>/show_log
+#     <application URL>/show-log
 ADMINS = (
     # ('Admin Name Here', 'Admin Email Address Here'),
 )
