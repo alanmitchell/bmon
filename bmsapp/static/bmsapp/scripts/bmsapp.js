@@ -77,22 +77,17 @@
   };
 
   set_visibility = function(ctrl_list, show) {
-    var ctrl, i, j, len, len1, results1, results2;
-    if (show) {
-      results1 = [];
-      for (i = 0, len = ctrl_list.length; i < len; i++) {
-        ctrl = ctrl_list[i];
-        results1.push($("#" + ($.trim(ctrl))).show());
+    var ctrl, element, i, len;
+    for (i = 0, len = ctrl_list.length; i < len; i++) {
+      ctrl = ctrl_list[i];
+      element = document.getElementById($.trim(ctrl));
+      if (show) {
+        $(element).show().find("select:visible, input:visible").prop("disabled", false);
+      } else {
+        $(element).hide().find("select, input").prop("disabled", true);
       }
-      return results1;
-    } else {
-      results2 = [];
-      for (j = 0, len1 = ctrl_list.length; j < len1; j++) {
-        ctrl = ctrl_list[j];
-        results2.push($("#" + ($.trim(ctrl))).hide());
-      }
-      return results2;
     }
+    return show;
   };
 
   REFRESH_MS = 600000;
@@ -234,14 +229,14 @@
     $("#end_date").datepicker({
       dateFormat: "mm/dd/yy"
     });
-    $("#custom_dates").hide(0);
     $("#time_period").change(function() {
       if ($("input:radio[name=time_period]:checked").val() !== "custom") {
-        return $("#custom_dates").hide();
+        return $("#custom_dates").hide().find("select, input").prop("disabled", true);
       } else {
-        return $("#custom_dates").show();
+        return $("#custom_dates").show().find("select, input").prop("disabled", false);
       }
     });
+    $("#time_period").change();
     $("#refresh").button().click(update_results);
     $("#get_embed_link").click(get_embed_link);
     $("#normalize").button();

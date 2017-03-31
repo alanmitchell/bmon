@@ -79,10 +79,13 @@ get_embed_link = ->
 # Sets the visibility of elements in the list of ids 'ctrl_list'.
 # If 'show' is true then the element is shown, hidden otherwise.
 set_visibility = (ctrl_list, show) ->
-  if show
-    $("##{$.trim(ctrl)}").show() for ctrl in ctrl_list
-  else
-    $("##{$.trim(ctrl)}").hide() for ctrl in ctrl_list
+  for ctrl in ctrl_list
+    element = document.getElementById($.trim(ctrl))
+    if show
+      $(element).show().find("select:visible, input:visible").prop( "disabled", false )
+    else
+      $(element).hide().find("select, input").prop( "disabled", true )
+  show
 
 # A timer used by some charts to do a timed refresh of the results.
 REFRESH_MS = 600000  # milliseconds between timed refreshes
@@ -228,14 +231,15 @@ $ ->
   d = new Date() # current date to use for a default for Start Date
   $("#start_date").val (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear()
   $("#end_date").datepicker dateFormat: "mm/dd/yy"
-  $("#custom_dates").hide 0 # hide custom dates element
+  
   # Show and Hide custom date range selector
   $("#time_period").change ->
     unless $("input:radio[name=time_period]:checked").val() is "custom"
-      $("#custom_dates").hide()
+      $("#custom_dates").hide().find("select, input").prop( "disabled", true )
     else
-      $("#custom_dates").show()
-
+      $("#custom_dates").show().find("select, input").prop( "disabled", false )
+  $("#time_period").change()
+  
   # make refresh button a jQuery button & call update when clicked
   $("#refresh").button().click update_results
   $("#get_embed_link").click get_embed_link     
