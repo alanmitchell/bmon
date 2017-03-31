@@ -31,21 +31,35 @@ window.AN.plot_building_chart_sensor = (bldg_id, chart_id, sensor_id) ->
 # a direct call to 'update_results'
 _auto_recalc = true
 
+# flags whether inputs are in the process of being loaded
+_loading_inputs = false
+
 # Called when inputs that affect the results have changed
 inputs_changed = ->
-  update_results() if _auto_recalc
+  if _auto_recalc and not _loading_inputs
+    # update the window location url if needed
+    if urlQueryString() == ''
+      history.replaceState(null,null,"?".concat(serializedInputs()))
+    else if serializedInputs() != urlQueryString()
+      history.pushState(null,null,"?".concat(serializedInputs()))
+    # update the results display
+    update_results() 
 
+serializedInputs = ->
+  $("#content select, #content input").serialize()
+  
 # Updates the results portion of the page
 update_results = ->
+    
   $("body").css "cursor", "wait"    # show hourglass
-  url = "#{$("#BaseURL").text()}reports/results/"
-  $.getJSON(url, $("#content select, #content input").serialize()
-  ).done((results) -> 
+
+  $.getJSON("#{$("#BaseURL").text()}reports/results/", serializedInputs()).done((results) -> 
     # load the returned HTML into the results div, but empty first to ensure
     # event handlers, etc. are removed
     $("body").css "cursor", "default"   # remove hourglass cursor
     $("#results").empty()
     $("#results").html results.html
+    
     # Loop through the returned JavaScript objects to create and make them
     $.each results.objects, (ix, obj) ->
       [obj_type, obj_config] = obj
@@ -59,7 +73,7 @@ update_results = ->
 
 # copies a link to embed the current report into another page
 get_embed_link = ->
-  link = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + $("#content select, #content input").serialize() + '" style="width: 930px" async></script>'
+  link = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + serializedInputs() + '" style="width: 930px" async></script>'
   prompt("Here's the text to embed this report in another page:", link)
   
 # Sets the visibility of elements in the list of ids 'ctrl_list'.
@@ -127,16 +141,20 @@ process_chart_change = ->
 update_chart_sensor_lists = (event, chart_id, sensor_id) ->
   # load the options from a AJAX query for the selected building
   url = "#{$("#BaseURL").text()}chart-sensor-list/#{$("#select_group").val()}/#{$("#select_bldg").val()}/"
-  $.getJSON url, (data) ->
-    $("#select_chart").html(data.charts)
-    $("#select_sensor").html(data.sensors)
-    $("#select_sensor_x").html(data.sensors)
-    $("#select_sensor_y").html(data.sensors)
-
-    if chart_id?
-      window.AN.plot_sensor(chart_id, sensor_id)
-    else
-      process_chart_change()
+  # $.getJSON url, (data) ->
+  $.ajax
+    url: url
+    dataType: "json"
+    async: false
+    success: (data) ->
+      $("#select_chart").html(data.charts)
+      $("#select_sensor").html(data.sensors)
+      $("#select_sensor_x").html(data.sensors)
+      $("#select_sensor_y").html(data.sensors)
+      if chart_id?
+        window.AN.plot_sensor(chart_id, sensor_id)
+      else
+        process_chart_change()
 
 # Updates the list of buildings associated with the Building Group selected.
 update_bldg_list = ->
@@ -144,8 +162,56 @@ update_bldg_list = ->
   $("#select_bldg").load "#{$("#BaseURL").text()}bldg-list/#{$("#select_group").val()}/", ->
     # trigger the change event of the building selector to get the 
     # selected option to process.
-    $("#select_bldg").trigger "change"
+    if _loading_inputs == false
+      $("#select_bldg").trigger "change"
 
+# handle the history.popstate event
+$(window).on "popstate", (event) ->
+  handleUrlQuery()
+  update_results()
+
+# extract the query string portion of the current window's url
+urlQueryString = () ->
+  url = window.location.href
+  queryStart = url.indexOf('?') + 1
+  if queryStart > 0
+    url.substr(queryStart)
+  else
+    ''
+
+# parse and handle the url query string
+handleUrlQuery = () ->
+    params = {}
+    $.each urlQueryString().replace(/\+/g, '%20').split('&'), ->
+      name_value = @split('=')
+      name = decodeURIComponent(name_value[0])
+      value = if name_value.length > 1 then decodeURIComponent(name_value[1]) else null
+      if !(name of params)
+        params[name] = []
+      params[name].push value
+      return
+      
+    # sort the params so their events fire properly
+    sortedNames = do ->
+      names = ['select_group','select_bldg','select_chart']
+      for name of params
+        if name not in names
+          names.push name
+      names
+      
+    # update control values
+    _loading_inputs = true
+    for name in sortedNames
+      if params.hasOwnProperty(name)
+        value = params[name]
+        element = $('[name=\'' + name + '\']')
+        if `element.val() != value`
+          element.val(value).change()
+          if element.attr("multiple") == "multiple"
+            element.multiselect("refresh")
+    _loading_inputs = false
+    params
+  
 # ---------------------------------------------------------------
 # function that runs when the document is ready.
 $ ->
@@ -181,7 +247,7 @@ $ ->
   # is not displayed in a normal results div.
   $("#download_many").button().click ->
     window.location.href = "#{$("#BaseURL").text()}reports/results/?" + 
-      $("#content select, #content input").serialize();
+      serializedInputs();
 
   # Set up controls and functions to respond to events
   $("#select_group").change update_bldg_list
@@ -193,6 +259,9 @@ $ ->
     'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date', 
     'time_period']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
+
+  # Handle and query parameters on the url
+  handleUrlQuery()
 
   # Process the currently selected chart
   process_chart_change()
