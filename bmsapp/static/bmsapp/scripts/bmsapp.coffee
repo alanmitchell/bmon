@@ -50,7 +50,6 @@ serializedInputs = ->
   
 # Updates the results portion of the page
 update_results = ->
-    
   $("body").css "cursor", "wait"    # show hourglass
 
   $.getJSON("#{$("#BaseURL").text()}reports/results/", serializedInputs()).done((results) -> 
@@ -82,7 +81,7 @@ set_visibility = (ctrl_list, show) ->
   for ctrl in ctrl_list
     element = document.getElementById($.trim(ctrl))
     if show
-      $(element).show().find("select:visible, input:visible").prop( "disabled", false )
+      $(element).show().find("select, input:visible").prop( "disabled", false )
     else
       $(element).hide().find("select, input").prop( "disabled", true )
   show
@@ -98,7 +97,7 @@ SENSOR_MULTI_CONFIG = {minWidth: 300, selectedList: 3, close: inputs_changed}
 # the visibility of controls.
 process_chart_change = ->
 
-  # start by hiding all input controls
+    # start by hiding all input controls
   set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export',
     'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period', 'download_many'], false)
 
@@ -266,6 +265,6 @@ $ ->
 
   # Handle and query parameters on the url
   handleUrlQuery()
-
+  
   # Process the currently selected chart
   process_chart_change()

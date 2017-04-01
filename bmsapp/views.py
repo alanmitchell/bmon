@@ -1,5 +1,5 @@
 ﻿# Create your views here.
-import sys, logging, json, random, time
+import sys, logging, json, random, time, re
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect, render
@@ -135,7 +135,23 @@ def get_embedded_results(request):
   newDiv.style.flexDirection = "column";
   
   scriptTag.parentElement.replaceChild(newDiv, scriptTag);
+
+  if (typeof window.AN == 'undefined') { window.AN = {}; };
+  window.AN.plot_sensor = function(chart_id, sensor_id) {
+    window.location.href = '/reports/?select_group=requested_select_group&select_bldg=requested_select_bldg&select_chart=' + chart_id + '&select_sensor=' + sensor_id + '&averaging_time=0&time_period=31';
+    };
+  window.AN.plot_building_chart_sensor = function(bldg_id, chart_id, sensor_id) {
+    var href = '/reports/?select_group=requested_select_group&';
+    if (typeof bldg_id !== 'undefined') { href += 'select_bldg=' + bldg_id + '&'; }
+    if (typeof chart_id !== 'undefined') { href += 'select_chart=' + chart_id + '&'; }
+    if (typeof sensor_id !== 'undefined') { href += 'select_sensor=' + sensor_id + '&averaging_time=0&time_period=31'; }
+    window.location.href = href;
+  };
 '''
+            requested_select_group = re.search('(?<=select_group=)[^&]+', request.get_full_path()).group(0)
+            requested_select_bldg = re.search('(?<=select_bldg=)[^&]+', request.get_full_path()).group(0)
+            script_content = script_content.replace('requested_select_group',requested_select_group)
+            script_content = script_content.replace('requested_select_bldg',requested_select_bldg)
             script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
 
             if result["objects"] and result["objects"][0][0] == 'dashboard':

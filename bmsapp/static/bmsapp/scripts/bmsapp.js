@@ -82,7 +82,7 @@
       ctrl = ctrl_list[i];
       element = document.getElementById($.trim(ctrl));
       if (show) {
-        $(element).show().find("select:visible, input:visible").prop("disabled", false);
+        $(element).show().find("select, input:visible").prop("disabled", false);
       } else {
         $(element).hide().find("select, input").prop("disabled", true);
       }
