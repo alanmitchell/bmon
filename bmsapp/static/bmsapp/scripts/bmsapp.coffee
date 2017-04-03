@@ -143,7 +143,6 @@ process_chart_change = ->
 update_chart_sensor_lists = (event, chart_id, sensor_id) ->
   # load the options from a AJAX query for the selected building
   url = "#{$("#BaseURL").text()}chart-sensor-list/#{$("#select_group").val()}/#{$("#select_bldg").val()}/"
-  # $.getJSON url, (data) ->
   $.ajax
     url: url
     dataType: "json"
@@ -161,11 +160,17 @@ update_chart_sensor_lists = (event, chart_id, sensor_id) ->
 # Updates the list of buildings associated with the Building Group selected.
 update_bldg_list = ->
   # load the building choices from a AJAX query for the selected building group
-  $("#select_bldg").load "#{$("#BaseURL").text()}bldg-list/#{$("#select_group").val()}/", ->
-    # trigger the change event of the building selector to get the 
-    # selected option to process.
-    if _loading_inputs == false
-      $("#select_bldg").trigger "change"
+  url = "#{$("#BaseURL").text()}bldg-list/#{$("#select_group").val()}/"
+  $.ajax
+    url: url
+    dataType: "html"
+    async: false
+    success: (data) ->
+      $("#select_bldg").html(data)
+      if _loading_inputs == false
+        # trigger the change event of the building selector to get the 
+        # selected option to process.
+        $("#select_bldg").trigger "change"
 
 # handle the history.popstate event
 $(window).on "popstate", (event) ->

@@ -138,38 +138,6 @@ def get_embedded_results(request):
 '''
             script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
 
-            # Add the AN.plot_sensor javascript function if it is needed
-            if 'AN.plot_sensor' in result['html'] or 'dashboard' in result['html']:
-                javascript_code = '''
-  if (typeof window.AN == 'undefined') { window.AN = {}; };
-  window.AN.plot_sensor = function(chart_id, sensor_id) {
-    window.location.href = 'request_reports_uri/?select_group=requested_select_group&select_bldg=requested_select_bldg&select_chart=' + chart_id + '&select_sensor=' + sensor_id + '&averaging_time=0&time_period=31';
-    };
-'''
-                javascript_code = javascript_code.replace('request_reports_uri',request.build_absolute_uri('/reports'))
-                requested_select_group = re.search('(?<=select_group=)[^&]+', request.get_full_path()).group(0)
-                requested_select_bldg = re.search('(?<=select_bldg=)[^&]+', request.get_full_path()).group(0)
-                javascript_code = javascript_code.replace('requested_select_group',requested_select_group)
-                javascript_code = javascript_code.replace('requested_select_bldg',requested_select_bldg)
-                script_content += javascript_code
-
-            # Add the AN.plot_building_chart_sensor javascript function if it is needed
-            if 'AN.plot_building_chart_sensor' in result['html']:
-                javascript_code = '''
-  if (typeof window.AN == 'undefined') { window.AN = {}; };
-  window.AN.plot_building_chart_sensor = function(bldg_id, chart_id, sensor_id) {
-    var href = 'request_reports_uri/?select_group=requested_select_group&';
-    if (typeof bldg_id !== 'undefined') { href += 'select_bldg=' + bldg_id + '&'; }
-    if (typeof chart_id !== 'undefined') { href += 'select_chart=' + chart_id + '&'; }
-    if (typeof sensor_id !== 'undefined') { href += 'select_sensor=' + sensor_id + '&averaging_time=0&time_period=31'; }
-    window.location.href = href;
-  };
-'''
-                javascript_code = javascript_code.replace('request_reports_uri',request.build_absolute_uri('/reports'))
-                requested_select_group = re.search('(?<=select_group=)[^&]+', request.get_full_path()).group(0)
-                javascript_code = javascript_code.replace('requested_select_group',requested_select_group)
-                script_content += javascript_code
-
             # Add the dashboard scripts if they are needed
             if result["objects"] and result["objects"][0][0] == 'dashboard':
                 script_content = 'var loadingDashboard;\n' + script_content

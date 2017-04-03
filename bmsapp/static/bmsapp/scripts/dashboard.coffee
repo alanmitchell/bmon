@@ -117,7 +117,7 @@ addSparkline = (jqParent, g_info) ->
                     </div>" )
   jqWidget = $("##{widgetID}")
   jqWidget.css('cursor', 'pointer')   # makes the hand appear when hovering
-  jqWidget.click((e) -> AN.plot_sensor(g_info.timeChartID, g_info.sensorID))
+  jqWidget.click((e) -> window.location=g_info.href
   
   # change the color to red if not value_is_normal
   if not g_info.value_is_normal

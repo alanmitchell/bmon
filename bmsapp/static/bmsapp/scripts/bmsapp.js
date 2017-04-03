@@ -153,9 +153,17 @@
   };
 
   update_bldg_list = function() {
-    return $("#select_bldg").load(($("#BaseURL").text()) + "bldg-list/" + ($("#select_group").val()) + "/", function() {
-      if (_loading_inputs === false) {
-        return $("#select_bldg").trigger("change");
+    var url;
+    url = ($("#BaseURL").text()) + "bldg-list/" + ($("#select_group").val()) + "/";
+    return $.ajax({
+      url: url,
+      dataType: "html",
+      async: false,
+      success: function(data) {
+        $("#select_bldg").html(data);
+        if (_loading_inputs === false) {
+          return $("#select_bldg").trigger("change");
+        }
       }
     });
   };
