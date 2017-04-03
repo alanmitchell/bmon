@@ -203,13 +203,14 @@
     for (i = 0, len = sortedNames.length; i < len; i++) {
       name = sortedNames[i];
       if (params.hasOwnProperty(name)) {
-        value = params[name];
         element = $('[name=\'' + name + '\']');
+        value = params[name];
         if (element.val() != value) {
-          element.val(value).change();
+          element.val(value);
           if (element.attr("multiple") === "multiple") {
             element.multiselect("refresh");
           }
+          element.change();
         }
       }
     }
@@ -218,7 +219,7 @@
   };
 
   $(function() {
-    var ctrl, ctrls, d, i, len;
+    var ctrl, ctrls, d, i, len, params;
     $(document).tooltip();
     $("#time_period").buttonset();
     $("#start_date").datepicker({
@@ -255,8 +256,12 @@
       ctrl = ctrls[i];
       $("#" + ctrl).change(inputs_changed);
     }
-    handleUrlQuery();
-    return process_chart_change();
+    params = handleUrlQuery();
+    _loading_inputs = true;
+    process_chart_change();
+    _loading_inputs = false;
+    history.replaceState(null, null, "?".concat(serializedInputs()));
+    return inputs_changed();
   });
 
 }).call(this);

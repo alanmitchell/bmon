@@ -205,12 +205,13 @@ handleUrlQuery = () ->
     _loading_inputs = true
     for name in sortedNames
       if params.hasOwnProperty(name)
-        value = params[name]
         element = $('[name=\'' + name + '\']')
+        value = params[name]
         if `element.val() != value`
-          element.val(value).change()
+          element.val(value)
           if element.attr("multiple") == "multiple"
             element.multiselect("refresh")
+          element.change() # trigger the change event
     _loading_inputs = false
     params
   
@@ -263,8 +264,19 @@ $ ->
     'time_period']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
 
-  # Handle and query parameters on the url
-  handleUrlQuery()
+  # Handle any query parameters on the url
+  params = handleUrlQuery()
   
-  # Process the currently selected chart
+  #if (typeof params['select_chart'] == 'undefined')
+  #  console.log('chart not set by params')
+  
+  # call the code to process the chart change in case it wasn't changed by the url
+  _loading_inputs = true
   process_chart_change()
+  _loading_inputs = false
+  
+  # Update the window's url to reflect the current inputs state
+  history.replaceState(null,null,"?".concat(serializedInputs()))
+  
+  # Update the display based on the inputs
+  inputs_changed()
