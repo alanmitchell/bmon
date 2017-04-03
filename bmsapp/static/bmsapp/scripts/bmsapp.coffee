@@ -146,7 +146,7 @@ update_chart_sensor_lists = (event, chart_id, sensor_id) ->
   $.ajax
     url: url
     dataType: "json"
-    async: false
+    async: not _loading_inputs
     success: (data) ->
       $("#select_chart").html(data.charts)
       $("#select_sensor").html(data.sensors)
@@ -164,10 +164,10 @@ update_bldg_list = ->
   $.ajax
     url: url
     dataType: "html"
-    async: false
+    async: not _loading_inputs
     success: (data) ->
       $("#select_bldg").html(data)
-      if _loading_inputs == false
+      if not _loading_inputs
         # trigger the change event of the building selector to get the 
         # selected option to process.
         $("#select_bldg").trigger "change"
@@ -209,14 +209,14 @@ handleUrlQuery = () ->
     # update control values
     _loading_inputs = true
     for name in sortedNames
+      element = $('[name=\'' + name + '\']')
       if params.hasOwnProperty(name)
-        element = $('[name=\'' + name + '\']')
         value = params[name]
         if `element.val() != value`
           element.val(value)
           if element.attr("multiple") == "multiple"
             element.multiselect("refresh")
-          element.change() # trigger the change event
+      element.change() # trigger the change event
     _loading_inputs = false
     params
   
@@ -270,15 +270,7 @@ $ ->
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
 
   # Handle any query parameters on the url
-  params = handleUrlQuery()
-  
-  #if (typeof params['select_chart'] == 'undefined')
-  #  console.log('chart not set by params')
-  
-  # call the code to process the chart change in case it wasn't changed by the url
-  _loading_inputs = true
-  process_chart_change()
-  _loading_inputs = false
+  handleUrlQuery()
   
   # Update the window's url to reflect the current inputs state
   history.replaceState(null,null,"?".concat(serializedInputs()))

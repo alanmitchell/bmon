@@ -137,7 +137,7 @@
     return $.ajax({
       url: url,
       dataType: "json",
-      async: false,
+      async: !_loading_inputs,
       success: function(data) {
         $("#select_chart").html(data.charts);
         $("#select_sensor").html(data.sensors);
@@ -158,10 +158,10 @@
     return $.ajax({
       url: url,
       dataType: "html",
-      async: false,
+      async: !_loading_inputs,
       success: function(data) {
         $("#select_bldg").html(data);
-        if (_loading_inputs === false) {
+        if (!_loading_inputs) {
           return $("#select_bldg").trigger("change");
         }
       }
@@ -210,24 +210,24 @@
     _loading_inputs = true;
     for (i = 0, len = sortedNames.length; i < len; i++) {
       name = sortedNames[i];
+      element = $('[name=\'' + name + '\']');
       if (params.hasOwnProperty(name)) {
-        element = $('[name=\'' + name + '\']');
         value = params[name];
         if (element.val() != value) {
           element.val(value);
           if (element.attr("multiple") === "multiple") {
             element.multiselect("refresh");
           }
-          element.change();
         }
       }
+      element.change();
     }
     _loading_inputs = false;
     return params;
   };
 
   $(function() {
-    var ctrl, ctrls, d, i, len, params;
+    var ctrl, ctrls, d, i, len;
     $(document).tooltip();
     $("#time_period").buttonset();
     $("#start_date").datepicker({
@@ -264,10 +264,7 @@
       ctrl = ctrls[i];
       $("#" + ctrl).change(inputs_changed);
     }
-    params = handleUrlQuery();
-    _loading_inputs = true;
-    process_chart_change();
-    _loading_inputs = false;
+    handleUrlQuery();
     history.replaceState(null, null, "?".concat(serializedInputs()));
     return inputs_changed();
   });

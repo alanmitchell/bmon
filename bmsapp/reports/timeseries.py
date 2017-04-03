@@ -26,7 +26,10 @@ class TimeSeries(basechart.BaseChart):
         y_axes = {label:index for index, label in enumerate(list(set([sensor.unit.label for sensor in sensor_list])), start=1)}
 
         # get the requested averaging interval in hours
-        averaging_hours = float(self.request_params['averaging_time'])
+        if 'averaging_time' in self.request_params:
+            averaging_hours = float(self.request_params['averaging_time'])
+        else:
+            averaging_hours = 0
 
         # determine the start time for selecting records and loop through the selected
         # records to get the needed dataset
