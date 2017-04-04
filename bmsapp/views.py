@@ -86,7 +86,7 @@ def get_report_results(request):
     """
     try:
         # Make the chart object
-        chart_obj = basechart.get_chart_object(request.GET)
+        chart_obj = basechart.get_chart_object(request)
         result = chart_obj.result()
     
     except Exception as e:
@@ -109,7 +109,7 @@ def get_embedded_results(request):
     """
     try:
         # Make the chart object
-        chart_obj = basechart.get_chart_object(request.GET)
+        chart_obj = basechart.get_chart_object(request)
         result = chart_obj.result()
     
     except Exception as e:

@@ -63,15 +63,18 @@ def find_chart_type(chart_id):
 
     return None
 
-def get_chart_object(request_params):
+def get_chart_object(request):
     """Returns the appropriate chart object identified by the arguments.
 
         Args:
-            request_params: The parameters (request.GET) passed in by the user further qualifying the chart.
+            request: The http request passed in by the user further qualifying the chart.
 
         Returns:
             A chart object descending from BaseChart.
     """
+
+    # Get the request parameters
+    request_params = request.GET
 
     # Get building ID and chart ID from the request parameters
     bldg_id = bmsapp.view_util.to_int(request_params['select_bldg'])
@@ -93,7 +96,7 @@ def get_chart_object(request_params):
     chart_class = getattr(mod, bare_class_name.strip())
 
     # instantiate and return the chart from this class
-    return chart_class(chart_info, bldg_id, request_params)
+    return chart_class(chart_info, bldg_id, request)
 
 
 class BaseChart(object):
@@ -130,13 +133,13 @@ class BaseChart(object):
             (cls.CTRLS, cls.MULTI_SENSOR, cls.AUTO_RECALC, cls.TIMED_REFRESH)
 
 
-    def __init__(self, chart_info, bldg_id, request_params):
+    def __init__(self, chart_info, bldg_id, request):
         """
         'chart_info' is the models.MultiBuildingChart object for the chart if it
         is a multi-building chart; for single-building charts, it is the BldgChartType
         object (the BldgChartType class is in this module).  'bldg_id'
         is the id of the building being charted, or 'multi' for multi-building
-        charts. 'request_params' are the parameters
+        charts. 'request' contains the parameters
         passed in by the user through the Get http request.
         """
         self.chart_info = chart_info
@@ -155,7 +158,8 @@ class BaseChart(object):
             if len(self.building.schedule.strip()):
                 self.schedule = bmsapp.schedule.Schedule(self.building.schedule, self.timezone)
 
-        self.request_params = request_params
+        self.request = request
+        self.request_params = request.GET
 
         # for the multi-building chart object, take the keyword parameter string 
         # and convert it to a Python dictionary or list.

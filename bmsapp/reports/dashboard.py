@@ -106,7 +106,7 @@ class Dashboard(basechart.BaseChart):
                     'maxTime': datetime.fromtimestamp(maxTime,tz).strftime('%Y-%m-%d %H:%M:%S'),
                     'units': dash_item.sensor.sensor.unit.label,
                     'unitMeasureType': dash_item.sensor.sensor.unit.measure_type,
-                    'href': '{}?select_group={}&select_bldg={}&select_chart={}&select_sensor={}'.format('/reports/', self.request_params['select_group'], self.bldg_id, basechart.TIME_SERIES_CHART_ID, dash_item.sensor.sensor.id) ,
+                    'href': '{}?select_group={}&select_bldg={}&select_chart={}&select_sensor={}'.format(self.request.build_absolute_uri('/reports/'), self.request_params['select_group'], self.bldg_id, basechart.TIME_SERIES_CHART_ID, dash_item.sensor.sensor.id) ,
                     'alerts': alerts
                     } )
     
