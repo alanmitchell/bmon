@@ -120,8 +120,8 @@
     jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + g_info.title + "</div> <div class=\"graph\"></div> <div class=\"value-label\">" + g_info.value_label + "</div> </div>");
     jqWidget = $("#" + widgetID);
     jqWidget.css('cursor', 'pointer');
-    jqWidget.click(function(e) {
-      return AN.plot_sensor(g_info.timeChartID, g_info.sensorID);
+    jqWidget.click(function() {
+      return window.location = g_info.href;
     });
     if (!g_info.value_is_normal) {
       jqWidget.children(".value-label").css('color', '#FF0000');
@@ -136,8 +136,8 @@
     jqParent.append("<div id=\"" + widgetID + "\" class=\"dash-widget\"> <div class=\"widget-title\">" + g_info.title + "</div> <canvas class=\"gauge-canvas\"></canvas> <div class=\"value-label\">" + g_info.value_label + "</div> </div>");
     jqWidget = $("#" + widgetID);
     jqWidget.css('cursor', 'pointer');
-    jqWidget.click(function(e) {
-      return AN.plot_sensor(g_info.timeChartID, g_info.sensorID);
+    jqWidget.click(function() {
+      return window.location = g_info.href;
     });
     if (g_info.value_is_normal) {
       gauge_zone_color = "#E0E0E0";
@@ -193,7 +193,7 @@
     }
     jqWidget.css('cursor', 'pointer');
     jqWidget.click(function() {
-      return AN.plot_sensor(LED_info.timeChartID, LED_info.sensorID);
+      return window.location = g_info.href;
     });
     return jqWidget;
   };
@@ -206,7 +206,7 @@
     jqWidget.css('background-color', LIGHT_RED);
     jqWidget.css('cursor', 'pointer');
     jqWidget.click(function() {
-      return AN.plot_sensor(widget_info.timeChartID, widget_info.sensorID);
+      return window.location = g_info.href;
     });
     return jqWidget;
   };

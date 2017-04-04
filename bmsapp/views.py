@@ -142,6 +142,7 @@ def get_embedded_results(request):
             if result["objects"] and result["objects"][0][0] == 'dashboard':
                 script_content = 'var loadingDashboard;\n' + script_content
                 script_content = 'var loadingPlotly;\n' + script_content
+                script_content = 'var loadingjQuery;\n' + script_content
                 script_content += '''
 
   var renderDashboard = (function(){
@@ -177,6 +178,17 @@ def get_embedded_results(request):
             document.getElementsByTagName('head')[0].appendChild(plotly_script);
           }
           console.log('waiting for plotly')
+          setTimeout(renderDashboard, 100);
+      } else if (typeof jQuery == 'undefined') {
+          if (!loadingjQuery) {
+            console.log('loading jQuery')
+            loadingjQuery = true;
+
+            var jQuery_script = document.createElement('script');
+            jQuery_script.src = 'https://code.jquery.com/jquery-1.11.2.min.js';
+            document.getElementsByTagName('head')[0].appendChild(jQuery_script);
+          }
+          console.log('waiting for jQuery')
           setTimeout(renderDashboard, 100);
       } else {
         ANdash.createDashboard(obj_config);
