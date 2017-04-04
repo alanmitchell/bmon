@@ -126,7 +126,7 @@ def get_embedded_results(request):
 (function(){
   var content = json_result_string;
 
-  var scriptTag = document.querySelector(\'script[src="request_path_string"]\');
+  var scriptTag = document.querySelector(\'script[src$="request_path_string"]\');
 
   var newDiv = document.createElement("div");
   newDiv.innerHTML = content["html"];
