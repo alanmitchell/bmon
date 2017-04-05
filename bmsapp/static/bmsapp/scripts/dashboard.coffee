@@ -117,7 +117,7 @@ addSparkline = (jqParent, g_info) ->
                     </div>" )
   jqWidget = $("##{widgetID}")
   jqWidget.css('cursor', 'pointer')   # makes the hand appear when hovering
-  jqWidget.click((e) -> AN.plot_sensor(g_info.timeChartID, g_info.sensorID))
+  jqWidget.click -> window.location=g_info.href
   
   # change the color to red if not value_is_normal
   if not g_info.value_is_normal
@@ -144,7 +144,7 @@ addGauge = (jqParent, g_info) ->
   
   jqWidget = $("##{widgetID}")
   jqWidget.css('cursor', 'pointer')   # makes the hand appear when hovering
-  jqWidget.click((e) -> AN.plot_sensor(g_info.timeChartID, g_info.sensorID))
+  jqWidget.click -> window.location=g_info.href
   
   # change the color to red if not value_is_normal
   if g_info.value_is_normal
@@ -216,8 +216,7 @@ addLED = (jqParent, LED_info) ->
 
   # add click link
   jqWidget.css('cursor', 'pointer')   # makes the hand appear when hovering
-  jqWidget.click ->
-    AN.plot_sensor(LED_info.timeChartID, LED_info.sensorID)
+  jqWidget.click -> window.location=g_info.href
   jqWidget        # return the jQuery element holding the LED
   
 # Adds a clickable Label that indicates data is not current.
@@ -236,8 +235,7 @@ addNotCurrent = (jqParent, widget_info) ->
 
   # add click link
   jqWidget.css('cursor', 'pointer')   # makes the hand appear when hovering
-  jqWidget.click ->
-    AN.plot_sensor(widget_info.timeChartID, widget_info.sensorID)
+  jqWidget.click -> window.location=g_info.href
   jqWidget        # return the jQuery element holding the LED
   
 # A Label widget

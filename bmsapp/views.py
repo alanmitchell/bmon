@@ -1,5 +1,5 @@
 ﻿# Create your views here.
-import sys, logging, json, random, time
+import sys, logging, json, random, time, re
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect, render
@@ -86,7 +86,7 @@ def get_report_results(request):
     """
     try:
         # Make the chart object
-        chart_obj = basechart.get_chart_object(request.GET)
+        chart_obj = basechart.get_chart_object(request)
         result = chart_obj.result()
     
     except Exception as e:
@@ -109,7 +109,7 @@ def get_embedded_results(request):
     """
     try:
         # Make the chart object
-        chart_obj = basechart.get_chart_object(request.GET)
+        chart_obj = basechart.get_chart_object(request)
         result = chart_obj.result()
     
     except Exception as e:
@@ -126,7 +126,7 @@ def get_embedded_results(request):
 (function(){
   var content = json_result_string;
 
-  var scriptTag = document.querySelector(\'script[src="request_path_string"]\');
+  var scriptTag = document.querySelector(\'script[src$="request_path_string"]\');
 
   var newDiv = document.createElement("div");
   newDiv.innerHTML = content["html"];
@@ -138,9 +138,11 @@ def get_embedded_results(request):
 '''
             script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
 
+            # Add the dashboard scripts if they are needed
             if result["objects"] and result["objects"][0][0] == 'dashboard':
                 script_content = 'var loadingDashboard;\n' + script_content
                 script_content = 'var loadingPlotly;\n' + script_content
+                script_content = 'var loadingjQuery;\n' + script_content
                 script_content += '''
 
   var renderDashboard = (function(){
@@ -176,6 +178,17 @@ def get_embedded_results(request):
             document.getElementsByTagName('head')[0].appendChild(plotly_script);
           }
           console.log('waiting for plotly')
+          setTimeout(renderDashboard, 100);
+      } else if (typeof jQuery == 'undefined') {
+          if (!loadingjQuery) {
+            console.log('loading jQuery')
+            loadingjQuery = true;
+
+            var jQuery_script = document.createElement('script');
+            jQuery_script.src = 'https://code.jquery.com/jquery-1.11.2.min.js';
+            document.getElementsByTagName('head')[0].appendChild(jQuery_script);
+          }
+          console.log('waiting for jQuery')
           setTimeout(renderDashboard, 100);
       } else {
         ANdash.createDashboard(obj_config);
