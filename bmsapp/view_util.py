@@ -3,9 +3,11 @@ Helper functions for the views in this BMS application.
 '''
 import importlib
 from django.template import loader
+from django.templatetags.static import static
 
 import models, reports.basechart
 import markdown
+import time, json, re
 
 def to_int(val):
     '''
@@ -190,7 +192,123 @@ def custom_reports():
     return reports_list
 
 def custom_report_html(report_id):
+    """Returns the content for a custom report.
+    """
     report_info = models.CustomReport.objects.get(id=report_id)
     report_html = markdown.markdown(report_info.markdown_text)
 
     return report_html
+
+def get_embedded_results_script(request, result):
+    """Returns the javascript script to embed a report.
+    """
+    script_content = '''
+(function(){
+  var content = json_result_string;
+
+  var scriptTag = document.querySelector(\'script[src$="request_path_string"]\');
+
+  var newDiv = document.createElement("div");
+  newDiv.innerHTML = content["html"];
+  newDiv.style.cssText = scriptTag.style.cssText;
+  newDiv.style.display = "flex";
+  newDiv.style.flexDirection = "column";
+  
+  scriptTag.parentElement.replaceChild(newDiv, scriptTag);
+'''
+    script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
+
+    if result["objects"] and result["objects"][0][0] == 'dashboard':
+        # Add the dashboard scripts if they are needed
+        script_content = 'var loadingDashboard;\n' + script_content
+        script_content = 'var loadingPlotly;\n' + script_content
+        script_content = 'var loadingjQuery;\n' + script_content
+        script_content += '''
+
+  var renderDashboard = (function(){
+      // Load the dashboard script if undefined, and add the chart
+      if ((typeof ANdash == 'undefined') || (typeof Gauge == 'undefined')) {
+          if (!loadingDashboard) {
+            loadingDashboard = true;
+            console.log('loading dashboard')
+
+            var dashboard_css = document.createElement('link');
+            dashboard_css.rel = 'stylesheet';
+            dashboard_css.type = 'text/css';
+            dashboard_css.href = 'dashboard_css_url';
+            document.getElementsByTagName('head')[0].appendChild(dashboard_css);
+
+            var dashboard_script = document.createElement('script');
+            dashboard_script.src = 'dashboard_script_url';
+            document.getElementsByTagName('head')[0].appendChild(dashboard_script);
+
+            var gauge_script = document.createElement('script');
+            gauge_script.src = 'gauge_script_url';
+            document.getElementsByTagName('head')[0].appendChild(gauge_script);
+          }
+          console.log('waiting for dashboard')
+          setTimeout(renderDashboard, 100);
+      } else if (typeof Plotly == 'undefined') {
+          if (!loadingPlotly) {
+            console.log('loading plotly')
+            loadingPlotly = true;
+
+            var plotly_script = document.createElement('script');
+            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+            document.getElementsByTagName('head')[0].appendChild(plotly_script);
+          }
+          console.log('waiting for plotly')
+          setTimeout(renderDashboard, 100);
+      } else if (typeof jQuery == 'undefined') {
+          if (!loadingjQuery) {
+            console.log('loading jQuery')
+            loadingjQuery = true;
+
+            var jQuery_script = document.createElement('script');
+            jQuery_script.src = 'https://code.jquery.com/jquery-1.11.2.min.js';
+            document.getElementsByTagName('head')[0].appendChild(jQuery_script);
+          }
+          console.log('waiting for jQuery')
+          setTimeout(renderDashboard, 100);
+      } else {
+        ANdash.createDashboard(obj_config, renderTo);
+      }});
+  
+  var obj_config = content['objects'][0][1];
+  var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
+  renderDashboard();
+  renderTo.removeAttribute("id");
+'''
+        script_content = script_content.replace('dashboard_css_url',request.build_absolute_uri(static('bmsapp/css/dashboard.css')) + '?t=' + str(int(time.time())))
+        script_content = script_content.replace('dashboard_script_url',request.build_absolute_uri(static('bmsapp/scripts/dashboard.js')) + '?t=' + str(int(time.time())))
+        script_content = script_content.replace('gauge_script_url',request.build_absolute_uri(static('bmsapp/scripts/gauge.min.js')))
+    elif result["objects"] and result["objects"][0][0] == 'plotly':
+        # Add the plotly graphing scripts if they are needed
+        script_content = 'var loadingPlotly;\n' + script_content
+        script_content += '''
+
+  var drawGraph = (function(){
+      // Load the Plotly script if undefined, and add the chart
+      if (typeof Plotly == 'undefined') {
+          if (!loadingPlotly) {
+            console.log('loading plotly')
+            loadingPlotly = true;
+
+            var plotly_script = document.createElement('script');
+            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+            document.getElementsByTagName('head')[0].appendChild(plotly_script);
+          }
+          console.log('waiting for plotly')
+          setTimeout(drawGraph, 100);
+      } else {
+        Plotly.plot(renderTo, obj_config.data, obj_config.layout, obj_config.config);
+      }});
+  
+  var obj_config = content['objects'][0][1];
+  var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
+  drawGraph();
+  renderTo.removeAttribute("id");
+'''
+
+    script_content += '})();' #close the javascript function declaration
+    return script_content

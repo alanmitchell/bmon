@@ -1,5 +1,5 @@
 ﻿# Create your views here.
-import sys, logging, json, random, time, re
+import sys, logging, json, random, time
 
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect, render
@@ -49,7 +49,7 @@ def index(request):
         if len(lnk)==3 and lnk[2]==True:
             return redirect( reverse('wildcard', args=(lnk[1],)) )
 
-def reports(request, bldg_id=None):
+def reports(request):
     '''
     The main graphs/reports page.  If 'bldg_id' is the building to be selected;
     if None, the first building in the list is selected.
@@ -61,7 +61,7 @@ def reports(request, bldg_id=None):
 
     # get the html for the list of buildings and the ID of the a selected building
     # (the first building)
-    bldgs_html, bldg_id_selected = view_util.bldg_list_html(group_id_selected, view_util.to_int(bldg_id))
+    bldgs_html, bldg_id_selected = view_util.bldg_list_html(group_id_selected, None)
 
     # get the html for the list of charts, selecting the first one.  Returns the actual ID
     # of the chart selected.  The group_id of 0 indicates all buildings are being shown.
@@ -104,8 +104,8 @@ def get_report_results(request):
             return HttpResponse(json.dumps(result), content_type="application/json")
 
 def get_embedded_results(request):
-    """Method called to return the main content of a particular chart
-    or report embedded as javascript.
+    """Method called to return the main content of a particular chart or report
+       embedded as javascript.
     """
     try:
         # Make the chart object
@@ -122,115 +122,7 @@ def get_embedded_results(request):
             # so just return it directly.
             return result
         else:
-            script_content = '''
-(function(){
-  var content = json_result_string;
-
-  var scriptTag = document.querySelector(\'script[src$="request_path_string"]\');
-
-  var newDiv = document.createElement("div");
-  newDiv.innerHTML = content["html"];
-  newDiv.style.cssText = scriptTag.style.cssText;
-  newDiv.style.display = "flex";
-  newDiv.style.flexDirection = "column";
-  
-  scriptTag.parentElement.replaceChild(newDiv, scriptTag);
-'''
-            script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
-
-            # Add the dashboard scripts if they are needed
-            if result["objects"] and result["objects"][0][0] == 'dashboard':
-                script_content = 'var loadingDashboard;\n' + script_content
-                script_content = 'var loadingPlotly;\n' + script_content
-                script_content = 'var loadingjQuery;\n' + script_content
-                script_content += '''
-
-  var renderDashboard = (function(){
-      // Load the dashboard script if undefined, and add the chart
-      if ((typeof ANdash == 'undefined') || (typeof Gauge == 'undefined')) {
-          if (!loadingDashboard) {
-            loadingDashboard = true;
-            console.log('loading dashboard')
-
-            var dashboard_css = document.createElement('link');
-            dashboard_css.rel = 'stylesheet';
-            dashboard_css.type = 'text/css';
-            dashboard_css.href = 'dashboard_css_url';
-            document.getElementsByTagName('head')[0].appendChild(dashboard_css);
-
-            var dashboard_script = document.createElement('script');
-            dashboard_script.src = 'dashboard_script_url';
-            document.getElementsByTagName('head')[0].appendChild(dashboard_script);
-
-            var gauge_script = document.createElement('script');
-            gauge_script.src = 'gauge_script_url';
-            document.getElementsByTagName('head')[0].appendChild(gauge_script);
-          }
-          console.log('waiting for dashboard')
-          setTimeout(renderDashboard, 100);
-      } else if (typeof Plotly == 'undefined') {
-          if (!loadingPlotly) {
-            console.log('loading plotly')
-            loadingPlotly = true;
-
-            var plotly_script = document.createElement('script');
-            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
-            document.getElementsByTagName('head')[0].appendChild(plotly_script);
-          }
-          console.log('waiting for plotly')
-          setTimeout(renderDashboard, 100);
-      } else if (typeof jQuery == 'undefined') {
-          if (!loadingjQuery) {
-            console.log('loading jQuery')
-            loadingjQuery = true;
-
-            var jQuery_script = document.createElement('script');
-            jQuery_script.src = 'https://code.jquery.com/jquery-1.11.2.min.js';
-            document.getElementsByTagName('head')[0].appendChild(jQuery_script);
-          }
-          console.log('waiting for jQuery')
-          setTimeout(renderDashboard, 100);
-      } else {
-        ANdash.createDashboard(obj_config, renderTo);
-      }});
-  
-  var obj_config = content['objects'][0][1];
-  var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
-  renderDashboard();
-  renderTo.removeAttribute("id");
-'''
-                script_content = script_content.replace('dashboard_css_url',request.build_absolute_uri(static('bmsapp/css/dashboard.css')) + '?t=' + str(int(time.time())))
-                script_content = script_content.replace('dashboard_script_url',request.build_absolute_uri(static('bmsapp/scripts/dashboard.js')) + '?t=' + str(int(time.time())))
-                script_content = script_content.replace('gauge_script_url',request.build_absolute_uri(static('bmsapp/scripts/gauge.min.js')))
-            elif result["objects"] and result["objects"][0][0] == 'plotly':
-                script_content = 'var loadingPlotly;\n' + script_content
-                script_content += '''
-
-  var drawGraph = (function(){
-      // Load the Plotly script if undefined, and add the chart
-      if (typeof Plotly == 'undefined') {
-          if (!loadingPlotly) {
-            console.log('loading plotly')
-            loadingPlotly = true;
-
-            var plotly_script = document.createElement('script');
-            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
-            document.getElementsByTagName('head')[0].appendChild(plotly_script);
-          }
-          console.log('waiting for plotly')
-          setTimeout(drawGraph, 100);
-      } else {
-        Plotly.plot(renderTo, obj_config.data, obj_config.layout, obj_config.config);
-      }});
-  
-  var obj_config = content['objects'][0][1];
-  var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
-  drawGraph();
-  renderTo.removeAttribute("id");
-'''
-
-            script_content += '})();' #close the javascript function declaration
-
+            script_content = view_util.get_embedded_results_script(request, result)
             return HttpResponse(script_content, content_type="application/javascript")
 
 def custom_report_list(request):
@@ -444,14 +336,22 @@ def map_json(request):
     """Returns the JSON data necessary to draw the Google map of the sites.
     This view is called from the map.html template.
     """
-    ret = {"name": "ANTHC_Sites",
+    ret = {"name": "BMON Sites",
         "type": "FeatureCollection",
         "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS83"}},
         "features": []}
 
     for bldg in models.Building.objects.all():
-        ret['features'].append( {"type": "Feature", "geometry": {"type": "Point", "coordinates": [bldg.longitude, bldg.latitude]},
-                              "properties": {"facilityName": bldg.title, "facilityID": bldg.id, "message": ""}} )
+        ret['features'].append( {"type": "Feature", 
+                                 "geometry": {"type": "Point", 
+                                              "coordinates": [bldg.longitude, bldg.latitude]
+                                              },
+                                 "properties": {"facilityName": bldg.title, 
+                                                "facilityID": bldg.id, 
+                                                "message": "", 
+                                                "href": '{}?select_group=0&select_bldg={}'.format(request.build_absolute_uri('/reports/'), bldg.id)
+                                                }
+                                 } )
 
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
