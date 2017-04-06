@@ -277,8 +277,11 @@ addRow = (jqParent, widgetRow) ->
 # "dashConfig.widgets" contains the information for each widget, organized
 #  as a list of rows, each row being a list of widget information objects.
 # The dashboard is rendered to the div identified by 'dashConfig.renderTo'.
-ANdash.createDashboard = (dashConfig) ->
-  jqMain = $("##{dashConfig.renderTo}")   # jQuery element of Dashboard div
+ANdash.createDashboard = (dashConfig, renderTo) ->
+  if renderTo?
+    jqMain = $(renderTo)
+  else
+    jqMain = $("##{dashConfig.renderTo}")   # jQuery element of Dashboard div
   jqMain.empty()
   addRow jqMain, row for row in dashConfig.widgets
   null  # return nothing

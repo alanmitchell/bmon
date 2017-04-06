@@ -191,11 +191,13 @@ def get_embedded_results(request):
           console.log('waiting for jQuery')
           setTimeout(renderDashboard, 100);
       } else {
-        ANdash.createDashboard(obj_config);
+        ANdash.createDashboard(obj_config, renderTo);
       }});
   
   var obj_config = content['objects'][0][1];
+  var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
   renderDashboard();
+  renderTo.removeAttribute("id");
 '''
                 script_content = script_content.replace('dashboard_css_url',request.build_absolute_uri(static('bmsapp/css/dashboard.css')) + '?t=' + str(int(time.time())))
                 script_content = script_content.replace('dashboard_script_url',request.build_absolute_uri(static('bmsapp/scripts/dashboard.js')) + '?t=' + str(int(time.time())))
@@ -218,12 +220,13 @@ def get_embedded_results(request):
           console.log('waiting for plotly')
           setTimeout(drawGraph, 100);
       } else {
-        Plotly.plot(obj_config.renderTo, obj_config.data, obj_config.layout, obj_config.config);
-        document.getElementById(obj_config.renderTo).removeAttribute("id");
+        Plotly.plot(renderTo, obj_config.data, obj_config.layout, obj_config.config);
       }});
   
   var obj_config = content['objects'][0][1];
+  var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
   drawGraph();
+  renderTo.removeAttribute("id");
 '''
 
             script_content += '})();' #close the javascript function declaration

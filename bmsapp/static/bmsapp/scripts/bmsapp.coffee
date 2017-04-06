@@ -63,8 +63,10 @@ update_results = ->
     $.each results.objects, (ix, obj) ->
       [obj_type, obj_config] = obj
       switch obj_type
-        when 'plotly' then Plotly.plot(obj_config.renderTo, obj_config.data, obj_config.layout, obj_config.config)
-        when 'dashboard' then ANdash.createDashboard(obj_config)
+        when 'plotly'
+          Plotly.plot(obj_config.renderTo, obj_config.data, obj_config.layout, obj_config.config)
+        when 'dashboard'
+          ANdash.createDashboard(obj_config)
   ).fail (jqxhr, textStatus, error) ->
     $("body").css "cursor", "default"   # remove hourglass cursor
     err = textStatus + ", " + error

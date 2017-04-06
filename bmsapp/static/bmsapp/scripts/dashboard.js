@@ -251,9 +251,13 @@
     return results;
   };
 
-  ANdash.createDashboard = function(dashConfig) {
+  ANdash.createDashboard = function(dashConfig, renderTo) {
     var i, jqMain, len, ref, row;
-    jqMain = $("#" + dashConfig.renderTo);
+    if (renderTo != null) {
+      jqMain = $(renderTo);
+    } else {
+      jqMain = $("#" + dashConfig.renderTo);
+    }
     jqMain.empty();
     ref = dashConfig.widgets;
     for (i = 0, len = ref.length; i < len; i++) {
