@@ -3,19 +3,20 @@
 
 {% block pagetitle %}Map{% endblock %}
 {% block head %}
-    <style>
-      #map_canvas {
+<style>
+    #map_canvas {
         width: 930px;
         height: 600px;
-        margin-left:auto;
-        margin-right:auto;
-      }
-      #content {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    #content {
         background-color: #fff;
-      }
-    </style>
-    <script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
-    <script>
+    }
+</style>
+<script src="https://maps.googleapis.com/maps/api/js?sensor=false"></script>
+<script>
       $(function() {
         var map_canvas = document.getElementById('map_canvas');
         var map_options = {
@@ -24,7 +25,7 @@
           mapTypeId: google.maps.MapTypeId.TERRAIN
         }
         var map = new google.maps.Map(map_canvas, map_options)
-        
+
         $.getJSON('{% url "map-json" %}', function(sitesJSON) {
             for (var i = 0; i < sitesJSON.features.length; i++) {
               var site = sitesJSON.features[i];
@@ -39,7 +40,8 @@
               var marker = new google.maps.Marker({
                 position: latLng,
                 title: markerText,
-                facilityID: site.properties.facilityID.toString(),  
+                facilityID: site.properties.facilityID.toString(),
+                href: site.properties.href,
                 icon: {
                   path: google.maps.SymbolPath.CIRCLE,
                   fillColor: markerColor,
@@ -51,11 +53,11 @@
                 scale: .5,
                 map: map
               });
-              google.maps.event.addListener(marker, 'click', function() {window.location.href = site.properties.href})
+              google.maps.event.addListener(marker, 'click', function() {window.location.href = this.href})
             }
           });
         });
-    </script>
+</script>
 {% endblock %}
 
 {% block this_nav_link %}link_map{% endblock %}
