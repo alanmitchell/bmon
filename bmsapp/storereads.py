@@ -143,8 +143,8 @@ def store_many(req_data):
                     ts = int(calendar.timegm(dateutil.parser.parse(reading['messageDate']).timetuple()))
 
                     # sometimes multiple plot values are encoded by separating with the pipe character
-                    # This happens with the CO sensor.  Use the first value.
-                    val = float(reading['plotValues'].split('|')[0])
+                    # This happens with the CO sensor and the two channel relay.  Use the first value.
+                    val = reading['plotValues'].split('|')[0]
 
                     reading_id = reading['sensorID']
 
