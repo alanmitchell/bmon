@@ -25,3 +25,4 @@ xlwt==0.7.5
 PyYAML==3.11
 markdown==2.6.5
 selenium>=2.53.2
+pysnmp==4.3.5
