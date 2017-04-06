@@ -620,6 +620,7 @@ class PeriodicScript(models.Model):
     # Use defined choices; choices must be a multiple of 5 minutes, as that is
     # how frequently the main cron procedure runs.
     PERIOD_CHOICES = (
+        (0, 'Disabled'),
         (300, '5 min'),
         (600, '10 min'),
         (900, '15 min'),

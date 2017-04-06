@@ -1,4 +1,4 @@
-'''Runs periodic scripts that are set up in the Django Admin for this
+﻿'''Runs periodic scripts that are set up in the Django Admin for this
 instance of BMON.  Often, these scripts collect reading values and insert
 them into the reading database.
 This script is usually run via a cron job every five minutes.
@@ -66,6 +66,10 @@ class RunScript(threading.Thread):
     def run(self):
         """This function is run in a new thread and runs the desired script if the time is correct
         """
+
+        # check to see if script is disabled, and exit if so.
+        if self.script.period == 0:
+            return
 
         if (self.cron_time % self.script.period) >= CRON_PERIOD:
             # Not the correct time to run script, so exit.
