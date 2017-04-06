@@ -51,7 +51,7 @@
                 scale: .5,
                 map: map
               });
-              google.maps.event.addListener(marker, 'click', function() {window.location.href = '{% url "reports" %}' + this.facilityID + '/'})
+              google.maps.event.addListener(marker, 'click', function() {window.location.href = this.href})
             }
           });
         });

@@ -1,32 +1,3 @@
-# my object to contain all global variables and functions.  Minimizes
-# global namespace pollution.
-window.AN = {}
-
-# Causes a particular chart type and sensor to be selected.  if 'sensor_id'
-# is not passed, only the chart is selected.
-window.AN.plot_sensor = (chart_id, sensor_id) ->
-  $("#select_chart").val chart_id
-  if sensor_id?
-    sensor_ctrl = $("#select_sensor")
-    if $("#select_sensor").attr("multiple") == "multiple"
-      # had difficulty finding a simpler way to set the value of a 
-      # multiselect.
-      sensor_ctrl.multiselect "destroy"
-      sensor_ctrl.removeAttr "multiple"
-      sensor_ctrl.val sensor_id
-      sensor_ctrl.attr("multiple", "multiple")
-      sensor_ctrl.multiselect SENSOR_MULTI_CONFIG
-    else
-      sensor_ctrl.val sensor_id
-  process_chart_change()
-
-# Causes a particular building, chart and sensor to be selected.
-# 'chart_id' and 'sensor_id' are optional; if both are omitted, only
-# the building is selected.
-window.AN.plot_building_chart_sensor = (bldg_id, chart_id, sensor_id) ->
-  $("#select_bldg").val bldg_id
-  update_chart_sensor_lists(null, chart_id, sensor_id)
-
 # controls whether results are updated automatically or manually by
 # a direct call to 'update_results'
 _auto_recalc = true
@@ -142,7 +113,7 @@ process_chart_change = ->
 # Updates the list of charts and sensors appropriate for the building selected.
 # If chart_id and sensor_id are passed, selects that chart and sensor after
 # updating the list of apprpriate charts and sensors.
-update_chart_sensor_lists = (event, chart_id, sensor_id) ->
+update_chart_sensor_lists = (event) ->
   # load the options from a AJAX query for the selected building
   url = "#{$("#BaseURL").text()}chart-sensor-list/#{$("#select_group").val()}/#{$("#select_bldg").val()}/"
   $.ajax
@@ -154,10 +125,7 @@ update_chart_sensor_lists = (event, chart_id, sensor_id) ->
       $("#select_sensor").html(data.sensors)
       $("#select_sensor_x").html(data.sensors)
       $("#select_sensor_y").html(data.sensors)
-      if chart_id?
-        window.AN.plot_sensor(chart_id, sensor_id)
-      else
-        process_chart_change()
+      process_chart_change()
 
 # Updates the list of buildings associated with the Building Group selected.
 update_bldg_list = ->

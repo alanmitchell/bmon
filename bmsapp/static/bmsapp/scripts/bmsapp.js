@@ -2,31 +2,6 @@
   var REFRESH_MS, SENSOR_MULTI_CONFIG, _auto_recalc, _loading_inputs, _refresh_timer, get_embed_link, handleUrlQuery, inputs_changed, process_chart_change, serializedInputs, set_visibility, update_bldg_list, update_chart_sensor_lists, update_results, urlQueryString,
     indexOf = [].indexOf || function(item) { for (var i = 0, l = this.length; i < l; i++) { if (i in this && this[i] === item) return i; } return -1; };
 
-  window.AN = {};
-
-  window.AN.plot_sensor = function(chart_id, sensor_id) {
-    var sensor_ctrl;
-    $("#select_chart").val(chart_id);
-    if (sensor_id != null) {
-      sensor_ctrl = $("#select_sensor");
-      if ($("#select_sensor").attr("multiple") === "multiple") {
-        sensor_ctrl.multiselect("destroy");
-        sensor_ctrl.removeAttr("multiple");
-        sensor_ctrl.val(sensor_id);
-        sensor_ctrl.attr("multiple", "multiple");
-        sensor_ctrl.multiselect(SENSOR_MULTI_CONFIG);
-      } else {
-        sensor_ctrl.val(sensor_id);
-      }
-    }
-    return process_chart_change();
-  };
-
-  window.AN.plot_building_chart_sensor = function(bldg_id, chart_id, sensor_id) {
-    $("#select_bldg").val(bldg_id);
-    return update_chart_sensor_lists(null, chart_id, sensor_id);
-  };
-
   _auto_recalc = true;
 
   _loading_inputs = false;
@@ -131,7 +106,7 @@
     return inputs_changed();
   };
 
-  update_chart_sensor_lists = function(event, chart_id, sensor_id) {
+  update_chart_sensor_lists = function(event) {
     var url;
     url = ($("#BaseURL").text()) + "chart-sensor-list/" + ($("#select_group").val()) + "/" + ($("#select_bldg").val()) + "/";
     return $.ajax({
@@ -143,11 +118,7 @@
         $("#select_sensor").html(data.sensors);
         $("#select_sensor_x").html(data.sensors);
         $("#select_sensor_y").html(data.sensors);
-        if (chart_id != null) {
-          return window.AN.plot_sensor(chart_id, sensor_id);
-        } else {
-          return process_chart_change();
-        }
+        return process_chart_change();
       }
     });
   };
