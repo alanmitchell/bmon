@@ -2,6 +2,7 @@
 Helper functions for the views in this BMS application.
 '''
 import importlib
+import os
 from subprocess import check_output
 from django.template import loader
 from django.templatetags.static import static
@@ -321,7 +322,8 @@ def version_date_string():
     """
     ver_date = ''
     try:
-        result = check_output(['git', 'log', '-n1'])
+        dir_git = os.path.dirname(__file__)
+        result = check_output('cd %s; git log -n1' % dir_git, shell=True)
         for lin in result.splitlines():
             if lin.startswith('Date:'):
                 ver_date = lin[5:].strip()
