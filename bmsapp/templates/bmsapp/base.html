@@ -35,8 +35,10 @@
                 <h1>{% block title %}{% endblock %}</h1>
                 {% block content %}{% endblock %}
                 <p style="clear: both">&nbsp;</p>
-                <hr>
+                <hr />
                 <div id="footer">{{ bmsapp_footer|safe }}</div>
+                <hr />
+                <div>BMON Version: {{ version_date }}</div>
             </div>
 
         </div>

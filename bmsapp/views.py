@@ -27,9 +27,9 @@ DEFAULT_NAV_LINKS = ( ('Data Charts and Reports', 'reports', True),
 
 TMPL_CONTEXT = {'bmsapp_title_text': getattr(settings, 'BMSAPP_TITLE_TEXT', 'Facility Monitoring'),
                 'bmsapp_header': getattr(settings, 'BMSAPP_HEADER', 'Facility Monitoring'),
-                'bmsapp_footer': getattr(settings, 'BMSAPP_FOOTER', 
-                                         'Thanks to Alaska Housing Finance Corporation for providing most of the source code for this application.') + '<br>' + view_util.version_date_string(),
+                'bmsapp_footer': getattr(settings, 'BMSAPP_FOOTER', 'Thanks to Alaska Housing Finance Corporation for providing most of the source code for this application.'),
                 'bmsapp_nav_links': getattr(settings, 'BMSAPP_NAV_LINKS', DEFAULT_NAV_LINKS),
+                'version_date': view_util.version_date_string(),
                }
 
 def base_context():

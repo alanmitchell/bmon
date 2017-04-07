@@ -322,6 +322,7 @@ def version_date_string():
     """
     ver_date = ''
     try:
+        # Need to move into directory where this code is located to execute Git command
         dir_git = os.path.dirname(__file__)
         result = check_output('cd %s; git log -n1' % dir_git, shell=True)
         for lin in result.splitlines():
