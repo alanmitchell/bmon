@@ -114,6 +114,6 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
         opt['layout']['xaxis']['tickangle'] = -45
         opt['layout']['margin']['b'] = 100           
 
-        html = basechart.chart_config.chart_container_html
+        html = basechart.chart_config.chart_container_html(opt['layout']['title'])
 
         return {'html': html, 'objects': [('plotly', opt)]}

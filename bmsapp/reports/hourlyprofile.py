@@ -88,7 +88,7 @@ class HourlyProfile(basechart.BaseChart):
         if 'normalize' in self.request_params:
             opt['layout']['yaxis']['range'] = [0, 100]
 
-        html = basechart.chart_config.chart_container_html
+        html = basechart.chart_config.chart_container_html(opt['layout']['title'])
 
         return {'html': html, 'objects': [('plotly', opt)]}
 

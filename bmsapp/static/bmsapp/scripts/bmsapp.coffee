@@ -45,8 +45,24 @@ update_results = ->
 
 # copies a link to embed the current report into another page
 get_embed_link = ->
-  link = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + serializedInputs() + '" style="width: 930px" async></script>'
-  prompt("Here's the text to embed this report in another page:", link)
+  title = document.getElementById("report_title")
+  if title != null
+    link_comment = "<!--- Embedded BMON Chart: #{title.innerText} --->"
+  else
+    link_comment = "<!--- Embedded BMON Chart --->"
+  link_text = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + serializedInputs() + '" style="width: 930px" async></script>'
+  link_dialog = $("<div class='popup' title='Copy and paste this text to embed this report in another page:'><textarea id='embed_link' rows=4 style='width: 99%;font-size: 85%;'>#{link_comment}&#013;&#010;#{link_text}</textarea></div>")
+
+  #link_dialog.text("#{link_comment}#{link_text}")
+  link_dialog.dialog({
+      modal: true
+      width: 750
+      buttons: {
+        "Copy to Clipboard": ->
+          $("#embed_link").select()
+          success = document.execCommand("copy")
+      }
+    })
   
 # Sets the visibility of elements in the list of ids 'ctrl_list'.
 # If 'show' is true then the element is shown, hidden otherwise.

@@ -181,7 +181,7 @@ class TimeSeries(basechart.BaseChart):
                                                     'y1': 1
                                                     })
 
-        html = basechart.chart_config.chart_container_html
+        html = basechart.chart_config.chart_container_html(opt['layout']['title'])
 
         return {'html': html, 'objects': [(chart_type, opt)]}
 
