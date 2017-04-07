@@ -2,6 +2,7 @@
 Helper functions for the views in this BMS application.
 '''
 import importlib
+from subprocess import check_output
 from django.template import loader
 from django.templatetags.static import static
 
@@ -312,3 +313,20 @@ def get_embedded_results_script(request, result):
 
     script_content += '})();' #close the javascript function declaration
     return script_content
+
+def version_date_string():
+    """This returns the date/time in string format of the 
+    last commit in the git repo where this code is contained.
+    If any error occurs, an empty string is returned.
+    """
+    ver_date = ''
+    try:
+        result = check_output(['git', 'log', '-n1'])
+        for lin in result.splitlines():
+            if lin.startswith('Date:'):
+                ver_date = lin[5:].strip()
+                break
+    except:
+        pass
+
+    return ver_date
