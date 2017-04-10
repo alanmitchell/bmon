@@ -51,7 +51,7 @@ get_embed_link = ->
   else
     link_comment = "<!--- Embedded BMON Chart --->"
   link_text = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + serializedInputs() + '" style="width: 930px" async></script>'
-  link_dialog = $("<div class='popup' title='Copy and paste this text to embed this report in another page:'><textarea id='embed_link' rows=4 style='width: 99%;font-size: 85%;'>#{link_comment}&#013;&#010;#{link_text}</textarea></div>")
+  link_dialog = $("<div class='popup' title='Copy and paste this text to embed this view in a Custom Report:'><textarea id='embed_link' rows=5 style='width: 99%;font-size: 85%;resize: vertical'>#{link_comment}&#010;#{link_text}&#010;</textarea></div>")
 
   #link_dialog.text("#{link_comment}#{link_text}")
   link_dialog.dialog({
@@ -62,6 +62,7 @@ get_embed_link = ->
           $("#embed_link").select()
           success = document.execCommand("copy")
       }
+      close: -> $(this).dialog('destroy').remove()
     })
   
 # Sets the visibility of elements in the list of ids 'ctrl_list'.
