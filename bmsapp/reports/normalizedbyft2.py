@@ -90,6 +90,6 @@ class NormalizedByFt2(basechart.BaseChart):
                     }
         '''
 
-        html = basechart.chart_config.chart_container_html
+        html = basechart.chart_config.chart_container_html(opt['layout']['title'])
 
         return {'html': html, 'objects': [('plotly', opt)]}

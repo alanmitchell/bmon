@@ -49,4 +49,6 @@ config:
   scrollZoom: true
 ''')
 
-chart_container_html = '<div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7; flex-grow:1"></div>'
+def chart_container_html(title="Plotly Chart"):
+    # Generate a container element and a hidden title
+    return '<h2 id="report_title" hidden>{}</h2><div id="chart_container" style="border-style:solid; border-width:2px; border-color:#4572A7; flex-grow:1"></div>'.format(title)
