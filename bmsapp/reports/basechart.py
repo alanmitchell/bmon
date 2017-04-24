@@ -177,7 +177,7 @@ class BaseChart(object):
         """
         tm_per = self.request_params['time_period']
         if tm_per != "custom":
-            st_ts = int(time.time()) - int(tm_per) * 24 * 3600
+            st_ts = int(time.time()) - float(tm_per) * 24 * 3600
             end_ts = time.time() + 3600.0    # adding an hour to be sure all records are caught
         else:
             st_date = self.request_params['start_date']
