@@ -367,7 +367,7 @@ def ecobee_auth(request):
         # Get a PIN and auth code
         results = periodic_scripts.ecobee.get_pin()
         ctx.update(results)
-        return render(request, 'bmsapp/ecobee_auth.html', ctx)
+        return render(request, 'bmsapp/ecobee_authorization.html', ctx)
 
     elif request.method == 'POST':
         req = request.POST.dict()

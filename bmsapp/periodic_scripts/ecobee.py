@@ -57,7 +57,7 @@ class EcobeeDataCollector:
         ----------
         At the time of the first run of this script, there must be a Access token and a Refresh
         token present in the script parameters.  These are manually copied into the script parameters
-        from the results of the authorization process accessed at the "ecobee_auth" URL.  For
+        from the results of the authorization process accessed at the "ecobee-auth" URL.  For
         subsequent runs of the script, the script results from the prior run will provide the
         necessary access and refresh tokens.  These tokens may have been refreshed in the prior
         run of the script, so the original tokens will be invalid.
@@ -78,7 +78,7 @@ class EcobeeDataCollector:
         # There must be access and refresh tokens present and 32 characters long.
         if not type(access_token) in (str, unicode) or not type(refresh_token) in (str, unicode) or \
                         len(access_token)!=32 or len(refresh_token)!=32:
-            raise ValueError('The Access or Refresh token is not present or invalid.  Reauthorize the BMON application with Ecobee at the "ecobee_auth" URL, and enter the new Access and Refresh token in the Script Parameters input box.')
+            raise ValueError('The Access or Refresh token is not present or invalid.  Reauthorize the BMON application with Ecobee at the "ecobee-auth" URL, and enter the new Access and Refresh token in the Script Parameters input box.')
 
         if type(api_key)!=str or len(api_key)!=32:
             raise ValueError('API Key is not present or valid.  It should be entered in the Django Settings file.')
