@@ -176,7 +176,7 @@
   };
 
   handleUrlQuery = function() {
-    var element, i, len, name, params, sortedNames, value;
+    var element, i, len, name, new_value, old_value, params, sortedNames;
     params = {};
     $.each(urlQueryString().replace(/\+/g, '%20').split('&'), function() {
       var name, name_value, value;
@@ -203,9 +203,14 @@
       name = sortedNames[i];
       element = $('[name=\'' + name + '\']');
       if (params.hasOwnProperty(name)) {
-        value = params[name];
-        if (element.val() != value) {
-          element.val(value);
+        new_value = params[name];
+        if (element.parent().attr("class") === "ui-buttonset") {
+          old_value = element.filter(":radio:checked").val();
+        } else {
+          old_value = element.val();
+        }
+        if (old_value != new_value) {
+          element.val(new_value);
           if (element.attr("multiple") === "multiple") {
             element.multiselect("refresh");
           }
