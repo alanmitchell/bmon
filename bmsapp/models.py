@@ -9,6 +9,7 @@ import requests
 import bmsapp.data_util
 import bmsapp.formatters
 import sms_gateways
+import yaml
 
 
 # Make a logger for this module
@@ -90,6 +91,11 @@ class Sensor(models.Model):
     # Formatting functions must be located in the "formatters.py" module.
     formatting_function = models.CharField("Formatting Function Name", max_length=50, blank=True)
 
+    # Additional Descriptive Properties to include in the key_properties function.
+    # These are given higer priority over the other fields so can be used to override 
+    # other field values.
+    other_properties = models.TextField("Additional Properties to include when exporting data. YAML form, e.g. room: telecom closet", help_text="One property per line.  Name of Property, a colon, a space, and then the property value.", blank=True)
+
     def __unicode__(self):
         return self.sensor_id + ": " + self.title
 
@@ -139,6 +145,21 @@ class Sensor(models.Model):
                 alerts.append(subject_msg)
         return alerts
 
+    def key_properties(self):
+        """Returns a dictionary of important properties associated with this building.  Not all properties are 
+        included.  One use is to include when exporting data.
+        """
+        props = {'sensor_id': self.sensor_id,
+                 'title': self.title,
+                 'unit': self.unit.label}
+        try:
+            props.update( yaml.load(self.other_properties) )
+        except:
+            # ignore errors
+            pass
+        
+        return props
+
 
 class BuildingMode(models.Model):
     '''A state or mode that the building could be in, such as Winter, Summer, Vacant.
@@ -186,11 +207,31 @@ class Building(models.Model):
     # Timeline annotations
     timeline_annotations = models.TextField("Annotations for events in the building's timeline (e.g. Boiler Replaced: 1/1/2017)", help_text="One annotation per line. Use a colon between the annotation and the date/time.", blank=True)
 
+    # Additional Descriptive Properties to include in the key_properties function.
+    # These are given higer priority over the other fields so can be used to override 
+    # other field values.
+    other_properties = models.TextField("Additional Properties to include when exporting data. YAML form, e.g. age: 23", help_text="One property per line.  Name of Property, a colon, a space, and then the property value.", blank=True)
+
     # the sensors and calculated values associated with this building
     sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True)
 
     def __unicode__(self):
         return self.title
+
+    def key_properties(self):
+        """Returns a dictionary of important properties associated with this building.  Not all properties are 
+        included.  One use is to include when exporting data.
+        """
+        props = {'title': self.title,
+                 'latitude': self.latitude,
+                 'longitude': self.longitude}
+        try:
+            props.update( yaml.load(self.other_properties) )
+        except:
+            # ignore errors
+            pass
+        
+        return props
 
     class Meta:
         ordering = ['title']
