@@ -149,8 +149,10 @@ class Sensor(models.Model):
         """Returns a dictionary of important properties associated with this building.  Not all properties are 
         included.  One use is to include when exporting data.
         """
+        # adding a 'sensor' qualifier to title because these props are often combined
+        # with sensor properties that also have a title.
         props = {'sensor_id': self.sensor_id,
-                 'title': self.title,
+                 'sensor_title': self.title,
                  'unit': self.unit.label}
         try:
             props.update( yaml.load(self.other_properties) )
@@ -222,7 +224,9 @@ class Building(models.Model):
         """Returns a dictionary of important properties associated with this building.  Not all properties are 
         included.  One use is to include when exporting data.
         """
-        props = {'title': self.title,
+        # adding a 'building' qualifier to title because these props are often combined
+        # with sensor properties that also have a title.
+        props = {'building_title': self.title,
                  'latitude': self.latitude,
                  'longitude': self.longitude}
         try:
