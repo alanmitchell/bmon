@@ -216,9 +216,16 @@ def get_embedded_results_script(request, result):
   newDiv.style.display = "flex";
   newDiv.style.flexDirection = "column";
   
+  var reportLink = document.createElement("A");
+  reportLink.text = "Go To Report";
+  reportLink.href = "report_path_string";
+  reportLink.style.textAlign = "right";
+  newDiv.appendChild(reportLink);
+
   scriptTag.parentElement.replaceChild(newDiv, scriptTag);
 '''
     script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
+    script_content = script_content.replace('json_result_string',json.dumps(result)).replace('report_path_string',request.build_absolute_uri(request.get_full_path().replace('/embed/','/')))
 
     if result["objects"] and result["objects"][0][0] == 'dashboard':
         # Add the dashboard scripts if they are needed
