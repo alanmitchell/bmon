@@ -37,7 +37,9 @@ def get_data(plant_id,
              plant_tz='US/Alaska',
              menu_text='Energy and Power',
              fill_NA=False,
-             graph_num=None):
+             graph_num=None,
+             column_count=2,
+             data_column=1):
     '''Retrieves detailed time-resolution power production data from a Sunny
     Portal plant.
 
@@ -54,10 +56,15 @@ def get_data(plant_id,
         But, for some systems, the Power value is left blank when the power
         production is 0.  Setting fill_NA to True will cause these blank power
         values to be changed to 0 and posted.
-    'graph_num': On the page containing the desired Power graph, sometimes multiple
-        graphs will appear.  If so, this parameter needs to be set to 0 to use
-        the first graph on the page, 1 for the second, etc.  If there is only one
-        graph on the page, this parameter must be set to None.
+    'graph_num': On the page containing the desired Power graph, sometimes 
+        multiple graphs will appear.  If so, this parameter needs to be set 
+        to 0 to use the first graph on the page, 1 for the second, etc.  If 
+        there is only one graph on the page, this parameter must be set to None.
+    'column_count': The number of expected columns in the data table, 
+        inculding time. The default value is 2: one for time, and one for the 
+        desired data.
+    'data_column': The 0-based index for column contains the desired data. The 
+        default value is 1, where column 0 is time.
 
     Return Value
     ------------
@@ -72,7 +79,10 @@ def get_data(plant_id,
     if not os.path.exists(phantom_path):
       # Windows executable ends in '.exe'
       phantom_path = os.path.join(os.path.dirname(__file__), "phantomjs.exe")
-    br = webdriver.PhantomJS(executable_path=phantom_path)
+
+    serv_args = ['--ignore-ssl-errors=true', '--ssl-protocol=TLSv1']
+    br = webdriver.PhantomJS(executable_path=phantom_path, service_args=serv_args)
+    #br = webdriver.PhantomJS(executable_path=phantom_path)
     #br = webdriver.Firefox()
     
     try:
@@ -86,12 +96,14 @@ def get_data(plant_id,
         br.get(URL_SYSTEM % plant_id)
 
         # get data for current day
-        ts_cur, val_cur = get_one_day(br, plant_tz, menu_text,
-                                      fill_NA, graph_num, go_back_one_day=False)
+        ts_cur, val_cur = get_one_day(br, plant_tz, menu_text, fill_NA, 
+                                      graph_num, column_count, data_column, 
+                                      go_back_one_day=False)
 
         # get data for previous data
-        ts_prior, val_prior = get_one_day(br, plant_tz, menu_text,
-                                          fill_NA, graph_num, go_back_one_day=True)
+        ts_prior, val_prior = get_one_day(br, plant_tz, menu_text, fill_NA, 
+                                          graph_num, column_count, data_column,
+                                          go_back_one_day=True)
 
     finally:
         # close the browser
@@ -100,7 +112,7 @@ def get_data(plant_id,
     return ts_prior + ts_cur, val_prior + val_cur
 
 
-def get_one_day(browser, plant_tz, menu_text, fill_NA, graph_num, go_back_one_day=False):
+def get_one_day(browser, plant_tz, menu_text, fill_NA, graph_num, column_count, data_column, go_back_one_day=False):
     '''This function retrieves high-resolution data for the current day
     or the pevious day depending the 'go_back_one_day' parameter.
 
@@ -119,6 +131,11 @@ def get_one_day(browser, plant_tz, menu_text, fill_NA, graph_num, go_back_one_da
     The return value from this function is a two-tuple: a list of Unix Epoch
     timestamps and a list of Power Production values in kW.
     '''
+
+    # Set the columns names
+    col_names = ['Col%s' % x for x in range(column_count)]
+    col_names[0] = 'Time'
+    col_names[data_column] = 'Data'
 
     # Find and Click the proper menu item
     browser.switch_to_window(browser.window_handles[0])
@@ -165,12 +182,12 @@ def get_one_day(browser, plant_tz, menu_text, fill_NA, graph_num, go_back_one_da
     # Have Pandas read the HTML and extract the data from the table within
     # it.  The first (and only) table contains the data we want.
     df = pd.read_html(result_html)[0]
-    df.columns = ['Time', 'Power']
+    df.columns = col_names
 
     # Convert Power values to numeric.  Handle rows that don't have power
     # values according to the fill_NA parameter.
     # that aren't present yet.
-    df.Power = pd.to_numeric(df.Power, errors='coerce')
+    df.Data = pd.to_numeric(df.Data, errors='coerce')
     if fill_NA:
         # drop first row as it contains no data
         df = df.drop(0)
@@ -183,7 +200,7 @@ def get_one_day(browser, plant_tz, menu_text, fill_NA, graph_num, go_back_one_da
     # get the time strings and create full date/time timestamps in a
     # numpy array.  Also create an array of kW values
     ts_strings = (the_day + ' ' + df.Time).values
-    vals = df.Power.values
+    vals = df.Data.values
 
     # convert the timestamps to Unix Epoch values.
     tz = pytz.timezone(plant_tz)

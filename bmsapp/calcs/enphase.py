@@ -29,7 +29,7 @@ APIURL = "https://api.enphaseenergy.com/api/v2/systems"
 #APIKEY = os.getenv('ENPHASE')
 APIKEY = getattr(settings, 'BMSAPP_ENPHASE_API_KEY', None)
 
-MAX_WAIT = 60
+MAX_WAIT = 15
 
 
 def validate_enphase_date(date):
@@ -82,6 +82,9 @@ def run_query(url):
                 else:
                     raise urllib2.HTTPError(e.url, e.code, e.msg, e.hdrs, e.fp)
             if errordata['reason'] == '401':
+                raise urllib2.HTTPError(e.url, e.code, e.msg, e.hdrs, e.fp)
+            if errordata['reason'] == 'Requested date range is invalid for this system':
+                print 'No valid data in time range'
                 raise urllib2.HTTPError(e.url, e.code, e.msg, e.hdrs, e.fp)
     return j
 

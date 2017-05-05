@@ -5,7 +5,7 @@
 
 # Django is needed but it will be installed through the Webfaction control 
 # panel
-# Django==1.7.3
+Django==1.7.3
 
 django-extensions==1.4.9
 
