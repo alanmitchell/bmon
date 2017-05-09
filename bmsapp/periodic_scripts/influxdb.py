@@ -1,8 +1,10 @@
-'''
+﻿'''
 Script to send new sensor readings to an InfluxDB time-series database.
 '''
 import time
 import string
+import traceback
+import requests
 from bmsapp.readingdb import bmsdata
 from bmsapp.models import Sensor, Building, BldgToSensor
 
@@ -12,6 +14,7 @@ def run(influx_url= '',
         password='',
         measurement='reading',
         value_field='value',
+        last_rec={},
         reach_back=14,      # days
         ignore_last_rec=False,
         **kwargs):
@@ -32,6 +35,8 @@ def run(influx_url= '',
         written.  This function only supports writing records to a single measurement 
         name.
     value_field:  The name of the InfluxDB field used to hold the sensor value.
+    last_rec: A dictionary keyed on a tuple of (Sensor Object id, BldgToSensor Object ID)
+        that gives the timestamp of the last record sent to InfluxDB.
     reach_back:  If a BMON sensor has not been posted to the InfluxDB database before,
          this parameter determines how much history of sensor readings are sent to the
          database.  The parameter is measured in days.  For example, if the parameter is
@@ -49,15 +54,58 @@ def run(influx_url= '',
         BMON sensor readings.
     """
 
-    # Error Handling!
+    # tracks errors that occur in the sending process
+    errors = ''
 
-    # remember to sort the keys
+    # track how many records were sent to InfluxDB
+    records_sent = 0
 
-    # cleaning up the name and
-    # value of each tag and making both strings.  Use underbars in tag names
-    # and dashes in the values instead of whitespace or punctuation.
-    #    for ky, val in sensor.key_properties().items():
-    #       sensor_tags[clean_string(str(ky), '_')] = clean_string(str(val), '-')
+    # blank out last record dictionary if it should be ignored
+    if ignore_last_rec:
+        last_rec_dict = {}
+    else:
+        last_rec_dict = last_rec
+
+    try:
+        for recs, batch_last_ts in new_records(last_rec_dict, reach_back):
+            # Create the InfluxDB line protocol string including all of the records.
+            # Replace spaces and special characters in tags and tag values.
+            lines = ''
+            batch_rec_count = 0
+            for tags, ts, value in recs:
+                lin = measurement     # line protocol starts with the measurement name
+                for tag, tag_value in sorted(tags.items()):
+                    # Underbar is the replacement character for tag names, and dash is replacement
+                    # character for tag values.
+                    lin += ',%s=%s' % (clean_string(str(tag), '_'), clean_string(str(tag_value), '-'))
+                # Only using integer second timestamp precision
+                lin += ' %s=%s %d' % (value_field, value, int(ts))
+            lines += '%s\n' % lin
+            batch_rec_count += 1
+
+            # post the records
+            r = requests.post('%s?db=%s&u=%s&p=%s&precision=s' % (influx_url, database_name, username, password), 
+                              data=lines)
+            if r.status_code == 204:
+                # success
+                records_sent += batch_rec_count
+                # update dictionary tracking latest record sent for a sensor/building combo
+                last_rec_dict.update(batch_last_ts)
+            else:
+                raise ValueError('Error occurred while storing in InfluxDB.  Status Code: %s, Error: %s' % (r.status_code, r.json()['error']))
+
+    except:
+        # Store information about the error that occurred
+        errors += traceback.format_exc()
+
+    finally:
+        results = {}
+        results['script_errors'] = errors
+        results['records_sent'] = records_sent
+        # we don't show the returned dictionary of last timestamps posted.
+        results['hidden'] = {'last_rec': last_rec_dict}
+        return results
+
 
 def new_records(last_rec={}, reach_back=14, chunk_size=500):
     """A Python generator function that yields a list of new sensor readings from the BMON 
