@@ -80,8 +80,8 @@ def run(influx_url= '',
                     lin += ',%s=%s' % (clean_string(str(tag), '_'), clean_string(str(tag_value), '-'))
                 # Only using integer second timestamp precision
                 lin += ' %s=%s %d' % (value_field, value, int(ts))
-            lines += '%s\n' % lin
-            batch_rec_count += 1
+                lines += '%s\n' % lin
+                batch_rec_count += 1
 
             # post the records
             r = requests.post('%s?db=%s&u=%s&p=%s&precision=s' % (influx_url, database_name, username, password), 
