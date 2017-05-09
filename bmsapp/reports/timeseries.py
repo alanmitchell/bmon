@@ -156,30 +156,34 @@ class TimeSeries(basechart.BaseChart):
             # Parse the timeline_annotations string
             t_a_list = self.building.timeline_annotations.splitlines()
             for t_a in t_a_list:
-                t_a_text, t_a_datetimestring = t_a.split(":",1)
-                t_a_ts = bmsapp.data_util.datestr_to_ts(t_a_datetimestring, tz)
-                if t_a_ts >= st_ts and t_a_ts <= end_ts:
-                    # Add the text annotation to the top of the chart
-                    opt['layout']['annotations'].append({
-                                                         'x': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
-                                                         'y': 1,
-                                                         'xref': 'x',
-                                                         'yref': 'paper',
-                                                         'text': "<br>".join(textwrap.wrap(t_a_text,8,break_long_words=False)),
-                                                         'showarrow': False,
-                                                         'bgcolor': 'white'
-                                                      })
-                    # Add a vertical dotted line to the chart
-                    opt['layout']['shapes'].append({
-                                                    'type': 'line',
-                                                    'xref': 'x',
-                                                    'yref': 'paper',
-                                                    'line': {'width': 1.25, 'color': 'black', 'dash': 'dot'},
-                                                    'x0': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
-                                                    'y0': 0,
-                                                    'x1': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
-                                                    'y1': 1
-                                                    })
+                try:
+                    t_a_text, t_a_datetimestring = t_a.split(":",1)
+                    t_a_ts = bmsapp.data_util.datestr_to_ts(t_a_datetimestring, tz)
+                    if t_a_ts >= st_ts and t_a_ts <= end_ts:
+                        # Add the text annotation to the top of the chart
+                        opt['layout']['annotations'].append({
+                                                             'x': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                                                             'y': 1,
+                                                             'xref': 'x',
+                                                             'yref': 'paper',
+                                                             'text': "<br>".join(textwrap.wrap(t_a_text,8,break_long_words=False)),
+                                                             'showarrow': False,
+                                                             'bgcolor': 'white'
+                                                          })
+                        # Add a vertical dotted line to the chart
+                        opt['layout']['shapes'].append({
+                                                        'type': 'line',
+                                                        'xref': 'x',
+                                                        'yref': 'paper',
+                                                        'line': {'width': 1.25, 'color': 'black', 'dash': 'dot'},
+                                                        'x0': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                                                        'y0': 0,
+                                                        'x1': datetime.fromtimestamp(t_a_ts,tz).strftime('%Y-%m-%d %H:%M:%S'),
+                                                        'y1': 1
+                                                        })
+                except:
+                    # ignore annotations that create errors
+                    pass
 
         html = basechart.chart_config.chart_container_html(opt['layout']['title'])
 
