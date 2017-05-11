@@ -5,10 +5,14 @@ import time
 import math
 import pandas as pd
 import numpy as np
+import pytz
 import calcreadings
 import internetwx
 import aris_web_api
 import sunny_portal
+import bmsapp.data_util
+from bmsapp.models import Sensor, BldgToSensor
+
 
 class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
     """A set of functions that can be used to create calculated readings.  
@@ -269,3 +273,94 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                                      fill_NA=fill_NA,
                                      graph_num=graph_num
                                      )
+
+    def genericCalc(self,
+                    A,   # required
+                    B=None,
+                    C=None,
+                    D=None,
+                    expression='',
+                    averaging_hours=None):
+        """Calculates a set of sensor readings based on other sensor readings. 
+        Up to 4 different sensors can be used in the calculation.  The calculation 
+        is expressed in terms of the variables: A, B, C, and D corresponding to the 
+        4 sensors, and the expression is passed into this method in the parameter
+        'expression'.  'A / B * 0.023' is an example of an expression. The input
+        parameters A through D give the Sensor IDs of the sensor used in the calculation. 
+        'averaging_hours' if present specifies the time averaging interval in hours
+        that is applied before the calculation occurs.  If there is no 'averaging_hours'
+        specified, interpolation is used to determine B through D readings that align
+        with the Sensor A timestamps.
+        For purposes of deciding where time-averaging bin boundaries occur, timestamps
+        are expressed in the timezone of the first building associated with sensor 'A_ID'.
+        For example, with 24 hour averaging, boundaries will be Midnight to Midnight
+        in the timezone of sensor A.
+        This routine only returns calculated values for timestamps after the last
+        calculated readings stored in the reading database.
+        """
+
+        # determine the timestamp of the last entry in the database for this calculated field.
+        last_calc_rec = self.db.last_read(self.calc_id)
+        last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
+        
+        # constrain this value to greater or equal to 'reach_back'
+        last_ts = max(last_ts, int(time.time() - self.reach_back))
+
+        # IDs and variable names
+        sensors = ((A, 'A'), (B, 'B'), (C, 'C'), (D, 'D'))
+        sensor_ids = []
+        col_names = []
+        for sensor_id, var in sensors:
+            if sensor_id:
+                sensor_ids.append(sensor_id)
+                col_names.append(var)
+
+        # if time averaging is requested, do that, otherwise interpolate readings to 
+        # match Sensor A timestamps.
+        if averaging_hours:
+            # get the timezone of the first building associated with Sensor 'A'.
+            A_sensor = Sensor.objects.filter(sensor_id = A)
+            try:
+                bl_sens_link = BldgToSensor.objects.filter(sensor=A_sensor))[0]    # First building associated with Sensor
+                tz_name = bl_sens_link.building.timezone
+                tz = pytz.timezone(tz_name)
+            else:
+                # there may be no buildings associated with the sensor; if so an error
+                # will be thrown and we'll use no timezone.
+                tz = None
+            # get a Dataframe with all the sensor data
+            df = self.db.dataframeForMultipleIDs(sensor_ids, col_names, start_ts=last_ts, tz=tz)
+            df = bmsapp.data_util.resample_timeseries(df, averaging_hours, drop_na=True)
+            
+            # Drop the last row as it is probably a partial interval
+            df = df[:-1]
+
+            # Convert the index back to UTC naive
+            df.index = df.index.tz_localize(tz).tz_convert('UTC').tz_localize(None)
+
+        else:
+            # get a dataframe with the all the sensors.  Index is naive UTC.
+            # Go back an hour before the last calculated timestamp so that readings are 
+            # available to perform the interpolation.
+            df = self.db.dataframeForMultipleIDs(sensor_ids, col_names, start_ts=last_ts-3600)
+
+            # interpolate values of B through D sensors, and then drop rows that 
+            # have any NAs (mostly rows where A sensor is NA, but also could be
+            # leading and trailing NA rows for other sensors where interpolation 
+            # was not possible).
+            for col in col_names:
+                if col != 'A':
+                    # the limit parameters make sure trailing NaN's are *not* filled by interpolation
+                    df[col] = df[col].interpolate(method='index', limit=10, limit_direction='backward')
+
+            # drop the rows that have NaN values
+            df = df.dropna()
+
+        # convert the index back to integer Unix timestamps and then only keep rows that are for timestamps
+        # after the last timestamp for this calculated field.
+        df.index = df.index.astype(np.int64) // 10**9
+        df = df[df.index > last_ts]
+
+
+        for ix, row in df.iterrows():
+            print row

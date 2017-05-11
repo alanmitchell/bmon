@@ -92,9 +92,10 @@ def histogram_from_series(pandas_series):
     # to 4 significant figures
     return zip(avg_bins, cts)
 
-def resample_timeseries(pandas_dataframe, averaging_hours):
+def resample_timeseries(pandas_dataframe, averaging_hours, drop_na=True):
     '''
-    Returns a new pandas dataframe that is resampled at the specified interval
+    Returns a new pandas dataframe that is resampled at the specified "averaging_hours"
+    interval.  If 'drop_na' is True, rows with any NaN values are dropped.
     
     For some reason the pandas resampling sometimes fails if the datetime index is timezone aware...
     '''
@@ -112,6 +113,8 @@ def resample_timeseries(pandas_dataframe, averaging_hours):
         }
     params = interval_lookup.get(averaging_hours, {'rule':str(int(averaging_hours * 60)) + 'min', 'loffset':str(int(averaging_hours * 30)) + 'min'})
 
-    new_df = pandas_dataframe.resample(rule=params['rule'], loffset=params['loffset'],label='left').mean().dropna()
+    new_df = pandas_dataframe.resample(rule=params['rule'], loffset=params['loffset'],label='left').mean()
+    if drop_na:
+        new_df = new_df.dropna()
 
     return new_df
