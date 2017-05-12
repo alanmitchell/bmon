@@ -182,7 +182,9 @@ class BMSdata:
         """Returns a pandas dataframe having a 'ts' and 'val' columns.  The
         rows are for a particular sensor ID, and can be further limited by a time range.
         'start_tm' and 'end_tm' are UNIX timestamps.  If either are not provided, no limit
-        is imposed.  The rows are returned in timestamp order with a datetime index.
+        is imposed.  The rows are returned in timestamp order with a naive UTC datetime index,
+        unless a pytz timezone 'tz' is passed in; if so, the index is expressed in that
+        timezone and is naive due to resampling issues with timezone aware indexes.
         """
 
         sql = 'SELECT ts, val FROM [%s] WHERE 1' % sensor_id
@@ -202,6 +204,43 @@ class BMSdata:
             df.index = df.index.tz_localize('UTC').tz_convert(tz).tz_localize(None)
 
         return df
+
+    def dataframeForMultipleIDs(self, sensor_id_list, column_names=None, start_ts=None, end_ts=None, tz=None):
+        """Returns a Pandas Dataframe containing data from multiple sensors. The Sensor IDs of
+        the desired sensors are passed into the method as a list, 'sensor_id_list'. The returned 
+        Dataframe will have a naive UTC datetime index, unless a pytz timezone 'tz' is passed in; 
+        if so, the index is expressed in that timezone and is naive due to resampling issues 
+        with timezone aware indexes.  
+        The time range of data is limited by Unix timestamps 'start_ts' and 'end_ts'.  The columns
+        of the dataframe are a column for each sensor containing sensor values; those columns 
+        are named with the corresponding Sensor IDs, unless the 'column_names' parameter contains 
+        a list of column names (equal in length to the list of sensors).
+        Note that if the timestamps of the requested sensors do not fully align, NAN values will
+        be returned for sensors that don't have a value at a particular timestamp.
+        """
+        # make a list of column names
+        col_names = column_names if column_names else sensor_id_list
+
+        # loop through the requested sensors, creating a dataframe and merging into the
+        # final frame.
+        df_final = None
+        for sensor_id, col_name in zip(sensor_id_list, col_names):
+            df = self.dataframeForOneID(sensor_id, start_ts, end_ts)
+            df.drop('ts', axis=1, inplace=True)    # get rid of ts column
+            df.rename(columns={'val': col_name}, inplace=True)
+            if df_final is None:
+                df_final = df
+            else:
+                df_final = pd.merge(df_final, df, how='outer', left_index=True, right_index=True)
+
+        # convert the timezone of the index if requested
+        if tz:
+            # Convert the dates to the specified timezone...
+            # But, for some reason pandas resampling sometimes fails if the datetime index is timezone aware,
+            # so after converting the dates we make them timezone naive again.
+            df_final.index = df_final.index.tz_localize('UTC').tz_convert(tz).tz_localize(None)
+
+        return df_final
 
     def readingCount(self, startTime=0):
         """Returns the number of readings in the reading table inserted after the specified
