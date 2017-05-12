@@ -3,6 +3,7 @@
 
 import time
 import math
+import logging
 import pandas as pd
 import numpy as np
 import pytz
@@ -12,7 +13,10 @@ import aris_web_api
 import sunny_portal
 import bmsapp.data_util
 from bmsapp.models import Sensor, BldgToSensor
+#import ipdb
 
+# Make a logger for this module
+_logger = logging.getLogger('bms.' + __name__)
 
 class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
     """A set of functions that can be used to create calculated readings.  
@@ -299,6 +303,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         calculated readings stored in the reading database.
         """
 
+        # ipdb.set_trace()
         # determine the timestamp of the last entry in the database for this calculated field.
         last_calc_rec = self.db.last_read(self.calc_id)
         last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
@@ -321,10 +326,10 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # get the timezone of the first building associated with Sensor 'A'.
             A_sensor = Sensor.objects.filter(sensor_id = A)
             try:
-                bl_sens_link = BldgToSensor.objects.filter(sensor=A_sensor))[0]    # First building associated with Sensor
+                bl_sens_link = BldgToSensor.objects.filter(sensor=A_sensor)[0]    # First building associated with Sensor
                 tz_name = bl_sens_link.building.timezone
                 tz = pytz.timezone(tz_name)
-            else:
+            except:
                 # there may be no buildings associated with the sensor; if so an error
                 # will be thrown and we'll use no timezone.
                 tz = None
@@ -361,6 +366,26 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         df.index = df.index.astype(np.int64) // 10**9
         df = df[df.index > last_ts]
 
-
+        # walk the rows, calculating the expression and adding timestamps and values to the list
+        ts = []
+        vals = []
+        # delete these paramter values as we are using these variables below
+        del A, B, C, D      
         for ix, row in df.iterrows():
-            print row
+
+            # Get the variables that are part of the expression
+            A = row['A'] if 'A' in row else None
+            B = row['B'] if 'B' in row else None
+            C = row['C'] if 'C' in row else None
+            D = row['D'] if 'D' in row else None
+            
+            # Evaluate the expression on these variables and append to value list
+            try:
+                vals.append(float(eval(expression)))
+                ts.append(int(ix))
+            except:
+                # if an evaluation error occurs, just don't add anything to the list
+                _logger.warning('Error calculating %s with inputs %s' % (self.calc_id, row))
+
+        return ts, vals
+
