@@ -3,6 +3,7 @@
 
 import time
 import math
+from math import *      # make math functions available also without the math. qualifier
 import logging
 import pandas as pd
 import numpy as np
