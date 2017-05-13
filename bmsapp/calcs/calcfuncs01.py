@@ -283,27 +283,28 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                     B=None,
                     C=None,
                     D=None,
+                    E=None,
                     expression='',
                     averaging_hours=None):
         """Calculates a set of sensor readings based on other sensor readings. 
-        Up to 4 different sensors can be used in the calculation.  The calculation 
-        is expressed in terms of the variables: A, B, C, and D corresponding to the 
-        4 sensors, and the expression is passed into this method in the parameter
+        Up to 5 different sensors can be used in the calculation.  The calculation 
+        is expressed in terms of the variables: A, B, C, D, and E corresponding to the 
+        5 sensors, and the expression is passed into this method in the parameter
         'expression'.  'A / B * 0.023' is an example of an expression. The input
-        parameters A through D give the Sensor IDs of the sensor used in the calculation. 
+        parameters A through E give the Sensor IDs of the sensor used in the calculation. 
         'averaging_hours' if present specifies the time averaging interval in hours
         that is applied before the calculation occurs.  If there is no 'averaging_hours'
-        specified, interpolation is used to determine B through D readings that align
+        specified, interpolation is used to determine B through E readings that align
         with the Sensor A timestamps.
         For purposes of deciding where time-averaging bin boundaries occur, timestamps
-        are expressed in the timezone of the first building associated with sensor 'A_ID'.
+        are expressed in the timezone of the first building associated with sensor A.
         For example, with 24 hour averaging, boundaries will be Midnight to Midnight
         in the timezone of sensor A.
         This routine only returns calculated values for timestamps after the last
         calculated readings stored in the reading database.
         """
 
-        # ipdb.set_trace()
+        #ipdb.set_trace()
         # determine the timestamp of the last entry in the database for this calculated field.
         last_calc_rec = self.db.last_read(self.calc_id)
         last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
@@ -312,7 +313,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         last_ts = max(last_ts, int(time.time() - self.reach_back))
 
         # IDs and variable names
-        sensors = ((A, 'A'), (B, 'B'), (C, 'C'), (D, 'D'))
+        sensors = ((A, 'A'), (B, 'B'), (C, 'C'), (D, 'D'), (E, 'E'))
         sensor_ids = []
         col_names = []
         for sensor_id, var in sensors:
@@ -370,7 +371,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         ts = []
         vals = []
         # delete these paramter values as we are using these variables below
-        del A, B, C, D      
+        del A, B, C, D, E
         for ix, row in df.iterrows():
 
             # Get the variables that are part of the expression
@@ -378,6 +379,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             B = row['B'] if 'B' in row else None
             C = row['C'] if 'C' in row else None
             D = row['D'] if 'D' in row else None
+            E = row['E'] if 'E' in row else None
             
             # Evaluate the expression on these variables and append to value list
             try:
