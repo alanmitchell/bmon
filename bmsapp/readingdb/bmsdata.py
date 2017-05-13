@@ -194,14 +194,18 @@ class BMSdata:
             sql += ' AND ts<=%s' % int(end_ts)
         sql += ' ORDER BY ts'
 
-        df = pd.read_sql_query(sql,self.conn)
-        df.index = pd.DatetimeIndex(pd.to_datetime(df.ts, unit='s'))
-
-        if tz:
-            # Convert the dates to the specified timezone...
-            # But, for some reason pandas resampling sometimes fails if the datetime index is timezone aware,
-            # so after converting the dates we make them timezone naive again.
-            df.index = df.index.tz_localize('UTC').tz_convert(tz).tz_localize(None)
+        try:
+            df = pd.read_sql_query(sql,self.conn)
+            df.index = pd.DatetimeIndex(pd.to_datetime(df.ts, unit='s'))
+            if tz:
+                # Convert the dates to the specified timezone...
+                # But, for some reason pandas resampling sometimes fails if the datetime index is timezone aware,
+                # so after converting the dates we make them timezone naive again.
+                df.index = df.index.tz_localize('UTC').tz_convert(tz).tz_localize(None)
+        except:
+            # if an error occurs (such as a missing Sensor ID), return an empty dataframe 
+            # with the correct column headings.
+            df = pd.DataFrame(columns=['ts', 'val'])
 
         return df
 
