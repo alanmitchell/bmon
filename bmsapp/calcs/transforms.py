@@ -1,4 +1,4 @@
-'''
+﻿'''
 Transform functions for scaling and transforming sensor readings
 '''
 
@@ -89,11 +89,11 @@ class Transformer:
                 count_chg = val - last_val
                 
                 if count_chg < 0:
-                    # if it was a small negative change, then it is probably legt.
+                    # Unless it was a large negative change, then it is probably legit.
                     # Some counters can go backwards, such as BTU accumulators.
                     # Otherwise, assume a rollover occurred.
-                    if abs(count_chg) > 0.01 * rollover:
-                        count_chg += rollover   # counter rolled over or reset, adjust.
+                    if abs(count_chg) > 0.5 * rollover:
+                        count_chg += rollover   # counter rolled over.
                     
                 if interval < min_interval:
                     # too short of an interval for valid reading
@@ -102,7 +102,7 @@ class Transformer:
                     
                 rate = count_chg / float(interval)
                 
-                if rate > max_rate:
+                if abs(rate) > max_rate:
                     # calculated rate is too high, indicates invalid reading.
                     _logger.warn('Too high of counter rate: ts=%s, id=%s, val=%s, rate=%s' % (ts, id, val, rate))
                     return None, None, None
