@@ -231,7 +231,7 @@ class BMSdata:
         for sensor_id, col_name in zip(sensor_id_list, col_names):
             df = self.dataframeForOneID(sensor_id, start_ts, end_ts)
             df.drop('ts', axis=1, inplace=True)    # get rid of ts column
-            df.rename(columns={'val': col_name}, inplace=True)
+            df.rename(columns={'val': str(col_name)}, inplace=True)
             if df_final is None:
                 df_final = df
             else:
