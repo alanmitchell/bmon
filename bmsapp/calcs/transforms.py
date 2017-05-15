@@ -92,7 +92,7 @@ class Transformer:
 					# if it was a small negative change, then it is probably legt.
 					# Some counters can go backwards, such as BTU accumulators.
 					# Otherwise, assume a rollover occurred.
-					if abs(count_chg) > 0.01 * rollover:
+				    if abs(count_chg) > 0.01 * rollover:
                         count_chg += rollover   # counter rolled over or reset, adjust.
                     
                 if interval < min_interval:
