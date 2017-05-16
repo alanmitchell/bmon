@@ -19,5 +19,4 @@ The Mini-Monitor was also programmed to read data directly from the
 AERCO BMS II Boiler Management System, which is a large commercial
 boiler controller.
 
-Documentation for the Mini-Monitor project is provided in a `separate
-Wiki <../../mini-monitor/wiki>`_.
+Documentation for the Mini-Monitor project is provided in a `separate project <http://mini-monitor-documentation.readthedocs.io/en/latest/>`_.
