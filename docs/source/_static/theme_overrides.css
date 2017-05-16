@@ -1,0 +1,6 @@
+.wy-menu-vertical li code, .wy-menu-vertical li .rst-content tt, .rst-content .wy-menu-vertical li tt {
+font-family: "Lato","proxima-nova","Helvetica Neue",Arial,sans-serif !important;
+line-height: 18px !important;
+font-size: inherit !important;
+position: relative !important;
+}
