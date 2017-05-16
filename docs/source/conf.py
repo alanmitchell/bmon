@@ -99,12 +99,7 @@ html_theme_options = {}
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
 
-html_context = {
-    'css_files': [
-        '_static/table_overrides.css',  # override wide tables in RTD theme
-		'_static/theme_overrides.css',  # override small style issues in RTD theme
-        ],
-     }
+html_context = {}
 
 
 # -- Options for HTMLHelp output ------------------------------------------
