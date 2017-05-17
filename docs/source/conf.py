@@ -104,7 +104,7 @@ htmlhelp_basename = 'bmondoc'
 
 # -- CSS Overwrites -------------------------------------------------------
 
-html_style = 'theme.css'
+html_style = '_static/theme.css'
 
 # -- Options for LaTeX output ---------------------------------------------
 
