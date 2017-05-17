@@ -384,9 +384,15 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # by 'averaging_hours' but truncated to the lesser minute.
             df = df.rolling('%smin' % int(averaging_hours * 60)).mean()
 
-        # convert the index back to integer Unix timestamps and then only keep rows that are for timestamps
-        # after the last timestamp for this calculated field.
+        # convert the index back to integer Unix timestamps.
         df.index = df.index.astype(np.int64) // 10**9
+
+        # if we did rolling averages, adjust the timestamps back to the center of the averaging interval
+        if rolling_average:
+            df.index = df.index - averaging_hours * 3600 * 0.5
+
+        # only keep rows that are for timestamps after the last timestamp for 
+        # this calculated field.
         df = df[df.index > last_ts]
 
         # walk the rows, calculating the expression and adding timestamps and values to the list
