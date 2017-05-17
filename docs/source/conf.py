@@ -103,12 +103,9 @@ html_static_path = ['_static']
 htmlhelp_basename = 'bmondoc'
 
 # -- CSS overwrite for table wrapping issue in RTD theme -------------------------------
-html_context = {
-    'css_files': [
-        '/_static/table_overrides.css',  # override wide tables in RTD theme
-		'/_static/theme_overrides.css',  # override small style issues in RTD theme
-        ],
-     }
+def setup(app):
+    app.add_stylesheet('_static/table_overrides.css')
+	app.add_stylesheet('_static/theme_overrides.css')
 
 # -- Options for LaTeX output ---------------------------------------------
 
