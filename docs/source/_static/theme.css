@@ -1,6 +1,3 @@
-@import "https://media.readthedocs.org/css/sphinx_rtd_theme.css"
-
-
 /* override table width restrictions */
 @media screen and (min-width: 767px) {
 
