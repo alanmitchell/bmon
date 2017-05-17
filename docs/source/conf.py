@@ -102,10 +102,9 @@ html_static_path = ['_static']
 # Output file base name for HTML help builder.
 htmlhelp_basename = 'bmondoc'
 
-# -- CSS overwrite for table wrapping issue in RTD theme -------------------------------
-def setup(app):
-app.add_stylesheet('_static/table_overrides.css')	
-app.add_stylesheet('_static/theme_overrides.css')
+# -- CSS Overwrites -------------------------------------------------------
+
+html_style = 'theme.css'
 
 # -- Options for LaTeX output ---------------------------------------------
 
