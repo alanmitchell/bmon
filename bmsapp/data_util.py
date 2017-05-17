@@ -95,7 +95,9 @@ def histogram_from_series(pandas_series):
 def resample_timeseries(pandas_dataframe, averaging_hours, drop_na=True):
     '''
     Returns a new pandas dataframe that is resampled at the specified "averaging_hours"
-    interval.  If 'drop_na' is True, rows with any NaN values are dropped.
+    interval.  If the 'averaging_hours' parameter is fractional, the averaging time 
+    period is truncated to the lesser minute.
+    If 'drop_na' is True, rows with any NaN values are dropped.
     
     For some reason the pandas resampling sometimes fails if the datetime index is timezone aware...
     '''
