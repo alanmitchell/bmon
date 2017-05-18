@@ -11,7 +11,7 @@ easy_install-2.7 pip
 # version that is present already with webfaction.  This has to be 
 # done prior to the requirments file, as installation of numexpr in
 # that requirements file errors out otherwise.
-pip install -I --user numpy==1.11.2
+pip install -I --user numpy==1.12.1
 
 # install all the packages in the requirements.txt file
 pip install --user -r requirements.txt

@@ -1,0 +1,20 @@
+/* override table width restrictions */
+@media screen and (min-width: 767px) {
+
+   .wy-table-responsive table td {
+      /* !important prevents the common CSS stylesheets from overriding
+         this as on RTD they are loaded after this stylesheet */
+      white-space: normal !important;
+   }
+
+   .wy-table-responsive {
+      overflow: visible !important;
+   }
+}
+
+.wy-menu-vertical li code, .wy-menu-vertical li .rst-content tt, .rst-content .wy-menu-vertical li tt {
+font-family: "Lato","proxima-nova","Helvetica Neue",Arial,sans-serif !important;
+line-height: 18px !important;
+font-size: inherit !important;
+position: relative !important;
+}

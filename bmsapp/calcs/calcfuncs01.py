@@ -3,6 +3,7 @@
 
 import time
 import math
+from math import *      # make math functions available also without the math. qualifier
 import logging
 import pandas as pd
 import numpy as np
@@ -283,27 +284,42 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                     B=None,
                     C=None,
                     D=None,
+                    E=None,
                     expression='',
-                    averaging_hours=None):
+                    averaging_hours=None,
+                    rolling_average=False):
         """Calculates a set of sensor readings based on other sensor readings. 
-        Up to 4 different sensors can be used in the calculation.  The calculation 
-        is expressed in terms of the variables: A, B, C, and D corresponding to the 
-        4 sensors, and the expression is passed into this method in the parameter
+        Up to 5 different sensors can be used in the calculation.  The calculation 
+        is expressed in terms of the variables: A, B, C, D, and E corresponding to the 
+        5 sensors, and the expression is passed into this method in the parameter
+        
         'expression'.  'A / B * 0.023' is an example of an expression. The input
-        parameters A through D give the Sensor IDs of the sensor used in the calculation. 
+        parameters A through E give the Sensor IDs of the sensor used in the calculation. 
+        
         'averaging_hours' if present specifies the time averaging interval in hours
-        that is applied before the calculation occurs.  If there is no 'averaging_hours'
-        specified, interpolation is used to determine B through D readings that align
-        with the Sensor A timestamps.
+        that is applied before the calculation occurs.  A reading is computed for each
+        distinct time period spanning 'averaging_hours'.
+        If there is no 'averaging_hours' specified, interpolation is used to determine 
+        B through E readings that align with the Sensor A timestamps, and a new calculated
+        reading is returned for each Sensor A timestamp.
         For purposes of deciding where time-averaging bin boundaries occur, timestamps
-        are expressed in the timezone of the first building associated with sensor 'A_ID'.
+        are expressed in the timezone of the first building associated with sensor A.
         For example, with 24 hour averaging, boundaries will be Midnight to Midnight
         in the timezone of sensor A.
+
+        'rolling_average': If set to True, a rolling average is computed for each
+        of the sensor values before the 'expression' is calculated.  For this rolling
+        average, the time period used is given by the 'averaging_hours' parameter.  
+        Fractional hours are truncated to the lesser minute. A calculated reading is
+        returned for each timestamp that occurs for sensor A.  So, the calculated reading
+        for a particular timestamp ts will encompass sensor values that occur in the
+        interval of (ts - averaging_hours) to ts.
+
         This routine only returns calculated values for timestamps after the last
         calculated readings stored in the reading database.
         """
 
-        # ipdb.set_trace()
+        #ipdb.set_trace()
         # determine the timestamp of the last entry in the database for this calculated field.
         last_calc_rec = self.db.last_read(self.calc_id)
         last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
@@ -312,7 +328,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         last_ts = max(last_ts, int(time.time() - self.reach_back))
 
         # IDs and variable names
-        sensors = ((A, 'A'), (B, 'B'), (C, 'C'), (D, 'D'))
+        sensors = ((A, 'A'), (B, 'B'), (C, 'C'), (D, 'D'), (E, 'E'))
         sensor_ids = []
         col_names = []
         for sensor_id, var in sensors:
@@ -322,7 +338,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
 
         # if time averaging is requested, do that, otherwise interpolate readings to 
         # match Sensor A timestamps.
-        if averaging_hours:
+        if averaging_hours > 0 and not rolling_average:
             # get the timezone of the first building associated with Sensor 'A'.
             A_sensor = Sensor.objects.filter(sensor_id = A)
             try:
@@ -345,11 +361,13 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
 
         else:
             # get a dataframe with the all the sensors.  Index is naive UTC.
-            # Go back an hour before the last calculated timestamp so that readings are 
-            # available to perform the interpolation.
-            df = self.db.dataframeForMultipleIDs(sensor_ids, col_names, start_ts=last_ts-3600)
+            # Go back enough time before the last calculated timestamp so that a proper
+            # rolling average can be calculated (if requested); if a rolling average is
+            # not requested, provide enough readings so an interpolation can be performed.
+            go_back = averaging_hours * 3600 if averaging_hours else 3600
+            df = self.db.dataframeForMultipleIDs(sensor_ids, col_names, start_ts=last_ts-go_back)
 
-            # interpolate values of B through D sensors, and then drop rows that 
+            # interpolate values of B through D sensors, and then drop rows that
             # have any NAs (mostly rows where A sensor is NA, but also could be
             # leading and trailing NA rows for other sensors where interpolation 
             # was not possible).
@@ -361,16 +379,27 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # drop the rows that have NaN values
             df = df.dropna()
 
-        # convert the index back to integer Unix timestamps and then only keep rows that are for timestamps
-        # after the last timestamp for this calculated field.
+        if averaging_hours > 0 and rolling_average:
+            # compute the rolling average of sensor values. The averaging interval is given
+            # by 'averaging_hours' but truncated to the lesser minute.
+            df = df.rolling('%smin' % int(averaging_hours * 60)).mean()
+
+        # convert the index back to integer Unix timestamps.
         df.index = df.index.astype(np.int64) // 10**9
+
+        # if we did rolling averages, adjust the timestamps back to the center of the averaging interval
+        if rolling_average:
+            df.index = df.index - averaging_hours * 3600 * 0.5
+
+        # only keep rows that are for timestamps after the last timestamp for 
+        # this calculated field.
         df = df[df.index > last_ts]
 
         # walk the rows, calculating the expression and adding timestamps and values to the list
         ts = []
         vals = []
         # delete these paramter values as we are using these variables below
-        del A, B, C, D      
+        del A, B, C, D, E
         for ix, row in df.iterrows():
 
             # Get the variables that are part of the expression
@@ -378,6 +407,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             B = row['B'] if 'B' in row else None
             C = row['C'] if 'C' in row else None
             D = row['D'] if 'D' in row else None
+            E = row['E'] if 'E' in row else None
             
             # Evaluate the expression on these variables and append to value list
             try:
