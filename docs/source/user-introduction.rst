@@ -26,23 +26,23 @@ of the BMON system. The table below summarizes the available videos.
 | *(13 Minutes)*                    |                                                               |
 +-----------------------------------+---------------------------------------------------------------+ 
 | `"Plot over Time" Chart (Time     | This video explains the "Plot over Time" graph, also known as |
-| Series Graph) <https://bms.ahfc.us| the "Time Series" plot. This graph lets you graph how one or  |
-| /training/video/time_series/972/93| more sensor values change over time. This is the workhorse    |
-| 5/?hide_back_link=1>`_            | graph of the system, so this video is important.              |
+| Series Graph) <https://bms.ahfc.us| the "Time Series" plot. This graph lets you display how one   |
+| /training/video/time_series/972/93| or more sensor values change over time. This is the           |
+| 5/?hide_back_link=1>`_            | workhorse graph of the system, so this video is important.    |
 |                                   |                                                               |
 | *(8 minutes)*                     |                                                               |
 +-----------------------------------+---------------------------------------------------------------+
 | `Hourly Profile Chart <https://bms| This video explains the "Hourly Profile" chart. This graph    |
-| .ahfc.us/training/video/hourly_pro| lets you graph how a sensor's value changes across the hours  |
-| file/967/931/?hide_back_link=1>`_ | in the day. It also allows you to select particular days to   |
-|                                   | look at, such as Monday through Friday or just Saturday.      |
-|                                   |                                                               |
+| .ahfc.us/training/video/hourly_pro| lets you chart how a sensor's value changes throughout        |
+| file/967/931/?hide_back_link=1>`_ | the day (hourly). It also allows you to select particular     |
+|                                   | days to look at, such as Monday through Friday or just        |
+|                                   | Saturday.                                                     |
 | *(8 minutes)*                     |                                                               |
 +-----------------------------------+---------------------------------------------------------------+
-| `Histogram Chart <https://bms.ahfc| This video explains the Histogram chart. This graph is good   |
+| `Histogram Chart <https://bms.ahfc| This video explains the "Histogram" chart. This graph is good |
 | .us/training/video/histogram/970/9| for learning about the range of values measured by a sensor.  |
-| 32/?hide_back_link=1>`_           | It also shows you the values are recorded most frequently and |
-|                                   | least frequently.                                             |
+| 32/?hide_back_link=1>`_           | It also shows you the values that are recorded most           |
+|                                   | frequently and least frequently.                              |
 | *(6 minutes)*                     |                                                               |
 +-----------------------------------+---------------------------------------------------------------+
 | `Download Sensor Data as Excel    | This video explains how to download sensor data into an Excel | 

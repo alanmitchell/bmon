@@ -17,15 +17,13 @@ individuals if sensor values move outside normal ranges.
 Here is a link to the `AHFC BMON Web Site <https://bms.ahfc.us/>`_
 
 Here is a screenshot of the application being used to look at the
-electricicty usage of the AHFC Headquarters building (the green bands
+electricity usage of the AHFC Headquarters building (the green bands
 indicate the building’s occupied periods):
 
 
 .. image:: /_static/sample_screen.png
 
-This Wiki holds the documentation for the software. The documentation is
-divided into three main sections, described below and available on the
-sidebar menu on the righthand side of this screen.
+The documentation for the BMON software is divided into three main sections, described below.
 
 :ref:`User Introduction <user-introduction>`
 --------------------------------------------
@@ -43,14 +41,14 @@ administration. This section also describes how to setup and configure
 the specific buildings and sensors for your system. The setup of sensors
 and buildings does *not* require any sophisticated IT skills; it is
 accomplished through a web interface after logging on to the system as
-an adminstrator.
+an administrator.
 
 :ref:`Developer Introduction <developer-introduction>`
 ------------------------------------------------------
 
 This section provides documentation for developers who want to modify
 the code of the BMON system. The source code of the project is
-internally documented with comments, but the documentation in this Wiki
+internally documented with comments, but the documentation in this section
 explains the overall structure of the application. The GitHub repository
 holding the source code is `located here <https://github.com/alanmitchell/bmon>`_
 

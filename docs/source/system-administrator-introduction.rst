@@ -3,21 +3,21 @@
 System Administrator Introduction
 =================================
 
-This System Administrator documentation explains how to install and
+This documentation explains how to install and
 configure the system for your particular buildings and sensors. These
 activities should be the task of one or two system administrators who
-have more expertise with BMON than the general Users who are just
+have more experience with BMON than the general Users who are simply 
 interested in viewing and analyzing the data.
 
 The separate system administrator topics are summarized below, and the
-associated documents are available through the sidebar on the right or
+associated documents are available through the sidebar on the left or
 by clicking on the section headings below.
 
 :ref:`BMON Installation <how-to-install-BMON-on-a-web-server>`
 --------------------------------------------------------------
 
 This document gives instructions for installing BMON on a web server.
-Linux skills and preferably some Python and Django skills are necessary
+Linux skills and preferably some experience with Python and Django are necessary
 to perform this task.
 
 :ref:`Adding Buildings and Sensors <adding-buildings-and-sensors>`
@@ -33,22 +33,22 @@ web-based Admin interface of the BMON system.
 A few different sensor types have been set up to work with BMON (e.g.
 `Monnit Wireless Sensors <http://www.monnit.com/>`_). Other sensors that
 have access to the Internet can be configured to work with BMON. This
-document gives details on this topic.
+document gives details on how to set up sensors in the system.
 
 :ref:`Multi-Building Charts <multi-building-charts>`
 ----------------------------------------------------
 
 BMON can produce some reports and graphs that compare data across
 buildings. These multi-building charts need to be configured through the
-web-based Admin interface. Single building reports and charts come work
-out-of-the-box without configuration.
+web-based Admin interface. Single building reports and charts work
+out-of-the-box without additional configuration.
 
 :ref:`Sensor Alerts <sensor-alerts>`
 ------------------------------------
 
 You can have BMON send you a text message or email if important sensor
-conditions occur, such as too low of a Domestic Hot Water temperature.
-Configuration of this feature is described in this document.
+conditions occur, such as Domestic Hot Water temperatures that are too low.
+This document details how to configure this feature.
 
 :ref:`Creating A Dashboard <creating-a-dashboard>`
 --------------------------------------------------
@@ -63,27 +63,26 @@ This document describes how Dashboards are created.
 :ref:`Custom Reports <custom-reports>`
 --------------------------------------
 
+This document explains how to create Custom Reports.
 A Custom Report allows you to combine any number of graphs, dashboards,
-or current value reports onto one web page. The various elements can
-even come from different buildings. This document explains how to create
-Custom Reports.
+or current value reports onto one page. The various elements can
+even come from different buildings. 
 
 :ref:`Transform Expressions <transform-expressions>`
 ----------------------------------------------------
 
-Some sensors do not send data in a format that you would like to
-display. Or, some sensors have small errors that need correction.
+Some sensors do not send data in a displayable format, some sensors have small errors that need correction.
 "Transform" expressions allow you to convert units or transform values
-before storage and display in BMON.
+before storage and display in BMON. This document explains how to set up transform values for your sensors.
 
 :ref:`Calculated Fields <calculated-fields>`
 --------------------------------------------
 
-You may want to calculate a value from multiple different sensors or
+This document explains how to work with calculated fields. Occasionally, you may want to calculate a value from multiple different sensors or
 have one sensor display its value in two different ways. "Calculated
 Fields" serve this need. Also, Calculated Fields can be used to acquire
 data from Internet weather services instead of installing your own
-sensors.
+meteorological sensors.
 
 :ref:`Periodic Scripts <periodic-scripts>`
 ------------------------------------------
@@ -95,7 +94,8 @@ report or perform a maintenance operation. The *Periodic Script* feature
 of BMON can be used for this purpose. There are some periodic scripts
 that are already available in BMON (such as to acquire data from Ecobee
 thermostats), and it is possible for a developer to create new scripts
-that will be periodically run by BMON.
+that will be periodically run by BMON, this document explains the basics of 
+Periodic Scripts while a later document details writing custom scripts.
 
 :ref:`Archiving Data <archiving-and-analyzing-data-from-the-system>`
 --------------------------------------------------------------------

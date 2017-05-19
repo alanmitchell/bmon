@@ -8,25 +8,25 @@ server. The specific steps shown here apply to installation on the
 `Webfaction Hosting Service <https://www.webfaction.com/>`_, which has
 been used for the first two installations of the BMON application. The
 general goals of each step of the installation are also decscribed, to
-assist installation on other hosting providers or a standalone server.
+assist in installation on other hosting providers or a standalone server.
 
 The assumption here is that BMON will be installed on a server running
 the Linux operating system, although installation on a Windows server is
 also possible (the ``backup_db()`` method in the
 `bmsdata.py <https://github.com/alanmitchell/bmon/blob/master/bmsapp/readingdb/bmsdata.py>`_ file uses
 the ``gzip`` Linux utility, which can be installed on Windows through
-use of Cygwin). The skills needed for installation are primarily:
+use of `Cygwin <https://www.cygwin.com/>`_). The skills needed for installation are primarily:
 
 *  Linux command line skills.
-*  Some skill with `Python <https://www.python.org/>`_ and the `Django
+*  Some experience with `Python <https://www.python.org/>`_ and the `Django
    web framework <https://www.djangoproject.com/>`_ would be helpful,
    as the BMON application is a Python application built using the
    Django web framework. If you are using the Wefaction hosting
    services, these skills are not absolutely necessary, as step-by-step
-   installation instructions for that hosting service are given below.
+   installation instructions for that hosting service are detailed below.
    If you are *not* using the Webfaction hosting service, more Django
    and Python skills will be required, as the instructions below will
-   need to be modified.
+   need to be modified to fit your configuration.
 *  Some knowledge of the `Git version control
    system <http://git-scm.com/>`_ would be helpful.
 
@@ -44,31 +44,30 @@ use for the BMON application.
 The steps in this section are patterned after the general `Webfaction
 documentation for installing Django <http://docs.webfaction.com/software/django/getting-started.html>`_.
 
-*  Log into the Webfaction Control Panel and click ``DOMAINS/WEBSITES``
+#. Log into the Webfaction Control Panel and click ``DOMAINS/WEBSITES``
    from the menu bar.
 
-*  Click the button ``Add new website``.
+#. Click the button ``Add new website``.
 
-*  In the ``Name`` field, type in ``bmon``.
+#. In the ``Name`` field, type in ``bmon``.
 
-*  It is highly recommended that an Encrypted website (https) be
+#. It is highly recommended that an Encrypted website (https) be
    created, because the BMON application utilizes a password-protected
    log in screen for adminstrative access to the application. Those
    passwords will travel the Internet encrypted if an https site is
    used. Select ``Encrypted website (https)``. You will need to install
    an SSL certificate in order for users to not receive a security
    warning when they access the site. For the Webfaction host, `see
-   their SSL
-   documentation <http://docs.webfaction.com/user-guide/websites.html#secure-sites-https>`_.
+   their SSL documentation <http://docs.webfaction.com/user-guide/websites.html#secure-sites-https>`_.
 
-*  In the ``Domains`` field, select or type in the domain or subdomain
+#. In the ``Domains`` field, select or type in the domain or subdomain
    where you want to acess the BMON site. For this example, we are
    accessing the site on the subdomain
    ``bmon.ahfctest.webfactional.com``, so we type that into the field.
    If your domain does not exist, you will get a prompt that will allow
    you to create the domain or subdomain.
 
-*  Click the ``Add an application`` button and select
+#. Click the ``Add an application`` button and select
    ``Create a new application``.
 
    *  For the ``Name`` of the application, use ``bmon_django``; the
@@ -79,7 +78,7 @@ documentation for installing Django <http://docs.webfaction.com/software/django/
       values. Click the ``Save`` button to complete the Application
       setup.
 
-*  Now we need to create another application to serve static files for
+#. Now we need to create another application to serve static files for
    the BMON application such as JavaScript files, stylesheets, and
    images. As before, click the ``Add an application`` button and select
    ``Create a new application``.
@@ -91,15 +90,15 @@ documentation for installing Django <http://docs.webfaction.com/software/django/
       ``https://bmon.ahfctest.webfactional.com/static``). Click the
       ``Save`` button to complete the Application setup.
 
-*  The website configuration is now complete. The website screen in this
+#. The website configuration is now complete. The website screen in this
    example looks like:
 
 .. image:: /_static/website_create.png
 
-*  Click the ``Save`` button on the website screen to complete the
+#. Click the ``Save`` button on the website screen to complete the
    application setup.
 
-*  Test progress by going to your website URL
+#. Test progress by going to your website URL
    (``https://bmon.ahfctest.webfactional.com`` in this example) and you
    should get an "It Worked" page in response. This may not function
    immediately, as some time is required for the server to process
