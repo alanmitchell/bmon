@@ -95,14 +95,14 @@ documentation for installing Django <http://docs.webfaction.com/software/django/
 
 .. image:: /_static/website_create.png
 
-#. Click the ``Save`` button on the website screen to complete the
+9. Click the ``Save`` button on the website screen to complete the
    application setup.
 
-#. Test progress by going to your website URL
-   (``https://bmon.ahfctest.webfactional.com`` in this example) and you
-   should get an "It Worked" page in response. This may not function
-   immediately, as some time is required for the server to process
-   website configuration.
+10. Test progress by going to your website URL
+    (``https://bmon.ahfctest.webfactional.com`` in this example) and you
+    should get an "It Worked" page in response. This may not function
+    immediately, as some time is required for the server to process
+    website configuration.
 
 Set Up Email on the Web Server
 ------------------------------
