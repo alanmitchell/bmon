@@ -6,20 +6,21 @@ Add Buildings and Sensors
 To start using the BMON system, Sensors and Buildings must be added to
 the system. A Sample building and a Sample sensor were added to BMON
 when it was installed on the web server. This document will show how to
-add your actual buildings and sensors to the system. (The sample
-building and sensor can be deleted once at least one actual building and
-sensor are added to the system.)
+add your actual buildings and sensors to the system. 
+
+The sample building and sensor can be deleted once at least one actual building and
+sensor are added to the system.
 
 Logging into BMON's Admin Interface
 -----------------------------------
 
-Adding sensors and the general configuration of BMON occur through the
-*Admin* interface. To access the Admin interface, navigate to
+Adding sensors and the general configuration of BMON occurs through the
+Admin interface. To access the Admin interface, navigate to
 ``<site URL>/admin/`` in your browser; for the AHFC BMON system, that
 URL is https://bms.ahfc.us/admin/. Once there, you will be presented
 with a Log In page. During installation of BMON on the web server, a
 *super user* account was created; that username and password can be used
-to initially log into the system. After the logging in as the superuser,
+to initially log into the system. After logging in as the superuser,
 you can create additional Users that can access the Admin interface,
 each with a different username, password, and editing privileges. These
 new Users are created in the *Users* section of the Admin interface.
@@ -41,7 +42,7 @@ shows, click the *Add building* button to add another building.
 
 .. image:: /_static/add_bldg.png
 
-An *Add building* page will appear, and the top portion of the page
+An *Add building* page will appear, the top portion of the page
 contains the essential inputs for adding a new building:
 
 .. image:: /_static/bldg_edit.png
@@ -93,7 +94,7 @@ link public, share it, and paste it to `gdurl.com <http://gdurl.com/>`_
 as detailed in this `1-minute how-to
 video <https://www.thegooru.com/how-to-host-an-image-from-google-drive/>`_
 
-**Latitude** and **Longitude:** The BMON system allows viewing of the
+**Latitude** and **Longitude:** The BMON system includes the ability to show  
 monitored buildings on a Map. Enter the Latitude and Longitude of the
 building, in decimal format, so it is properly placed on the map. You
 can determine the lat/lon of a building from Google Maps using `these
@@ -151,7 +152,7 @@ Here is a sample entry:
 There are a couple more Input sections beyond these essential inputs.
 The one labeled "Bldg to sensors" is used to associate particular
 sensors with this building. These inputs will be discussed in the Adding
-Sensors section. Another input section is "Dashboard items". These
+Sensors section below. Another input section is "Dashboard items". These
 inputs will be discussed in the :ref:`creating-a-dashboard` document.
 
 After completing the essential inputs discussed above, Save the new
@@ -165,10 +166,10 @@ like:
 Building Groups
 ---------------
 
-You can organize Buildings into Groups. Users can then filter the list
+You can organize Buildings into Groups. Users can filter the list
 of buildings that they are analyzing down to a particular Building
 Group. A Building Group could represent a geographical region or a group
-of building that are the responsibility of a particular staff member.
+of buildings that are the responsibility of a particular staff member.
 There are no restrictions on the meaning of each Building Group, and any
 one Building can be a member of multiple different groups.
 
@@ -207,7 +208,7 @@ edit sensors:
 
 .. image:: /_static/main_scr_config_sensor.png
 
-And then to add a new Sensor, use the button in the upper right:
+And then to add a new Sensor, click the Add sensor button in the upper right:
 
 .. image:: /_static/add_sensor.png
 
@@ -294,7 +295,7 @@ sensor values can be converted to engineering units like ``kW`` or
 
 **Function Parameters in YAML form:** For the more sophisticated uses of
 :ref:`transform-expressions` and :ref:`calculated-fields`, extra information
-is sometimes needed and entered here. Refer to those documents for more
+is sometimes needed and is entered here. Refer to those documents for more
 information. For simple sensors, this input should be left blank.
 
 **Calculation order:** This input is used with :ref:`calculated-fields` and
@@ -353,7 +354,7 @@ buildings. An example would be an outdoor temperature sensor that is
 near to multiple buildings. Seeing the temperature value when viewing
 each building is useful. To associate the Sensor with another building,
 click the ``Add another Bldg to sensor`` link that you see at the bottom
-of the above image. An additional row of inputs will appear allowing you
+of the image above. An additional row of inputs will appear allowing you
 add another building association.
 
 Note that you also can set up associations between Sensors and Buildings
@@ -396,11 +397,11 @@ from the main Sensor screen:
 
 .. image:: /_static/delete_sensors_list.png
 
-Check the boxes next to the sensors to delete, select
+Check the boxes next to the sensors to be deleted, select
 ``Delete selected sensors`` from the ``Action`` dropdown, and then click
 the ``Go`` button.
 
-You can also delete an entire sensor while your are on the Editing
+You can also delete an entire sensor while you are on the Editing
 screen for that sensor. Click the ``Delete`` button in the lower left
 corner of the screen:
 
@@ -411,6 +412,9 @@ Sensor and a Building, you need to go to the edit screen for the Sensor
 and perform the following steps:
 
 .. image:: /_static/delete_association.png
+
+#. Click the checkbox to delete the building association
+#. Click save
 
 Do not use the red Delete button in the lower left corner of the screen
 as that will delete the entire sensor, not just the association between

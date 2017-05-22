@@ -26,3 +26,7 @@ div[class^="highlight"] {
 .first {
 	margin: 0px !important;
 }
+
+.rst-content .section > img, .rst-content .section > a > img {
+	margin: 0px !important;
+}
