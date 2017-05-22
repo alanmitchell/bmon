@@ -7,7 +7,7 @@ This document describes how to install the BMON application on a web
 server. The specific steps shown here apply to installation on the
 `Webfaction Hosting Service <https://www.webfaction.com/>`_, which has
 been used for the first two installations of the BMON application. The
-general goals of each step of the installation are also decscribed, to
+general goals of each step of the installation are also described, to
 assist in installation on other hosting providers or a standalone server.
 
 The assumption here is that BMON will be installed on a server running
@@ -53,7 +53,7 @@ documentation for installing Django <http://docs.webfaction.com/software/django/
 
 #. It is highly recommended that an Encrypted website (https) be
    created, because the BMON application utilizes a password-protected
-   log in screen for adminstrative access to the application. Those
+   log in screen for administrative access to the application. Those
    passwords will travel the Internet encrypted if an https site is
    used. Select ``Encrypted website (https)``. You will need to install
    an SSL certificate in order for users to not receive a security
@@ -61,7 +61,7 @@ documentation for installing Django <http://docs.webfaction.com/software/django/
    their SSL documentation <http://docs.webfaction.com/user-guide/websites.html#secure-sites-https>`_.
 
 #. In the ``Domains`` field, select or type in the domain or subdomain
-   where you want to acess the BMON site. For this example, we are
+   where you want to access the BMON site. For this example, we are
    accessing the site on the subdomain
    ``bmon.ahfctest.webfactional.com``, so we type that into the field.
    If your domain does not exist, you will get a prompt that will allow

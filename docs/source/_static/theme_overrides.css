@@ -18,15 +18,3 @@ line-height: 18px !important;
 font-size: inherit !important;
 position: relative !important;
 }
-
-div[class^="highlight"] {
-	margin: 0px !important;
-}
-
-.first {
-	margin: 0px !important;
-}
-
-.rst-content .section > img, .rst-content .section > a > img {
-	margin: 0px !important;
-}

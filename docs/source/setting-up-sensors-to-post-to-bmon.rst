@@ -3,7 +3,7 @@
 Setting Up Sensors to Post to BMON
 ==================================
 
-This documents gives specific instructions on how to set up a couple
+This document gives specific instructions on how to set up a couple
 different types of sensors to post their data to BMON system. In
 addition, general documentation is given to allow other types of sensors
 to post to BMON if they have Internet access ability and the ability to
@@ -13,7 +13,7 @@ Specific instructions are provided for:
 
 *  `Monnit Wireless Sensors <http://http://www.monnit.com/>`_
 *  The :ref:`mini-monitor`, a `Raspberry
-   Pi <https://www.raspberrypi.org/>`_ data acquistion system designed
+   Pi <https://www.raspberrypi.org/>`_ data acquisition system designed
    for the Alaska Housing Finance Corporation (AHFC) Building Monitoring
    project.
 *  `Kors HTTP Poster for Niagara AX <http://www.korsengineering.com/products/http-poster-for-niagara-ax/>`_,
@@ -107,7 +107,7 @@ If you have a building DDC control system that utilizes the Niagara AX
 software platform (e.g. the Tridium Jace system), you can add a $100
 software module from Kors Engineering that will allow you to post point
 values to the BMON system. Documentation that comes with the Kors Poster
-module will assist in its install and set up. You should use the
+module will assist in its install and configuration. You should use the
 ``PeriodicTrackerExtension`` for the Kors Poster, and the two key inputs
 in that extension are the ``Url``, which should be:
 
@@ -153,7 +153,7 @@ The essential steps involve:
 Create a Webhook on the Particle Server
 ---------------------------------------
 
-*  Assuming your are logged into your Particle account, select the
+*  Assuming you are logged into your Particle account, select the
    ``CONSOLE`` item from the right side of the top menu bar.
 *  From the resulting page, select the ``Integrations`` icon at the
    bottom of the left sidebar menu.
@@ -165,7 +165,7 @@ except the following includes sample inputs:
 
 .. image:: /_static/particle_01.png
 
-For the ``Event Name`` input, make up a name for the event that will be
+For the ``Event Name`` input, create a name for the event that will be
 published by your Particle board. In this sample, the event name was
 called ``bmon_store``.
 
@@ -220,7 +220,7 @@ two Sensor IDs, assuming the ID number of the Particle board is
     260034000c47343432313031_Tdhw
 
 The sensor readings will be timestamped with the time they were received
-at the Particle server. If you want the readings to be timestamped at
+by the Particle server. If you want the readings to be timestamped at
 some offset prior to the time they were published, you can cause that to
 occur by special formatting in the ``publish`` statement. Here is an
 example:
@@ -234,7 +234,7 @@ seconds prior to the publish time, because an ``a`` is appended to the
 ``Ttank`` reading. Since no ``a`` is appended to ``Tdhw``, its timestamp
 will be the publish time with no adjustment. The ``a=300`` part of the
 message is where the adjustment in seconds is set. The adjustment should
-be an integer value of seconds.
+be an integer value in seconds.
 
 This feature is particularly useful when the Particle board is averaging
 a number of readings over a set interval, and the average value is being
