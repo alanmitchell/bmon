@@ -74,7 +74,7 @@ documentation for installing Django <http://docs.webfaction.com/software/django/
       ``App category`` is ``Django``; the ``App type`` is a Django
       release of 1.7.3 or greater, paired with Python 2.7. (BMON does
       not work with Django versions prior to 1.7). Also, the BMON app
-      does not support Python 3.x. Leave other fields at their default
+      does not support Python 3.x. Leave the other fields at their default
       values. Click the ``Save`` button to complete the Application
       setup.
 
@@ -110,14 +110,14 @@ Set Up Email on the Web Server
 The BMON application has the ability to send out notifications when
 sensor values are outside of normal ranges. In order to do this, BMON
 needs the ability to send emails. For the Webfaction hosting service,
-email setup is describe on `this
+email setup is described on `this
 page <http://docs.webfaction.com/user-guide/email.html#sending-mail-to-a-script>`_.
 The minimum requirements for the BMON application are to set up one
 mailbox and one email address on the Webfaction system. For example,
 with a Webfaction user account name of ``ahfc``, you could set a mailbox
 with the name of ``ahfc`` and an email address of
 ``monitoring@ahfc.webfactional.com``. In a subsequent section, the
-mailbox name and password and the email address will be needed for entry
+mailbox name, password, and email address will be needed for entry
 in the BMON Django settings file.
 
 Installing the BMON Project
@@ -126,15 +126,15 @@ Installing the BMON Project
 In this step, the Python code for the BMON project is installed and
 connected to the Django application.
 
-*  Open an SSH session to the web host.
+#. Open an SSH session to the web host.
 
-*  Navigate to the Django application directory by entering
+#. Navigate to the Django application directory by entering
    ``cd $HOME/webapps/bmon_django`` and pressing Enter.
 
-*  We first need to remove the sample project that was created when we
+#. We first need to remove the sample project that was created when we
    installed Django. Enter ``rm -rf ./myproject`` and press Enter.
 
-*  Clone the BMON project into this directory by executing:
+#. Clone the BMON project into this directory by executing:
 
    ::
 
@@ -143,7 +143,7 @@ connected to the Django application.
    You should now have a ``bmon`` directory containing the BMON
    software.
 
-*  Changes are required so that Django runs this project instead of the
+#. Changes are required so that Django runs this project instead of the
    ``myproject`` project you just removed. Execute the
    ``cd $HOME/webapps/bmon_django/apache2/conf`` command to move to that
    directory. Then, change all the occurrences of ``myproject`` to
@@ -200,37 +200,37 @@ make necessary changes.
        cp settings_example.py settings.py
 
 *  Open ``settings.py`` in an editor, e.g. ``nano settings.py``. Each
-   one of the settings is documented within the file. Examine and change
-   if necessary the settings that appear before the line:
+   one of the settings is documented within the file. Examine the code and change
+   (if necessary) the settings that appear before the line:
 
    ::
 
        # --------- Generally shouldn't need to change anything beyond here ----------
 
-   Write down the BMSAPP\_STORE\_KEY that you created, as this will be
+   Write down the BMSAPP_STORE_KEY that you created, as this will be
    needed when you are setting up sensors to post to the BMON system.
 
 Create the Django Database, Install Initial Data, and Prepare Static Files
 --------------------------------------------------------------------------
 
-*  Go to the main project directory
+#. Go to the main project directory
    ``cd $HOME/webapps/bmon_django/bmon`` or ``cd ..`` if you just
    finished the prior step.
 
-*  Create the Django database file by executing:
+#. Create the Django database file by executing:
 
    ::
 
        ./manage.py migrate
 
-*  Some initial data for common sensor units, sensor categories, and a
+#. Some initial data for common sensor units, sensor categories, and a
    sample building and sensor should be loaded into the database by:
 
    ::
 
        ./manage.py loaddata init_data.yaml
 
-*  Copy the static files (images, stylesheets, JavaScript files, etc.)
+#. Copy the static files (images, stylesheets, JavaScript files, etc.)
    into the folder where they will be served by the Static Application
    you created. Do this by executing:
 
@@ -238,7 +238,7 @@ Create the Django Database, Install Initial Data, and Prepare Static Files
 
        ./manage.py collectstatic
 
-*  In order to use the Admin site for setting up sensors and buildings,
+#. In order to use the Admin site for setting up sensors and buildings,
    we need to create an admin user. To do this, execute:
 
    ::
@@ -247,9 +247,9 @@ Create the Django Database, Install Initial Data, and Prepare Static Files
 
    Enter your desired username, email, and password to complete the
    setup. The username and password created here will be the credentials
-   needed to log into the Admin site of the BMON site.
+   needed to log into the Admin side of the BMON site.
 
-*  The final stage of the process is to restart the Apache web server.
+#. The final stage of the process is to restart the Apache web server.
    Change to Apache’s bin directory by executing
    ``cd $HOME/webapps/bmon_django/apache2/bin``. Enter ``./restart`` and
    press Enter. You should now be able to view the new BMON site by
@@ -259,7 +259,7 @@ Create the Django Database, Install Initial Data, and Prepare Static Files
    logging in with the Admin user credentials setup in in step 5 of this
    section.
 
-*  If you run into any problems with your new Django application using
+#. If you run into any problems with your new Django application using
    the Webfaction hosting service, see `Django
    Troubleshooting <http://docs.webfaction.com/software/django/troubleshooting.html#django-troubleshooting>`_.
 
@@ -274,14 +274,14 @@ the file:
 
     */5 * * * * ~/webapps/bmon_django/bmon/manage.py runscript main_cron > /dev/null 2>&1
 
-This cron job: \* creates calculated reading values and stores Internet
-weather data in the reading database every half hour, \* checks for
-active Alert Conditions every five minutes, \* creates a daily status
-line in the log file indicating how many sensor readings were stored in
-the database during the past day (viewable by browsing to
-``<Domain URL>/show_log``), \* creates a backup of the main Django
-database every day, and \* creates a backup of the reading database
-every three days.
+This cron job: 
+* creates calculated reading values and stores Internet
+  weather data in the reading database every half hour
+* checks for active Alert Conditions every five minutes 
+* creates a daily status line in the log file indicating how many sensor readings were stored in
+  the database during the past day (viewable by browsing to ``<Domain URL>/show_log``) 
+* creates a backup of the main Django database every day, and 
+* creates a backup of the reading database every three days
 
 Redirecting HTTP to HTTPS
 -------------------------
@@ -323,26 +323,25 @@ Developers are frequently upgrading the BMON software on its main GitHub
 repository. In order to update your installation to the latest version,
 follow these steps:
 
-*  Open an SSH shell session to the server.
-
-*  Stop the Django application by navigating to the Apache bin
+#. Open an SSH shell session to the server.
+#. Stop the Django application by navigating to the Apache bin
    directory, ``/home/<username>/webapps/bmon_django/apache2/bin`` and
    then executing the command ``./stop``.
 
-*  Move to the ``$HOME/webapps/bmon_django/bmon`` project directory (or
+#. Move to the ``$HOME/webapps/bmon_django/bmon`` project directory (or
    use the ``cddj`` alias if you defined one in your ``.bashrc`` file.)
 
-*  Execute a ``git pull`` command to update your local copy of the BMON
+#. Execute a ``git pull`` command to update your local copy of the BMON
    software to the most recent version.
 
-*  Copy all the static files of the application to the folder where they
+#. Copy all the static files of the application to the folder where they
    are served from. Do this by executing the command
    ``./manage.py collectstatic``.
 
-*  Perform any database modifications required by the upgrade by
+#. Perform any database modifications required by the upgrade by
    executing ``./manage.py migrate``.
 
-*  Review the ``bmon/settings_example.py`` file to see if there are any
+#. Review the ``bmon/settings_example.py`` file to see if there are any
    new settings that are not present in your current
    ``bmon/settings.py`` file (``settings.py`` is not in version
    control). You do not need to look beyond the line:
@@ -354,7 +353,7 @@ follow these steps:
    If there are new settings required, edit your ``bmon/settings.py``
    file to include the new settings with appropriate values.
 
-*  Restart the Django application by navigating to the Apache bin
+#. Restart the Django application by navigating to the Apache bin
    directory, ``/home/<username>/webapps/bmon_django/apache2/bin`` and
    then executing the command ``./start``.
 
