@@ -101,7 +101,7 @@ would do the following:
 There are couple other optional but often important parameters that can
 be entered in the ``Function Parameters in YAML form`` box:
 
-| ``max_rate`` (default value = 5.0, expressed as pulses/second):  
+``max_rate`` (default value = 5.0, expressed as pulses/second):   
 Pulse count reporting errors (one common issue described below) can
 sometimes lead to an erroneous high pulse rate calculation. BMON will
 not save any sensor values if the pulse rate is above this ``max_rate``
@@ -111,7 +111,7 @@ values will be rejected if they exceed this rate. Note that there is a
 default ``max_rate`` value of 5.0 pulses/second if you do not provide a
 value in the ``Function Parameters`` box.
 
-``rollover`` (default value = 65536, largest 16 bit value): 
+``rollover`` (default value = 65536, largest 16 bit value):  
 Pulse counters usually have a maximum pulse count that they record before
 rolling over to zero. BMON will account for this rollover when
 calculating the pulse rate. Year 2014 and prior `Monnit wireless pulse
@@ -121,16 +121,16 @@ Newer Monnit pulse counters are 32 bit and roll over at 4,294,967,296.
 If you expect your pulse counter to eventually roll over, you need to
 ensure that BMON is using the correct ``rollover`` value.
 
-``ignore_zero`` (default value = ``True``, the other valid value is
-``False``): Monnit Wireless pulse counters occasionally reset to a pulse
+``ignore_zero`` (default value = ``True``, the other valid value is ``False``):  
+Monnit Wireless pulse counters occasionally reset to a pulse
 count of zero if there are transmission problems or an accidental reset
 of the sensor. So, the pulse count value of zero is usually an erroneous
 value. By leaving this ``ignore_zero`` parameter at its default value of
 ``True``, these zero pulse count readings will be ignored and no value
 will be stored until the next valid reading.
 
-``min_interval`` (default value = 60, measured in seconds): Monnit
-wireless pulse counters sometimes send the same pulse count value twice
+``min_interval`` (default value = 60, measured in seconds):  
+Monnit wireless pulse counters sometimes send the same pulse count value twice
 but with slight separation in time, resulting in a zero calculated pulse
 rate. To filter out these erroneous readings you can set a
 ``min_interval`` between valid readings, measured in seconds. If two
