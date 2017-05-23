@@ -18,3 +18,11 @@ line-height: 18px !important;
 font-size: inherit !important;
 position: relative !important;
 }
+
+.docutils.literal {
+    color: inherit !important;
+    border: none !important;
+    font-family: "Lato","proxima-nova","Helvetica Neue",Arial,sans-serif !important;
+    font-size: 100% !important;
+	line-height: 24px !important;
+}
