@@ -18,10 +18,10 @@ buildings:
 
 .. image:: /_static/multi_cur_sample.png
 
-The Value column shows the last value that each sensor has reported. Two
+The Value column shows the last value each sensor has reported. Two
 of the values are highlighted red because they have values that would
 trigger an :ref:`Alert <sensor-alerts>`. The ``When`` column indicates how
-long ago the sensor was reported. The ``Graph`` column presents a simple
+long ago the sensor reported. The ``Graph`` column presents a simple
 graph of the values so it is easier to see where each reading falls
 within the range of values presently occurring.
 

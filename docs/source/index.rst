@@ -62,10 +62,21 @@ here.
 
 Contents
 ^^^^^^^^
+:ref:`user-introduction`
+:ref:`system-administrator-introduction`
+:ref:`developer-introduction`
+:ref:`contact-info`
+
 .. toctree::
-   :maxdepth: 1
+   :maxdepth: 2
+   :caption: Users
    
    user-introduction
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: System Administrators   
+   
    system-administrator-introduction
    how-to-install-BMON-on-a-web-server
    adding-buildings-and-sensors
@@ -80,18 +91,19 @@ Contents
    archiving-and-analyzing-data-from-the-system
    mini-monitor
    system-performance-with-high-loading
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Developers
+   
    developer-introduction
    bmon-architecture
    writing-periodic-scripts
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: Contact Info
+   
    contact-info
  
  
-
-
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
-* :ref:`search`
