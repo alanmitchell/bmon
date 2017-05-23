@@ -3,12 +3,11 @@
 Custom Reports
 ==============
 
+Custom Reports give you the ability to combine any number of BMON
+charts and reports together into a single page, and gives you the ability 
+to add explanatory text and include images and content from other websites.
 
-*Custom Reports* give you the ability to combine any number of BMON
-charts and reports together into a single page, to add explanatory text
-and even to include images and content from other websites.
-
-In the BMON interface, *Custom Reports* are accessed from the navigation
+In the BMON interface, ``Custom Reports`` are accessed from the navigation
 link in the page header. After clicking the navigation link you'll be
 presented with a list of all the reports that have been configured on
 your system. The reports are grouped under headings, and the title of
@@ -53,19 +52,19 @@ Here are the inputs for entering a new Custom Report:
 
 There are many great resources online for learning to use Markdown
 syntax, including `this tutorial <http://www.markdowntutorial.com/>`_.
-There is also some more information on adding links and images under the
+There is more information on adding links and images under the
 BMON documentation for :ref:`adding-buildings-and-sensors`.
 
 The easiest way to embed a BMON chart, report, or dashboard is to
 navigate to the chart on your BMON system (in the regular interface, not
 the Admin interface), and to click the ``-- Get Link --`` link that is
 below the bottom right corner of the chart. Here is an example of where
-the ``-- Get Link --`` appears:
+the -- Get Link -- option appears:
 
 .. image:: /_static/get_link.png
 
 Clicking the link will bring up a dialog that shows the text that you
-need to include in custom report to embed the chart. Click the
+need to include in the custom report to embed the chart. Click the
 ``Copy to Clipboard`` button and then paste (Ctrl+V) the text into the
 *Report Content* for the Custom Report that you are building. The text
 will look something like this:
