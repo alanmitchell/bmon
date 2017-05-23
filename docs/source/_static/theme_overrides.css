@@ -19,4 +19,6 @@ font-size: inherit !important;
 position: relative !important;
 }
 
-
+.caption-text {
+	color: white !important;
+}

@@ -59,22 +59,16 @@ Contact information for key BMON personnel and developers is available
 here.
 
 
-
-Contents
-^^^^^^^^
-* :ref:`user-introduction`
-* :ref:`system-administrator-introduction`
-* :ref:`developer-introduction`
-* :ref:`contact-info`
-
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: Users
    
    user-introduction
    
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: System Administrators   
    
    system-administrator-introduction
@@ -94,6 +88,7 @@ Contents
    
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: Developers
    
    developer-introduction
@@ -102,6 +97,7 @@ Contents
    
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: Contact Info
    
    contact-info
