@@ -12,7 +12,7 @@ Transform Expressions are used for a number of purposes, including:
    Transform Expression before storage into the system.
 *  Pulse counts generally should be converted into a rate value
    (units/second or units/hour), as counts do not always arrive at equal
-   intervals due to wireless transmission issues and due to the User
+   intervals due to wireless transmission issues and due to users
    changing the time interval that a sensor reports. Special Transform
    Expressions can be used to convert the pulse counts into a rate
    value.
@@ -21,14 +21,14 @@ Simple Transform Expressions
 ----------------------------
 
 Transform Expressions are entered on the Sensor editing screen. The
-screenshot below shows a Transform Expression that is to adjust the
+screenshot below shows a Transform Expression to adjust the
 reading from a Light Sensor, correcting for light reducing paint that
 covers the sensor.
 
 .. image:: /_static/transform_ex1.png
 
 In the ``Transform or Calculated Field Function Name`` box you can see
-the transform expression: ``val*35.0 - 140.0``. The variable ``val`` is
+the transform expression ``val*35.0 - 140.0``. The variable ``val`` is
 always available in a Transform Expression and it contains the raw
 sensor value that was posted. This transform multiplies that raw value
 by 35.0 and then subtracts 140.0. When creating these expressions, you
@@ -55,7 +55,7 @@ material flowing through the meter. The pulse output of the meter can be
 connected to a pulse counter that reports total pulse counts to the BMON
 system. It is generally desirable to convert these pulse count totals
 into a rate of flow of energy, fluid, or gas. By converting to a rate
-(units / second), variations in the length of the interval measured by
+(units/second), variations in the length of the interval measured by
 the pulse counter are factored out of the measured value.
 
 Special pulse counter Transform features were developed to address this
@@ -78,7 +78,7 @@ second indicated by the last pulse count reading received relative to
 the prior pulse count reading. This pulse rate is stored in the variable
 ``rate``. As an example, assume that the last pulse count received was a
 total count of 10,435. The prior pulse count reading from the sensor was
-9,623 and it was receive 605 seconds prior to the current reading. The
+9,623 and it was received 605 seconds prior to the current reading. The
 pulse rate that occurred between the two readings was
 ``(10435 - 9623) / 605 = 1.342 pulses/second``. This value of 1.342 is
 automatically stored in the ``rate`` variable.
@@ -91,8 +91,9 @@ would do the following:
 ::
 
     rate (pulses/sec)  *  1,010 Btus/pulse  *  3,600 sec/hour
-        which is
-    rate * 3636000
+    
+	which is rate * 3636000
+    
 
 ``rate * 3636000`` is the expression shown in the
 ``Transform or Calculated Field Function Name`` box.
@@ -100,8 +101,8 @@ would do the following:
 There are couple other optional but often important parameters that can
 be entered in the ``Function Parameters in YAML form`` box:
 
-``max_rate`` (default value = 5.0, expressed as pulses/second):
-Pulse count reporting errors (one common one described below) can
+| ``max_rate`` (default value = 5.0, expressed as pulses/second):
+| Pulse count reporting errors (one common issue described below) can
 sometimes lead to an erroneous high pulse rate calculation. BMON will
 not save any sensor values if the pulse rate is above this ``max_rate``
 value. For the example above, a maximum pulse rate 1.5 pulses per second
@@ -110,8 +111,8 @@ values will be rejected if they exceed this rate. Note that there is a
 default ``max_rate`` value of 5.0 pulses/second if you do not provide a
 value in the ``Function Parameters`` box.
 
-``rollover`` (default value = 65536, largest 16 bit value): Pulse
-counters usually have a maximum pulse count that they record before
+``rollover`` (default value = 65536, largest 16 bit value): 
+Pulse counters usually have a maximum pulse count that they record before
 rolling over to zero. BMON will account for this rollover when
 calculating the pulse rate. Year 2014 and prior `Monnit wireless pulse
 counters <http://www.monnit.com/ProductSearch?SortBy=Rank&Asc=False+&PageSize=12&ProductCategory=1&SensorType=32&SensorProfile=30>`_
