@@ -147,23 +147,25 @@ form.
 **``energy_type_id`` Parameter**
 
 Possible values for the energy_type_id parameter: 
-1 Electric 
-2 Natural Gas 
-3 Propane
-6 Coal 
-7 Demand - Electric 
-8 Demand - Nat Gas 
-10 Steam District Ht 
-11 Hot Wtr District Ht
-12 Spruce Wood 
-13 Birch Wood  
-14 #1 Fuel Oil 
-15 #2 Fuel Oil
+
+* 1 Electric 
+* 2 Natural Gas 
+* 3 Propane
+* 6 Coal 
+* 7 Demand - Electric 
+* 8 Demand - Nat Gas 
+* 10 Steam District Ht 
+* 11 Hot Wtr District Ht
+* 12 Spruce Wood 
+* 13 Birch Wood  
+* 14 #1 Fuel Oil 
+* 15 #2 Fuel Oil
 
 **``energy_parameter`` Optional Parameter**
 
 The energy_parameter specifies which value will be read from the ARIS
 database: 
+
 * EnergyQuantity: The amount of energy used 
 * DollarCost: The cost of energy for the given month  
 * DemandUse: The amount of energy demand 
