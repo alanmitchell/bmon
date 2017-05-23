@@ -137,14 +137,14 @@ Additional Optional Function Parameters in YAML form:
     energy_multiplier: 1
     expected_period_months: 1
 
-**``building_id`` Parameter**
+``building_id`` **Parameter**
 
 The easiest way to find a building_id value is to look on the
 'Commercial REAL Form' in the ARIS user interface. When you select a
 building the building_id should show up in the upper left corner of the
 form.
 
-**``energy_type_id`` Parameter**
+``energy_type_id`` **Parameter**
 
 Possible values for the energy_type_id parameter: 
 
@@ -161,7 +161,7 @@ Possible values for the energy_type_id parameter:
 * 14 #1 Fuel Oil 
 * 15 #2 Fuel Oil
 
-**``energy_parameter`` Optional Parameter**
+``energy_parameter`` **Optional Parameter**
 
 The energy_parameter specifies which value will be read from the ARIS
 database: 
@@ -174,7 +174,7 @@ database:
 A value of 'EnergyQuantity' will be used by default if you don't include
 this parameter.
 
-**``energy_multiplier`` Optional Parameter**
+``energy_multiplier`` **Optional Parameter**
 
 The energy_multiplier is a multiplier that is used to scale the value
 that is read from the ARIS database. If you don't include the parameter,
@@ -188,7 +188,7 @@ calculated as:
 *  For DemandUse:
    ``[stored value] = [value from ARIS] * energy_multiplier``
 
-**``expected_period_months`` Optional Parameter**
+``expected_period_months`` **Optional Parameter**
 
 In rare cases where the normal read period for the energy usage is something other
 than one month, you can enter a different number of months using this
@@ -204,9 +204,9 @@ To use the BMON ARIS functionality you need to enter the URL, Username
 and Password in your installation's settings.py file. The required
 settings parameters are:
 
--  ``BMSAPP_ARIS_URL``
--  ``BMSAPP_ARIS_USERNAME``
--  ``BMSAPP_ARIS_PASSWORD``
+*  ``BMSAPP_ARIS_URL``
+*  ``BMSAPP_ARIS_USERNAME``
+*  ``BMSAPP_ARIS_PASSWORD``
 
 Converting On/Off Events into Runtime Fraction
 ----------------------------------------------
