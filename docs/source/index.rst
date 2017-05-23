@@ -62,10 +62,10 @@ here.
 
 Contents
 ^^^^^^^^
-:ref:`user-introduction`
-:ref:`system-administrator-introduction`
-:ref:`developer-introduction`
-:ref:`contact-info`
+* :ref:`user-introduction`
+* :ref:`system-administrator-introduction`
+* :ref:`developer-introduction`
+* :ref:`contact-info`
 
 .. toctree::
    :maxdepth: 2
