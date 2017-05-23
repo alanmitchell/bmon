@@ -1,5 +1,7 @@
 .. _transform-expressions:
 
+.. |br| raw:: html
+
 Transform Expressions
 =====================
 
@@ -101,15 +103,15 @@ would do the following:
 There are couple other optional but often important parameters that can
 be entered in the ``Function Parameters in YAML form`` box:
 
-| ``max_rate`` (default value = 5.0, expressed as pulses/second):
-| Pulse count reporting errors (one common issue described below) can
-| sometimes lead to an erroneous high pulse rate calculation. BMON will
-| not save any sensor values if the pulse rate is above this ``max_rate``
-| value. For the example above, a maximum pulse rate 1.5 pulses per second
-| is set. This corresponds to a 5,454,000 Btu/hour rate. Reported sensor
-| values will be rejected if they exceed this rate. Note that there is a
-| default ``max_rate`` value of 5.0 pulses/second if you do not provide a
-| value in the ``Function Parameters`` box.
+``max_rate`` (default value = 5.0, expressed as pulses/second): |br|
+Pulse count reporting errors (one common issue described below) can
+sometimes lead to an erroneous high pulse rate calculation. BMON will
+not save any sensor values if the pulse rate is above this ``max_rate``
+value. For the example above, a maximum pulse rate 1.5 pulses per second
+is set. This corresponds to a 5,454,000 Btu/hour rate. Reported sensor
+values will be rejected if they exceed this rate. Note that there is a
+default ``max_rate`` value of 5.0 pulses/second if you do not provide a
+value in the ``Function Parameters`` box.
 
 ``rollover`` (default value = 65536, largest 16 bit value): 
 Pulse counters usually have a maximum pulse count that they record before
