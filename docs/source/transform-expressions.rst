@@ -1,7 +1,5 @@
 .. _transform-expressions:
 
-.. |br| raw:: html
-
 Transform Expressions
 =====================
 
@@ -103,7 +101,7 @@ would do the following:
 There are couple other optional but often important parameters that can
 be entered in the ``Function Parameters in YAML form`` box:
 
-``max_rate`` (default value = 5.0, expressed as pulses/second): |br| 
+| ``max_rate`` (default value = 5.0, expressed as pulses/second):  
 Pulse count reporting errors (one common issue described below) can
 sometimes lead to an erroneous high pulse rate calculation. BMON will
 not save any sensor values if the pulse rate is above this ``max_rate``
