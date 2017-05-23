@@ -3,16 +3,14 @@
 Sensor Alerts
 =============
 
-
-You can have BMON send you a text message, an email, or a Pushover
+You can have BMON send you a text message, email, or a Pushover
 notification (explained later) if important sensor conditions occur,
-such as Alarm conditions or too low/high of temperatures. These Alert
-conditions are set up through the BMON Admin interface. To configure
+such as Alarm conditions or too low/high of temperatures. To configure
 Alerts, you first must log into the Admin interface, as explained in
 :ref:`adding-buildings-and-sensors`. Once into the Admin
-interface, there are two main tasks--adding Alert Recipients who are
-people that receive alert notifications, and adding the actual Sensor
-Alert Conditions. This tasks are described in the sections below.
+interface, there are two main tasks--adding Alert Recipients (people that 
+receive alert notifications), and adding the actual Sensor
+Alert Conditions. These tasks are described in the sections below.
 
 Adding Alert Recipients
 -----------------------
@@ -20,12 +18,12 @@ Adding Alert Recipients
 An Alert Recipient is a person who will receive a notification when an
 Alert occurs. When the actual Alert Condition is set up, you will choose
 which Alert Recipients are notified for that Alert. From the Home screen
-of the Admin interface, click the link shown below to add an Alert
-Recipient or change information about an existing recipient:
+of the Admin interface, click the ``Alert recipients`` link shown below to add an Alert
+Recipient or change information for an existing recipient:
 
 .. image:: /_static/main_scr_config_alert.png
 
-And then on the next screen, do as shown below to add a recipient:
+Then on the next screen, click on ``Add alert recipient`` as shown below to add a recipient:
 
 .. image:: /_static/add_alert_recip.png
 
@@ -75,7 +73,7 @@ Adding Alert Conditions
 
 You add an Alert Condition to a specific sensor in the BMON system. So,
 you first need to access the screen that allows you to edit information
-about the particular Sensor. To do this, return the ``Home`` screen by
+about the particular Sensor. To do this, return the Home screen by
 clicking the ``Home`` link in the upper left corner of whatever Admin
 screen you are currently on. Next, click the ``Sensors`` link in the
 left column as shown below:
@@ -83,18 +81,18 @@ left column as shown below:
 .. image:: /_static/main_scr_config_sensor.png
 
 Next, you need to find the Sensor that you want to configure an Alert
-condition for. Remmber that you can Filter sensors by Building by using
+condition for. Remember that you can Filter sensors by Building by using
 the Filter box at the right hand side of the screen. Once you locate the
 Sensor, click it to bring up its Edit screen.
 
-The Alert Condition section is at the bottom of the Sensor edit screen,
+The Alert Conditions section is at the bottom of the Sensor edit screen,
 as shown in the screenshot below:
 
 .. image:: /_static/add_alert_condx.png
 
-After clicking the link to add an Alert condition, the screen below
-appears to allow for configuration of the Alert. For the screenshot
-below, the inputs have already been filled in but will be described
+After clicking the link to ``Add another Alert condition``, you are taken
+to the ``Alert conditions`` page as seen below, to allow for configuration of the Alert. 
+In the screenshot below, the inputs have already been filled in but will be described
 next:
 
 .. image:: /_static/alert_edit.png
@@ -111,7 +109,7 @@ below or is less than a certain value. The ``This value:`` input lets us
 set the trigger value, which in this case is 140 deg F.
 
 We will discuss the next two inputs related to Building mode later. In
-this example they are not used and left with no selections.
+this example they are not used and are left with no selections.
 
 BMON will automatically create a relevant ``Alert message``, or you can
 type your own message in the ``Alert message`` box. We have left the
@@ -121,7 +119,7 @@ You can select a priority for this Alert in the
 ``Priority of this Alert Situation`` dropdown. For text messages and
 Emails, this has little effect other than affecting the text in the
 Subject line of the message. For Pushover notifications, the priority
-setting will affect the alert tones, and a setting of ``Emergency`` will
+setting will affect the alert tones, selecting ``Emergency`` will
 force the User to acknowledge the Alert or the Alert will continue to
 repeat every 5 minutes.
 
@@ -190,4 +188,4 @@ automatic determination of the building operating mode.
 BMON comes pre-configured with the ``Winter`` and ``Summer`` operating
 mode choices. On the main Admin screen you will find a link to
 ``Building Modes`` where you can add and delete Building Operating Modes
-so they are appropriate for your situation.
+so they fit your needs.

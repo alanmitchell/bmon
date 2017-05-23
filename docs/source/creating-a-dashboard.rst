@@ -21,13 +21,13 @@ To create a Dashboard for a building, log into the Admin interface and
 navigate to the screen that allows you to edit or configure the
 building. More details are provided in :ref:`adding-buildings-and-sensors` but the basic steps are:
 
-*  Go to the main Home screen for the Admin Interface by clicking the
+#. Go to the main Home screen for the Admin Interface by clicking the
    ``Home`` link in the upper left corner of your current screen.
-*  Click the ``Buildings`` link in the left column of the ``Home``
+#. Click the ``Buildings`` link in the left column of the ``Home``
    screen.
-*  Click on the Building that you wish to add the Dashboard to.
+#. Click on the Building that you wish to add the Dashboard to.
 
-At the very bottom of the editing page for the building should be a
+At the very bottom of the edit page for the building should be a
 section for Dashboard items and the first blank Dashboard item is shown:
 
 .. image:: /_static/dashboard_item_blank.png
@@ -38,12 +38,12 @@ in the first row (three Graphs), and four Widgets in the second row (an
 LED and three Graphs). So, to create this Dashboard, you would need to
 enter seven different Dashboard items for the building.
 
-A blank Dashboard item is provided to start with, and additional items
+A blank Dashboard item is provided to start, and additional items
 are created by clicking the ``Add another Dashboard item`` link at the
 bottom of the page. When finished entering items, click the ``Save``
 button for the Building found in the lower right corner of the page. If
 you would like to save your work before finishing all Dashboard items,
-click the ``Save and continue editing`` button, which will leave on the
+click the ``Save and continue editing`` button, which will leave you on the
 editing screen.
 
 Here are sample inputs for a Graph Widget:
@@ -55,7 +55,7 @@ Widget types, ``Graph`` being the selection here. Next, you need to
 specify where this Widget is to be located in the Dashboard. Row and
 column numbering starts with 1, and this Graph is to be located in the
 second column of the first row. It is best to sketch out your Dashboard
-before entering values so that it is easy to determine row and column
+before entering values so it's easy to determine row and column
 locations of the Widgets.
 
 Next, the Sensor that you wish to display in this Graph is selected in
@@ -63,11 +63,11 @@ the ``Sensor`` dropdown. If you want to title the Graph with something
 other than the Sensor's title, you can enter the new title in the
 optional ``Widget Title`` box.
 
-If you look at the pictures of the Graph control above, you see that a
+If you look at the pictures of the Graph control (the first image in this document), you see that a
 portion of the vertical scale is colored Green. The Green area
 designates the normal range of sensor values. You enter the normal range
 by filling in the ``Minimum normal value`` and ``Maximum normal value``
-inputs for the Dashboard item. For this example, the normal ranges goes
+inputs for the Dashboard item. For this example, the normal range goes
 from a minimum value of 50 kW to a maximum value of 180 kW. You will
 also note in the pictures above that if the most recent value of the
 sensor falls outside the Normal range, the dot on the graph and the
@@ -75,7 +75,7 @@ sensor value label are colored Red as opposed to the normal black.
 
 Finally, the Graph Y-Axis has a starting value and ending value. BMON
 will make reasonable estimates for these given what you put in for the
-Normal range. But, if you want to explicitly specify the full range
+Normal range. But, if you want to explicitly specify the full range of the
 vertical axis, you can enter values for ``Minimum axis value`` and/or
 ``Maximum axis value``. In this example, the Minimum axis value is 0 kW
 and the Maximum axis value is 250 kW.
@@ -108,7 +108,7 @@ linked to any sensor. The only inputs that are used are the
 ``Widget type``, ``Row number``, ``Column number``, and
 ``Widget Title``, which is the label that will be displayed.
 
-To delete any Dashboard items, check the ``Delete`` box on the right
+To delete any Dashboard items, check the ``Delete`` checkbox on the right
 side of the inputs for the item (not shown in the image above). Then
 click the ``Save`` button in the lower right corner of the page. *Do
 Not* click the red ``x Delete`` button in the lower left corner of the
