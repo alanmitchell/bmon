@@ -28,7 +28,7 @@ within the range of values presently occurring.
 To create this type of report, you first need to write down the Sensor
 IDs and the associated Building for each sensor that you want to include
 in the report. Log into the Admin interface of BMON as described in
-:ref`adding-buildings-and-sensors`, and click on the
+:ref:`adding-buildings-and-sensors`, and click on the
 ``Sensors`` link on the left side of the page. All of the Sensors
 currently entered into BMON will be shown. Find the sensors that you
 want to include in your report, perhaps using the Filter feature shown
