@@ -8,12 +8,12 @@ Calculated Fields are used for two purposes:
 *  to calculate new sensor readings from other readings that are in the
    sensor database.
 *  to add sensor readings gathered from the Internet. The current
-   implementation allows for acquistion of temperature and wind speed
+   implementation allows for acquisition of temperature and wind speed
    data from Internet weather services.
 
 A Calculated Field uses the same editing form in BMON as a standard
 Sensor does. So, to add a Calculated Field, you follow the normal
-procedure for adding a Sensor, as described in :ref:`this document <adding-buildings-and-sensors>`. 
+procedure for adding a Sensor, as described in :ref:`adding-buildings-and-sensors`. 
 The important configuration differences
 relative to a standard sensor are:
 
@@ -43,7 +43,7 @@ an example of the needed configuration for the National Weather Service:
 
 .. image:: /_static/calc_ex1.png
 
-In the top box, a Sensor ID has been created, in this example:
+In the first box, a Sensor ID has been created, in this example:
 ``elmendorf_temp``. ``Title`` and ``Unit`` entries are filled out as
 they are for standard sensors. The ``Calculated Field`` box must be
 checked. For gathering outdoor dry-bulb temperature, the
@@ -77,7 +77,7 @@ that key into the :ref:`BMON Settings File <how-to-install-BMON-on-a-web-server>
 as the ``BMSAPP_WU_API_KEY`` setting (restarting the Django web
 application after changing a setting is necessary).
 
-Here is a sample configuration for acquiring temperature data from the
+Here is an example configuration for acquiring temperature data from the
 service:
 
 .. image:: /_static/calc_ex2.png
@@ -98,9 +98,9 @@ The key differences from the National Weather Service configuration are:
         stn: pws:KAKANCHO124
         stn2: pws:MD0691
 
-For how to form station codes, see the `Weather Underground API
+For information on how to form station codes, see the `Weather Underground API
 documentation <http://www.wunderground.com/weather/api/d/docs?d=data/index>`_
-for the ``query`` pararmeter. In this example, two personal weather
+for the ``query`` parameter. In this example, two personal weather
 stations are being used with station IDs of ``KAKANCH0124`` and
 ``MD0691``.
 
@@ -137,39 +137,44 @@ Additional Optional Function Parameters in YAML form:
     energy_multiplier: 1
     expected_period_months: 1
 
-``building_id`` Parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^
+**``building_id`` Parameter**
 
-The easiest way to find a building\_id value is to look on the
+The easiest way to find a building_id value is to look on the
 'Commercial REAL Form' in the ARIS user interface. When you select a
-building the building\_id should show up in the upper left corner of the
+building the building_id should show up in the upper left corner of the
 form.
 
-``energy_type_id`` Parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**``energy_type_id`` Parameter**
 
-Possible values for the energy\_type\_id parameter: - 1: 'Electric' - 2:
-'Natural Gas' - 3: 'Propane' - 6: 'Coal' - 7: 'Demand - Electric' - 8:
-'Demand - Nat Gas' - 10: 'Steam District Ht' - 11: 'Hot Wtr District Ht'
-- 12: 'Spruce Wood' - 13: 'Birch Wood' - 14: '#1 Fuel Oil' - 15: '#2
-Fuel Oil'
+Possible values for the energy_type_id parameter: 
+1 Electric 
+2 Natural Gas 
+3 Propane
+6 Coal 
+7 Demand - Electric 
+8 Demand - Nat Gas 
+10 Steam District Ht 
+11 Hot Wtr District Ht
+12 Spruce Wood 
+13 Birch Wood  
+14 #1 Fuel Oil 
+15 #2 Fuel Oil
 
-``energy_parameter`` Optional Parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**``energy_parameter`` Optional Parameter**
 
-The energy\_parameter specifies which value will be read from the ARIS
-database: - EnergyQuantity: The amount of energy used - DollarCost: The
-cost of energy for the given month - DemandUse: The amount of energy
-demand - DemandCost: The cost of energy demand for the given month, in
-dollars
+The energy_parameter specifies which value will be read from the ARIS
+database: 
+* EnergyQuantity: The amount of energy used 
+* DollarCost: The cost of energy for the given month  
+* DemandUse: The amount of energy demand 
+* DemandCost: The cost of energy demand for the given month, in dollars
 
 A value of 'EnergyQuantity' will be used by default if you don't include
 this parameter.
 
-``energy_multiplier`` Optional Parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**``energy_multiplier`` Optional Parameter**
 
-The energy\_multiplier is a multiplier that is used to scale the value
+The energy_multiplier is a multiplier that is used to scale the value
 that is read from the ARIS database. If you don't include the parameter,
 a value of 1.0 will be used by default. The value that is stored is
 calculated as:
@@ -181,18 +186,17 @@ calculated as:
 *  For DemandUse:
    ``[stored value] = [value from ARIS] * energy_multiplier``
 
-``expected_period_months`` Optional Parameter
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+**``expected_period_months`` Optional Parameter**
 
-In rare cases where the normal read period for the energy usage is other
+In rare cases where the normal read period for the energy usage is something other
 than one month, you can enter a different number of months using this
 parameter. This value is used for estimating the previous read date when
 the date wasn't set for the previous entry in ARIS, and for detecting
-missing data when the previous read date is more than 1.75 \* [expected
+missing data when the previous read date is more than 1.75 * [expected
 period months] earlier than the current read date.
 
 Additional Required Settings
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+----------------------------
 
 To use the BMON ARIS functionality you need to enter the URL, Username
 and Password in your installation's settings.py file. The required
@@ -208,12 +212,12 @@ Converting On/Off Events into Runtime Fraction
 Some sensors record the precise time of On and Off events. An example of
 such a sensor is a Monnit Dry Contact sensor. This sensor posts a
 reading every time its two contacts are closed or are opened, and the
-sensor is often used to record when a device turns on and turns off. As
-well as seeing the exact times that a device turned on and turned off,
+sensor is often used to record when a device turns on and turns off. In
+addition to seeing the exact times a device turned on and turned off,
 it is often useful to record the *percentage of time* that the device
 was on during evenly spaced intervals.
 
-To provide this addtional information, a special Calculated Field
+To provide this additional information, a special Calculated Field
 function is provided in BMON. The function will create a separate
 "sensor" in the BMON system that shows the fraction of time that a
 device was On for every half-hour interval (or other user-configurable
@@ -255,7 +259,7 @@ Estimating Pellet Consumption and Heat Output of an Okofen Pellet Boiler
 A `Periodic
 Script <https://github.com/alanmitchell/bmon/wiki/Periodic-Scripts#collect-data-from-okofen-wood-pellet-boilers>`_
 is available to collect data from Okofen Wood Pellet Boilers. One of the
-Sensors collected indicates the Status of the boiler (the P241 sensor).
+Sensors indicates the Status of the boiler (the P241 sensor).
 If the Boiler Status is in state 5 or 6, then the boiler is firing,
 consuming pellets, and producing heat. A special calculated field has
 been created, ``OkoValueFromStatus``, that allows you to create a new
@@ -265,7 +269,7 @@ in use:
 
 .. image:: /_static/oko_value_func.png
 
-Here are the two critical parameters that should be provided for the
+There are the two critical parameters that should be provided for the
 function, shown here with example values:
 
 ::
@@ -302,16 +306,19 @@ the section following the table.
 | Function Name    | Expression Performed                                           |
 +==================+================================================================+
 | linear           | | ``slope * val + offset``                                     |
+|                  | |                                                              |
 |                  | | ``slope``  default is 1.0                                    |
 |                  | | ``offset`` default is 0.0                                    |
 +------------------+----------------------------------------------------------------+
 | AminusB          | | ``A - B``                                                    |
 +------------------+----------------------------------------------------------------+
 | AplusBplusCplusD | | ``A + B + C + D``                                            |
+|                  | |                                                              |
 |                  | | ``C`` default is 0.0                                         |
 |                  | | ``D`` default is 0.0                                         |
 +------------------+----------------------------------------------------------------+
 | fluidHeatFlow    | | ``flow * (Thot - Tcold  * multiplier * (1.0-heat_recovery)`` |
+|                  | |                                                              |
 |                  | | ``heat_recovery`` default is 0.0                             |
 +------------------+----------------------------------------------------------------+
 
