@@ -21,7 +21,7 @@ buildings:
 The Value column shows the last value each sensor has reported. Two
 of the values are highlighted red because they have values that would
 trigger an :ref:`Alert <sensor-alerts>`. The ``When`` column indicates how
-long ago the sensor reported. The ``Graph`` column presents a simple
+long ago the sensor reported in. The ``Graph`` column presents a simple
 graph of the values so it is easier to see where each reading falls
 within the range of values presently occurring.
 
@@ -32,11 +32,11 @@ in the report. Log into the Admin interface of BMON as described in
 ``Sensors`` link on the left side of the page. All of the Sensors
 currently entered into BMON will be shown. Find the sensors that you
 want to include in your report, perhaps using the Filter feature shown
-present on the right side of the page, which allows you to narrow the
+on the right side of the page, which allows you to narrow the
 list to a particular building. Once you have found a sensor to include,
 write down it's Sensor ID, which is the text that appears prior to the
 colon. Also write down the Building name associated with the Sensor. In
-the sample shown below, two different Sensor IDs are highlighed in
+the sample shown below, two different Sensor IDs are highlighted in
 yellow: ``28.EFED4C050000`` and ``Burt158_alarm_code``.
 
 .. image:: /_static/sensor_ids.png
@@ -60,22 +60,22 @@ report:
 
 You fill in the ``Title`` field with a name for this report. This will
 be the name that the User sees when they are selecting the report. From
-the ``Type of Chart`` dropdown, you need to select
+the ``Type of Chart`` dropdown, select
 ``Current Sensor Values``. ``General Chart Parameters in YAML Form`` is
 left blank for this type of report. ``Sort Order`` is a number used to
 sort all of the multi-building reports. Pick a number that puts this
 report in the desired position relative to other multi-building reports.
-Counting by 10s with these numbers is a good idea so other reports can
-be inserted in the list later.
+Counting by 10s with these numbers is recommended so other reports can
+be added to the list later.
 
 Next, move on to the ``Chart building infos`` section of the inputs. If
-you just started creating the report, there will a blank
-``Chart building infos`` item to fill out. You fillout one of these for
+you just started creating the report, there will be a blank
+``Chart building infos`` item to fill out. You fill out one of these for
 each Building that will appear in your report. In the sample shown
 above, the ``Glacierview`` building was selected from the dropdown as
 the first Building to show in report. Next, the large box in the
 ``Chart Parameters in YAML Form`` needs to be filled out with the Sensor
-IDs from the Glacierview building that you want to appear in the report.
+IDs from the building that you want to appear in the report.
 For each sensor you want to include, enter it on a separate line with a
 dash and a space preceding it, ``-``. Here is the exact format for two
 Sensors having the IDs ``29931`` and ``29929``:
@@ -85,13 +85,13 @@ Sensors having the IDs ``29931`` and ``29929``:
     - 29931
     - 29929
 
-The ``Sort Order`` columns affects where this building will appear in
+The ``Sort Order`` column affects where this building will appear in
 the list of buildings that are included in the report.
 
 Once you complete one Building, use the
 ``Add another Chart building info`` link to bring up another blank form
 for the next building to include in your report. Continue this process
-until all the desired Buildings/Sensors have been entered for the
+until all desired Buildings/Sensors have been entered for the
 report. Click the ``Save`` button in the lower right corner to complete
 the report. It will now be available for Users to view.
 
@@ -99,13 +99,13 @@ Energy/ft2 Chart
 ----------------
 
 This chart allows the User to compare the Energy Use per square foot of
-building across multiple buildings. Here is a sample of the chart:
+building across multiple buildings. Here is a sample chart:
 
 .. image:: /_static/energy_use.png
 
 To use this type of chart, each building that you want to include in the
 chart must have one sensor (it can be a :ref:`Calculated Field <calculated-fields>`) 
-that measures the rate of energy use that you want to compare
+that measures the rate of energy use you want to compare
 across buildings. Also, the rate of energy use must be expressed in the
 same units for each building. In the example chart above, the chart
 compares electricity use per square foot across three buildings. Each
@@ -113,7 +113,7 @@ one of buildings has a sensor that measures the rate of electricity use
 in kW for the building. So, the prerequisites for this chart type are
 satisfied.
 
-Here are Multi-Building Chart inputs that created the above chart:
+Here are the Multi-Building Chart inputs that created the chart above:
 
 .. image:: /_static/energy_use_inputs.png
 
@@ -170,7 +170,7 @@ and ``id_value`` entry. The floor area entry should be the floor area of
 the building in square feet. The ``id_value`` entry is the Sensor ID of
 the sensor that is measuring energy use in this building (the
 instructions above for the Current Sensor Values Report for finding
-Sensor IDs apply here as well). Format of entry is important; there must
+Sensor IDs apply here as well). The format of the entry is important; there must
 be a space after the colon in each line:
 
 ::
@@ -189,13 +189,13 @@ Here is an example of the chart:
 
 .. image:: /_static/energy_dd.png
 
-As before with the ``Energy / ft2`` chart, each building that you want
+As before with the ``Energy/ft2`` chart, each building that you want
 to include in the chart must have one sensor (it can be a :ref:`Calculated Field <calculated-fields>`) 
-that measures the rate of energy use that
+that measures the rate of energy use 
 you want to compare across buildings. Also, the rate of energy use must
 be expressed in the same units for each building. Finally, there must be
 an outdoor temperature sensor available for each building in the chart.
-These "sensors" can be weather stations accessible across the Internet,
+These "sensors" can be weather stations accessible over the Internet,
 as explained in :ref:`calculated-fields`.
 
 Here are the main inputs and the inputs for the first two buildings that
@@ -203,7 +203,7 @@ are present in the above chart:
 
 .. image:: /_static/energy_dd_inputs.png
 
-From the ``Type of Chart`` dropdown, ``Energy / Degree-Day /f2`` is
+From the ``Type of Chart`` dropdown, ``Energy/Degree-Day/f2`` is
 selected. There are three important inputs in the
 ``General Chart Parameters`` box. The ``base_temp`` input allows you to
 specify the base temperature used when calculating heating degree days.
