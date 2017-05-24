@@ -23,4 +23,4 @@ describes generally the implementation approach.
 on a repeated basis. These scripts can be used to collect data from
 external sources, run reports, or perform maintenance tasks. This document
 describes how a Developer can write custom Periodic Scripts to be run by BMON.
-
+   
