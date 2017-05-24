@@ -30,14 +30,14 @@ standard Django database that is generated from the
 `Models <https://docs.djangoproject.com/en/1.8/topics/db/models>`_ in
 the Django application.
 
-The User interacts with the BMON applicaton through a web browser. The
+The User interacts with the BMON application through a web browser. The
 Django server app supplies HTML documents and associated JavaScript to
 the user's browser. The browser application issues AJAX requests back to
 the server to supply data to the charts and reports used to analyze the
 sensor data. As well as viewing and analyzing sensor data, a user can
 log into the BMON application through the `Django Admin
 interface <https://docs.djangoproject.com/en/1.8/intro/tutorial02>`_ and
-configure the applcation. Adding buildings, sensors, alert conditions,
+configure the application. Adding buildings, sensors, alert conditions,
 etc. is done through the Admin interface.
 
 Details on Django Server Application
@@ -105,7 +105,7 @@ application. The Django template used to create the page is the
 
 **get_report_results()**: The Reports page in the browser is a
 `Single Page Application <https://en.wikipedia.org/wiki/Single-page\_application>`_.
-When the User makes a change to the input controls on that page that
+When the User makes a change to the input controls on the page that
 affects the report or chart, this function is called by the browser to
 request the new report or chart content. More explanation of the data
 format returned is provided later in this document.
@@ -134,7 +134,7 @@ are deleted when a new backup file is stored.
 
 To use a different database technology, the only part of the BMON
 application that would need to be changed is the ``bmsdata.py`` module,
-as all access to the database occurrs through that module.
+as all access to the database occurs through that module.
 
 Report/Chart Creation
 ---------------------
@@ -216,7 +216,7 @@ code related to transforms is present in `this
 module <https://github.com/alanmitchell/bmon/blob/master/bmsapp/calcs/transforms.py>`_. 
 
 :ref:`calculated-fields` allow for new sensor readings to be created from mathematical
-combinations of other readings or from acquistion from the Internet. The
+combinations of other readings or from acquisition from the Internet. The
 general code for creating calculated fields is in `this
 module <https://github.com/alanmitchell/bmon/blob/master/bmsapp/calcs/calcreadings.py>`_. The specific
 calculated field functions are currently found in the
@@ -241,14 +241,13 @@ following (the directory paths are dependent on your specific install):
 
     */5 * * * * ~/webapps/bmon_django/bmon/manage.py runscript main_cron > /dev/null 2>&1
 
-This cron job: \* creates calculated reading values and stores Internet
-weather data in the reading database every half hour, \* checks for
-active Alert Conditions every five minutes, \* creates a daily status
-line in the log file indicating how many sensor readings were stored in
-the database during the past day (viewable by browsing to
-``<Domain URL>/show_log``), \* creates a backup of the main Django
-database every day, and \* creates a backup of the reading database
-every three days.
+This cron job: 
+
+* creates calculated reading values and stores Internet weather data in the reading database every half hour, 
+* checks for active Alert Conditions every five minutes, 
+* creates a daily status line in the log file indicating how many sensor readings were stored in the database during the past day (viewable by browsing to ``<Domain URL>/show_log``), 
+* creates a backup of the main Django database every day, and 
+* creates a backup of the reading database every three days.
 
 The Cron job executes the
 `main\_cron.py <https://github.com/alanmitchell/bmon/blob/master/bmsapp/scripts/main_cron.py>`_ script by
