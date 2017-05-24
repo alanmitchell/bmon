@@ -3,7 +3,7 @@
 Writing Periodic Scripts
 ========================
 
-Periodic-Scripts are useful for running tasks that need to occur on
+Periodic Scripts are useful for running tasks that need to occur on
 a repeated basis. Possible uses include collecting data from external sources,
 running reports, or performing maintenance tasks. Check out the :ref:`Periodic Scripts <periodic-scripts>`
 page for more detail on their uses and configuration in BMON. The intent of
@@ -85,7 +85,6 @@ arguments, and the arguments are generated from these sources:
 
    This example shows the arguments combined from the two sources mentioned so far.
     
-	| 
 3. There is special treatment of return values that are in the ``hidden`` key of the return dictionary. The purpose of the ``hidden`` key is
    discussed in more detail below, but the return values in that key are processed differently than other keys. The ``hidden`` key should contain another dictionary of key/value pairs, and those key/value pairs are
    extracted from the ``hidden`` value and passed to the ``run()`` function as separate arguments. Continuing the above example, if ``run()`` returns the following dictionary:
@@ -94,7 +93,7 @@ arguments, and the arguments are generated from these sources:
 
     {'last_record': 2389, 'last_run_ts': 143234423, 'hidden': {'auth_key': 'x4ab72i'}}
 
-   the next call to the ``run()`` function of the Periodic Srcript will look like this:
+   the next call to the ``run()`` function of the Periodic Script will look like this:
 
    .. code:: python
 
@@ -118,17 +117,17 @@ There are a few different purposes for the Python dictionary that is returned fr
    that future calls only extract newer data. (Note that storing the same sensor
    reading multiple times in BMON does *not* cause an error.)
 *  The values returned by ``run()`` are displayed in the Django Admin
-   interface, so are useful for deubgging script problems or displaying status
+   interface, so are useful for debugging script problems or displaying status
    messages. The values appear in the ``Script results in YAML form`` field on the form used
    to configure the Periodic Script. The exception to this are the values that appear
-   in the special ``hidden`` key in the return dictionary; they are not displated in
+   in the special ``hidden`` key in the return dictionary; they are not displayed in
    the configuration form, but are passed to the next call to the ``run()`` function. This
    feature is useful for storing authorization keys that should not be readily viewed by
    the System Administrator. The feature is also useful if some of the return
    values from the script would be confusing or not useful if viewed in the System Admin interface.
 *  Sensor readings acquired by the Periodic Script can be returned in
    the special ``readings`` key in the return dictionary, and these readings will be
-   automically stored in the BMON sensor reading database (more detail later).
+   automatically stored in the BMON sensor reading database (more detail later).
 *  A list of Script Parameter names can be returned in the special
    ``delete_params`` key, and these parameters will automatically be deleted from the
    ``Script Parameters in YAML form`` input on the Periodic Script configuration form. This can useful for
