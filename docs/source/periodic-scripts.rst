@@ -23,12 +23,14 @@ To set up a periodic script, go to the Home screen in the BMON Admin
 interface and select "Periodic Scripts":
 
 .. image:: /_static/main_scr_period_script.png
+  :align: center
 
 On the next screen, click the "ADD PERIODIC SCRIPT +" button in the
 upper right corner of the screen. Below are the inputs required to
 configure a Periodic Script, with example values:
 
 .. image:: /_static/periodic_script_inputs.png
+  :align: center
 
 Each of these inputs is described below:
 
@@ -103,7 +105,7 @@ The script collects and then stores this data in the BMON sensor reading
 database for display through the normal BMON application.
 
 Ecobee Authorization Process
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before BMON is allowed to pull data from an Ecobee account, two things
 must happen:
@@ -119,25 +121,34 @@ must happen:
 
    *  Surf to the "ecobee-auth" web page in the BMON application. For
       example, here is the URL address to the page for BMON on the
-      Analysis North server: https://bmon.analysisnorth.com/ecobee-auth/
+      Alaska Housing Finance server: https://bms.ahfc.us/ecobee-auth/ .
       Substitute the correct base URL for your server.
    *  The page will generate a 4-character PIN that needs to be entered
       into the Ecobee account. Follow the explicit instructions on
       ``ecobee-auth`` BMON page to complete the process. Here is an
       example of the ``ecobee-auth`` page that generates the 4-character
       PIN: 
-	  .. image:: /_static/ecobee_pin.png
-	  
+
+      .. image:: /_static/ecobee_pin.png
+         :align: center
+
+
    *  After clicking the button for Step 2, a new page appears with a
       box containing two important token strings: 
-	  .. image:: /_static/ecobee_auth_tokens.png
-	  
+
+      .. image:: /_static/ecobee_auth_tokens.png
+         :align: center
+
+
    *  Use your mouse to select and then copy the ``access_token`` and
       ``refresh_token`` text in the white box. Paste this text into the
       "Script Parameters in YAML form" input box for the Periodic Script
       you are setting up. Here is an example of how the inputs should
       look for the Periodic Script: 
-	  .. image:: /_static/ecobee_auth_inputs.png
+
+      .. image:: /_static/ecobee_auth_inputs.png
+         :align: center
+
 
 The script above will collect data from *all* of the thermostats in the
 Ecobee Account that went through the authorization process. Currently,
@@ -163,7 +174,7 @@ tokens into the "Script Parameters" input box to restore BMON's access
 to the Ecobee account.
 
 Other Notes on Ecobee Configuration
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here are some other notes on configuration of the Ecobee Periodic
 Script.
@@ -289,6 +300,7 @@ The screenshot below shows an example of a configured Periodic Script
 for collecting data from an Okofen boiler:
 
 .. image:: /_static/okofen_config.png
+  :align: center
 
 The ``File name of script`` must be ``okofen``. The Okofen boiler
 creates a new CSV file once per day, presumably shortly after Midnight.
@@ -391,6 +403,7 @@ Here is a screenshot of a sample Periodic Script configuration that
 sends data to an InfluxDB database:
 
 .. image:: /_static/influxdb_config.png
+  :align: center
 
 The ``File name of script`` must be ``influxdb``. The
 ``Script Parameters in YAML form`` input can include the following
@@ -438,6 +451,9 @@ used to repopulate a database that has been reset or cleaned of old
 data. This parameter should *not* be set to True on a continual basis,
 as that will cause the Script to send all historical data (up to the
 ``reach_back`` limit) every time the script runs.
+
+InfluxDB Tags Created during Export
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 InfluxDB allows each point in the database to be described by any number
 of "tags". A tag is a key/value pair that adds metadata to the database
@@ -488,6 +504,7 @@ additional properties that were entered for a particular Building:
 
 
 .. image:: /_static/additional_props.png
+  :align: center
 
 For all sensors associated with that building, these properties will be
 made into key/value pairs and sent as tags with the sensor readings. Tag
