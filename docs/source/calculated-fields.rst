@@ -356,7 +356,7 @@ parameters is described below.
   An example of an expression using function from the Python math library, using
   three sensors as inputs (A, B and E)::
 
-    3.4 * A * sin(B) + sqrt(E)
+    expression: 3.4 * A * sin(B) + sqrt(E)
 
   An example of a Boolean expression.  A ``True`` value from this expression is
   represented as a sensor value of 1.0 and a ``False`` value is represented as
@@ -365,7 +365,7 @@ parameters is described below.
   will result in a calculated field value of 1.0 if Sensor A has a value equal to 1.0 and
   Sensor B has a value greater than 34.3; otherwise, the calculated value will be 0.0::
 
-    (A == 1.0) and (B > 34.3)
+    expression: (A == 1.0) and (B > 34.3)
 
 ``averaging_hours`` (optional: a number of hours, fractional hours allowed; default is no averaging)
   If you include this parameter, it will cause sensor values to be averaged over 
