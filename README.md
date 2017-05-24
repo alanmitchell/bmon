@@ -14,4 +14,4 @@ Here is a link to the [AHFC BMON Web Site](https://bms.ahfc.us/).  Here is a scr
 
 For detailed information about this software: 
 
-### Please see the [BMON Wiki](../../wiki)
+### Please see the [BMON Documentation](http://bmon-documentation.readthedocs.io/en/latest/index.html)
