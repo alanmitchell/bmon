@@ -36,9 +36,9 @@ execution of the SQL statement.)
 
 Each sensor table has two fields:
 
-*  ``ts``: The time the sensor reading occurred as an integer UNIX
+*  ``ts`` The time the sensor reading occurred as an integer UNIX
    timestamp (seconds past Midnight Jan 1, 1970 UTC).
-*  ``val``: The value of the sensor reading in the final engineering
+*  ``val`` The value of the sensor reading in the final engineering
    units. Those units can be found in the Sensors table in the Admin
    interface.
 
