@@ -3,7 +3,7 @@
 Developer Introduction
 ======================
 
-This section of the Wiki is aimed at developers who wish to better
+This section of the documentation is aimed at developers who wish to better
 understand and perhaps modify the BMON software. The code is thoroughly
 commented, but the documents described below are meant to provide higher
 level documentation for the application.
@@ -19,8 +19,8 @@ describes generally the implementation approach.
 :ref:`Writing Periodic Scripts <writing-periodic-scripts>`
 ----------------------------------------------------------
 
-`Periodic Scripts <https://github.com/alanmitchell/bmon/wiki/Periodic-Scripts>`_ 
-are useful for running tasks that need occur on a repeated basis. These scripts can be used to collect data from
+:ref:`periodic-scripts` are useful for running tasks that need to occur 
+on a repeated basis. These scripts can be used to collect data from
 external sources, run reports, or perform maintenance tasks. This document
 describes how a Developer can write custom Periodic Scripts to be run by BMON.
 
