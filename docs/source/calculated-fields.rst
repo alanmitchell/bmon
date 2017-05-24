@@ -42,6 +42,7 @@ temperature and wind speed from the Weather Underground service. Here is
 an example of the needed configuration for the National Weather Service:
 
 .. image:: /_static/calc_ex1.png
+    :align: center
 
 In the first box, a Sensor ID has been created, in this example:
 ``elmendorf_temp``. ``Title`` and ``Unit`` entries are filled out as
@@ -81,6 +82,7 @@ Here is an example configuration for acquiring temperature data from the
 service:
 
 .. image:: /_static/calc_ex2.png
+    :align: center
 
 The key differences from the National Weather Service configuration are:
 
@@ -227,6 +229,7 @@ interval). This function is called ``runtimeFromOnOff``, and here is an
 example of its use:
 
 .. image:: /_static/calc_ex3.png
+    :align: center
 
 The ``Unit`` entry generally should be ``runtime: Runtime Fraction`` or
 ``fraction: Occupied Fraction``. ``runtimeFromOnOff`` must be entered as
@@ -270,6 +273,7 @@ boiler for every 5 minute interval. Here is an example of the function
 in use:
 
 .. image:: /_static/oko_value_func.png
+    :align: center
 
 There are the two critical parameters that should be provided for the
 function, shown here with example values:
@@ -297,11 +301,127 @@ across day, week, or monthly periods.
 Mathematical Calculated Fields
 ------------------------------
 
-Unlike :ref:`transform-expressions`, there is unfortunately no general
-method for creating calculated fields through use of math expressions.
-Instead, there are a number of predetermined functions available for
-creating calculated fields from existing sensor values. The table below
-shows the functions available and use of the functions is explained in
+It is possible to create a calculated field by doing mathematical 
+operations on one or more other sensor fields (a limit of five sensor
+fields can be involved in the calculation).  For example, if you want to
+plot and analyze the difference in temperature between two sensors, you
+can create a new calculated "sensor" that is the difference in value
+between two other sensors.  Below is a screen shot of how you would 
+configure that calculated field.
+
+.. image:: /_static/genericCalc_01.png
+    :align: center
+
+This new calculated field has the Sensor ID of ``hp_temp_diff``, and the
+values in that field are calculated as the difference between sensors
+with the IDs of ``hp_outlet_temp`` and ``hp_inlet_temp``.
+
+Not only are these calculated fields useful for plotting and analysis, they
+also extend the capabilities of the Alerting system, as described in
+:ref:`sensor-alerts`.  Complex alerts can be created by configuring a calculated
+field involving multiple sensors.  Then, an Alert condition can be added to that
+calculated field.  Thus, the Alert will depend on the state of multiple sensors,
+since multiple sensors feed the calculated field.
+
+These calculated fields involving general mathematical expressions must have
+``genericCalc`` entered in the "Transform or Calculated Field Function Name" box.
+This is the name of the function that allows for general calculations to be 
+done using one or more existing sensor fields.
+
+Remaining configuration of the calculated field occurs in the "Function 
+Parameters in YAML form" input box.  Each one of the possible function
+parameters is described below.
+
+``A`` (required: a Sensor ID)
+  The value of this parameter is the Sensor ID of the sensor
+  that will be used as the ``A`` variable in the mathematical expression.  At least
+  one sensor needs to be involved in the calculation of the new field, so that is
+  why the ``A`` parameter is required.
+
+``B``, ``C``, ``D``, ``E`` (optional: a Sensor ID for each parameter used)
+  Four additional sensors can be involved in the calculation.  Use any of the parameter
+  names of B through E to give the Sensor IDs of those additional sensors involved
+  in the calculated field.
+
+``expression`` (required: a math or boolean expression, described below)
+  Use this parameter to write out the math expression for the calculated field.
+  You can use any of the sensor variables A through E that were included as 
+  parameters, and the *values* from these sensors will be used in the calculation. The
+  expression must be a valid `Python <https://www.python.org/>`_ expression, and 
+  any of the functions in the Python ``math`` library can be included; see
+  the `math library documentation <https://docs.python.org/2/library/math.html#module-math>`_.
+
+  Here are some valid expressions:
+
+  An example of an expression using function from the Python math library, using
+  three sensors as inputs (A, B and E)::
+
+    3.4 * A * sin(B) + sqrt(E)
+
+  An example of a Boolean expression.  A ``True`` value from this expression is
+  represented as a sensor value of 1.0 and a ``False`` value is represented as
+  0.0.  An important note, when testing for equality with a Python expression, you
+  must use a double equal sign (==) and not a single equal sign.  The expression below
+  will result in a calculated field value of 1.0 if Sensor A has a value equal to 1.0 and
+  Sensor B has a value greater than 34.3; otherwise, the calculated value will be 0.0::
+
+    (A == 1.0) and (B > 34.3)
+
+``averaging_hours`` (optional: a number of hours, fractional hours allowed; default is no averaging)
+  If you include this parameter, it will cause sensor values to be averaged over 
+  the requested time interval before being used in the expression.  So, if 
+  ``averaging_hours`` is 0.5, any sensor values will be averaged over half-hour intervals
+  before they are used in the calculation.
+
+``rolling_average`` (optional: the value ``True`` or ``False``, default is ``False``)
+  When this parameter is ``False``, the default, each averaging interval for the sensor
+  values is distinct and does not overlap with other intervals.  For example, if 
+  ``averaging_hours`` is set to 4.0, sensors will be averaged over 6 different periods
+  across the day: Midnight to 4 am, 4 am - 8 am, etc.  And, 6 calculated values will
+  be produced corresponding to each one of those intervals.  However, if ``rolling_average``
+  is set to ``True``, a new calculated value will be computed for each and every
+  timestamp that is present for sensor A.  For example, if sensor A has a reading 
+  at 10:30 am, the ``averaging_hours`` is set to 2.0, and ``rolling_average`` is 
+  ``True``, all sensors involved in the calculation will be averaged over the period
+  of 8:30 am - 10:30 am (the 2 hours preceding sensor A's timestamp), and a new calculated
+  value will be created for that time interval.  If another sensor A reading is
+  present for 10:40 am, and new calculated value will be computed for the 8:40 am -
+  10:40 am period.  So, there will be overlap in the time periods used for computing the
+  new calculated field values, and many calculated readings will be generated even if
+  ``averaging_hours`` is set to a large value.
+
+``time_label`` (optional: the value ``left``, ``right``, or ``center``, default is ``center``)
+  If time averaging is being used in the calculations (i.e. the parameter ``averaging_hours`` has
+  a value), then this ``time_label`` parameter determines where the timestamp for the new
+  calculated reading will be placed.  The default is ``center``, which places the 
+  timestamp at the center of the time interval encompassing the averaged readings.  For
+  example, if the averaging period is Midnight to 4 am and ``center`` placement is being
+  used, the timestamp for the calculated reading will be at 2 am.  If ``left``
+  is specified, the timestamp is at the earliest edge of the interval, Midnight in this
+  example.  If ``right`` is specified, the timestamp will be at the latest edge of the
+  interval, 4 am in this example.  This parameter is also relevant rolling averages
+  are being computed.
+
+.. note:: If time averaging is *not* being used in the calculation, here is the procedure
+  for determining the values and timestamps used in the calculated field.  First,
+  timestamps for the calculated field are aligned with the timestamps for Sensor A;
+  i.e there will be a reading generated for every timestamp present for Sensor A.
+  Next, other sensor timestamps may not perfectly align with those from Sensor A;
+  for those other sensors, their values are linearly interpolated to match up with
+  Sensor A timestamps before being used in the calculation.
+
+Deprecated Calculated Field Functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+.. warning:: Deprecated functions are described below and are present for backwards
+    compatibility.  Use the ``genericCalc`` feature instead for new work.
+
+Prior to development of the ``genericCalc`` function described above, 
+calculated fields were only possible for a few different types of mathematical
+expressions.  These specific types of calculated fields are described in this
+section, however, the ``genericCalc`` approach should be used in their place;
+the functions below are left available for backward compatibility reasons.
+The table below shows these functions and use of the functions is explained in
 the section following the table.
 
 +------------------+----------------------------------------------------------------+
@@ -337,6 +457,7 @@ a default value, it does not need to appear in the
 ``linear`` function:
 
 .. image:: /_static/calc_ex5.png
+    :align: center
 
 In this example, there already is a sensor that reports the firing rate
 of a boiler as a percentage value varying from 0 to 100. We now want to
@@ -381,6 +502,7 @@ measuring supply and return temperatures and the runtime of a
 circulating pump:
 
 .. image:: /_static/calc_ex6.png
+    :align: center
 
 The Calculated Function being used here is the ``fluidHeatFlow``
 function, as described in the table above. You can see in the
