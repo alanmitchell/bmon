@@ -406,7 +406,7 @@ across day, week, or monthly periods.
 Deprecated Calculated Field Functions
 -------------------------------------
 
-.. warning:: Deprecated functions are described below and are present for backwards
+.. warning:: Deprecated functions are described below and are present for backward
     compatibility.  Instead, use the ``genericCalc`` feature, described earlier in this
     document, for new work.
 
