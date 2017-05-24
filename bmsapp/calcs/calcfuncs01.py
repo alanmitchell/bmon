@@ -391,7 +391,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # by 'averaging_hours' but truncated to the lesser minute.
             df = df.rolling('%smin' % int(averaging_hours * 60)).mean()
 
-        import ipdb; ipdb.set_trace()
+        #import ipdb; ipdb.set_trace()
 
         # convert the index back to integer Unix timestamps.
         df.index = df.index.astype(np.int64) // 10**9
