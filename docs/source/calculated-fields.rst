@@ -30,273 +30,6 @@ half hour, multiple calculated sensor readings will be generated at each
 half-hour processing interval to match up with the frequency of the
 source sensors.
 
-We will start by explaining the second use of Calculated Fields, i.e.
-gathering data from Internet Weather Services.
-
-Acquiring Weather Data from the Internet
-----------------------------------------
-
-BMON can currently access outdoor dry-bulb temperature, wind speed, and
-relative humidity data from the National Weather Service and dry-bulb
-temperature and wind speed from the Weather Underground service. Here is
-an example of the needed configuration for the National Weather Service:
-
-.. image:: /_static/calc_ex1.png
-    :align: center
-
-In the first box, a Sensor ID has been created, in this example:
-``elmendorf_temp``. ``Title`` and ``Unit`` entries are filled out as
-they are for standard sensors. The ``Calculated Field`` box must be
-checked. For gathering outdoor dry-bulb temperature, the
-``Transform or Calculated Field Function Name`` must contain the value
-``getInternetTemp`` (correct capitalization is critical and must be as
-shown). Finally, the ``Function Parameters in YAML form`` box must have
-an entry of ``stnCode:`` plus a 4 character `National Weather Service
-station code <http://www.weather.gov/>`_, in this example (there must be
-a space after the colon):
-
-::
-
-    stnCode: PAED
-
-The only changes necessary to acquire a wind speed value in miles per
-hour is to enter ``getInternetWindSpeed`` into the
-``Transform or Calculated Field Function Name`` box, change the ``Unit``
-to ``velocity: mph``, and enter an appropriate Sensor ID and Title.
-Acquiring relative humidity data in % RH requires entering
-``getInternetRH`` into
-the\ ``Transform or Calculated Field Function Name`` box, and making
-appropriate unit and title changes elsewhere.
-
---------------
-
-The Weather Underground service has a broader variety of weather
-stations, including personal weather stations. To gather temperature or
-wind data from this service, you must first acquire a `Weather
-Underground API Key <http://www.wunderground.com/weather/api/>`_ and enter
-that key into the :ref:`BMON Settings File <how-to-install-BMON-on-a-web-server>` 
-as the ``BMSAPP_WU_API_KEY`` setting (restarting the Django web
-application after changing a setting is necessary).
-
-Here is an example configuration for acquiring temperature data from the
-service:
-
-.. image:: /_static/calc_ex2.png
-    :align: center
-
-The key differences from the National Weather Service configuration are:
-
-*  ``getWUtemperature`` must be entered into the
-   ``Transform or Calculated Field Function Name`` box. If you are
-   acquiring wind speed data, then the correct entry is
-   ``getWUwindSpeed``. Capitalization must be as shown.
-*  The ``Function Parameters`` box must contain a ``stn`` entry for the
-   main weather station you want data from and an optional ``stn2`` code
-   for a weather station to use as a backup in case the primary station
-   is not available. An example entry is:
-
-::
-
-        stn: pws:KAKANCHO124
-        stn2: pws:MD0691
-
-For information on how to form station codes, see the `Weather Underground API
-documentation <http://www.wunderground.com/weather/api/d/docs?d=data/index>`_
-for the ``query`` parameter. In this example, two personal weather
-stations are being used with station IDs of ``KAKANCH0124`` and
-``MD0691``.
-
-Acquiring Building Energy Usage Information from ARIS
------------------------------------------------------
-
-BMON can import building energy usage information from AHFC's Alaska
-Retrofit Information System (ARIS). Configuring a sensor for the
-imported data is very similar to the process for acquiring weather data
-from the internet described above.
-
-Using the administration interface, create a new Sensor ID. ``Title``
-and ``Unit`` entries are filled out as they are for standard sensors.
-The ``Calculated Field`` box must be checked. The
-``Transform or Calculated Field Function Name`` must contain the value
-``getUsageFromARIS`` (correct capitalization is critical and must be as
-shown). Finally, the ``Function Parameters in YAML form`` box must have
-an entry of ``building_id:`` (there must be a space after the colon)
-with a valid building id number from the ARIS database, and an entry of
-``energy_type_id:`` with a valid energy type value as described below.
-
-Required Function Parameters in YAML form:
-
-::
-
-    building_id: 1
-    energy_type_id: 1
-
-Additional Optional Function Parameters in YAML form:
-
-::
-
-    energy_parameter: 'EnergyQuantity'
-    energy_multiplier: 1
-    expected_period_months: 1
-
-``building_id`` **Parameter**
-
-The easiest way to find a building_id value is to look on the
-'Commercial REAL Form' in the ARIS user interface. When you select a
-building the building_id should show up in the upper left corner of the
-form.
-
-``energy_type_id`` **Parameter**
-
-Possible values for the energy_type_id parameter: 
-
-* 1 Electric 
-* 2 Natural Gas 
-* 3 Propane
-* 6 Coal 
-* 7 Demand - Electric 
-* 8 Demand - Nat Gas 
-* 10 Steam District Ht 
-* 11 Hot Wtr District Ht
-* 12 Spruce Wood 
-* 13 Birch Wood  
-* 14 #1 Fuel Oil 
-* 15 #2 Fuel Oil
-
-``energy_parameter`` **Optional Parameter**
-
-The energy_parameter specifies which value will be read from the ARIS
-database: 
-
-* EnergyQuantity: The amount of energy used 
-* DollarCost: The cost of energy for the given month  
-* DemandUse: The amount of energy demand 
-* DemandCost: The cost of energy demand for the given month, in dollars
-
-A value of 'EnergyQuantity' will be used by default if you don't include
-this parameter.
-
-``energy_multiplier`` **Optional Parameter**
-
-The energy_multiplier is a multiplier that is used to scale the value
-that is read from the ARIS database. If you don't include the parameter,
-a value of 1.0 will be used by default. The value that is stored is
-calculated as:
-
-*  For EnergyQuantity:
-   ``[stored value] = [value from ARIS] * energy_multiplier / [total hours in the read period]``
-*  For Costs:
-   ``[stored value] = [value from ARIS] * energy_multiplier / [standard length months in the read period]``
-*  For DemandUse:
-   ``[stored value] = [value from ARIS] * energy_multiplier``
-
-``expected_period_months`` **Optional Parameter**
-
-In rare cases where the normal read period for the energy usage is something other
-than one month, you can enter a different number of months using this
-parameter. This value is used for estimating the previous read date when
-the date wasn't set for the previous entry in ARIS, and for detecting
-missing data when the previous read date is more than 1.75 * [expected
-period months] earlier than the current read date.
-
-Additional Required Settings
-----------------------------
-
-To use the BMON ARIS functionality you need to enter the URL, Username
-and Password in your installation's settings.py file. The required
-settings parameters are:
-
-*  ``BMSAPP_ARIS_URL``
-*  ``BMSAPP_ARIS_USERNAME``
-*  ``BMSAPP_ARIS_PASSWORD``
-
-Converting On/Off Events into Runtime Fraction
-----------------------------------------------
-
-Some sensors record the precise time of On and Off events. An example of
-such a sensor is a Monnit Dry Contact sensor. This sensor posts a
-reading every time its two contacts are closed or are opened, and the
-sensor is often used to record when a device turns on and turns off. In
-addition to seeing the exact times a device turned on and turned off,
-it is often useful to record the *percentage of time* that the device
-was on during evenly spaced intervals.
-
-To provide this additional information, a special Calculated Field
-function is provided in BMON. The function will create a separate
-"sensor" in the BMON system that shows the fraction of time that a
-device was On for every half-hour interval (or other user-configurable
-interval). This function is called ``runtimeFromOnOff``, and here is an
-example of its use:
-
-.. image:: /_static/calc_ex3.png
-    :align: center
-
-The ``Unit`` entry generally should be ``runtime: Runtime Fraction`` or
-``fraction: Occupied Fraction``. ``runtimeFromOnOff`` must be entered as
-the ``Transform or Calculated Field Function Name``. Finally, you need
-to provide the Sensor ID of the sensor that records the precise On and
-Off times (that sensor needs to report a value of 1 when the device
-turns on and a value of 0 when the device turns off). That Sensor ID is
-entered as the ``onOffID`` parameter in the ``Function Parameters`` box:
-
-::
-
-    onOffID: 29631
-
-In this example, the Sensor ID is ``29631``, an ID of a Monnit Dry
-Contact sensor. By default, this function will calculate the runtime
-fraction for every half-hour interval. If you would like to use a
-different interval, add a second line to the ``Function Parameters``
-box. For the above example, the following would be the entry for
-calculating 15 minute runtime fractions:
-
-::
-
-    onOffID: 29631
-    runtimeInterval: 15
-
-This special runtime function is also useful with Motion or Occupancy
-Sensors and 1-wire Motor Sensors used with the :ref:`mini-monitor`.
-
-Estimating Pellet Consumption and Heat Output of an Okofen Pellet Boiler
-------------------------------------------------------------------------
-
-A `Periodic
-Script <https://github.com/alanmitchell/bmon/wiki/Periodic-Scripts#collect-data-from-okofen-wood-pellet-boilers>`_
-is available to collect data from Okofen Wood Pellet Boilers. One of the
-Sensors indicates the Status of the boiler (the P241 sensor).
-If the Boiler Status is in state 5 or 6, then the boiler is firing,
-consuming pellets, and producing heat. A special calculated field has
-been created, ``OkoValueFromStatus``, that allows you to create a new
-field showing the pellet consumption rate or the heat output rate of the
-boiler for every 5 minute interval. Here is an example of the function
-in use:
-
-.. image:: /_static/oko_value_func.png
-    :align: center
-
-There are the two critical parameters that should be provided for the
-function, shown here with example values:
-
-::
-
-    statusID: HainesSrCtr_P241
-    value: 127.17
-
-The ``statusID`` parameter gives the Sensor ID of the boiler's Status
-sensor. For the example, the Sensor ID is ``HainesSrCtr_P241``. When
-this sensor reads a value of 5 or 6, the Okofen boiler is firing.
-
-The ``value`` parameter is the pellet consumption rate or heat output
-rate that occurs when the boiler is firing. For this example, that rate
-is 127.17 pounds per day of pellets (the units were specified in the
-``Unit`` entry of the sensor).
-
-The calculated field will generate pellet consumption rates or heat
-output rates for each 5 minute interval spanning the available Status
-data set. It is often useful to the use the ``Data Averaging`` feature
-of the ``Plot Sensor Values over Time`` graph to see the average rates
-across day, week, or monthly periods.
 
 Mathematical Calculated Fields
 ------------------------------
@@ -410,11 +143,272 @@ parameters is described below.
   for those other sensors, their values are linearly interpolated to match up with
   Sensor A timestamps before being used in the calculation.
 
+
+Acquiring Weather Data from the Internet
+----------------------------------------
+
+BMON can currently access outdoor dry-bulb temperature, wind speed, and
+relative humidity data from the National Weather Service and dry-bulb
+temperature and wind speed from the Weather Underground service. Here is
+an example of the needed configuration for the National Weather Service:
+
+.. image:: /_static/calc_ex1.png
+    :align: center
+
+In the first box, a Sensor ID has been created, in this example:
+``elmendorf_temp``. ``Title`` and ``Unit`` entries are filled out as
+they are for standard sensors. The ``Calculated Field`` box must be
+checked. For gathering outdoor dry-bulb temperature, the
+``Transform or Calculated Field Function Name`` must contain the value
+``getInternetTemp`` (correct capitalization is critical and must be as
+shown). Finally, the ``Function Parameters in YAML form`` box must have
+an entry of ``stnCode:`` plus a 4 character `National Weather Service
+station code <http://www.weather.gov/>`_, in this example (there must be
+a space after the colon):
+
+::
+
+    stnCode: PAED
+
+The only changes necessary to acquire a wind speed value in miles per
+hour is to enter ``getInternetWindSpeed`` into the
+``Transform or Calculated Field Function Name`` box, change the ``Unit``
+to ``velocity: mph``, and enter an appropriate Sensor ID and Title.
+Acquiring relative humidity data in % RH requires entering
+``getInternetRH`` into
+the\ ``Transform or Calculated Field Function Name`` box, and making
+appropriate unit and title changes elsewhere.
+
+--------------
+
+The Weather Underground service has a broader variety of weather
+stations, including personal weather stations. To gather temperature or
+wind data from this service, you must first acquire a `Weather
+Underground API Key <http://www.wunderground.com/weather/api/>`_ and enter
+that key into the :ref:`BMON Settings File <how-to-install-BMON-on-a-web-server>` 
+as the ``BMSAPP_WU_API_KEY`` setting (restarting the Django web
+application after changing a setting is necessary).
+
+Here is an example configuration for acquiring temperature data from the
+service:
+
+.. image:: /_static/calc_ex2.png
+    :align: center
+
+The key differences from the National Weather Service configuration are:
+
+*  ``getWUtemperature`` must be entered into the
+   ``Transform or Calculated Field Function Name`` box. If you are
+   acquiring wind speed data, then the correct entry is
+   ``getWUwindSpeed``. Capitalization must be as shown.
+*  The ``Function Parameters`` box must contain a ``stn`` entry for the
+   main weather station you want data from and an optional ``stn2`` code
+   for a weather station to use as a backup in case the primary station
+   is not available. An example entry is:
+
+::
+
+        stn: pws:KAKANCHO124
+        stn2: pws:MD0691
+
+For information on how to form station codes, see the `Weather Underground API
+documentation <http://www.wunderground.com/weather/api/d/docs?d=data/index>`_
+for the ``query`` parameter. In this example, two personal weather
+stations are being used with station IDs of ``KAKANCH0124`` and
+``MD0691``.
+
+Converting On/Off Events into Runtime Fraction
+----------------------------------------------
+
+Some sensors record the precise time of On and Off events. An example of
+such a sensor is a Monnit Dry Contact sensor. This sensor posts a
+reading every time its two contacts are closed or are opened, and the
+sensor is often used to record when a device turns on and turns off. In
+addition to seeing the exact times a device turned on and turned off,
+it is often useful to record the *percentage of time* that the device
+was on during evenly spaced intervals.
+
+To provide this additional information, a special Calculated Field
+function is provided in BMON. The function will create a separate
+"sensor" in the BMON system that shows the fraction of time that a
+device was On for every half-hour interval (or other user-configurable
+interval). This function is called ``runtimeFromOnOff``, and here is an
+example of its use:
+
+.. image:: /_static/calc_ex3.png
+    :align: center
+
+The ``Unit`` entry generally should be ``runtime: Runtime Fraction`` or
+``fraction: Occupied Fraction``. ``runtimeFromOnOff`` must be entered as
+the ``Transform or Calculated Field Function Name``. Finally, you need
+to provide the Sensor ID of the sensor that records the precise On and
+Off times (that sensor needs to report a value of 1 when the device
+turns on and a value of 0 when the device turns off). That Sensor ID is
+entered as the ``onOffID`` parameter in the ``Function Parameters`` box::
+
+    onOffID: 29631
+
+In this example, the Sensor ID is ``29631``, an ID of a Monnit Dry
+Contact sensor. By default, this function will calculate the runtime
+fraction for every half-hour interval. If you would like to use a
+different interval, add a second line to the ``Function Parameters``
+box. For the above example, the following would be the entry for
+calculating 15 minute runtime fractions::
+
+    onOffID: 29631
+    runtimeInterval: 15
+
+This special runtime function is also useful with Motion or Occupancy
+Sensors and 1-wire Motor Sensors used with the :ref:`mini-monitor`.
+
+Acquiring Building Energy Usage Information from ARIS
+-----------------------------------------------------
+
+BMON can import building energy usage information from AHFC's Alaska
+Retrofit Information System (ARIS). Configuring a sensor for the
+imported data is very similar to the process for acquiring weather data
+from the internet described above.
+
+Using the administration interface, create a new Sensor ID. ``Title``
+and ``Unit`` entries are filled out as they are for standard sensors.
+The ``Calculated Field`` box must be checked. The
+``Transform or Calculated Field Function Name`` must contain the value
+``getUsageFromARIS`` (correct capitalization is critical and must be as
+shown). Finally, the ``Function Parameters in YAML form`` box must have
+an entry of ``building_id:`` (there must be a space after the colon)
+with a valid building id number from the ARIS database, and an entry of
+``energy_type_id:`` with a valid energy type value as described below.
+
+Required Function Parameters in YAML form:
+
+::
+
+    building_id: 1
+    energy_type_id: 1
+
+Additional Optional Function Parameters in YAML form:
+
+::
+
+    energy_parameter: 'EnergyQuantity'
+    energy_multiplier: 1
+    expected_period_months: 1
+
+``building_id`` **Parameter**
+
+The easiest way to find a building_id value is to look on the
+'Commercial REAL Form' in the ARIS user interface. When you select a
+building the building_id should show up in the upper left corner of the
+form.
+
+``energy_type_id`` **Parameter**
+
+Possible values for the energy_type_id parameter: 
+
+* 1 Electric 
+* 2 Natural Gas 
+* 3 Propane
+* 6 Coal 
+* 7 Demand - Electric 
+* 8 Demand - Nat Gas 
+* 10 Steam District Ht 
+* 11 Hot Wtr District Ht
+* 12 Spruce Wood 
+* 13 Birch Wood  
+* 14 #1 Fuel Oil 
+* 15 #2 Fuel Oil
+
+``energy_parameter`` **Optional Parameter**
+
+The energy_parameter specifies which value will be read from the ARIS
+database: 
+
+* EnergyQuantity: The amount of energy used 
+* DollarCost: The cost of energy for the given month  
+* DemandUse: The amount of energy demand 
+* DemandCost: The cost of energy demand for the given month, in dollars
+
+A value of 'EnergyQuantity' will be used by default if you don't include
+this parameter.
+
+``energy_multiplier`` **Optional Parameter**
+
+The energy_multiplier is a multiplier that is used to scale the value
+that is read from the ARIS database. If you don't include the parameter,
+a value of 1.0 will be used by default. The value that is stored is
+calculated as:
+
+*  For EnergyQuantity:
+   ``[stored value] = [value from ARIS] * energy_multiplier / [total hours in the read period]``
+*  For Costs:
+   ``[stored value] = [value from ARIS] * energy_multiplier / [standard length months in the read period]``
+*  For DemandUse:
+   ``[stored value] = [value from ARIS] * energy_multiplier``
+
+``expected_period_months`` **Optional Parameter**
+
+In rare cases where the normal read period for the energy usage is something other
+than one month, you can enter a different number of months using this
+parameter. This value is used for estimating the previous read date when
+the date wasn't set for the previous entry in ARIS, and for detecting
+missing data when the previous read date is more than 1.75 * [expected
+period months] earlier than the current read date.
+
+Additional Required Settings
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+To use the BMON ARIS functionality you need to enter the URL, Username
+and Password in your installation's settings.py file. The required
+settings parameters are:
+
+*  ``BMSAPP_ARIS_URL``
+*  ``BMSAPP_ARIS_USERNAME``
+*  ``BMSAPP_ARIS_PASSWORD``
+
+Estimating Pellet Consumption and Heat Output of an Okofen Pellet Boiler
+------------------------------------------------------------------------
+
+A `Periodic
+Script <https://github.com/alanmitchell/bmon/wiki/Periodic-Scripts#collect-data-from-okofen-wood-pellet-boilers>`_
+is available to collect data from Okofen Wood Pellet Boilers. One of the
+Sensors indicates the Status of the boiler (the P241 sensor).
+If the Boiler Status is in state 5 or 6, then the boiler is firing,
+consuming pellets, and producing heat. A special calculated field has
+been created, ``OkoValueFromStatus``, that allows you to create a new
+field showing the pellet consumption rate or the heat output rate of the
+boiler for every 5 minute interval. Here is an example of the function
+in use:
+
+.. image:: /_static/oko_value_func.png
+    :align: center
+
+There are the two critical parameters that should be provided for the
+function, shown here with example values::
+
+    statusID: HainesSrCtr_P241
+    value: 127.17
+
+The ``statusID`` parameter gives the Sensor ID of the boiler's Status
+sensor. For the example, the Sensor ID is ``HainesSrCtr_P241``. When
+this sensor reads a value of 5 or 6, the Okofen boiler is firing.
+
+The ``value`` parameter is the pellet consumption rate or heat output
+rate that occurs when the boiler is firing. For this example, that rate
+is 127.17 pounds per day of pellets (the units were specified in the
+``Unit`` entry of the sensor).
+
+The calculated field will generate pellet consumption rates or heat
+output rates for each 5 minute interval spanning the available Status
+data set. It is often useful to the use the ``Data Averaging`` feature
+of the ``Plot Sensor Values over Time`` graph to see the average rates
+across day, week, or monthly periods.
+
 Deprecated Calculated Field Functions
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+-------------------------------------
 
 .. warning:: Deprecated functions are described below and are present for backwards
-    compatibility.  Use the ``genericCalc`` feature instead for new work.
+    compatibility.  Instead, use the ``genericCalc`` feature, described earlier in this
+    document, for new work.
 
 Prior to development of the ``genericCalc`` function described above, 
 calculated fields were only possible for a few different types of mathematical
