@@ -14,7 +14,6 @@ import aris_web_api
 import sunny_portal
 import bmsapp.data_util
 from bmsapp.models import Sensor, BldgToSensor
-#import ipdb
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -287,7 +286,8 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                     E=None,
                     expression='',
                     averaging_hours=None,
-                    rolling_average=False):
+                    rolling_average=False,
+                    time_label='center'):
         """Calculates a set of sensor readings based on other sensor readings. 
         Up to 5 different sensors can be used in the calculation.  The calculation 
         is expressed in terms of the variables: A, B, C, D, and E corresponding to the 
@@ -299,13 +299,14 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         'averaging_hours' if present specifies the time averaging interval in hours
         that is applied before the calculation occurs.  A reading is computed for each
         distinct time period spanning 'averaging_hours'.
-        If there is no 'averaging_hours' specified, interpolation is used to determine 
-        B through E readings that align with the Sensor A timestamps, and a new calculated
-        reading is returned for each Sensor A timestamp.
         For purposes of deciding where time-averaging bin boundaries occur, timestamps
         are expressed in the timezone of the first building associated with sensor A.
         For example, with 24 hour averaging, boundaries will be Midnight to Midnight
         in the timezone of sensor A.
+
+        If there is no 'averaging_hours' specified, interpolation is used to determine 
+        B through E readings that align with the Sensor A timestamps, and a new calculated
+        reading is returned for each Sensor A timestamp.
 
         'rolling_average': If set to True, a rolling average is computed for each
         of the sensor values before the 'expression' is calculated.  For this rolling
@@ -315,11 +316,17 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         for a particular timestamp ts will encompass sensor values that occur in the
         interval of (ts - averaging_hours) to ts.
 
+        'time_label': This parameter determines where the timestamp is placed when
+        averaging is requested (both types of averaging, rolling or standard).
+        The valid values are 'left', 'right', 'center' (the default). 'center', the
+        default, places the timestamp at the center of the averaging period. 'left' places
+        the timestamp at the left (earliest) edge of the interval. 'right' places it
+        at the right (latest) edge of the interval.
+        
         This routine only returns calculated values for timestamps after the last
         calculated readings stored in the reading database.
         """
 
-        #ipdb.set_trace()
         # determine the timestamp of the last entry in the database for this calculated field.
         last_calc_rec = self.db.last_read(self.calc_id)
         last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
@@ -384,12 +391,24 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # by 'averaging_hours' but truncated to the lesser minute.
             df = df.rolling('%smin' % int(averaging_hours * 60)).mean()
 
+        import ipdb; ipdb.set_trace()
+
         # convert the index back to integer Unix timestamps.
         df.index = df.index.astype(np.int64) // 10**9
 
-        # if we did rolling averages, adjust the timestamps back to the center of the averaging interval
-        if rolling_average:
-            df.index = df.index - averaging_hours * 3600 * 0.5
+        # put the timestamp in requested place if averaging occurred
+        if averaging_hours > 0:
+            if rolling_average:
+                # prior to adjustment, stamp is at right edge
+                adj = {'left': -averaging_hours * 3600,
+                       'center': -averaging_hours * 3600 * 0.5,
+                       'right': 0.0}
+            else:
+                # prior to adjustment, stamp is at the center
+                adj = {'left': -averaging_hours * 3600 * 0.5,
+                       'center': 0.0,
+                       'right': averaging_hours * 3600 * 0.5}
+            df.index += adj.get(time_label, adj['center'])    # default to center if bad parameter
 
         # only keep rows that are for timestamps after the last timestamp for 
         # this calculated field.
