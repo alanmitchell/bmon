@@ -39,7 +39,7 @@ Before presenting the details of the analysis, here are the conclusions:
    approximately 2.5 - 5.0 sensor readings per second. When we simulated
    the large system, the web application successfully accepted sensor
    posting rates of 25 readings per second, 5 to 10 times more than than
-   needed to support a 100 building system. Furthermore, the acceptance
+   needed to support a system with 100 buildings. Furthermore, the acceptance
    of 25 readings per second occurred under a very heavy user load in
    terms of chart and report queries. Under light query loading, the
    site accepted approximately 35 sensor reading posts per second.
@@ -140,7 +140,7 @@ user are:
     100 GB Storage space
     512 MB Application Memory
 
-although these values have increased over time without an associated
+These values have increased over time without an associated
 price increase. The CPUs on one server are quad-core 3.4 GHz Intel Xeon
 processors. The Linux-reported load values while this simulation
 occurred averaged about 2.6, a value typical for Webfaction servers.
