@@ -10,7 +10,7 @@ BMON is a web-based software application built with the Python Django framework 
 
 Here is a link to the [AHFC BMON Web Site](https://bms.ahfc.us/).  Here is a screenshot of the application being used to look at the electricicty usage of the AHFC Headquarters building (the green bands indicate the building's occupied periods):
 
-![AHFC BMON Screenshot](../../wiki/images/sample_screen.png)
+![AHFC BMON Screenshot](docs/source/_static/sample_screen.png)
 
 For detailed information about this software: 
 
