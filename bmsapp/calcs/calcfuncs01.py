@@ -14,7 +14,6 @@ import aris_web_api
 import sunny_portal
 import bmsapp.data_util
 from bmsapp.models import Sensor, BldgToSensor
-#import ipdb
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -328,7 +327,6 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         calculated readings stored in the reading database.
         """
 
-        #ipdb.set_trace()
         # determine the timestamp of the last entry in the database for this calculated field.
         last_calc_rec = self.db.last_read(self.calc_id)
         last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
@@ -392,6 +390,8 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # compute the rolling average of sensor values. The averaging interval is given
             # by 'averaging_hours' but truncated to the lesser minute.
             df = df.rolling('%smin' % int(averaging_hours * 60)).mean()
+
+        import ipdb; ipdb.set_trace()
 
         # convert the index back to integer Unix timestamps.
         df.index = df.index.astype(np.int64) // 10**9
