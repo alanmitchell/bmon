@@ -171,8 +171,8 @@ including ``less than``, ``greater than``, etc. The last choice in the
 dropdown is ``inactive``. Selecting this choice will create an Alert
 that will notify recipients if the sensor has not posted a reading
 during the last two hours (or the value for the
-BMSAPP\_SENSOR\_INACTIVITY setting in the :ref:`BMON Django settings
-file <how-to-install-BMON-on-a-web-server>`. If ``inactive`` is chosen,
+BMSAPP\_SENSOR\_INACTIVITY setting in the :ref:`BMON Settings
+File <how-to-install-BMON-on-a-web-server>`. If ``inactive`` is chosen,
 the trigger value input is ignored.
 
 Alerts Affected by Building Mode

@@ -68,7 +68,7 @@ You need to substitute the web URL for your BMON site in the
 Store Key in the ``[store key]`` placeholder. When you :ref:`installed BMON
 on the web server <how-to-install-BMON-on-a-web-server>`, you created
 and entered the Store Key as the ``BMSAPP_STORE_KEY`` setting in the
-BMON settings file.
+BMON Settings File.
 
 After Saving the dialog box, sensor data should be forwarded to the BMON
 site after it arrives at the iMonnit site. On the previous configuration
@@ -186,7 +186,7 @@ following inputs:
 As shown in the above screenshot, select the ``JSON`` option in the
 ``Send Custom Data`` section. Then, enter a JSON object with two keys.
 As the value of the ``storeKey``, enter the BMON store key inside the
-quotes (from your BMON settings file). As the value of the ``format``
+quotes (from your BMON Settings File). As the value of the ``format``
 key, enter the word ``particle`` inside the quotes. Leave other inputs
 at their defaults and click the ``Create Webhook`` button at the bottom
 of the page to complete creation of the Webhook. Whenever a
@@ -288,7 +288,7 @@ this sensor reading. The query string should be formatted like:
     storeKey=[store key]&val=[sensor value]&ts=[date/time of reading]
 
 The ``[store key]`` has been discussed before and is the
-``BMSAPP_STORE_KEY`` setting you created in the BMON settings file.
+``BMSAPP_STORE_KEY`` setting you created in the BMON Settings File.
 ``[sensor value]`` is the sensor's reading value that is being posted to
 the BMON database; it needs to be a number. ``[date/time of reading]``
 is the time of the sensor reading expressed in `Coordinated Universal
@@ -365,7 +365,7 @@ the pattern of this example:
 
 The JSON object has two name/value pairs. The first name is the
 ``storeKey``, and the associated value must contain the
-``BMSAPP_STORE_KEY`` setting you created in the BMON settings file. The
+``BMSAPP_STORE_KEY`` setting you created in the BMON Settings File. The
 next name is ``readings``, the value of which is an array of sensor
 readings that you would like to store in BMON. Each element of that
 array is in turn a 3-element array representing one reading. In the

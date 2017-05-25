@@ -111,7 +111,7 @@ Before BMON is allowed to pull data from an Ecobee account, two things
 must happen:
 
 *  An API Key must be obtained by an `Ecobee-registered developer <https://www.ecobee.com/developers/>`_. 
-   This key must be entered into the :ref:`BMON Django Settings file <how-to-install-BMON-on-a-web-server>` 
+   This key must be entered into the :ref:`BMON Settings File <how-to-install-BMON-on-a-web-server>` 
    as the ``BMSAPP_ECOBEE_API_KEY`` settings entry. This
    is a one-time procedure done by the BMON System Administrator, not
    the owner of the Ecobee account.

@@ -118,7 +118,7 @@ with a Webfaction user account name of ``ahfc``, you could set a mailbox
 with the name of ``ahfc`` and an email address of
 ``monitoring@ahfc.webfactional.com``. In a subsequent section, the
 mailbox name, password, and email address will be needed for entry
-in the BMON Django settings file.
+in the BMON Settings File.
 
 Installing the BMON Project
 ---------------------------
@@ -184,7 +184,7 @@ that will take you to a Webfaction Support ticket. Inform Webfaction
 that you are temporarily installing Python packages, and they will
 temporarily relax the memory limit.
 
-Creating the BMON Django Settings File
+Creating the BMON Settings File
 --------------------------------------
 
 Django requires a ``settings.py`` file to provide essential information

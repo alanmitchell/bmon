@@ -223,8 +223,8 @@ on the label attached to the sensor:
 
 .. image:: /_static/monnit_id.png
 
-An example of a Monnit Sensor ID is ``29938``. If the sensor is a 1-wire
-temperature sensor attached to a :ref:`mini-monitor`, the ID is the 1-wire
+An example of a Monnit Sensor ID is ``29938``. If the sensor is a 1-Wire
+temperature sensor attached to a :ref:`mini-monitor`, the ID is the 1-Wire
 ID for the sensor, such as ``28.7CED4B050000``. If this "sensor" is
 actually a calculated field or a value retrieved from an Internet
 weather service, you must create an ID that is not in use by any other

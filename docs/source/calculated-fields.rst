@@ -260,7 +260,7 @@ calculating 15 minute runtime fractions::
     runtimeInterval: 15
 
 This special runtime function is also useful with Motion or Occupancy
-Sensors and 1-wire Motor Sensors used with the :ref:`mini-monitor`.
+Sensors and 1-Wire Motor Sensors used with the :ref:`mini-monitor`.
 
 Acquiring Building Energy Usage Information from ARIS
 -----------------------------------------------------
