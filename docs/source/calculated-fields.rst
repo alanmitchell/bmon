@@ -30,6 +30,7 @@ half hour, multiple calculated sensor readings will be generated at each
 half-hour processing interval to match up with the frequency of the
 source sensors.
 
+.. _math-calc-field:
 
 Mathematical Calculated Fields
 ------------------------------

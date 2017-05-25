@@ -152,6 +152,15 @@ sensor value is too high. For the Boiler Supply temperature example, you
 could also set up a second Emergency priority Alert if the temperature
 drops below 120 deg F.
 
+.. note:: Alerts can be created for *calculated fields* as well as normal
+  sensor readings.  Since a calculated field can combine the values of multiple
+  different sensors (see :ref:`math-calc-field`), complex alert conditions can 
+  be created that include tests for multiple different sensor values.  For example, a 
+  calculated field can be created that will evaluate to True if a particular
+  flow rate is zero at the same time that outdoor temperature is less than 38
+  degrees.  An Alert can then be set on that field to notify recipients when
+  this condition occurs.
+
 Inactive Alerts
 ---------------
 
