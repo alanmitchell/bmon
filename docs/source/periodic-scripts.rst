@@ -105,7 +105,7 @@ The script collects and stores this data in the BMON sensor reading
 database for display through the normal BMON application.
 
 Ecobee Authorization Process
-----------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Before BMON is allowed to pull data from an Ecobee account, two things
 must happen:
@@ -174,7 +174,7 @@ tokens into the "Script Parameters" input box to restore BMON's access
 to the Ecobee account.
 
 Other Notes on Ecobee Configuration
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Here are some additional notes on configuring Ecobee Periodic
 Scripts.
@@ -451,7 +451,7 @@ as that will cause the Script to send all historical data (up to the
 ``reach_back`` limit) every time the script runs.
 
 InfluxDB Tags Created during Export
------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 InfluxDB allows each point in the database to be described by any number
 of "tags". A tag is a key/value pair that adds metadata to the database
