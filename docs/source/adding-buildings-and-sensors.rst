@@ -224,7 +224,8 @@ on the label attached to the sensor:
 .. image:: /_static/monnit_id.png
 
 An example of a Monnit Sensor ID is ``29938``. If the sensor is a 1-Wire
-temperature sensor attached to a :ref:`mini-monitor`, the ID is the 1-Wire
+temperature sensor attached to a `Mini-Monitor 
+<http://mini-monitor-documentation.readthedocs.io/en/latest/>`_, the ID is the 1-Wire
 ID for the sensor, such as ``28.7CED4B050000``. If this "sensor" is
 actually a calculated field or a value retrieved from an Internet
 weather service, you must create an ID that is not in use by any other
@@ -324,8 +325,10 @@ the most commonly used ones are:
    Converts a 0 from the sensor to ``Vacant`` and a 1 to ``Occupied``
 *  There are a number of special status codes reported by the Burnham
    Alpine Boilers and the AERCO boilers, which are monitored by the
-   :ref:`mini-monitor` setups. These status codes have special formatting
-   functions that are described in the :ref:`mini-monitor` documentation.
+   `Mini-Monitor <http://mini-monitor-documentation.readthedocs.io/en/latest/>`_ 
+   setups. These status codes have special formatting
+   functions that are described in the `Mini-Monitor 
+   <http://mini-monitor-documentation.readthedocs.io/en/latest/>`_ documentation.
 
 --------------
 

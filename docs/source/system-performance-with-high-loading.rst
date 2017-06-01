@@ -117,8 +117,8 @@ The monitoring system is currently configured to back up this database
 every 3 days. When the database is this large, the backup process takes
 approximately 12 minutes. During this time, readings from devices such
 as Monnit wireless sensors and the AHFC DDC building control system will
-be lost. Readings from the mini-monitor systems in the 3-8 plex public
-housing buildings will not be lost, because the mini-monitor system
+be lost. Readings from the Mini-Monitor systems in the 3-8 plex public
+housing buildings will not be lost, because the Mini-Monitor system
 queues up failed readings and tries to send them at a later time.
 
 Web Server Configuration

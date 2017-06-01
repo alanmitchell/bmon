@@ -105,14 +105,6 @@ be archived or exported from the system for analysis elsewhere (basic
 knowledge of database systems is required). The document is also useful
 if you need to clean-up or remove data from the system.
 
-:ref:`Mini Monitor <mini-monitor>`
-----------------------------------
-
-The "Mini-Monitor" is an inexpensive data acquisition device built using
-the `Raspberry Pi <https://www.raspberrypi.org/>`_ computer. It was
-designed and deployed as part of the BMON project, and it is described
-further in this document.
-
 :ref:`System Capacity <system-performance-with-high-loading>`
 -------------------------------------------------------------
 

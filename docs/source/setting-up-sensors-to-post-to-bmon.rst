@@ -12,10 +12,9 @@ use the HTTP protocol to export data.
 Specific instructions are provided for:
 
 *  `Monnit Wireless Sensors <http://http://www.monnit.com/>`_
-*  The :ref:`mini-monitor`, a `Raspberry
-   Pi <https://www.raspberrypi.org/>`_ data acquisition system designed
-   for the Alaska Housing Finance Corporation (AHFC) Building Monitoring
-   project.
+*  The `Mini-Monitor <http://mini-monitor-documentation.readthedocs.io/en/latest/>`_, 
+   a `Raspberry Pi <https://www.raspberrypi.org/>`_ data acquisition system designed
+   for the Alaska Housing Finance Corporation (AHFC) Building Monitoring project.
 *  `Kors HTTP Poster for Niagara AX <http://www.korsengineering.com/products/http-poster-for-niagara-ax/>`_,
    a software module that allows building control systems utilizing the
    Niagara AX software framework to export data via HTTP Internet
@@ -82,12 +81,15 @@ Sensor ID that is the same as the Monnit sensor ID; for example the
 Monnit Sensor with ID 139883 will appear in the BMON system with a
 Sensor ID of 139883.
 
-:ref:`Mini Monitor <mini-monitor>`
-----------------------------------
+`Mini-Monitor <http://mini-monitor-documentation.readthedocs.io/en/latest/>`_
+------------------------------------------------------------------------------
 
-The Mini-Monitor data acquisition system was developed for the AHFC
+The Mini-Monitor data acquisition system based on the 
+`Raspberry Pi <https://www.raspberrypi.org/>`_ computer was developed 
+for the AHFC
 Building Monitoring project. It directly posts data to the BMON system.
-As described in the :ref:`Mini-Monitor Documentation <mini-monitor>`, there
+As described in the `Mini-Monitor Documentation 
+<http://mini-monitor-documentation.readthedocs.io/en/latest/>`_, there
 are two critical entries for data posting in the Mini-Monitor settings
 file:
 
@@ -255,7 +257,7 @@ reading. The second method allows you to store multiple sensor readings
 from one or more sensors. Below are descriptions of those two methods.
 
 Storing One Sensor Reading
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 To store one sensor reading, you can make either a GET or a POST HTTP
 request. The URL that the request should be made to is:
@@ -338,7 +340,7 @@ The response from a successful HTTP request will be
 will be returned.
 
 Storing Multiple Sensor Readings
---------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 It is possible to post multiple sensor readings to BMON from one or more
 sensors. To do so, an HTTP POST request must be made. The URL to send

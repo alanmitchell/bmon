@@ -83,7 +83,6 @@ here.
    calculated-fields
    periodic-scripts
    archiving-and-analyzing-data-from-the-system
-   mini-monitor
    system-performance-with-high-loading
    
 .. toctree::
