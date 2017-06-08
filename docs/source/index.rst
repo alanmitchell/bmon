@@ -84,6 +84,7 @@ here.
    periodic-scripts
    archiving-and-analyzing-data-from-the-system
    system-performance-with-high-loading
+   integrating-with-siemens-systems
    
 .. toctree::
    :maxdepth: 2
