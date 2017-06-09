@@ -176,8 +176,8 @@ The general steps necessary are:
     configuring Dropbox.
 
 This procedure has been implemented for a Siemens building automation system running the
-Insight APOGEE management software. :ref:`Here is an explanation for configuring the
-creation of trend files <integrating-with-siemens-systems>` on this system.
+Insight APOGEE management software. :ref:`This document explains how to create
+trend files <integrating-with-siemens-systems>` on this system.
 The ``csv-transfer`` configuration file for posting the data from these files to
 BMON is shown below:
 
@@ -194,6 +194,12 @@ BMON is shown below:
         poster_id:  an-bmon-01              # unique ID for this posting object
         bmon_store_url: https://bmon.analysisnorth.com/readingdb/reading/store/
         bmon_store_key: xyz1234567
+
+.. toctree::
+   :maxdepth: 2
+   :hidden:
+
+   integrating-with-siemens-systems
 
 
 `Particle WiFi and Cellular Microcontroller Boards <https://www.particle.io/>`_
@@ -356,11 +362,11 @@ The ``[store key]`` has been discussed before and is the
 ``BMSAPP_STORE_KEY`` setting you created in the BMON Settings File.
 ``[sensor value]`` is the sensor's reading value that is being posted to
 the BMON database; it needs to be a number. ``[date/time of reading]``
-is the time of the sensor reading expressed in `Coordinated Universal
-Time (UTC) <http://en.wikipedia.org/wiki/Coordinated\_Universal\_Time>`_.
+is the time of the sensor reading expressed in 
+`Coordinated Universal Time (UTC) <http://en.wikipedia.org/wiki/Coordinated_Universal_Time>`_.
 The date/time should be entered as a string value, such as
-``Dec 3, 2014 10:03:45 PM``, and it must be properly `URL
-encoded <http://en.wikipedia.org/wiki/Query\_string#URL\_encoding>`_. The
+``Dec 3, 2014 10:03:45 PM``, and it must be properly 
+`URL encoded <http://en.wikipedia.org/wiki/Query_string#URL_encoding>`_. The
 prior date string, encoded properly, would be transmitted as:
 ``Dec+3%2C+2014+10%3A03%3A45+PM``. The format of the date/time string is
 very flexible as the `Python dateutil
