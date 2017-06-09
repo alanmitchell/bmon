@@ -133,6 +133,71 @@ The Kors Poster does not send any time information when it posts the
 point values. BMON will timestamp the readings when they arrive at the
 BMON system.
 
+.. _general-bas-method:
+
+General Method for Gathering Data from Building Automation Systems
+-------------------------------------------------------------------
+
+Most Building Automation/DDC Systems (BAS) can be configured to periodically create
+a file containing trend data for selected sensors and control points on the system.
+This file can then be used as a source of data to post to the BMON system.  This
+section gives a general outline of how to set up a process for accomplishing this.
+
+The general steps necessary are:
+
+#.  Install the file-sharing software `Dropbox <https://www.dropbox.com/>`_ on the
+    PC running the Building Automation System Management Software, or install it on a file
+    server accessible to the Automation System.  Create a folder in the Dropbox
+    account that will hold the trend files created by the BAS.
+#.  Configure the Management Software for the Building Automation System to periodically
+    create a trend file containing data from the sensors and control points of
+    interest.  Often, a useful time interval between recorded points is 10 to
+    15 minutes.  Also, configure the software to create the trend file at least once
+    daily, although for fresher data in BMON, creating the file every 4 hours is
+    better.  The best format for the trend files is Comma-Separated-Values (CSV).
+    Configure the BAS to store these files in the Dropbox folder created in the
+    prior step.
+#.  Install Dropbox on the BMON Server. `Here are Instructions
+    <https://www.dropbox.com/install-linux>`_ for a "headless" install of Dropbox
+    on a Linux server.  For the server, you can use the same Dropbox account as you
+    set up in Step 1 or you can create a new Dropbox account associated with the BMON
+    server; if you use a different account, Share the Dropbox folder you are using
+    for the trend files with the Dropbox account used in the BMON server.  After
+    completion of this step, the BAS trend files will be readily accessible to the
+    BMON server.
+#.  Finally, a script needs to be run on the BMON server to load the sensor data
+    from the trend files into BMON.  The `csv-transfer
+    <https://github.com/alanmitchell/csv-transfer>`_ utility is one such script that
+    can continually monitor the Dropbox folder for new or changed files, and then load
+    data present in those files into BMON.  See the above linked documentation for that
+    script.  This script can actually reside on any PC or server that has access to
+    the trend files and access to the Internet, including the BAS Management PC.
+    The advantage of putting it on a cloud server running Dropbox is that it can be
+    shared across multiple BAS systems and the owner of the BAS system does not need
+    to install and configure the script; they have the simpler task of installing and
+    configuring Dropbox.
+
+This procedure has been implemented for a Siemens building automation system running the
+Apogee Insight management software. :ref:`Here is an explanation for configuring the
+creation of trend files <integrating-with-siemens-systems>` on this system.
+The ``csv-transfer`` configuration file for posting the data from these files to
+BMON is shown below:
+
+.. code-block:: yaml
+
+    csv_files:
+      - file_glob: "/home/amitchell2/Dropbox/cchrc_siemens/*.csv"
+        file_type: siemens
+        chunk_size: 10
+        ts_tz: US/Alaska
+
+    consumers:
+      - type: bmon
+        poster_id:  an-bmon-01              # unique ID for this posting object
+        bmon_store_url: https://bmon.analysisnorth.com/readingdb/reading/store/
+        bmon_store_key: xyz1234567
+
+
 `Particle WiFi and Cellular Microcontroller Boards <https://www.particle.io/>`_
 --------------------------------------------------------------------------------
 
