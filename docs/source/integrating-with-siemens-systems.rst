@@ -108,12 +108,10 @@ Configure the Reporting Interval by clicking the ``Configure`` option and select
 
 .. image:: /_static/trend_reporting_interval.jpg
 
-Configure the output by clicking the ``Configure`` option 
-
-.. image:: /_static/trend_reporting_interval.jpg
+Configure the Output by clicking the ``Configure`` option 
  
 Click the ellipses ... next to File and browse to the location you wish to save your file, if you are using Dropbox to store your files for access from the BMON system you will want to select a location inside
-your Dropbox folder. Give the file a descriptive name and confirm that overwrite System Date and Time is checked. 
+your Dropbox folder. Give the file a descriptive name and confirm that System Date and Time is checked. 
 
 .. image:: /_static/report_output_options.jpg
 
