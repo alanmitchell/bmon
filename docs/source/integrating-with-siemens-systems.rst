@@ -57,7 +57,7 @@ worth of space the computer is available to hold. If adjusting these variables, 
 as this indicates the maximum number of samples that can be collected per interval.
  
  
- Get Data from Siemens Field Panel
+Get Data from Siemens Field Panel
 ---------------------------------
 
 

@@ -274,7 +274,8 @@ the file:
 
     */5 * * * * ~/webapps/bmon_django/bmon/manage.py runscript main_cron > /dev/null 2>&1
 
-This cron job: 
+This cron job:
+
 * creates calculated reading values and stores Internet
   weather data in the reading database every half hour
 * checks for active Alert Conditions every five minutes 
