@@ -103,7 +103,7 @@ instructions <https://support.google.com/maps/answer/18539?hl=en>`_.
 **Time Zone of Facility:** Enter the timezone where the building is
 located, for example "US/Alaska". The list of valid time zones comes
 from the Olson Timezone database and is `available
-here <http://en.wikipedia.org/wiki/List\_of\_tz\_database\_time\_zones>`_.
+here <http://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`_.
 
 **Occupied Schedule of Facility:** (Optional) Some buildings are not
 occupied 24/7. A number of the BMON graphs and reports highlight sensor
@@ -192,6 +192,8 @@ right hand box that are in the ``Residential`` group; the two buildings
 on the left are not in the group.
 
 .. image:: /_static/building_group_edit.png
+
+.. _adding-sensors:
 
 Adding Sensors
 --------------

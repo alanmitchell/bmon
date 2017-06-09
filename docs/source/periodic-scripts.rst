@@ -206,8 +206,8 @@ collection of Ecobee data will begin. Successfully collected sensor
 readings will be stored in the BMON sensor reading database. However,
 these readings will not be displayed in the BMON graphing and report
 interface until each individual sensor is configured in the BMON system.
-See the "Adding Sensors" section in the :ref:`add-buildings-and-sensors` 
-document for the process of adding a sensor into the BMON system. This process assigns an
+See the :ref:`adding-sensors` section for the process of adding a sensor 
+into the BMON system. This process assigns an
 understandable name to the sensor, puts the sensor in an appropriate
 Sensor Group, and assigns the sensor to one or more buildings.
 
