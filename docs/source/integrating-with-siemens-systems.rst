@@ -11,6 +11,7 @@ See :ref:`General Method for Gathering Data from Building Automation Systems`
 for one approach to pushing this data into BMON.
 
 \* A few notes on Siemens-specific terminology used in this document.
+ 
 * ``Point`` refers to a sensor or data point.
 * ``Trend`` refers to a collection of points and their values over time. 
 
