@@ -133,10 +133,8 @@ The Kors Poster does not send any time information when it posts the
 point values. BMON will timestamp the readings when they arrive at the
 BMON system.
 
-.. _general-bas-method:
-
 General Method for Gathering Data from Building Automation Systems
--------------------------------------------------------------------
+------------------------------------------------------------------
 
 Most Building Automation/DDC Systems (BAS) can be configured to periodically create
 a file containing trend data for selected sensors and control points on the system.

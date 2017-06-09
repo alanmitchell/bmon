@@ -6,7 +6,8 @@ This document describes how to create data files (CSV) in the Siemens Building M
 for integration into the BMON system. The specific steps shown here are specific to the 
 `Siemens Insight APOGEE Building Automation Software Program <http://w3.usa.siemens.com/buildingtechnologies/us/en/building-automation-and-energy-management/apogee/pages/apogee.aspx>`_ 
 version 3.7.0 (2005). The general goals of each step of the report building process are described here 
-to assist in integrating your Siemens Buiding Data with BMON. See :ref:`general-bas-method`
+to assist in integrating your Siemens Buiding Data with BMON. 
+See :ref:`General Method for Gathering Data from Building Automation Systems`
 for one approach to pushing this data into BMON.
 
 \* A few notes on Siemens-specific terminolgy used in this document.
