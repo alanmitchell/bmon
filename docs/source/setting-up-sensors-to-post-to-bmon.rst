@@ -133,7 +133,7 @@ The Kors Poster does not send any time information when it posts the
 point values. BMON will timestamp the readings when they arrive at the
 BMON system.
 
-.. _general-bas-method:
+.. _general-method-for-gathering-data-from-building-automation-systems:
 
 General Method for Gathering Data from Building Automation Systems
 -------------------------------------------------------------------
