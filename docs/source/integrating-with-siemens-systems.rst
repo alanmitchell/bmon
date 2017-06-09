@@ -15,10 +15,10 @@ for one approach to pushing this data into BMON.
 ``Trend`` refers to a collection of points and their values over time. 
 
 
-Configure Sampling Rate for Each Sensor
----------------------------------------
+Configure Sampling Rates for Each Sensor
+----------------------------------------
 
-The first step to automatically exporting data from a Siemens system to BMON�s web-based monitoring 
+The first step to automatically exporting data from a Siemens system to BMONs web-based monitoring 
 tool is to select the sensors you would like to export, configure them to the correct time interval, 
 and ensure that they are available for collection.
 
@@ -57,80 +57,102 @@ worth of space the computer is available to hold. If adjusting these variables, 
 as this indicates the maximum number of samples that can be collected per interval.
  
  
- Get Data from Siemens Field Panel
+Build the Trend Collection Report
 ---------------------------------
+In order to build a report, data must first be retrieved from the Siemens field panel and saved to the computer.  This is done by creating a ``Trend Collection Report``.  
 
+Open the ``Report Builder``
 
-In order to build a report, first data must be imported from the field panel to the server.  This is done by creating a �Trend Collection Report.  
-Open Report Builder
+.. image:: /_static/report_builder.jpg
 
+From the Definition menu, select ``New``
+
+Select ``Trend Collection Report``
+
+.. image:: /_static/trend_collection_report.jpg
+
+Click ``Add`` and select the points you configured in the previous section 
  
+Save the report by clicking the Definition menu and selecting Save.
 
-Select Definition >> New
+To verify your report is functioning correctly, run a test report by selecting ``Run Report`` from the Definition menu.
+
+
+Build the Trend Interval Report
+-------------------------------
+
+Once the system has been configured to obtain data from the Siemens field panel using the Trend Collection Report, the data can be extracted and written to a CSV file.
+
+Open the ``Report Builder``
+
+.. image:: /_static/report_builder.jpg
+
+From the Definition menu, select ``New``
+
+Select ``Trend Interval Report``
+
+.. image:: /_static/trend_interval_report.jpg
+
+Configure your Trend Points by clicking ``Configure``
+
+.. image:: /_static/trend_interval_report_configure.jpg
+
+Click ``Add`` and select the points you configured in the previous section
+
+.. image:: /_static/trend_point_list.jpg
+
+After you've added your points to the trend points list click ``OK``
  
+Configure the Reporting Interval by clicking the ``Configure`` option and selecting your preferred interval
 
-Create a Trend Collection Report
+.. image:: /_static/trend_reporting_interval.jpg
+
+Configure the output by clicking the ``Configure`` option 
+
+.. image:: /_static/trend_reporting_interval.jpg
  
-Save this report. And run a test report by selecting �Definition -> Run Report�.
+Click the ellipses ... next to File and browse to the location you wish to save your file, if you are using Dropbox to store your files for access from the BMON system you will want to select a location inside
+your Dropbox folder. Give the file a descriptive name and confirm that overwrite System Date and Time is checked. 
 
-Build CSV Trend Report
-----------------------
+.. image:: /_static/report_output_options.jpg
 
+Then click ``File Format...`` and select Delimit Text and Comma. 
 
-Once the system has been configured to obtain data from the field panel using the Trend Collection Report, the data can be summarized and saved as a CSV Trend Report.
-Create a Trend Interval Report by going to �Definition -> New� and then choosing �Trend Interval Report� from the drop-down menu.
- 
+.. image:: /_static/file_format_options.jpg
 
-
-Configure Trend Points
-
- 
-
-Click Add
- 
-
-If you click find now, the object selector will auto-populate a list of all potential trend points.
- 
-Select the points you want to trend. You can select multiple points at a time by holding down the ctrl key. Then click ok.
- 
-
-The points will be added to the trend points list. Click OK
- 
-
-
-
-
-
-Configure the reporting interval, you have a few options. Then configure the output.
-
-
-
-
-
-
- 
-
-Check file and browse for the location for you file. Name the file. Make sure overwrite system date and time is checked. The click file format. Make sure Delimit Text and Comma are checked. Click OK until you are back to the Trend Interval Report screen. Check that the time format is 24 hours.
+Click OK until you are back to the Trend Interval Report screen and check that the time format is 24 hours. Your report should now look similar to the example below:
   
+.. image:: /_static/trend_interval_report_example.jpg
 
+Run the report to verify the information is correct, then select ``Save As`` from the Definition menu. This will save your report. 
 
-You can run the report to see if it is working. Go back to Definition and click save as. This will save your report program. 
-
- 
 
 Schedule Automatic Reports
 --------------------------
 
-Finally, the system needs to be set up to automatically collect the data from the field panel by scheduling a regular �Trend Collection Report� and then saving the data in a CSV file for export by scheduling a regular Report.  
-Select Scheduler
+Finally, the system needs to be configured to automatically collect the data from the Siemens field panel by scheduling your reports to run and save the data to a CSV file.  
+
+Open the ``Scheduler``
  
+.. image:: /_static/scheduler.jpg
+
+From the Schedule menu select ``New > Trend Collection``
+
+Use the object selector to find the Trend Collection Report you created earlier. 
+
+Set up the report to run daily. If you want reports to be generated more often you'll need to set up a separate instance run for each time you want to generate a report, for instance, one to run at 12:00PM and another to run at 1:00PM.
  
+.. image:: /_static/trend_collection_schedule_1.jpg
 
-Schedule>>New>>Trend Collection
-Use the object selector to find the trend collection you just created. Set up the program to run daily, weekly, �., If you want reports more often you�ll need to set up a separate run for each time you want to collect a report.
- 
+Once you've scheduled the Trend Collection Report, which only pulls data from the Siemens field panel and stores it, you'll want to do the same for your Trend Interval Report which compiles the data into a readable format for the BMON system.
+  
+From the Schedule menu select ``New > Trend Collection``
 
-Schedule>>New>>Report
-Use the object selector to find the report you just created. Set up the program to run daily, weekly, �., If you want reports more often you�ll need to set up a separate run for each time you want to collect a report.
+Use the object selector to find the Trend Interval Report you created earlier. 
 
+Set up the report to run daily. If you want reports to be generated more often you'll need to set up a separate instance run for each time you want to generate a report, for instance, one to run at 12:00PM and another to run at 1:00PM.
 
+.. image:: /_static/trend_collection_schedule_2.jpg
+
+\* Note that the ``Collection Time`` in this example is set to run 10 minutes after the Trend Collection Report runs, we do this to give the system time to pull the data from the Siemens field panel, only after this is performed can the Trend Interval 
+Report be generated with current data. 
