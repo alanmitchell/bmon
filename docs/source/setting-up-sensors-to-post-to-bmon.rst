@@ -178,7 +178,7 @@ The general steps necessary are:
     configuring Dropbox.
 
 This procedure has been implemented for a Siemens building automation system running the
-Apogee Insight management software. :ref:`Here is an explanation for configuring the
+Insight APOGEE management software. :ref:`Here is an explanation for configuring the
 creation of trend files <integrating-with-siemens-systems>` on this system.
 The ``csv-transfer`` configuration file for posting the data from these files to
 BMON is shown below:

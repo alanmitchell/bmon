@@ -6,7 +6,8 @@ This document describes how to create data files (CSV) in the Siemens Building M
 for integration into the BMON system. The specific steps shown here are specific to the 
 `Siemens Insight APOGEE Building Automation Software Program <http://w3.usa.siemens.com/buildingtechnologies/us/en/building-automation-and-energy-management/apogee/pages/apogee.aspx>`_ 
 version 3.7.0 (2005). The general goals of each step of the report building process are described here 
-to assist in integrating your Siemens Buiding Data with BMON. 
+to assist in integrating your Siemens Buiding Data with BMON. See :ref:`this discussion
+<general-bas-method>` for one approach to pushing this data into BMON.
 
 \* A few notes on Siemens-specific terminolgy used in this document.
 ``Point`` refers to a sensor or data point.
@@ -16,7 +17,7 @@ to assist in integrating your Siemens Buiding Data with BMON.
 Configure Sampling Rate for Each Sensor
 ---------------------------------------
 
-The first step to automatically exporting data from a Siemens system to BMON’s web-based monitoring 
+The first step to automatically exporting data from a Siemens system to BMONï¿½s web-based monitoring 
 tool is to select the sensors you would like to export, configure them to the correct time interval, 
 and ensure that they are available for collection.
 
@@ -59,7 +60,7 @@ as this indicates the maximum number of samples that can be collected per interv
 ---------------------------------
 
 
-In order to build a report, first data must be imported from the field panel to the server.  This is done by creating a “Trend Collection Report.  
+In order to build a report, first data must be imported from the field panel to the server.  This is done by creating a ï¿½Trend Collection Report.  
 Open Report Builder
 
  
@@ -69,14 +70,14 @@ Select Definition >> New
 
 Create a Trend Collection Report
  
-Save this report. And run a test report by selecting “Definition -> Run Report”.
+Save this report. And run a test report by selecting ï¿½Definition -> Run Reportï¿½.
 
 Build CSV Trend Report
 ----------------------
 
 
 Once the system has been configured to obtain data from the field panel using the Trend Collection Report, the data can be summarized and saved as a CSV Trend Report.
-Create a Trend Interval Report by going to “Definition -> New” and then choosing “Trend Interval Report” from the drop-down menu.
+Create a Trend Interval Report by going to ï¿½Definition -> Newï¿½ and then choosing ï¿½Trend Interval Reportï¿½ from the drop-down menu.
  
 
 
@@ -119,16 +120,16 @@ You can run the report to see if it is working. Go back to Definition and click 
 Schedule Automatic Reports
 --------------------------
 
-Finally, the system needs to be set up to automatically collect the data from the field panel by scheduling a regular “Trend Collection Report” and then saving the data in a CSV file for export by scheduling a regular Report.  
+Finally, the system needs to be set up to automatically collect the data from the field panel by scheduling a regular ï¿½Trend Collection Reportï¿½ and then saving the data in a CSV file for export by scheduling a regular Report.  
 Select Scheduler
  
  
 
 Schedule>>New>>Trend Collection
-Use the object selector to find the trend collection you just created. Set up the program to run daily, weekly, …., If you want reports more often you’ll need to set up a separate run for each time you want to collect a report.
+Use the object selector to find the trend collection you just created. Set up the program to run daily, weekly, ï¿½., If you want reports more often youï¿½ll need to set up a separate run for each time you want to collect a report.
  
 
 Schedule>>New>>Report
-Use the object selector to find the report you just created. Set up the program to run daily, weekly, …., If you want reports more often you’ll need to set up a separate run for each time you want to collect a report.
+Use the object selector to find the report you just created. Set up the program to run daily, weekly, ï¿½., If you want reports more often youï¿½ll need to set up a separate run for each time you want to collect a report.
 
 
