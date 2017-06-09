@@ -104,7 +104,7 @@ application. The Django template used to create the page is the
 `reports.html template <https://github.com/alanmitchell/bmon/blob/master/bmsapp/reports.html>`_.
 
 **get_report_results()**: The Reports page in the browser is a
-`Single Page Application <https://en.wikipedia.org/wiki/Single-page\_application>`_.
+`Single Page Application <https://en.wikipedia.org/wiki/Single-page_application>`_.
 When the User makes a change to the input controls on the page that
 affects the report or chart, this function is called by the browser to
 request the new report or chart content. More explanation of the data
@@ -299,7 +299,7 @@ user browses to the base URL for the application:
                        )
 
 The main Charts/Reports page is the core of the application. It
-functions as a `Single Page Application <https://en.wikipedia.org/wiki/Single-page\_application>`_.
+functions as a `Single Page Application <https://en.wikipedia.org/wiki/Single-page_application>`_.
 With the initial loading of that page, all of the static HTML of the
 page and all of HTML Input elements are downloaded from the server. As
 the user changes inputs, AJAX calls are made to the server to update the
