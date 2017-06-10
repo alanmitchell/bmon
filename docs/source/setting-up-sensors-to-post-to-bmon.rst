@@ -222,7 +222,7 @@ The essential steps involve:
    in the correct format for consumption by the BMON server.
 
 Create a Webhook on the Particle Server
----------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 *  Assuming you are logged into your Particle account, select the
    ``CONSOLE`` item from the right side of the top menu bar.
@@ -265,7 +265,7 @@ of the page to complete creation of the Webhook. Whenever a
 server, its data will be be forwarded to the BMON server.
 
 Particle Event Format
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 The Particle server is now prepared to forward data to the BMON server.
 However, the Particle board must publish an event of the proper name in
