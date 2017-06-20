@@ -358,6 +358,7 @@ def map_json(request):
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
+@login_required
 def ecobee_auth(request):
     """Used to generated a form so that a System Admin can obtain access keys
     for reading data from the Ecobee thermostat server.
