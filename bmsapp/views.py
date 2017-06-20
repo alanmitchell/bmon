@@ -315,6 +315,7 @@ def get_readings(request, reading_id):
 
     return HttpResponse(json.dumps(result), content_type="application/json")
 
+@login_required
 def show_log(request):
     '''
     Returns the application's log file, without formatting.
@@ -376,6 +377,7 @@ def ecobee_auth(request):
         ctx.update({'success': success, 'access_token': access_token, 'refresh_token': refresh_token})
         return render_to_response('bmsapp/ecobee_auth_result.html', ctx)
 
+@login_required
 def unassigned_sensors(request):
     """Shows sensors that are in the Reading Database but not assigned to a building.
     """
