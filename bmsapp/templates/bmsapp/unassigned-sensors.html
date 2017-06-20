@@ -5,7 +5,13 @@
 {% block title %}Sensors not Assigned to a Building{% endblock %}
 
 {% block content %}
-<br>
+<p>This is a list of sensors that are either:</p>
+
+<ul>
+    <li>Not entered into the Admin Sensor list, or</li>
+    <li>They are entered in the list of Sensors but they are not assigned to a building.</li>
+</ul>
+
 <table>
     <thead><tr><th>Sensor ID</th><th>Last Reading</th><th>When</th><th>Sensor Name, if available</th></tr></thead>
     <tbody>
