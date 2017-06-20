@@ -55,6 +55,10 @@ a.selected-nav-link:hover {
 	padding: 10px;
 }
 
+li {
+    padding: 5px;
+}
+
 #content {
 	margin-left: auto;
 	margin-right: auto;
