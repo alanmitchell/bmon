@@ -376,6 +376,41 @@ def ecobee_auth(request):
         ctx.update({'success': success, 'access_token': access_token, 'refresh_token': refresh_token})
         return render_to_response('bmsapp/ecobee_auth_result.html', ctx)
 
+def unassigned_sensors(request):
+    """Shows sensors that are in the Reading Database but not assigned to a building.
+    """
+
+    db = bmsdata.BMSdata()
+    sensor_list = []
+    for sens_id in db.sensor_id_list():
+        sensor_info = {'id': sens_id, 'title': '', 'cur_value': '', 'minutes_ago': ''}
+        add_sensor = False
+
+        qs = models.Sensor.objects.filter(sensor_id=sens_id)
+        if len(qs)==0:
+            # Sensor does not even have a sensor object
+            add_sensor = True
+        else:
+            sensor = qs[0]   # get the actual Sensor object
+            # see if this sensor has links to a building
+            links = models.BldgToSensor.objects.filter(sensor=sensor)
+            if len(links)==0:
+                # no links, so found an unassigned sensor
+                add_sensor = True
+                sensor_info['title'] = sensor.title
+
+        if add_sensor:
+            last_read = db.last_read(sens_id)
+            if last_read:
+                sensor_info['cur_value'] = last_read['val']
+                sensor_info['minutes_ago'] = '%.1f' % ((time.time() - last_read['ts'])/60.0)
+
+            sensor_list.append(sensor_info)
+
+    ctx = base_context()
+    ctx.update({'sensor_list': sensor_list})
+    return render_to_response('bmsapp/unassigned-sensors.html', ctx)
+
 def wildcard(request, template_name):
     '''
     Used if a URL component doesn't match any of the predefied URL patterns.  Renders

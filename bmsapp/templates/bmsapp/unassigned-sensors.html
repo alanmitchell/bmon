@@ -1,0 +1,22 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Unassigned Sensors{% endblock %}
+
+{% block title %}Sensors not Assigned to a Building{% endblock %}
+
+{% block content %}
+<br>
+<table>
+    <thead><tr><th>Sensor ID</th><th>Last Reading</th><th>When</th><th>Sensor Name, if available</th></tr></thead>
+    <tbody>
+    {% for sensor in sensor_list %}
+        <tr><td>{{ sensor.id }}</td>
+            <td class="number">{{ sensor.cur_value }}</td>
+            <td>{{ sensor.minutes_ago }} minutes ago</td>
+            <td>{{ sensor.title }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock %}
