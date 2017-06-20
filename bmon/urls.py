@@ -10,3 +10,7 @@ urlpatterns = [
     url(r'^admin/', include(admin.site.urls)),
     url(r'^', include('bmsapp.urls')),
 ]
+
+admin.site.site_title = 'BMON Admin'
+admin.site.site_header = 'BMON Administration'
+admin.site.index_title = 'Site Administration'
