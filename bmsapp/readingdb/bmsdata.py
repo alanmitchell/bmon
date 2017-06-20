@@ -288,6 +288,13 @@ class BMSdata:
             self.conn.commit()
             return None, None   # no prior values
 
+    def sensor_id_list(self):
+        """Returns a list of Sensor IDs that are present in the Reading
+        database.  The returned list is sorted by ID."""
+        # Don't return IDs that start with underbar.
+        id_list = [sens_id for sens_id in self.sensor_ids if sens_id[0]!='_']
+        return sorted(id_list)
+
     def backup_db(self, days_to_retain):
         """Backs up the database and compresses the backup.  Deletes old backup
         files that were created more than 'days_to_retain' ago.
