@@ -1,10 +1,12 @@
+"""Creates Report analyzing cycle length and info.
+"""
 from collections import namedtuple
+from django.template import loader
 import pandas as pd
 import numpy as np
 import bmsapp.models
-import bmsapp.data_util
+from bmsapp.data_util import formatCurVal
 import basechart
-import pytz
 
 
 def find_cycles(df_in):
@@ -45,12 +47,12 @@ def find_cycles(df_in):
     if not set(df.val.values).issubset({0.0, 1.0}):
         midpoint = (df.val.max() + df.val.min()) / 2.0
         df['val'] = (df.val > midpoint) * 1.0
-        notes += '  Values were converted to On/Off states using a threshold of %.3g' % midpoint
+        notes += '  Values were converted to On/Off states using a threshold of %s.' % formatCurVal(midpoint)
 
     df['v_diff'] = df.val.diff()
     starts = df[df.v_diff == 1.0]
     ends = df[(df.v_diff == -1.0)]
-    if len(starts):
+    if not starts.empty:
         ends = ends[ends.ts > starts.ts.values[0]]
 
     df_cycles = pd.DataFrame({'start': starts.ts.values[:len(ends)], 'end': ends.ts.values})
@@ -88,7 +90,7 @@ def analyze_cycles(df_in):
 
     # now make a dataframe including the possible partial cycles at beginning
     # and end of data set.  Use this for calculating runtime
-    if len(df_in):
+    if not df_in.empty:
         df_full = pd.concat([pd.DataFrame({'ts': [df_in.ts.values[0]], 'val': [0]}),
                              df_in,
                              pd.DataFrame({'ts': [df_in.ts.values[-1]], 'val': [0]})],
@@ -111,7 +113,7 @@ def analyze_cycles(df_in):
         runtime = Stats(None, None, None)
 
     # --- Cycle Length stats; only complete cycles
-    if len(df_complete_cycles):
+    if not df_complete_cycles.empty:
         cycle_length = Stats(df_complete_cycles.cycle_len.mean(),
                              df_complete_cycles.cycle_len.min(),
                              df_complete_cycles.cycle_len.max())
@@ -172,3 +174,52 @@ class CycleInfo(basechart.BaseChart):
         Returns the HTML and chart object for the Cycle Length Analysis
         """
 
+        # determine the sensor to plot from the sensor selected by the user.
+        the_sensor = bmsapp.models.Sensor.objects.get(pk=self.request_params['select_sensor'])
+
+        # determine the start time for selecting records
+        st_ts, end_ts = self.get_ts_range()
+
+        # get the database records
+        df = self.reading_db.dataframeForOneID(the_sensor.sensor_id, st_ts, end_ts)
+
+        # analyze the cycles
+        df_cycles, stats, notes = analyze_cycles(df)
+
+        chart_data = {'x': list(df_cycles.cycle_len.values),
+                      'type': 'histogram',
+                      'nbinsx': 40,
+                     }
+
+        opt = self.get_chart_options('plotly')
+        opt['data'] = [chart_data]
+        opt['layout']['title'] = 'Cycle Length Histogram'
+        opt['layout']['xaxis']['title'] =  'Cycle Length in Minutes'
+        opt['layout']['xaxis']['type'] =  'linear'
+        opt['layout']['yaxis']['title'] =  'Number of Cycles'
+        opt['layout']['showlegend'] = False
+        opt['layout']['margin']['b'] = 60
+
+        # context for template
+        context = {}
+
+        # create a report title
+        context['report_title'] = 'On/Off Cycle Information: %s' % the_sensor.title
+
+        if stats.runtime.mean is not None:
+            context['runtime_avg'] = formatCurVal(stats.runtime.mean * 100.0)
+
+        context['cycle_length_avg'] = formatCurVal(stats.cycle_length.mean)
+        context['cycle_length_min'] = formatCurVal(stats.cycle_length.min)
+        context['cycle_length_max'] = formatCurVal(stats.cycle_length.max)
+
+        context['cycles_per_hour_avg'] = formatCurVal(stats.cycles_per_hour.mean)
+        context['cycles_per_hour_min'] = formatCurVal(stats.cycles_per_hour.min)
+        context['cycles_per_hour_max'] = formatCurVal(stats.cycles_per_hour.max)
+
+        # Notes about statistical analysis
+        context['notes'] = notes
+
+        template = loader.get_template('bmsapp/cycle-info.html')
+
+        return {'html': template.render(context), 'objects': [('plotly', opt)]}
