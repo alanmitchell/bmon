@@ -25,4 +25,6 @@
     </tbody>
 </table>
 
-<p><b>Notes:</b>{{ notes }}</p>
+{% if notes.strip != '' %}
+    <p><b>Notes:</b>{{ notes }}</p>
+{% endif %}

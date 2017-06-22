@@ -195,7 +195,6 @@ class CycleInfo(basechart.BaseChart):
         opt['data'] = [chart_data]
         opt['layout']['title'] = 'Cycle Length Histogram'
         opt['layout']['xaxis']['title'] =  'Cycle Length in Minutes'
-        opt['layout']['xaxis']['type'] =  'linear'
         opt['layout']['yaxis']['title'] =  'Number of Cycles'
         opt['layout']['showlegend'] = False
         opt['layout']['margin']['b'] = 60
