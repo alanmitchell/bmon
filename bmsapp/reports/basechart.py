@@ -41,6 +41,7 @@ BLDG_CHART_TYPES = [
     BldgChartType(4, 'Heat Map Hourly Profile', 'hourly_heatmap.HourlyHeatMap'),
     BldgChartType(5, 'Histogram of a Sensor', 'histogram.Histogram'),
     BldgChartType(6, 'Sensor X vs Y Scatter Plot', 'xyplot.XYplot'),
+    BldgChartType(8, 'Cycle Time Analysis', 'cycle_info.CycleInfo'),
     BldgChartType(7, 'Download Sensor Data to Excel', 'exportdata.ExportData')
 ]
 
