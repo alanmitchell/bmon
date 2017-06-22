@@ -44,7 +44,7 @@ def find_cycles(df_in):
     # check to see whether all of the values are either 0.0 or 1.0.
     # If not, find a midpoint threshold and use that to translate
     # analog values to 0.0 or 1.0
-    if not set(df.val.values).issubset({0.0, 1.0}):
+    if not set(df.val.unique()).issubset({0.0, 1.0}):
         midpoint = (df.val.max() + df.val.min()) / 2.0
         df['val'] = (df.val > midpoint) * 1.0
         notes += '  Values were converted to On/Off states using a threshold of %s.' % formatCurVal(midpoint)
