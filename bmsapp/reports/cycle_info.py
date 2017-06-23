@@ -55,6 +55,9 @@ def find_cycles(df_in):
     ends = df[(df.v_diff == -1.0)]
     if not starts.empty:
         ends = ends[ends.ts > starts.ts.values[0]]
+    else:
+        # starts is empty, so make ends empty as well
+        ends = starts.copy()
 
     df_cycles = pd.DataFrame({'start': starts.ts.values[:len(ends)], 'end': ends.ts.values})
     df_cycles['cycle_len'] = (df_cycles.end - df_cycles.start) / 60.0  # in minutes
