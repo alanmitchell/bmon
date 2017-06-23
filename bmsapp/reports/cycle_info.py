@@ -4,6 +4,7 @@ from collections import namedtuple
 from django.template import loader
 import pandas as pd
 import numpy as np
+import pytz
 import bmsapp.models
 from bmsapp.data_util import formatCurVal
 import basechart
@@ -71,16 +72,20 @@ def analyze_cycles(df_in):
     Parameters
     ----------
     df_in: Pandas DataFrame structured as described in the documentation for the
-        find_cycles() function above.
+        find_cycles() function above, but with an additional requirement that the
+        index be a datetime index.
 
     Returns
     -------
-    A three tuple of:
+    A four tuple of:
         * A DataFrame with a row for each complete Cycle in the input DataFrame.
             See further description in the find_cycles() function.
+        * A DataFrame containing 1 hour rolling sum cycle starts, useful for
+            graphing cycles per hour over time. Columns are "starts", and the index
+            is datetime marking the middle of each 1 hour sum.
         * A named tuple with a number of summary statistics about the cycles
             in the data set.
-        * A string of Notes about any transform of the input data that may have
+        * A string containing Notes about any transform of the input data that may have
             occurred.
     """
 
@@ -121,32 +126,46 @@ def analyze_cycles(df_in):
         cycle_length = Stats(None, None, None)
 
     # --- Determine cycles per hour
+
     # Start with the transformed input dataframe; this differs from the input
     # dataframe only if analog values were converted to On/Offs.
     df_starts = df_transformed.copy()
 
+    #import pdb; pdb.set_trace()
+
+    # make column with 1's marking when a cycle starts. get rid of other columns.
+    df_starts['starts'] = (df_starts.v_diff == 1.0) * 1.0
+    df_starts.drop(['ts', 'val', 'v_diff'], axis=1, inplace=True)  # not needed anymore
+
+    # Create a DataFrame with the rolling sum of starts for each hour
+    df_starts_1H = df_starts.rolling('1H').sum()
+
+    # The rolling sum does not include a full hour for the first values
+    # in the dataframe.  So, we need to ignore the records in the first
+    # hour.
+    if not df_starts.empty:
+        min_ts = df_starts.index[0] + pd.DateOffset(hours=1)
+        df_starts_1H = df_starts_1H[df_starts_1H.index >= min_ts]
+
+    # Shift the timestamps in the index earlier by a half hour to mark the
+    # center of each one hour period (because this DataFrame will be returned
+    # for graphing cycles per hour.
+    df_starts_1H.index = df_starts_1H.index - pd.DateOffset(minutes=30)
+
+    # Start computing cycles/hour stats
     # This is the default mean cycles/hour that will be used if an Error occurs
     # when calculating. An empty dataframe will cause an error.
     mean_cyc_p_hr = None
 
     try:
-        df_starts['starts'] = (df_starts.v_diff == 1.0) * 1.0  # make column with 1's when a cycle starts
 
-        # Calculate the mean cycles/hour from the whole set of records
+        # Calculate the mean cycles/hour from the whole set of records.
+        # This will error out if there are 0 or 1 records in the data set.
         mean_cyc_p_hr = NaNtoNone(
             df_starts.starts.sum() * 3600.0 / (df_in.ts.values[-1] - df_in.ts.values[0])
         )
 
-        # Use a rolling sum to find the 1 hour periods with the minimum and maximum starts.
-        df_starts.index = df_starts.ts.astype('datetime64[s]')
-        df_starts.drop(['ts', 'val', 'v_diff'], axis=1, inplace=True)
-        df_starts_1H = df_starts.rolling('1H').sum()
-
-        # The rolling sum does not include a full hour for the first values
-        # in the dataframe.  So, we need to ignore the records in the first
-        # hour.
-        min_ts = df_starts.index[0] + pd.DateOffset(hours=1)
-        df_starts_1H = df_starts_1H[df_starts_1H.index >= min_ts]
+        # calculate remaining stats.
         min_cyc_p_hr = NaNtoNone(df_starts_1H.starts.min())
         max_cyc_p_hr = NaNtoNone(df_starts_1H.starts.max())
         cycles_per_hour = Stats(mean_cyc_p_hr,
@@ -159,7 +178,7 @@ def analyze_cycles(df_in):
 
     cstats = CycleStats(runtime, cycle_length, cycles_per_hour)
 
-    return df_complete_cycles, cstats, notes
+    return df_complete_cycles, df_starts_1H, cstats, notes
 
 
 class CycleInfo(basechart.BaseChart):
@@ -181,11 +200,12 @@ class CycleInfo(basechart.BaseChart):
         st_ts, end_ts = self.get_ts_range()
 
         # get the database records
-        df = self.reading_db.dataframeForOneID(the_sensor.sensor_id, st_ts, end_ts)
+        df = self.reading_db.dataframeForOneID(the_sensor.sensor_id, st_ts, end_ts, pytz.timezone(self.timezone))
 
         # analyze the cycles
-        df_cycles, stats, notes = analyze_cycles(df)
+        df_cycles, df_starts, stats, notes = analyze_cycles(df)
 
+        # Make the Histogram of Cycle Lengths plot
         chart_data = {'x': list(df_cycles.cycle_len.values),
                       'type': 'histogram',
                       'nbinsx': 40,
@@ -198,6 +218,34 @@ class CycleInfo(basechart.BaseChart):
         opt['layout']['yaxis']['title'] =  'Number of Cycles'
         opt['layout']['showlegend'] = False
         opt['layout']['margin']['b'] = 60
+
+        # Make the Timeseries plot of Cycles/Hour
+        if not df_starts.empty:
+            # create lists for plotly
+            values = np.char.mod('%.4g', df_starts.starts.values).astype(float).tolist()
+            times = df_starts.index.strftime('%Y-%m-%d %H:%M:%S').tolist()
+        else:
+            times = []
+            values = []
+
+        trace = {'x': times,
+                 'y': values,
+                 'type': 'scatter',
+                 'mode': 'lines',
+                 'line': {'width': 2},
+                }
+
+        opt2 = self.get_chart_options('plotly')
+        opt2['renderTo'] = 'chart_container2'
+        opt2['data'] = [trace]
+        opt2['layout']['height'] = 500
+        opt2['layout']['title'] = 'Cycles per Hour'
+        opt2['layout']['xaxis']['title'] =  "Date/Time (%s)" % self.timezone
+        opt2['layout']['xaxis']['type'] =  'date'
+        opt2['layout']['xaxis']['hoverformat'] = '%a %m/%d %H:%M'
+        opt2['layout']['yaxis']['title'] =  'Cycles per Hour'
+        opt2['layout']['showlegend'] = False
+        opt2['layout']['margin']['b'] = 60
 
         # context for template
         context = {}
@@ -221,4 +269,4 @@ class CycleInfo(basechart.BaseChart):
 
         template = loader.get_template('bmsapp/cycle-info.html')
 
-        return {'html': template.render(context), 'objects': [('plotly', opt)]}
+        return {'html': template.render(context), 'objects': [('plotly', opt), ('plotly', opt2)]}
