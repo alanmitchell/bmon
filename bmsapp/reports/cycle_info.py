@@ -141,7 +141,7 @@ def analyze_cycles(df_in):
     df_starts.drop(['ts', 'val', 'v_diff'], axis=1, inplace=True)  # not needed anymore
 
     # Create a DataFrame with the rolling sum of starts for each hour
-    df_starts_1H = df_starts.rolling('1H').sum()
+    df_starts_1H = df_starts.sort_index().rolling('1H').sum()
 
     # The rolling sum does not include a full hour for the first values
     # in the dataframe.  So, we need to ignore the records in the first
