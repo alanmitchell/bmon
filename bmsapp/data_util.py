@@ -62,7 +62,9 @@ def formatCurVal(val):
     avoiding the use of scientific notation for display.  Also, integers are
     shown at full precision.
     """
-    if val == int(val):
+    if val is None:
+        return ''
+    elif val == int(val):
         return '{:,}'.format(int(val))
     elif val >= 1000.0:
         return '{:,}'.format( int(float('%.3g' % val)))
