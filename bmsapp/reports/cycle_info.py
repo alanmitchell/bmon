@@ -37,7 +37,7 @@ def find_cycles(df_in):
             in 'val' relative to the prior reading.
         * Notes that give info about the 'val' transformation, if it occurred.
     """
-    df = df_in.copy()
+    df = df_in.copy().sort_values('ts')
 
     # variable to accumulate notes to return from function
     notes = ''
