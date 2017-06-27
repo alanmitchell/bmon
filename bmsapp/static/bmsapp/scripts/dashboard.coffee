@@ -216,7 +216,7 @@ addLED = (jqParent, LED_info) ->
 
   # add click link
   jqWidget.css('cursor', 'pointer')   # makes the hand appear when hovering
-  jqWidget.click -> window.location=g_info.href
+  jqWidget.click -> window.location=LED_info.href
   jqWidget        # return the jQuery element holding the LED
   
 # Adds a clickable Label that indicates data is not current.
@@ -235,7 +235,7 @@ addNotCurrent = (jqParent, widget_info) ->
 
   # add click link
   jqWidget.css('cursor', 'pointer')   # makes the hand appear when hovering
-  jqWidget.click -> window.location=g_info.href
+  jqWidget.click -> window.location=widget_info.href
   jqWidget        # return the jQuery element holding the LED
   
 # A Label widget

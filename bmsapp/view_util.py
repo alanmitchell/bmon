@@ -227,14 +227,13 @@ def get_embedded_results_script(request, result):
     script_content = script_content.replace('json_result_string',json.dumps(result)).replace('request_path_string',request.get_full_path())
     script_content = script_content.replace('json_result_string',json.dumps(result)).replace('report_path_string',request.build_absolute_uri(request.get_full_path().replace('/embed/','/')))
 
-    if result["objects"] and result["objects"][0][0] == 'dashboard':
-        # Add the dashboard scripts if they are needed
+    if result["objects"]:
         script_content = 'var loadingDashboard;\n' + script_content
         script_content = 'var loadingPlotly;\n' + script_content
         script_content = 'var loadingjQuery;\n' + script_content
         script_content += '''
 
-  var renderDashboard = (function(){
+  var renderDashboard = (function(obj_config){
       // Load the dashboard script if undefined, and add the chart
       if ((typeof ANdash == 'undefined') || (typeof Gauge == 'undefined')) {
           if (!loadingDashboard) {
@@ -280,23 +279,12 @@ def get_embedded_results_script(request, result):
           console.log('waiting for jQuery')
           setTimeout(renderDashboard, 100);
       } else {
+        var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
         ANdash.createDashboard(obj_config, renderTo);
+        renderTo.removeAttribute("id");
       }});
-  
-  var obj_config = content['objects'][0][1];
-  var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
-  renderDashboard();
-  renderTo.removeAttribute("id");
-'''
-        script_content = script_content.replace('dashboard_css_url',request.build_absolute_uri(static('bmsapp/css/dashboard.css')) + '?t=' + str(int(time.time())))
-        script_content = script_content.replace('dashboard_script_url',request.build_absolute_uri(static('bmsapp/scripts/dashboard.js')) + '?t=' + str(int(time.time())))
-        script_content = script_content.replace('gauge_script_url',request.build_absolute_uri(static('bmsapp/scripts/gauge.min.js')))
-    elif result["objects"] and result["objects"][0][0] == 'plotly':
-        # Add the plotly graphing scripts if they are needed
-        script_content = 'var loadingPlotly;\n' + script_content
-        script_content += '''
 
-  var drawGraph = (function(){
+  var drawGraph = (function(obj_config){
       // Load the Plotly script if undefined, and add the chart
       if (typeof Plotly == 'undefined') {
           if (!loadingPlotly) {
@@ -310,14 +298,26 @@ def get_embedded_results_script(request, result):
           console.log('waiting for plotly')
           setTimeout(drawGraph, 100);
       } else {
+        var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
         Plotly.plot(renderTo, obj_config.data, obj_config.layout, obj_config.config);
+        renderTo.removeAttribute("id");
       }});
-  
-  var obj_config = content['objects'][0][1];
-  var renderTo = newDiv.querySelector('#'+obj_config.renderTo);
-  drawGraph();
-  renderTo.removeAttribute("id");
+
+  // render each object in the content
+  content['objects'].forEach( function(obj) { 
+     switch (obj[0]) {
+       case 'plotly':
+         drawGraph(obj[1]);
+         break;
+       case 'dashboard':
+         renderDashboard(obj[1]);
+         break;
+     }
+  } );
 '''
+        script_content = script_content.replace('dashboard_css_url',request.build_absolute_uri(static('bmsapp/css/dashboard.css')) + '?t=' + str(int(time.time())))
+        script_content = script_content.replace('dashboard_script_url',request.build_absolute_uri(static('bmsapp/scripts/dashboard.js')) + '?t=' + str(int(time.time())))
+        script_content = script_content.replace('gauge_script_url',request.build_absolute_uri(static('bmsapp/scripts/gauge.min.js')))
 
     script_content += '})();' #close the javascript function declaration
     return script_content

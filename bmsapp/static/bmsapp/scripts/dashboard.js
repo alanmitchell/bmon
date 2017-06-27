@@ -193,7 +193,7 @@
     }
     jqWidget.css('cursor', 'pointer');
     jqWidget.click(function() {
-      return window.location = g_info.href;
+      return window.location = LED_info.href;
     });
     return jqWidget;
   };
@@ -206,7 +206,7 @@
     jqWidget.css('background-color', LIGHT_RED);
     jqWidget.css('cursor', 'pointer');
     jqWidget.click(function() {
-      return window.location = g_info.href;
+      return window.location = widget_info.href;
     });
     return jqWidget;
   };
