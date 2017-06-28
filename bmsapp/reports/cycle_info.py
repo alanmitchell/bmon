@@ -68,7 +68,7 @@ def find_cycles(df_in):
     df_to_add1 = df[mask].copy()
     df_to_add1['val'] = 0.0
     df_to_add1['ts'] +=  -1
-    if type(df.index) == pd.tseries.index.DatetimeIndex:
+    if type(df.index) == pd.DatetimeIndex:
         # adjust the index also, if it is DateTime
         df_to_add1.index += pd.DateOffset(seconds=-1)
 
@@ -78,7 +78,7 @@ def find_cycles(df_in):
     df_to_add2 = df[mask].copy()
     df_to_add2['val'] = 0.0
     df_to_add2['ts'] += 1
-    if type(df.index) == pd.tseries.index.DatetimeIndex:
+    if type(df.index) == pd.DatetimeIndex:
         df_to_add2.index += pd.DateOffset(seconds=1)
 
     df = pd.concat([df, df_to_add1, df_to_add2]).sort_values('ts')
