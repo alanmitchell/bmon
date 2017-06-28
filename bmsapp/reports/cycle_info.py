@@ -50,6 +50,41 @@ def find_cycles(df_in):
         df['val'] = (df.val > midpoint) * 1.0
         notes += '  Values were converted to On/Off states using a threshold of %s.' % formatCurVal(midpoint)
 
+    # There often are periods of missing data.  If a cycle starts prior to one of
+    # these gaps, it will show up as a very long cycle and will distort the
+    # histogram.  The code below finds these missing data gaps and inserts a
+    # 0 (Off) value at both sides of the gap so that a cycle will never
+    # span the gap.
+    df['delta_prior'] = df.ts - df.ts.shift(1)
+    df['delta_after'] = df.ts.shift(-1) - df.ts
+
+    # look at the 99th percentile of the ts spacing to use to identify
+    # an abnormal gap
+    normal_delta = df.delta_prior.quantile(.99)
+
+    # Find points where the time to the prior point is too long.
+    # Add a set of 0.0 value points one second prior to those points.
+    mask = (df.delta_prior > 3 * normal_delta)
+    df_to_add1 = df[mask].copy()
+    df_to_add1['val'] = 0.0
+    df_to_add1['ts'] +=  -1
+    if type(df.index) == pd.tseries.index.DatetimeIndex:
+        # adjust the index also, if it is DateTime
+        df_to_add1.index += pd.DateOffset(seconds=-1)
+
+    # Find points where the time to the next point is too long.
+    # Add a set of 0.0 value points one second after those points.
+    mask = (df.delta_after > 3 * normal_delta)
+    df_to_add2 = df[mask].copy()
+    df_to_add2['val'] = 0.0
+    df_to_add2['ts'] += 1
+    if type(df.index) == pd.tseries.index.DatetimeIndex:
+        df_to_add2.index += pd.DateOffset(seconds=1)
+
+    df = pd.concat([df, df_to_add1, df_to_add2]).sort_values('ts')
+
+    # Find points where a move from 0 to 1 or move from 1 to 0
+    # occurred.  These are starts and ends of cycles
     df['v_diff'] = df.val.diff()
     starts = df[df.v_diff == 1.0]
     ends = df[(df.v_diff == -1.0)]
@@ -97,11 +132,13 @@ def analyze_cycles(df_in):
     df_complete_cycles, df_transformed, notes = find_cycles(df_in)
 
     # now make a dataframe including the possible partial cycles at beginning
-    # and end of data set.  Use this for calculating runtime
+    # and end of data set.  Complete these partial cycles by adding an Off reading
+    # at the start and end of the data set, 1 second off the ends of the data set.
+    # Use this for calculating runtime.
     if not df_in.empty:
-        df_full = pd.concat([pd.DataFrame({'ts': [df_in.ts.values[0]], 'val': [0]}),
+        df_full = pd.concat([pd.DataFrame({'ts': [df_in.ts.values[0] - 1], 'val': [df_in.val.min()]}),
                              df_in,
-                             pd.DataFrame({'ts': [df_in.ts.values[-1]], 'val': [0]})],
+                             pd.DataFrame({'ts': [df_in.ts.values[-1] + 1], 'val': [df_in.val.min()]})],
                             ignore_index=True)
     else:
         df_full = df_in.copy()
@@ -133,8 +170,6 @@ def analyze_cycles(df_in):
     # Start with the transformed input dataframe; this differs from the input
     # dataframe only if analog values were converted to On/Offs.
     df_starts = df_transformed.copy()
-
-    #import pdb; pdb.set_trace()
 
     # make column with 1's marking when a cycle starts. get rid of other columns.
     df_starts['starts'] = (df_starts.v_diff == 1.0) * 1.0
