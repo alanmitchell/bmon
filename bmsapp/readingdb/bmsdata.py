@@ -13,6 +13,7 @@ import calendar
 import pytz
 from dateutil import parser
 import pandas as pd
+import numpy as np
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -90,6 +91,11 @@ class BMSdata:
 
             # If value is None, don't insert
             if one_val is None:
+                continue
+
+            # Sometimes infinite values or NaNs result from calculations.  Do not insert
+            # into database.
+            if not np.isfinite(one_val):
                 continue
 
             # make sure sensor ID is a string
