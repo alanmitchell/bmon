@@ -85,10 +85,10 @@ BMSAPP_ECOBEE_API_KEY = '32 Character API Key goes here'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False.
 # For a Webfaction site using the subdomain that Webfaction provides, the entry
-# would be "<username>.webfactional.com", where <username> is your Webfaction
-# username.
+# would be "bmon.<username>.webfactional.com", where <username> is your Webfaction
+# username; this assumes you are using the 'bmon' subdomain for BMON.
 # More documentation at: https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['.username.webfactional.com']
+ALLOWED_HOSTS = ['bmon.<username>.webfactional.com']
 
 # This is the Django Secret Key, needed for security purposes.
 # Make this unique, and don't share it with anybody.
