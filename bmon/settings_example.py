@@ -8,7 +8,7 @@ import logging
 # The key needed to store sensor readings into the database.
 # This is a REQUIRED setting.  You can have multiple valid storage keys
 # by listing them in a tuple or list:  ('key1', 'key2') or ['key1', 'key2'].
-# You can load https://bms.ahfc.us/make_store_key/ in a browser to generate
+# You can load https://bms.ahfc.us/make-store-key/ in a browser to generate
 # a suitable random store key.  Any sensors that post data to this site will
 # need to include thise Store Key when they post the data.  
 # See bmsapp/views.storereading() and bmsapp/views.storereadings() for details
@@ -48,6 +48,7 @@ BMSAPP_NAV_LINKS = ( ('Map', 'map'),
                      ('Data Charts and Reports', 'reports', True),
                      ('Custom Reports', 'custom-reports'),
                      ('Training Videos and Project Reports', 'training-anthc'),
+                     ('System Administrator', 'admin-reports'),
                    )
 
 # The number of hours before a sensor is considered to be inactive (not posting data).

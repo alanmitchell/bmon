@@ -33,11 +33,11 @@ use of `Cygwin <https://www.cygwin.com/>`_). The skills needed for installation 
 Create the Website and Install the Django Application
 -----------------------------------------------------
 
-The BMON application needs to have Django 1.7.x and Python 2.7.x
+The BMON application needs to have Django 1.7.x or greater and Python 2.7.x
 installed. On the Webfaction hosting service, Python 2.7 is already
 installed, so none of the steps below perform that task. If installing
 on a system without Python 2.7, you will first need to install Python.
-The rest of the steps below install Django 1.7.3, and configure the
+The rest of the steps below install Django 1.7.3 or greater, and configure the
 server to use Django to serve requests being made on the Domain you will
 use for the BMON application.
 
@@ -72,7 +72,8 @@ documentation for installing Django <http://docs.webfaction.com/software/django/
 
    *  For the ``Name`` of the application, use ``bmon_django``; the
       ``App category`` is ``Django``; the ``App type`` is a Django
-      release of 1.7.3 or greater, paired with Python 2.7. (BMON does
+      release of 1.7.3 or greater (the latest version is 1.11.2 as of June 2017),
+      paired with Python 2.7. (BMON does
       not work with Django versions prior to 1.7). Also, the BMON app
       does not support Python 3.x. Leave the other fields at their default
       values. Click the ``Save`` button to complete the Application
@@ -200,12 +201,8 @@ make necessary changes.
        cp settings_example.py settings.py
 
 *  Open ``settings.py`` in an editor, e.g. ``nano settings.py``. Each
-   one of the settings is documented within the file. Examine the code and change
-   (if necessary) the settings that appear before the line:
-
-   ::
-
-       # --------- Generally shouldn't need to change anything beyond here ----------
+   one of the settings is documented within the file. Examine each setting
+   carefully for any needed changes.
 
    Write down the BMSAPP_STORE_KEY that you created, as this will be
    needed when you are setting up sensors to post to the BMON system.
