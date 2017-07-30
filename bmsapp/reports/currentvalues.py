@@ -39,7 +39,7 @@ class CurrentValues(basechart.BaseChart):
                                            'minutes_ago': minutes_ago,
                                            'sensor_id': b_to_sen.sensor.id,
                                            'href': '{}?select_group={}&select_bldg={}&select_chart={}&select_sensor={}'.format(self.request.build_absolute_uri('/reports/'), self.request_params['select_group'], self.bldg_id, basechart.TIME_SERIES_CHART_ID, b_to_sen.sensor.id) ,
-                                           'notes': b_to_sen.sensor.notes,
+                                           'notes': '%s\nid: %s' % (b_to_sen.sensor.notes, b_to_sen.sensor.sensor_id),
                                            'alerts': '; '.join([message for subject, message in b_to_sen.sensor.alerts(self.reading_db)])})
         # add the last group
         if cur_group:

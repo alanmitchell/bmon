@@ -77,6 +77,9 @@ li {
 .ui-button {
     font-size: 85%;
 }
+.ui-tooltip {
+    white-space: pre-line;
+}
 
 .but_lbl {
 	font-size: 75%;
