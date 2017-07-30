@@ -80,6 +80,9 @@ li {
 .ui-tooltip {
     white-space: pre-line;
 }
+div.ui-tooltip {
+    max-width: 400px;
+}
 
 .but_lbl {
 	font-size: 75%;
