@@ -22,7 +22,7 @@ _logger = logging.getLogger('bms.' + __name__)
 
 # Some context variables to include when rendering all templates
 DEFAULT_NAV_LINKS = ( ('Data Charts and Reports', 'reports', True),
-                      ('Training Videos and Project Reports', 'training_anthc'),
+                      ('Training Videos and Project Reports', 'training-anthc'),
                     )
 
 TMPL_CONTEXT = {'bmsapp_title_text': getattr(settings, 'BMSAPP_TITLE_TEXT', 'Facility Monitoring'),
