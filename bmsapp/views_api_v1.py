@@ -83,77 +83,86 @@ def sensor_readings(request, sensor_id):
 
     Returns
     -------
-    A JSON response containing an indicator of success or failure, and a list of
-    sensor readings (date, reading)
+    A JSON response containing an indicator of success or failure, a list of
+    sensor readings (date, reading), and the timezone of the timestamps returned.
     """
+    try:
+        db = readingdb.bmsdata.BMSdata()  # reading database
 
-    db = readingdb.bmsdata.BMSdata()  # reading database
+        #------ Check all the input parameters
 
-    #------ Check all the input parameters
+        messages = {}   # used to store input validity messages.
 
-    messages = {}   # used to store input validity messages.
+        # Is the sensor_id in the database?
+        if not db.sensor_id_exists(sensor_id):
+            messages['sensor_id'] = "Sensor '%s' is not present in the reading database." % sensor_id
 
-    # Is the sensor_id in the database?
-    if not db.sensor_id_exists(sensor_id):
-        messages['sensor_id'] = "Sensor '%s' is not present in the reading database." % sensor_id
+        # Valid 'start_ts' ?
+        start_ts = request.GET.get('start_ts', None)
+        if start_ts:
+            try:
+                start_ts = parse(start_ts)
+            except:
+                messages['start_ts'] = "'%s' is not a valid date/time" % start_ts
 
-    # Valid 'start_ts' ?
-    start_ts = request.GET.get('start_ts', None)
-    if start_ts:
-        try:
-            start_ts = parse(start_ts)
-        except:
-            messages['start_ts'] = "'%s' is not a valid date/time" % start_ts
+        # Valid 'end_ts' ?
+        end_ts = request.GET.get('end_ts', None)
+        if end_ts:
+            try:
+                end_ts = parse(end_ts)
+            except:
+                messages['end_ts'] = "'%s' is not a valid date/time" % end_ts
 
-    # Valid 'end_ts' ?
-    end_ts = request.GET.get('end_ts', None)
-    if end_ts:
-        try:
-            end_ts = parse(end_ts)
-        except:
-            messages['end_ts'] = "'%s' is not a valid date/time" % end_ts
+        # Valid timezone?
+        timezone = request.GET.get('timezone', None)
+        if timezone:
+            try:
+                timezone = pytz.timezone(timezone)
+            except:
+                messages['timezone'] = "'%s' is not a valid timezone name." % timezone
 
-    # Valid timezone?
-    timezone = request.GET.get('timezone', None)
-    if timezone:
-        try:
-            timezone = pytz.timezone(timezone)
-        except:
-            messages['timezone'] = "'%s' is not a valid timezone name." % timezone
+        # Test averaging and label_offset strings for validity
+        st = datetime(2017, 1, 1)  # datetime used for testing only
+        averaging = request.GET.get('averaging', None)
+        if averaging:
+            try:
+                pd.date_range(st, periods=1, freq=averaging)
+            except:
+                messages['averaging'] = "'%s' is an invalid time averaging string." % averaging
 
-    # Test averaging and label_offset strings for validity
-    st = datetime(2017, 1, 1)  # datetime used for testing only
-    averaging = request.GET.get('averaging', None)
-    if averaging:
-        try:
-            pd.date_range(st, periods=1, freq=averaging)
-        except:
-            messages['averaging'] = "'%s' is an invalid time averaging string." % averaging
+        label_offset = request.GET.get('label_offset', None)
+        if label_offset:
+            try:
+                pd.date_range(st, periods=1, freq=label_offset)
+            except:
+                messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
 
-    label_offset = request.GET.get('label_offset', None)
-    if label_offset:
-        try:
-            pd.date_range(st, periods=1, freq=label_offset)
-        except:
-            messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
+        if messages:
+            # Input errors occurred
+            return fail_payload(messages)
 
-    if messages:
-        # Input errors occurred
-        return fail_payload(messages)
-
-    # If the timezone was not passed determine it from the building associated with the sensor.
-    if not timezone:
+        # retrieve Sensor object if there is one
         qs = models.Sensor.objects.filter(sensor_id=sensor_id)
-        if len(qs)==0:
+        if len(qs) == 0:
             # Sensor does not have a sensor object. UTC is default timezone
             timezone = pytz.timezone('UTC')
+            # No Sensor title or units
+            sensor_title = ''
+            sensor_units = ''
+            bldgs = []
+            sensor_notes = ''
         else:
-            sensor = qs[0]   # get the actual Sensor object
+            sensor = qs[0]  # get the actual Sensor object
+            sensor_title = sensor.title
+            sensor_units = sensor.unit.label
+            sensor_notes = sensor.notes
+
             # see if this sensor has links to a building
             links = models.BldgToSensor.objects.filter(sensor=sensor)
-            if len(links)==0:
-                # no links, so default to UTC
+            if len(links) == 0:
+                # no links, so default to UTC for timezone
                 timezone = pytz.timezone('UTC')
+                bldgs = []
             else:
                 # Use the building timezone, if it is valid
                 tz_name = links[0].building.timezone
@@ -162,26 +171,46 @@ def sensor_readings(request, sensor_id):
                 except:
                     # invalid building timezone so use UTC
                     timezone = pytz.timezone('UTC')
+                # record the buildings and sensor groups that this is linked to
+                bldgs = []
+                for link in links:
+                    bldgs.append((link.building.pk, link.building.title, link.sensor_group.title))
 
-    # if start and end timestamps are present, convert to Unix Epoch values
-    if start_ts:
-        ts_aware = timezone.localize(start_ts)
-        start_ts = calendar.timegm(ts_aware.utctimetuple())
+        # if start and end timestamps are present, convert to Unix Epoch values
+        if start_ts:
+            ts_aware = timezone.localize(start_ts)
+            start_ts = calendar.timegm(ts_aware.utctimetuple())
 
-    if end_ts:
-        ts_aware = timezone.localize(end_ts)
-        end_ts = calendar.timegm(ts_aware.utctimetuple())
+        if end_ts:
+            ts_aware = timezone.localize(end_ts)
+            end_ts = calendar.timegm(ts_aware.utctimetuple())
 
-    # get the sensor readings
-    df = db.dataframeForOneID(sensor_id, start_ts=start_ts, end_ts=end_ts, tz=timezone)
+        # get the sensor readings
+        df = db.dataframeForOneID(sensor_id, start_ts=start_ts, end_ts=end_ts, tz=timezone)
 
-    # if averaging is requested, do it!
-    if averaging:
-        df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna()
+        # if averaging is requested, do it!
+        if averaging:
+            df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna()
 
-    readings = zip(df.index.values, df.val.values)
-    readings_str = [(str(ts), '%.4g' % val) for ts, val in readings]
+        readings = zip(df.index, df.val.values)
+        readings_str = [(ts.strftime('%Y-%m-%d %H:%M:%S'), float('%.5g' % val)) for ts, val in readings]
 
-    result = {'status': 'success', 'data': {'readings': readings_str}}
+        result = {'status': 'success',
+                  'data': {
+                      'readings': readings_str,
+                      'timezone': str(timezone),
+                      'name': sensor_title,
+                      'units': sensor_units,
+                      'notes': sensor_notes,
+                      'buildings': bldgs,
+                  }
+        }
 
-    return JsonResponse(result)
+        return JsonResponse(result)
+
+    except Exception as e:
+        # A processing error occurred.
+        result = {'status': 'error'}
+        result['message'] = str(e)
+        return JsonResponse(result)
+
