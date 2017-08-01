@@ -534,7 +534,7 @@ class AlertCondition(models.Model):
     only_if_bldg_mode = models.ForeignKey(BuildingMode, verbose_name='is in this mode', blank=True, null=True)
 
     # alert message.  If left blank a message will be created from other field values.
-    alert_message = models.TextField(max_length=200, blank=True, 
+    alert_message = models.TextField(max_length=400, blank=True,
         help_text='If left blank, a message will be created automatically.')
 
     # priority of the alert.  These numbers correspond to priority levels in Pushover.
