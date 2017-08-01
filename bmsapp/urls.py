@@ -4,6 +4,7 @@ URLs for the BMS Application
 
 from django.conf.urls import url
 from . import views
+from . import views_api_v1
 
 urlpatterns = [
     url(r'^readingdb/reading/(\w+)/store/$', views.store_reading),      # URL to store one reading into database
@@ -25,6 +26,9 @@ urlpatterns = [
     url(r'^make-store-key/$', views.make_store_key),
     url(r'^ecobee-auth/$', views.ecobee_auth),
     url(r'^unassigned-sensors/$', views.unassigned_sensors),
+
+    # Views related to the API, version 1
+    url(r'^api/v1/readings/(.+)/$', views_api_v1.sensor_readings),
 
     # catches URLs that don't match the above patterns.  Assumes they give a template name to render.
     url(r'^([^.]+)/$', views.wildcard, name='wildcard'),

@@ -65,6 +65,12 @@ class BMSdata:
         """
         self.conn.close()
 
+    def sensor_id_exists(self, sensor_id):
+        """Returns True if 'sensor_id' exists in the reading database, False
+        otherwise.
+        """
+        return (sensor_id in self.sensor_ids - {'_last_raw', '_junk'})
+
     def add_sensor_table(self, sensor_id):
         """Adds a table to hold readings from a sensor with the id 'sensor_id'.  Also
         adds the id to the set that holds sensor ids.
