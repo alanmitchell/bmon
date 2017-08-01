@@ -195,15 +195,16 @@ def sensor_readings(request, sensor_id):
         readings = zip(df.index, df.val.values)
         readings_str = [(ts.strftime('%Y-%m-%d %H:%M:%S'), float('%.5g' % val)) for ts, val in readings]
 
-        result = {'status': 'success',
-                  'data': {
-                      'readings': readings_str,
-                      'timezone': str(timezone),
-                      'name': sensor_title,
-                      'units': sensor_units,
-                      'notes': sensor_notes,
-                      'buildings': bldgs,
-                  }
+        result = {
+            'status': 'success',
+            'data': {
+                'readings': readings_str,
+                'timezone': str(timezone),
+                'name': sensor_title,
+                'units': sensor_units,
+                'notes': sensor_notes,
+                'buildings': bldgs,
+            }
         }
 
         return JsonResponse(result)
