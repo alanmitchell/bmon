@@ -193,7 +193,8 @@ def sensor_readings(request, sensor_id):
             df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna()
 
         readings = zip(df.index, df.val.values)
-        readings_str = [(ts.strftime('%Y-%m-%d %H:%M:%S'), float('%.5g' % val)) for ts, val in readings]
+        # preserve large number resolution as they might be counters.
+        readings_str = [(ts.strftime('%Y-%m-%d %H:%M:%S'), float('%.5g' % val) if val<100000. else val) for ts, val in readings]
 
         result = {
             'status': 'success',
