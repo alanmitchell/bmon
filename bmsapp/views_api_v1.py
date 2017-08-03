@@ -11,6 +11,7 @@ import pytz
 from django.http import JsonResponse
 from dateutil.parser import parse
 import pandas as pd
+import numpy as np
 
 import models
 import readingdb.bmsdata
@@ -192,14 +193,19 @@ def sensor_readings(request, sensor_id):
         if averaging:
             df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna()
 
-        readings = zip(df.index, df.val.values)
-        # preserve large number resolution as they might be counters.
-        readings_str = [(ts.strftime('%Y-%m-%d %H:%M:%S'), float('%.5g' % val) if abs(val)<100000. else val) for ts, val in readings]
+
+        times = df.index.strftime('%Y-%m-%d %H:%M:%S')
+        if np.abs(df.val.values).max() < 100000.:
+            # needed the "tolist()" method to get formatting correctly of rounded floats
+            values = np.char.mod('%.5g', df.val.values).astype(np.float).tolist()
+        else:
+            values = df.val.values.tolist()
+        all_readings = zip(times, values)
 
         result = {
             'status': 'success',
             'data': {
-                'readings': readings_str,
+                'readings': all_readings,
                 'timezone': str(timezone),
                 'name': sensor_title,
                 'units': sensor_units,
