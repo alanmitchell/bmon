@@ -54,7 +54,10 @@ class TimeSeries(basechart.BaseChart):
                     df = bmsapp.data_util.resample_timeseries(df,averaging_hours)
 
                 # create lists for plotly
-                values = np.char.mod('%.4g',df.val.values).astype(float).tolist()
+                if np.absolute(df.val.values).max() < 10000:
+                    values = np.char.mod('%.4g',df.val.values).astype(float).tolist()
+                else:
+                    values = np.round(df.val.values).tolist()
                 times = df.index.strftime('%Y-%m-%d %H:%M:%S').tolist()
             else:
                 times = []

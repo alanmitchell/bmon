@@ -406,7 +406,7 @@ def unassigned_sensors(request):
             last_read = db.last_read(sens_id)
             if last_read:
                 val = last_read['val']
-                sensor_info['cur_value'] = '%.5g' % val if val<1e5 else str(val)
+                sensor_info['cur_value'] = '%.5g' % val if abs(val)<1e5 else str(val)
                 sensor_info['minutes_ago'] = '%.1f' % ((time.time() - last_read['ts'])/60.0)
 
             sensor_list.append(sensor_info)

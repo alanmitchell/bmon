@@ -194,7 +194,7 @@ def sensor_readings(request, sensor_id):
 
         readings = zip(df.index, df.val.values)
         # preserve large number resolution as they might be counters.
-        readings_str = [(ts.strftime('%Y-%m-%d %H:%M:%S'), float('%.5g' % val) if val<100000. else val) for ts, val in readings]
+        readings_str = [(ts.strftime('%Y-%m-%d %H:%M:%S'), float('%.5g' % val) if abs(val)<100000. else val) for ts, val in readings]
 
         result = {
             'status': 'success',

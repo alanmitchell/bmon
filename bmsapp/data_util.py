@@ -66,7 +66,7 @@ def formatCurVal(val):
         return ''
     elif val == int(val):
         return '{:,}'.format(int(val))
-    elif val >= 1000.0:
+    elif abs(val) >= 1000.0:
         return '{:,}'.format( int(float('%.4g' % val)))
     else:
         return '%.4g' % val
