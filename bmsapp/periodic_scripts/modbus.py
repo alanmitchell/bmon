@@ -51,6 +51,9 @@ def run(site_id='', host='', device_id=1, sensors=[], **kwargs):
         for port, dfg in groups:
             try:
                 # find range of addresses to read
+                # Need to account for fact that an address entry can be a list of
+                # addresses in cases where multiple MODBUS registers are combined
+                # to make a large number.
                 addresses = []
                 for it in dfg.address.values:
                     if type(it)==list:
@@ -60,7 +63,6 @@ def run(site_id='', host='', device_id=1, sensors=[], **kwargs):
                 start_address = min(addresses)
                 end_address = max(addresses)
                 addr_count = end_address - start_address + 1
-                print port, start_address, end_address
 
                 # read the range of addresses from this port
                 master = modbus_tcp.TcpMaster(host=host, port=port, timeout_in_sec=5.0)
