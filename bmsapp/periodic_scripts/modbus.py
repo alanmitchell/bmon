@@ -51,9 +51,16 @@ def run(site_id='', host='', device_id=1, sensors=[], **kwargs):
         for port, dfg in groups:
             try:
                 # find range of addresses to read
-                start_address = dfg.address.min()
-                end_address = dfg.address.max()
+                addresses = []
+                for it in dfg.address.values:
+                    if type(it)==list:
+                        addresses += it
+                    else:
+                        addresses.append(it)
+                start_address = min(addresses)
+                end_address = max(addresses)
                 addr_count = end_address - start_address + 1
+                print port, start_address, end_address
 
                 # read the range of addresses from this port
                 master = modbus_tcp.TcpMaster(host=host, port=port, timeout_in_sec=5.0)
@@ -63,7 +70,19 @@ def run(site_id='', host='', device_id=1, sensors=[], **kwargs):
                 # process each sensor
                 for ix, row in dfg.iterrows():
                     try:
-                        val = res[row['address'] - start_address]
+                        addr = row['address']
+                        if type(addr)==list:
+                            # multiple addresses in a list.  Combine the values
+                            # MSB first, so start from the back. 16-bits in each digit.
+                            mult = 1
+                            val = 0
+                            for ad in list(reversed(addr)):
+                                val += mult * res[ad - start_address]
+                                mult *= 2**16
+                        else:
+                            # single address, just read the value
+                            val = res[addr - start_address]
+
                         if row['transform']:
                             val = eval(row['transform'])
                         sensor_id = '%s_%s' % (site_id, row['sensor_name'])

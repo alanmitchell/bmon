@@ -67,9 +67,9 @@ def formatCurVal(val):
     elif val == int(val):
         return '{:,}'.format(int(val))
     elif val >= 1000.0:
-        return '{:,}'.format( int(float('%.3g' % val)))
+        return '{:,}'.format( int(float('%.4g' % val)))
     else:
-        return '%.3g' % val
+        return '%.4g' % val
 
 def histogram_from_series(pandas_series):
     '''
