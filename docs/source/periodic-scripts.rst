@@ -276,6 +276,20 @@ to True in the Script Parameters. The Remote Sensor values are repeated
 for every remote sensor associated with the thermostat. Remote Sensors
 are not supported by the Ecobee3 Lite thermostat.
 
+Collect Data from Devices with MODBUS TCP Inteface
+--------------------------------------------------
+
+A BMON Periodic Script is available to collect data from devices that have
+a `MODBUS TCP <https://en.wikipedia.org/wiki/Modbus>`_ interface, such as
+many Programmable Logic Controllers (PLC). The periodic script can collect
+multiple holding register values from one MODBUS device.  Below is a screenshot
+shot showing example inputs for one such Periodic Script:
+
+.. image:: /_static/modbus_sample.png
+  :align: center
+
+
+
 Collect Data from Okofen Wood Pellet Boilers
 --------------------------------------------
 

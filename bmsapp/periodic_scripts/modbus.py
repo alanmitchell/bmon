@@ -10,31 +10,32 @@ import pandas as pd
 import modbus_tk.defines as cst
 from modbus_tk import modbus_tcp
 
-def run(site_id='', host='', device_id=1, sensors=[], **kwargs):
+def run(site_id='', host='', device_id=1, holding_registers=[], **kwargs):
     """This function is called by the Periodic Script controller. The
     parameters are:
         'site_id': (required) The string to prepend to each sensor name to create
             a BMON Sensor ID.
         'host': (required) The IP address or host name of the MODBUS host.
         'device_id': (optional, defaults to 1) The MODBUS device or unit ID.
-        'sensors': A list of sensors to read and return from the MODBUS device.
-            Each sensor description is in turn a list, using the following format:
+        'holding_registers': A list of holding registers to read and return from the MODBUS device.
+            Each holding register description is in turn a list, using the following format:
                 [port # on host to access the required MODBUS register,
-                 MODBUS address,
+                 holding register address: from 0 - 9998
                  name to give this sensor (prepended by the site_id to make a sensor ID),
                  optional transform function, such as:  'val / 10' or 'val * 0.01'
                 ]
-            The 'MODBUS Address' can be a list of addresses.  If so, the values from those
-            addresses are combined to create one value; the individual values are
+            The 'holding register address' can be a list of addresses.  If so, the values
+            from those addresses are combined to create one value; the individual values are
             interpreted as 16-bit "digits" in a multi-digit number.  The first address in
             the list is assumed to hold the most-significant digit.
     """
     errors = ''  # start tracking errors
+    readings = []  # accumulate readings here
 
     try:
         # sort the sensor list and put into DataFrame
-        sensors_sorted = sorted(sensors)
-        df = pd.DataFrame(data=sensors_sorted)
+        registers_sorted = sorted(holding_registers)
+        df = pd.DataFrame(data=registers_sorted)
         if len(df.columns)==3:
             df.columns = ['port', 'address', 'sensor_name']
             # add the transform column, albeit empty
@@ -45,7 +46,6 @@ def run(site_id='', host='', device_id=1, sensors=[], **kwargs):
         # loop through each port and read sensor values
 
         ts = time.time()     # use common timestamp for all readings.
-        readings = []        # accumulate readings here
 
         groups = df.groupby('port')
         for port, dfg in groups:
@@ -63,6 +63,8 @@ def run(site_id='', host='', device_id=1, sensors=[], **kwargs):
                 start_address = min(addresses)
                 end_address = max(addresses)
                 addr_count = end_address - start_address + 1
+                if addr_count > 127:
+                    raise Exception('Error processing port %s. Code is currently limited to addresses with a span of 127 registers or less.' % port)
 
                 # read the range of addresses from this port
                 master = modbus_tcp.TcpMaster(host=host, port=port, timeout_in_sec=5.0)
