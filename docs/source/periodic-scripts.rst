@@ -54,7 +54,8 @@ Each of these inputs is described below:
 ``How often should script run``
     Choose a time interval indicating how
     often the script should run. Intervals range from every 5 minutes to
-    every 24 hours.
+    every 24 hours.  You can also select ``Disabled`` to stop the script
+    from running at all.
 
 ``Script Parameters in YAML form``
     Each script may allow the System Administrator
@@ -198,7 +199,7 @@ only one possible parameter other than the initial ``access_token`` and
 ``refresh_token`` parameters that are entered during the authorization
 process described above. That one parameter is:
 
-``include_occupancy*``
+``include_occupancy``
     Possible values are ``True`` or ``False``. If
     the parameter is set to ``True``, the script will collect occupancy
     values reported by the occupancy sensor in in the main thermostat and
@@ -520,7 +521,7 @@ parameters:
     on the target database.
 
 ``password`` (required if InfluxDB is using authentication)
-The password associated with the above username.
+    The password associated with the above username.
 
 ``measurement`` (defaults to 'reading')
     Every point in the InfluxDB
@@ -571,12 +572,13 @@ the equals sign, and commas with the dash/hyphen character, "-".
 Further, if the replacement results in more than one dash in a row, the
 string of dashes is reduced to one.
 
-``building_title`` The value of this tag is the title of the Building
-associated with the sensor reading (as entered in the 'Buildings' table
-of the BMON Admin interface), e.g. 'building_title=Kaluza-House'. Note
-that if a sensor reading is associated with *more than one* building,
-the sensor reading is sent multiple times to the InfluxDB database, once
-for each associated building.
+``building_title``
+    The value of this tag is the title of the Building
+    associated with the sensor reading (as entered in the 'Buildings' table
+    of the BMON Admin interface), e.g. 'building_title=Kaluza-House'. Note
+    that if a sensor reading is associated with *more than one* building,
+    the sensor reading is sent multiple times to the InfluxDB database, once
+    for each associated building.
 
 ``latitude``
     The latitude of the associated Building (again, as entered
