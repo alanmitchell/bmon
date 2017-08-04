@@ -282,11 +282,71 @@ Collect Data from Devices with MODBUS TCP Inteface
 A BMON Periodic Script is available to collect data from devices that have
 a `MODBUS TCP <https://en.wikipedia.org/wiki/Modbus>`_ interface, such as
 many Programmable Logic Controllers (PLC). The periodic script can collect
-multiple holding register values from one MODBUS device.  Below is a screenshot
-shot showing example inputs for one such Periodic Script:
+multiple holding register values from one MODBUS device.
+
+.. note:: If you have upgraded from an older installation of BMON, you
+will need to install the ``modbus-tk==0.5.7`` Python library to use this
+periodic script.
+
+Below is a screenshot shot showing example inputs for one MODBUS Periodic Script:
 
 .. image:: /_static/modbus_sample.png
   :align: center
+
+The ``File name of script`` entry must be ``modbus`` in invoke the MODBUS
+periodic script.  The ``Optional Description`` and ``How often should script
+run`` entries have been previously described in this document.  The rest of this
+section will describe the ``Script Parameters in YAML form`` entry.
+
+``site_id``:  (required) The ``site_id`` is used to create a BMON Sensor ID for each of the
+holding registers collected by the script.  The ``site_id`` is used as the
+first part of the Sensor ID; the latter part of the Sensor ID is the sensor name,
+which is entered for each holding register collected. The sensor name entry
+is described in more detail below.
+
+``host``:  (required) This is the IP Address or the host name of the target MODBUS device.
+
+``device_id``:  (optional, defaults to 1) Some MODBUS devices are composites
+of several MODBUS devices; for example, a number of devices behind a MODBUS
+gateway.  This this case, the ``device_id`` identifies which device is the
+target of the MODBUS command.
+
+``holding_registers``: (required) As can be seen in the example, this parameter
+is entered as a YAML list; each item in the list describes one holding register
+that will be read and stored under one Sensor ID in BMON.  Each holding register
+is described on one line and is in turn a YAML list of either three or four items.
+Three examples will be described here.
+
+The first holding register example is::
+
+    - [550, 2084, heat_rate]
+
+The line must start with a dash ``-`` and there must be a spaced between the
+dash and the bracketed list items.  The items in this exmaple are
+``- [port, MODBUS address, sensor name]``.  The ``port`` (550 in this example) is the
+TCP/IP port at the Host which is used to access the MODBUS device.  The ``MODBUS address``
+(2084 in this example) is the MODBUS address of the holding register to read.
+It can be a number from 0 through 9998.  The ``sensor name`` is the appended to the
+``site_id``, described earlier, to make a BMON Sensor ID.  The ``site_id`` and
+``sensor_name`` are separated by an underscore to make the Sensor ID.  In this example,
+the final Sensor ID would be ``abc_heat_heat_rate``, since the ``site_id`` is ``abc_heat``.
+
+The second holding register example is::
+
+    - [550, [2087, 2086], total_heat]
+
+The only thing different about this example is that a list of MODBUS addresses
+are given.  When this is done, the values from the specified holding registers
+are combined into one number.  The value from each register is considered to be
+a 16-bit digit in the final number; the most-signicant holding register is
+specified first in the list.  In this example, assume that register 2087
+contained the number 7 and that register 2086 contained the value 14345.  The
+final value stored in BMON would be::
+
+    7 * 65536 + 14345
+    which equals:  473,097
+
+The value ``65536`` is 2 raised to the 16 power.
 
 
 
