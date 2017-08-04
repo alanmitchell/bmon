@@ -372,6 +372,43 @@ are available, including all of the functions present in the
 `math <https://docs.python.org/2/library/math.html`_ such as ``sin()`` and
 ``log()``.
 
+Collect Data from a Sensaphone IMS-4000 Monitoring System
+---------------------------------------------------------
+
+A `Sensaphone IMS-4000 <http://www.sensaphone.com/products/sensaphone-ims-4000-enterprise-monitoring-host-unit.php>`_ is
+a monitoring system with the capability of supporting multiple remote units.
+A BMON periodic script is available that retrieves sensor values from the IMS-4000,
+including sensors installed on remote units.  The Sensaphone must have its SNMP port
+accessible to the BMON server.
+
+Below is a screenshot of an example Periodic Script configuration to read an
+IMS-4000:
+
+.. image:: /_static/sensaphone_sample.png
+  :align: center
+
+To use this script the ``File name of script`` must be ``sensaphone``.
+The ``Optional Description`` and ``How often should script
+run`` entries have been previously described in this document.  The rest of this
+section will describe the ``Script Parameters in YAML form`` entry.
+
+There are two required parameters:
+
+``site_id`` (required)
+    The ``site_id`` is used to create a BMON Sensor ID for each of the
+    sensor values collected by the script.  The ``site_id`` is used as the
+    first part of the Sensor ID; the latter parts of the Sensor ID are formed
+    from the Sensaphone Node name and the Sensaphone Sensor name.  Each
+    component is separated by an underscore character.  In the example
+    above, the ``site_id`` is ``ABCD``; for a Sensaphone Node named
+    ``Kiana`` and a Sensaphone Sensor name of ``room_temperature``,
+    the final BMON Sensor ID will be ``ABCD_Kiana_room_temperature``.
+    Note that any spaces present in the ``site_id``, Sensaphone Node name, or
+    Sensaphone Sensor name are replaced with the underscore character.
+
+``host`` (required)
+    The IP Address or Host name of the Sensaphone.
+
 Collect Data from Okofen Wood Pellet Boilers
 --------------------------------------------
 
