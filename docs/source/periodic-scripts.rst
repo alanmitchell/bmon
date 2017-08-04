@@ -227,56 +227,56 @@ the script. This table is based on an Ecobee Thermostat **serial number of**
 remote sensor) of ``CK2W``. Your actual Sensor IDs will be based on your
 Thermostat Serial Number and your Remote Sensor Codes.
 
-+-------------+-----------------+
-| Sensor ID   | Reading Type    |
-+=============+=================+
-| 31101561415 | Actual          |
-| 8_temp      | Temperature at  |
-|             | Main            |
-|             | Thermostat, deg |
-|             | F               |
-+-------------+-----------------+
-| 31101561415 | Desired         |
-| 8_heat_setp | Temperature     |
-| oint        | (heating        |
-|             | setpoint), deg  |
-|             | F               |
-+-------------+-----------------+
-| 31101561415 | Fraction of the |
-| 8_heat1_r   | time that the   |
-| un          | thermostat      |
-|             | called for heat |
-|             | during the 5    |
-|             | minute interval |
-+-------------+-----------------+
-| 31101561415 | Relative        |
-| 8_rh        | Humidity        |
-|             | measured at the |
-|             | main            |
-|             | thermostat, %   |
-+-------------+-----------------+
-| 31101561415 | Occupancy at    |
-| 8_occup     | main            |
-|             | thermostat. 1   |
-|             | if motion was   |
-|             | sensed during   |
-|             | the last half   |
-|             | hour, 0 if no   |
-|             | motion.         |
-+-------------+-----------------+
-| 31101561415 | Actual          |
-| 8_CK2W_temp | Temperature at  |
-|             | the remote      |
-|             | sensor, deg F   |
-+-------------+-----------------+
-| 31101561415 | Occupancy at    |
-| 8_CK2W_occu | remote sensor.  |
-| p           | 1 if motion was |
-|             | sensed during   |
-|             | the last half   |
-|             | hour, 0 if no   |
-|             | motion.         |
-+-------------+-----------------+
++----------------------------+-----------------+
+| Sensor ID                  | Reading Type    |
++============================+=================+
+| 311015614158_temp          | Actual          |
+|                            | Temperature at  |
+|                            | Main            |
+|                            | Thermostat, deg |
+|                            | F               |
++----------------------------+-----------------+
+| 311015614158_heat_setpoint | Desired         |
+|                            | Temperature     |
+|                            | (heating        |
+|                            | setpoint), deg  |
+|                            | F               |
++----------------------------+-----------------+
+| 311015614158_heat1_run     | Fraction of the |
+|                            | time that the   |
+|                            | thermostat      |
+|                            | called for heat |
+|                            | during the 5    |
+|                            | minute interval |
++----------------------------+-----------------+
+| 311015614158_rh            | Relative        |
+|                            | Humidity        |
+|                            | measured at the |
+|                            | main            |
+|                            | thermostat, %   |
++----------------------------+-----------------+
+| 311015614158_occup         | Occupancy at    |
+|                            | main            |
+|                            | thermostat. 1   |
+|                            | if motion was   |
+|                            | sensed during   |
+|                            | the last half   |
+|                            | hour, 0 if no   |
+|                            | motion.         |
++----------------------------+-----------------+
+| 311015614158_CK2W_temp     | Actual          |
+|                            | Temperature at  |
+|                            | the remote      |
+|                            | sensor, deg F   |
++----------------------------+-----------------+
+| 311015614158_CK2W_occup    | Occupancy at    |
+|                            | remote sensor.  |
+|                            | 1 if motion was |
+|                            | sensed during   |
+|                            | the last half   |
+|                            | hour, 0 if no   |
+|                            | motion.         |
++----------------------------+-----------------+
 
 The occupancy readings are only included if ``include_occupancy`` is set
 to True in the Script Parameters. The Remote Sensor values are repeated
