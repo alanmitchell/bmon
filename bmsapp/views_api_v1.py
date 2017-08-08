@@ -41,7 +41,7 @@ def fail_payload(messages):
 
 def sensor_info(sensor_id):
     """Helper routine.  Return dictionary of properties related to
-    the sensor with if of 'sensor_id'.  Properties
+    the sensor with ID of 'sensor_id'.  Properties
 
     Parameters
     ----------
