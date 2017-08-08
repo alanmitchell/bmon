@@ -39,6 +39,80 @@ def fail_payload(messages):
 
     return JsonResponse(result)
 
+def sensor_info(sensor_id):
+    """Helper routine.  Return dictionary of properties related to
+    the sensor with if of 'sensor_id'.  Properties
+
+    Parameters
+    ----------
+    sensor_id:  The Sensor ID of the sensor to look up
+
+    Returns
+    -------
+    Dictionary of Sensor properties and the list of buildings
+    associated with the sensor.  Properties are set to None
+    if they are not available.
+
+    """
+
+    # the values to return if no Sensor object is present
+    props = dict(
+        sensor_id =  sensor_id,
+        name = None,
+        units = None,
+        notes = None,
+        calculated = None,
+        tran_calc_func = None,
+        func_params = None,
+        calc_order = None,
+        formatting_func = None,
+        other_props = None,
+        buildings = [],
+        timezone = 'UTC',
+    )
+
+    qs = models.Sensor.objects.filter(sensor_id=sensor_id)
+    if len(qs) > 0:
+        sensor = qs[0]  # get the actual Sensor object (should only be one)
+        props.update(
+            name = sensor.title,
+            units = sensor.unit.label,
+            notes = sensor.notes,
+            calculated = sensor.is_calculated,
+            tran_calc_func = sensor.tran_calc_function,
+            func_params = sensor.function_parameters,
+            calc_order = sensor.calculation_order,
+            formatting_func = sensor.formatting_function,
+            other_props = sensor.other_properties
+        )
+        # see if this sensor has links to a building
+        links = models.BldgToSensor.objects.filter(sensor=sensor)
+        if len(links) > 0:
+            # Use the building timezone, if it is valid
+            tz_name = links[0].building.timezone
+            try:
+                # see whether a timezone can be created from this timezone
+                # name
+                tz = pytz.timezone(tz_name)
+                props['timezone'] = tz_name
+            except:
+                # invalid building timezone so keep the default
+                # from above
+                pass
+
+            # record the buildings and sensor groups that this is linked to
+            bldgs = []
+            for link in links:
+                bldgs.append(
+                    dict(
+                        id = link.building.pk,
+                        name = link.building.title,
+                        sensor_group = link.sensor_group.title
+                    )
+                )
+            props['buildings'] = bldgs
+
+    return props
 
 def sensor_readings(request, sensor_id):
     """API method. Returns a list of sensor readings for one sensor.  Time limits and
@@ -85,7 +159,9 @@ def sensor_readings(request, sensor_id):
     Returns
     -------
     A JSON response containing an indicator of success or failure, a list of
-    sensor readings (date, reading), and the timezone of the timestamps returned.
+    sensor readings (date, reading), the timezone of the timestamps returned,
+    and additional information about the sensor from the BMON Sensor object,
+    if available.
     """
     try:
         db = readingdb.bmsdata.BMSdata()  # reading database
@@ -142,41 +218,7 @@ def sensor_readings(request, sensor_id):
             # Input errors occurred
             return fail_payload(messages)
 
-        # retrieve Sensor object if there is one
-        qs = models.Sensor.objects.filter(sensor_id=sensor_id)
-        if len(qs) == 0:
-            # Sensor does not have a sensor object. UTC is default timezone
-            timezone = pytz.timezone('UTC')
-            # No Sensor title or units
-            sensor_title = ''
-            sensor_units = ''
-            bldgs = []
-            sensor_notes = ''
-        else:
-            sensor = qs[0]  # get the actual Sensor object
-            sensor_title = sensor.title
-            sensor_units = sensor.unit.label
-            sensor_notes = sensor.notes
-
-            # see if this sensor has links to a building
-            links = models.BldgToSensor.objects.filter(sensor=sensor)
-            if len(links) == 0:
-                # no links, so default to UTC for timezone
-                timezone = pytz.timezone('UTC')
-                bldgs = []
-            else:
-                # Use the building timezone, if it is valid
-                tz_name = links[0].building.timezone
-                try:
-                    timezone = pytz.timezone(tz_name)
-                except:
-                    # invalid building timezone so use UTC
-                    timezone = pytz.timezone('UTC')
-                # record the buildings and sensor groups that this is linked to
-                bldgs = []
-                for link in links:
-                    bldgs.append((link.building.pk, link.building.title, link.sensor_group.title))
-
+        # ---- Get the Sensor Readings
         # if start and end timestamps are present, convert to Unix Epoch values
         if start_ts:
             ts_aware = timezone.localize(start_ts)
@@ -193,7 +235,6 @@ def sensor_readings(request, sensor_id):
         if averaging:
             df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna()
 
-
         times = df.index.strftime('%Y-%m-%d %H:%M:%S')
         if np.abs(df.val.values).max() < 100000.:
             # needed the "tolist()" method to get formatting correctly of rounded floats
@@ -206,19 +247,53 @@ def sensor_readings(request, sensor_id):
             'status': 'success',
             'data': {
                 'readings': all_readings,
-                'timezone': str(timezone),
-                'name': sensor_title,
-                'units': sensor_units,
-                'notes': sensor_notes,
-                'buildings': bldgs,
             }
         }
+
+        # ---- If there is Sensor info available, get it and add it to results.
+        result['data'].update(sensor_info(sensor_id))
 
         return JsonResponse(result)
 
     except Exception as e:
         # A processing error occurred.
-        result = {'status': 'error'}
-        result['message'] = str(e)
+        result = {
+            'status': 'error',
+            'message': str(e)
+        }
         return JsonResponse(result)
 
+def sensor_list(request):
+    """API Method.  Returns a list of all the sensors in the reading
+    database, including sensor properties, if available.
+
+    Parameters
+    ----------
+    request:  Django request object.
+
+    Returns
+    -------
+    A JSON response containing an indicator of success or failure, a list of
+    sensors including sensor properties and building association information
+    if available.
+    """
+
+    try:
+        db = readingdb.bmsdata.BMSdata()  # reading database
+        sensors = [sensor_info(sensor_id) for sensor_id in db.sensor_id_list()]
+
+        result = {
+            'status': 'success',
+            'data': {
+                'sensors': sensors,
+            }
+        }
+        return JsonResponse(result)
+
+    except Exception as e:
+        # A processing error occurred.
+        result = {
+            'status': 'error',
+            'message': str(e)
+        }
+        return JsonResponse(result)

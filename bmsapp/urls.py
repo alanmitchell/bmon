@@ -29,6 +29,7 @@ urlpatterns = [
 
     # Views related to the API, version 1
     url(r'^api/v1/readings/(.+)/$', views_api_v1.sensor_readings),
+    url(r'^api/v1/sensors/$', views_api_v1.sensor_list),
 
     # catches URLs that don't match the above patterns.  Assumes they give a template name to render.
     url(r'^([^.]+)/$', views.wildcard, name='wildcard'),
