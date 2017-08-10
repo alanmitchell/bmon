@@ -37,7 +37,7 @@ def fail_payload(messages):
     else:
         result['data'] = None
 
-    return JsonResponse(result)
+    return JsonResponse(result, status=400)
 
 def sensor_info(sensor_id):
     """Helper routine.  Return dictionary of properties related to
@@ -279,7 +279,7 @@ def sensor_readings(request, sensor_id):
             'status': 'error',
             'message': str(e)
         }
-        return JsonResponse(result)
+        return JsonResponse(result, status=500)
 
 def sensor_list(request):
     """API Method.  Returns a list of all the sensors in the reading
@@ -314,4 +314,4 @@ def sensor_list(request):
             'status': 'error',
             'message': str(e)
         }
-        return JsonResponse(result)
+        return JsonResponse(result, status=500)
