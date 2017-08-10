@@ -85,18 +85,6 @@ def sensor_info(sensor_id):
         # see if this sensor has links to a building
         links = models.BldgToSensor.objects.filter(sensor=sensor)
         if len(links) > 0:
-            # Use the building timezone, if it is valid
-            tz_name = links[0].building.timezone
-            try:
-                # see whether a timezone can be created from this timezone
-                # name
-                tz = pytz.timezone(tz_name)
-                props['timezone'] = tz_name
-            except:
-                # invalid building timezone so keep the default
-                # from above
-                pass
-
             # record the buildings and sensor groups that this is linked to
             bldgs = []
             for link in links:
