@@ -291,3 +291,136 @@ will be returned with a JSON payload structured as in the following example.
 
 The ``status`` field contains the string ``error`` and a ``message`` field is
 provided describing the internal processing error.
+
+API Method to Obtain a List of All Sensors
+------------------------------------------
+
+This method allows you to obtain a list of all the sensors in the
+sensor reading database.
+
+Request URL
+~~~~~~~~~~~
+
+::
+
+    GET /api/v1/readings/sensors/
+
+Here is a sample method call requesting the sensor list from the
+BMON site accessed at ``https://bmon.analysisnorth.com``::
+
+    https://bmon.analysisnorth.com/api/v1/sensors/
+
+Request Parameters
+~~~~~~~~~~~~~~~~~~
+
+There are no valid query parameters associated with this API method.
+
+Response Fields
+~~~~~~~~~~~~~~~
+
+A successful request results in a returned response Status Code of 200, and
+a JSON response with the following JSON key/value fields.
+
+``status``, a string
+    For a successful request, this field will have the value ``success``.
+
+``data``, one key/value pair with the key ``sensors``
+    For a successful request, the ``data`` field will contain one key/value
+    pair with the key ``sensors``.  The value for this item is an array
+    of sensor descriptions; each sensor description is a collection of
+    descriptive fields.  Those fields are exactly the same as those
+    described in the ``readings`` API method call above.
+
+Example Usage
+~~~~~~~~~~~~~
+
+Here is a sample successful request that asks for the sensor list from
+BMON site accessed at ``https://bmon.analysisnorth.com``::
+
+    https://bmon.analysisnorth.com/api/v1/sensors/
+
+Here is the JSON response:
+
+.. code-block:: json
+
+    {
+        "status": "success",
+        "data": {
+            "sensors": [
+                {
+                    "sensor_id": "1f003a000e47343432313031_R",
+                    "name": "DHW Preheat Tank Pump State",
+                    "calculated": false,
+                    "other_props": "",
+                    "calc_order": 0,
+                    "formatting_func": "",
+                    "notes": "No sensor notes available.",
+                    "units": "1=On 0=Off",
+                    "tran_calc_func": "",
+                    "buildings": [
+                        {
+                            "sensor_group": "Domestic Hot Water",
+                            "name": "Kaluza House",
+                            "latitude": 60.12426,
+                            "timezone": "US/Alaska",
+                            "bldg_id": 5,
+                            "longitude": -149.442547
+                        }
+                    ]
+                },
+                {
+                    "sensor_id": "1f003a000e47343432313031_TC",
+                    "name": "DHW Preheat Tank Bottom Temp",
+                    "calculated": false,
+                    "other_props": "",
+                    "calc_order": 0,
+                    "formatting_func": "",
+                    "notes": "No sensor notes available.",
+                    "units": "deg F",
+                    "tran_calc_func": "",
+                    "buildings": [
+                        {
+                            "sensor_group": "Domestic Hot Water",
+                            "name": "Kaluza House",
+                            "latitude": 60.12426,
+                            "timezone": "US/Alaska",
+                            "bldg_id": 5,
+                            "longitude": -149.442547
+                        }
+                    ]
+                },
+                # many more sensors
+            ]
+        }
+    }
+
+Errors
+~~~~~~
+
+Errors can occur while processing an API request.  If the errors are related
+to a poorly formed request, then the response from API will return a Status
+Code of 400 and a JSON response indicating the problems with request.  Here is
+an example response:
+
+.. code-block:: json
+
+    {
+        "status": "fail",
+        "data": {
+            "stuff": "Invalid query parameter.",
+            "more": "Invalid query parameter."
+        }
+    }
+
+If an internal processing error occurs in the API, a Status Code of 500
+will be returned with a JSON payload structured as in the following example.
+
+.. code-block:: json
+
+    {
+        "status": "error",
+        "message": "integer division or modulo by zero"
+    }
+
+The ``status`` field contains the string ``error`` and a ``message`` field is
+provided describing the internal processing error.
