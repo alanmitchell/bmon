@@ -93,6 +93,7 @@ here.
    developer-introduction
    bmon-architecture
    writing-periodic-scripts
+   api-data-access
    
 .. toctree::
    :maxdepth: 2
