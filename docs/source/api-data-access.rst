@@ -339,7 +339,8 @@ BMON site accessed at ``https://bmon.analysisnorth.com``::
 
     https://bmon.analysisnorth.com/api/v1/sensors/
 
-Here is the JSON response:
+Here is the JSON response, with only two of the sensors shown in the
+response.  BMON sites will generally have many more sensors.
 
 .. code-block:: json
 
@@ -388,8 +389,7 @@ Here is the JSON response:
                             "longitude": -149.442547
                         }
                     ]
-                },
-                # many more sensors
+                }
             ]
         }
     }
