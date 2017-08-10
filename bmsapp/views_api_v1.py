@@ -207,10 +207,14 @@ def sensor_readings(request, sensor_id):
 
         label_offset = request.GET.get('label_offset', None)
         if label_offset:
-            try:
-                pd.date_range(st, periods=1, freq=label_offset)
-            except:
+            # found that a label_offset of 0 causes hangs, so disallow
+            if label_offset[0]=='0':
                 messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
+            else:
+                try:
+                    pd.date_range(st, periods=1, freq=label_offset)
+                except:
+                    messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
 
         if messages:
             # Input errors occurred
