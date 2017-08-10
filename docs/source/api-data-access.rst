@@ -116,7 +116,7 @@ a JSON response with the following JSON key/value fields.
     For a successful request, the collection of ``data`` fields are described
     in the next section.
 
-``data`` Fields for a Successful Request
+*data* Fields for a Successful Request
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ``reading_timezone``, string
@@ -135,8 +135,7 @@ a JSON response with the following JSON key/value fields.
     buildings that the sensor is associated with.  See the details in the
     next section.
 
-``sensor_info`` Fields
-++++++++++++++++++++++
+***sensor_info* Fields**
 
 If a sensor is shown in the BMON interface, then BMON has additional information
 about the sensor, such as its name and the engineering units associated with
