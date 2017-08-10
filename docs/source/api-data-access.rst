@@ -97,7 +97,7 @@ transform the returned sensor readings.
     parameter affects where the timestamp for the averaged reading is placed
     within the averaging interval.  The default if no ``label_offset`` is
     provided is to use the start of the averaging interval as the location
-    of the returned timestamp.  If a ``label_offset`` is provided, it
+    of the returned timestamp (some.  If a ``label_offset`` is provided, it
     specifies the time distance from the start of the averaging interval to
     the location of the timestamp.  For example, a value of ``30min`` would
     place the timestamp 30 minutes past the start of the interval.
@@ -199,16 +199,37 @@ Example Usage
 ~~~~~~~~~~~~~
 
 Here is a sample successful request that asks for monthly average sensors values
-for the ``kake_temp`` sensor, but only including sensor readings from May 1, 2017
-(start of day) onward::
+for the ``kake_temp`` sensor, but only including sensor readings
+from May 1, 2017 (start of day) onward::
 
-    https://bmon.analysisnorth.com/api/v1/readings/kake_temp/?start_ts=5/1/2017&averaging=M
+    https://bmon.analysisnorth.com/api/v1/readings/kake_temp/?start_ts=5/1/2017&averaging=MS
 
-Here is the JSON response::
+Here is the JSON response:
+
+.. code-block:: json
 
     {
         "status": "success",
         "data": {
+            "reading_timezone": "US/Alaska",
+            "readings": [
+                [
+                    "2017-05-01 00:00:00",
+                    47.842
+                ],
+                [
+                    "2017-06-01 00:00:00",
+                    51.402
+                ],
+                [
+                    "2017-07-01 00:00:00",
+                    55.961
+                ],
+                [
+                    "2017-08-01 00:00:00",
+                    58.963
+                ]
+            ],
             "sensor_info": {
                 "sensor_id": "kake_temp",
                 "name": "Kake Temp",
@@ -229,26 +250,7 @@ Here is the JSON response::
                         "sensor_group": "Weather",
                     }
                 ]
-            },
-            "reading_timezone": "US/Alaska",
-            "readings": [
-                [
-                    "2017-04-30 00:00:00",
-                    47.842
-                ],
-                [
-                    "2017-05-31 00:00:00",
-                    51.402
-                ],
-                [
-                    "2017-06-30 00:00:00",
-                    55.961
-                ],
-                [
-                    "2017-07-31 00:00:00",
-                    58.963
-                ]
-            ]
+            }
         }
     }
 
