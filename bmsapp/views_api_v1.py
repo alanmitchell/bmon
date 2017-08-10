@@ -68,7 +68,6 @@ def sensor_info(sensor_id):
         formatting_func = None,
         other_props = None,
         buildings = [],
-        timezone = 'UTC',
     )
 
     qs = models.Sensor.objects.filter(sensor_id=sensor_id)
@@ -105,9 +104,10 @@ def sensor_info(sensor_id):
             for link in links:
                 bldgs.append(
                     dict(
-                        id = link.building.pk,
+                        bldg_id = link.building.pk,
                         name = link.building.title,
-                        sensor_group = link.sensor_group.title
+                        sensor_group = link.sensor_group.title,
+                        timezone = link.building.timezone,
                     )
                 )
             props['buildings'] = bldgs
@@ -218,6 +218,23 @@ def sensor_readings(request, sensor_id):
             # Input errors occurred
             return fail_payload(messages)
 
+        # ---- Get info about the sensor
+        s_info = sensor_info(sensor_id)
+
+        # if there is no requested timezone (or an invalid one), use the
+        # timezone from the sensor information
+        if timezone is None:
+            timezone = pytz.timezone('UTC')   # default timezone if no valid building tz present
+            if len(s_info['buildings']):
+                tz_name = s_info['buildings'][0]['timezone']
+                try:
+                    timezone = pytz.timezone(tz_name)
+                except:
+                    # stick with default
+                    pass
+        # record the name of the final timezone
+        tz_name = str(timezone)
+
         # ---- Get the Sensor Readings
         # if start and end timestamps are present, convert to Unix Epoch values
         if start_ts:
@@ -247,11 +264,10 @@ def sensor_readings(request, sensor_id):
             'status': 'success',
             'data': {
                 'readings': all_readings,
+                'reading_timezone': tz_name,
+                'sensor_info': s_info,
             }
         }
-
-        # ---- If there is Sensor info available, get it and add it to results.
-        result['data'].update(sensor_info(sensor_id))
 
         return JsonResponse(result)
 
