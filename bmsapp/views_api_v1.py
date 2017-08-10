@@ -293,6 +293,12 @@ def sensor_list(request):
     """
 
     try:
+        #------ Check that there are no query parameters
+        params = request.GET.keys()
+        if len(params):
+            messages = {p: 'Invalid query parameter.' for p in params}
+            return fail_payload(messages)
+
         db = readingdb.bmsdata.BMSdata()  # reading database
         sensors = [sensor_info(sensor_id) for sensor_id in db.sensor_id_list()]
 
