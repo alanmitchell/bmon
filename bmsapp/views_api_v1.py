@@ -106,6 +106,8 @@ def sensor_info(sensor_id):
                         name = link.building.title,
                         sensor_group = link.sensor_group.title,
                         timezone = link.building.timezone,
+                        latitude = link.building.latitude,
+                        longitude = link.building.longitude,
                     )
                 )
             props['buildings'] = bldgs
@@ -255,7 +257,7 @@ def sensor_readings(request, sensor_id):
             df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna()
 
         times = df.index.strftime('%Y-%m-%d %H:%M:%S')
-        if np.abs(df.val.values).max() < 100000.:
+        if len(df)>0 and np.abs(df.val.values).max() < 100000.:
             # needed the "tolist()" method to get formatting correctly of rounded floats
             values = np.char.mod('%.5g', df.val.values).astype(np.float).tolist()
         else:
