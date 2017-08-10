@@ -63,7 +63,6 @@ def sensor_info(sensor_id):
         notes = None,
         calculated = None,
         tran_calc_func = None,
-        func_params = None,
         calc_order = None,
         formatting_func = None,
         other_props = None,
@@ -79,7 +78,6 @@ def sensor_info(sensor_id):
             notes = sensor.notes,
             calculated = sensor.is_calculated,
             tran_calc_func = sensor.tran_calc_function,
-            func_params = sensor.function_parameters,
             calc_order = sensor.calculation_order,
             formatting_func = sensor.formatting_function,
             other_props = sensor.other_properties
