@@ -11,6 +11,10 @@ return their results in JSON format, conforming to the
 `JSend Specification <https://labs.omniti.com/labs/jsend>`_
 The two methods are documented below, including example usage.
 
+The free `Postman <https://www.getpostman.com/>`_ application is a convenient
+way to experiment with the API and see the JSON results is clearly formatted
+way.
+
 API Method to Obtain Sensor Readings
 ------------------------------------
 
@@ -135,7 +139,7 @@ a JSON response with the following JSON key/value fields.
     buildings that the sensor is associated with.  See the details in the
     next section.
 
-***sensor_info* Fields**
+**sensor_info Fields**
 
 If a sensor is shown in the BMON interface, then BMON has additional information
 about the sensor, such as its name and the engineering units associated with
@@ -256,3 +260,34 @@ Here is the JSON response:
 Errors
 ~~~~~~
 
+Errors can occur while processing an API request.  If the errors are related
+to a poorly formed request, then the response from API will return a Status
+Code of 400 and a JSON response indicating the problems with request.  Here is
+an example response:
+
+.. code-block:: json
+
+    {
+        "status": "fail",
+        "data": {
+            "averaging": "'2Z' is an invalid time averaging string.",
+            "start_ts": "'4/31/2017 ' is not a valid date/time"
+        }
+    }
+
+The ``status`` field in the response will contain the string ``fail``, and the
+the ``data`` field will contain a collection of error messages keyed on the
+parts of the request that were invalid.
+
+If an internal processing error occurs in the API, a Status Code of 500
+will be returned with a JSON payload structured as in the following example.
+
+.. code-block:: json
+
+    {
+        "status": "error",
+        "message": "integer division or modulo by zero"
+    }
+
+The ``status`` field contains the string ``error`` and a ``message`` field is
+provided describing the internal processing error.
