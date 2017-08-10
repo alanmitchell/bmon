@@ -168,7 +168,7 @@ def sensor_readings(request, sensor_id):
             try:
                 start_ts = parse(start_ts)
             except:
-                messages['start_ts'] = "'%s' is not a valid date/time" % start_ts
+                messages['start_ts'] = "'%s' is not a valid date/time." % start_ts
 
         # Valid 'end_ts' ?
         end_ts = request.GET.get('end_ts', None)
@@ -176,7 +176,7 @@ def sensor_readings(request, sensor_id):
             try:
                 end_ts = parse(end_ts)
             except:
-                messages['end_ts'] = "'%s' is not a valid date/time" % end_ts
+                messages['end_ts'] = "'%s' is not a valid date/time." % end_ts
 
         # Valid timezone?
         timezone = request.GET.get('timezone', None)
@@ -205,6 +205,12 @@ def sensor_readings(request, sensor_id):
                     pd.date_range(st, periods=1, freq=label_offset)
                 except:
                     messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
+
+        # check for improper query parameters
+        extra_params = set(request.GET.keys()) - \
+                       set(['timezone', 'start_ts', 'end_ts', 'averaging', 'label_offset'])
+        for p in extra_params:
+            messages[p] = 'Invalid query parameter.'
 
         if messages:
             # Input errors occurred
