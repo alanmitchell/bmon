@@ -412,6 +412,11 @@ an example response:
         }
     }
 
+The ``status`` field in the response will contain the string ``fail``, and the
+the ``data`` field will contain a collection of error messages, which for this
+method should only be the descriptions of invalid query parameters that were
+sent with the request.
+
 If an internal processing error occurs in the API, a Status Code of 500
 will be returned with a JSON payload structured as in the following example.
 
