@@ -44,9 +44,10 @@ The BMON Sensor ID for a sensor can be obtained in at least two ways:
   the sensors in the database.  For each sensor returned, the Sensor ID is
   shown.
 
-Here is a sample method call requesting sensor readings from a sensor with an
-ID of ``kake_temp`` from a BMON site accessed at
-``https://bmon.analysisnorth.com``::
+Here is a sample method call requesting daily average sensor readings from a
+sensor with an ID of ``kake_temp`` from a BMON site accessed at
+``https://bmon.analysisnorth.com`` (see discussion of averaging parameter
+in next section)::
 
     https://bmon.analysisnorth.com/api/v1/readings/kake_temp/?averaging=1D
 
