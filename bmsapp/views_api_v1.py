@@ -39,6 +39,24 @@ def fail_payload(messages):
 
     return JsonResponse(result, status=400)
 
+def invalid_query_params(dj_request, valid_params):
+    """
+
+    Parameters
+    ----------
+    dj_request:      Django request object.
+    valid_params:    A list of valid query parameter names.
+
+    Returns
+    -------
+    A dictionary with keys being the invalid query parameter names, and the values
+    of the keys being the string "Invalid query parameter."
+
+    """
+    extra_params = set(dj_request.GET.keys()) - set(valid_params)
+    return {p: 'Invalid query parameter.' for p in extra_params}
+
+
 def sensor_info(sensor_id):
     """Helper routine.  Return dictionary of properties related to
     the sensor with ID of 'sensor_id'.  Properties
@@ -207,10 +225,8 @@ def sensor_readings(request, sensor_id):
                     messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
 
         # check for improper query parameters
-        extra_params = set(request.GET.keys()) - \
-                       set(['timezone', 'start_ts', 'end_ts', 'averaging', 'label_offset'])
-        for p in extra_params:
-            messages[p] = 'Invalid query parameter.'
+        messages.update(invalid_query_params(request,
+                                             ['timezone', 'start_ts', 'end_ts', 'averaging', 'label_offset']))
 
         if messages:
             # Input errors occurred
@@ -294,9 +310,8 @@ def sensor_list(request):
 
     try:
         #------ Check that there are no query parameters
-        params = request.GET.keys()
-        if len(params):
-            messages = {p: 'Invalid query parameter.' for p in params}
+        messages = invalid_query_params(request, [])
+        if messages:
             return fail_payload(messages)
 
         db = readingdb.bmsdata.BMSdata()  # reading database
