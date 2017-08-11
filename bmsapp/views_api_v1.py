@@ -40,7 +40,8 @@ def fail_payload(messages):
     return JsonResponse(result, status=400)
 
 def invalid_query_params(dj_request, valid_params):
-    """
+    """Helper routine.  Determines if there are invalid query parameters
+    in the Django request.
 
     Parameters
     ----------
