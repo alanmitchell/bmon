@@ -16,6 +16,7 @@ import storereads
 from reports import basechart
 from readingdb import bmsdata
 import periodic_scripts.ecobee
+import bmsapp.scripts.backup_readingdb
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -414,6 +415,13 @@ def unassigned_sensors(request):
     ctx = base_context()
     ctx.update({'sensor_list': sensor_list})
     return render_to_response('bmsapp/unassigned-sensors.html', ctx)
+
+@login_required
+def backup_reading_db(request):
+    """Causes a backup of the sensor reading database to occur.
+    """
+    bmsapp.scripts.backup_readingdb.run()
+    return HttpResponse('Sensor Reading Backup Complete!')
 
 def wildcard(request, template_name):
     '''

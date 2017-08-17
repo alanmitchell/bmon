@@ -26,6 +26,7 @@ urlpatterns = [
     url(r'^make-store-key/$', views.make_store_key),
     url(r'^ecobee-auth/$', views.ecobee_auth),
     url(r'^unassigned-sensors/$', views.unassigned_sensors),
+    url(r'^backup-readings/$', views.backup_reading_db),
 
     # Views related to the API, version 1
     url(r'^api/v1/readings/(.+)/$', views_api_v1.sensor_readings),
