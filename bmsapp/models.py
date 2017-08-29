@@ -603,6 +603,14 @@ class AlertCondition(models.Model):
                         ( sensor_desc, (time.time() - last_read['ts'])/3600.0 )
                 else:
                     msg = 'The %s has never posted a reading.' % sensor_desc
+
+                # Check for user-entered message, & use it ahead of standard message.
+                if self.alert_message.strip():
+                    user_msg = self.alert_message.strip()
+                    if user_msg[-1] != '.':
+                        user_msg += '.'
+                    msg = '%s %s' % (user_msg, msg)
+
                 subject += '%s Inactive' % sensor_desc
                 return subject, msg
 
