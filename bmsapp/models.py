@@ -592,14 +592,19 @@ class AlertCondition(models.Model):
 
         # if the condition test is for an inactive sensor, do that test now.
         # Do not consider the building mode test for this test.
-        if self.condition=='inactive' and not self.sensor.is_active(reading_db):
-            if last_read:
-                msg = 'The last reading from the %s was %.1f hours ago.' % \
-                    ( sensor_desc, (time.time() - last_read['ts'])/3600.0 )
+        if self.condition=='inactive':
+            if self.sensor.is_active(reading_db):
+                # Sensor is active, no alert
+                return None
             else:
-                msg = 'The %s has never posted a reading.' % sensor_desc
-            subject += '%s Inactive' % sensor_desc
-            return subject, msg
+                # Sensor is inactive
+                if last_read:
+                    msg = 'The last reading from the %s was %.1f hours ago.' % \
+                        ( sensor_desc, (time.time() - last_read['ts'])/3600.0 )
+                else:
+                    msg = 'The %s has never posted a reading.' % sensor_desc
+                subject += '%s Inactive' % sensor_desc
+                return subject, msg
 
         # If there are no readings for this sensor return
         if last_read is None:
