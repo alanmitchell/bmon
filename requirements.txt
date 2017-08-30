@@ -26,3 +26,4 @@ markdown==2.6.5
 selenium>=2.53.2
 pysnmp==4.3.5
 modbus-tk==0.5.7
+xlrd==1.1.0
