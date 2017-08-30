@@ -8,6 +8,7 @@ import os
 import sys
 import email
 from cStringIO import StringIO
+import logging
 import django
 import pandas as pd
 
@@ -24,24 +25,42 @@ django.setup()
 
 # get a Reading database object
 from bmsapp.readingdb.bmsdata import BMSdata
+
+# Make a logger for this module.  I'm doing this after the
+# above import because logging is set up when the bmsapp
+# package is accessed.  These logger messages will now appear
+# in the standard BMON log file.
+_logger = logging.getLogger('bms.' + os.path.basename(__file__))
+
+# access the Reading database
 db = BMSdata()
 
-# read the email into a Message object
-with open(r'C:\Users\Alan\Documents\GitHub\original_msg.txt') as f:
-    msg = email.message_from_file(f)
+try:
 
-# Find all the attachments that are Excel files and process
-for part in msg.walk():
-    fname = part.get_filename()
-    if (fname is not None) and ('.xlsx' in fname):
-        attachment = part.get_payload(decode=True)
-        df = pd.read_excel(StringIO(attachment)).dropna(how='all')
-        # get the timestamps, ids and values so they can be stored.
-        stamps = df['Read Date/Time'].dt.tz_localize('US/Alaska').view('int64').values / int(1e9)
-        ids = df['Meter Nbr'].astype('str').values
-        # multiply 15 min interval kWh by 4 to get average kW
-        vals = (df['Interval kWh'] * 4.0).values
-        insert_msg = db.insert_reading(stamps, ids, vals)
-        print insert_msg
+    # the email comes from stdin; read it into a Message object
+    msg = email.message_from_file(sys.stdin)
 
-db.close()
+    # Find all the attachments that are Excel files and process
+    for part in msg.walk():
+        fname = part.get_filename()
+        if (fname is not None) and ('.xlsx' in fname):
+            try:
+                attachment = part.get_payload(decode=True)
+                df = pd.read_excel(StringIO(attachment)).dropna(how='all')
+                # get the timestamps, ids and values so they can be stored.
+                # Convert date column to Unix Epoch timestamps
+                stamps = df['Read Date/Time'].dt.tz_localize('US/Alaska').view('int64').values / int(1e9)
+                ids = df['Meter Nbr'].astype('str').values
+                # multiply 15 min interval kWh by 4 to get average kW
+                vals = (df['Interval kWh'] * 4.0).values
+                insert_msg = db.insert_reading(stamps, ids, vals)
+                _logger.info('MEA Data processed from %s:\n    %s' % (fname, insert_msg))
+
+            except Exception as e:
+                _logger.exception('Error processing MEA data from file %s.' % fname)
+
+except Exception as e:
+    _logger.exception('Error processing MEA data.')
+
+finally:
+    db.close()
