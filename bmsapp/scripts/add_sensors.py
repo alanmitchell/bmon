@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 '''Adds a number of sensors to the system using sensor attributes stored in
 a text file.  This can be less time consuming than using the Admin interface
 to add the sensors.
