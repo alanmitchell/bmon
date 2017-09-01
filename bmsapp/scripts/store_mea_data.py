@@ -46,13 +46,17 @@ try:
         if (fname is not None) and ('.xlsx' in fname):
             try:
                 attachment = part.get_payload(decode=True)
+
                 df = pd.read_excel(StringIO(attachment)).dropna(how='all')
+                df = df[df['Interval kWh'] > 0]    # drop the zero readings
+                
                 # get the timestamps, ids and values so they can be stored.
                 # Convert date column to Unix Epoch timestamps
                 stamps = df['Read Date/Time'].dt.tz_localize('US/Alaska').view('int64').values / int(1e9)
                 ids = df['Meter Nbr'].astype('str').values
                 # multiply 15 min interval kWh by 4 to get average kW
                 vals = (df['Interval kWh'] * 4.0).values
+
                 insert_msg = db.insert_reading(stamps, ids, vals)
                 _logger.info('MEA Data processed from %s:\n    %s' % (fname, insert_msg))
 
