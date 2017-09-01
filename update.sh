@@ -5,5 +5,5 @@
 ../apache2/bin/stop
 git pull
 ./manage.py migrate
-./manage.py collectstatic
+./manage.py collectstatic --noinput
 ../apache2/bin/restart
