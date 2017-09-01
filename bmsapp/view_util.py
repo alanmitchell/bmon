@@ -262,7 +262,7 @@ def get_embedded_results_script(request, result):
             loadingPlotly = true;
 
             var plotly_script = document.createElement('script');
-            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+            plotly_script.src = '//cdn.plot.ly/plotly-latest.min.js';
             document.getElementsByTagName('head')[0].appendChild(plotly_script);
           }
           console.log('waiting for plotly')
@@ -273,7 +273,7 @@ def get_embedded_results_script(request, result):
             loadingjQuery = true;
 
             var jQuery_script = document.createElement('script');
-            jQuery_script.src = 'https://code.jquery.com/jquery-1.11.2.min.js';
+            jQuery_script.src = '//code.jquery.com/jquery-1.11.2.min.js';
             document.getElementsByTagName('head')[0].appendChild(jQuery_script);
           }
           console.log('waiting for jQuery')
@@ -292,7 +292,7 @@ def get_embedded_results_script(request, result):
             loadingPlotly = true;
 
             var plotly_script = document.createElement('script');
-            plotly_script.src = 'https://cdn.plot.ly/plotly-latest.min.js';
+            plotly_script.src = '//cdn.plot.ly/plotly-latest.min.js';
             document.getElementsByTagName('head')[0].appendChild(plotly_script);
           }
           console.log('waiting for plotly')
