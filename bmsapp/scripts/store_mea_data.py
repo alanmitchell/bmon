@@ -49,7 +49,7 @@ try:
 
                 df = pd.read_excel(StringIO(attachment)).dropna(how='all')
                 df = df[df['Interval kWh'] > 0]    # drop the zero readings
-                
+
                 # get the timestamps, ids and values so they can be stored.
                 # Convert date column to Unix Epoch timestamps
                 stamps = df['Read Date/Time'].dt.tz_localize('US/Alaska').view('int64').values / int(1e9)

@@ -17,6 +17,7 @@ layout:
     family: Open Sans, verdana, arial, sans-serif
     color: black
   paper_bgcolor: '#EEEEEE'
+  hovermode: closest
   titlefont:
     size: 22
   autosize: true
