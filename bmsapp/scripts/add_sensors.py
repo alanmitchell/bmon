@@ -62,7 +62,9 @@ for ix, sens in df.iterrows():
                 sensor.is_calculated = True if sens['Is Calc Field']==1.0 else False
                 sensor.tran_calc_function = sens['Calc or Transform Function'].strip()
                 try:
-                    sensor.function_parameters = sens['Function Parameters'].strip()
+                    params = sens['Function Parameters'].strip()
+                    # if there are '\n's in the string, insert line breaks
+                    sensor.function_parameters = '\n'.join(params.split(r'\n'))
                 except:
                     # if blank, strip() throws error
                     sensor.function_parameters = ''
