@@ -120,34 +120,20 @@ to indicate you are working in the virtual environment, below is an example of h
 Installing the Required Python Packages & BMON Project
 ------------------------------------------------------
 
-| **Required Packages for BMON**
-.. note:: These packages must be installed within the virtual environment in order to work properly with BMON. Make sure your prompt indicates accordingly, otherwise type ``workon bmon`` to ensure you are in the proper location. Additionally, the BMON repository includes an ``install_packages.sh`` file, in this configuration we manually install the packages as the shell script installs the packages in a location not within the environment.
+| **Install BMON & Required Packages**
 
-
-| ``pip install Django``
-| ``pip install django-extensions``
-| ``pip install requests``
-| ``pip install numpy``
-| ``pip install docutils``
-| ``pip install numexpr``
-| ``pip install pandas``
-| ``pip install python-dateutil``
-| ``pip install pytz``
-| ``pip install xlwt``
-| ``pip install PyYAML``
-| ``pip install markdown``
-| ``pip install selenium``
-| ``pip install pysnmp``
-| ``pip install modbus-tk``
-| ``pip install xlrd``
-
-| **Install BMON**
 | ``sudo git clone https://github.com/alanmitchell/bmon.git``
 
 A directory named bmon will be created in your $home directory
 
+cd bmon
+
+pip install -r requirements.txt
+
 Creating BMON Settings File
 ---------------------------
+
+cd bmon (you should be in bmon/bmon now)
 
 Django requires a ``settings.py`` file to provide essential information for running a project. We will start with a sample settings file and make necessary changes.
 
@@ -186,20 +172,20 @@ Create the Django Database, Install Initial Data, and Prepare Static Files
 --------------------------------------------------------------------------
 
 | Create the Django database file by executing:
-| ``./manage.py migrate``
+| ``sudo ./manage.py migrate``
 
 | Some initial data for common sensor units, sensor categories, and a
    sample building and sensor should be loaded into the database by:
-| ``./manage.py loaddata init_data.yaml``
+| ``sudo ./manage.py loaddata init_data.yaml``
 
 | Copy the static files (images, stylesheets, JavaScript files, etc.)
    into the folder where they will be served by the Static Application
    you created. Do this by executing:
-| ``./manage.py collectstatic``
+| ``sudo ./manage.py collectstatic``
 
 | In order to use the Admin site for setting up sensors and buildings,
    we need to create an admin user. To do this, execute:
-| ``./manage.py createsuperuser``
+| ``sudo ./manage.py createsuperuser``
 
 Enter your desired username, email, and password to complete the
 setup. The username and password created here will be the credentials
@@ -231,20 +217,20 @@ It is very important that you are no longer in the virtual session, make sure yo
 
 ----------------------
 
-[uwsgi]
+| [uwsgi]
 
-master = true
-processes = 5
+| master = true
+| processes = 5
 
-socket = /run/uwsgi/bmon.sock
+| socket = /run/uwsgi/bmon.sock
 
 | chmod-socket = 664
 | chown-socket = cchrc:www-data
 | home = /home/cchrc/Env/bmon
 
-chdir = /home/cchrc/bmon
+| chdir = /home/cchrc/bmon
 
-pythonpath = /home/cchrc/Env/bmon
+| pythonpath = /home/cchrc/Env/bmon
 
 | wsgi-file = /home/cchrc/bmon/bmon/wsgi.py
 | vacuum = true

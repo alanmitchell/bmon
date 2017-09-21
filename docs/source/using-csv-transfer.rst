@@ -122,7 +122,8 @@ An example from a test config.yaml file:
 | To add a second, third, fourth file etc. you would insert a new block starting with csv_files: and including all the relevant information, entering between earlier csv_files statements and # List of consumers (which you do not need to duplicate)
 | ``file_glob:`` indicates the path where your files are stored in your Dropbox folder, wild-cards (*.csv) are accepted if all of your files are in the same directory and will upload all files meeting that criteria
 | ``header_rows:`` the number of rows in the beginning of your file to be considered header or which do not contain data you wish to upload (see csv example below)
-| ``name_row:`` indication of which row (within the header count) contains the column names of your data, a 2 here means that of the 4 header rows, the second row contains column names (see csv example below)	
+| ``name_row:`` indication of which row (within the header count) contains the column names of your data, a 2 here means that of the 4 header rows, the second row contains column names (see csv example below)
+| ``field_map:`` is optional, in the example above field_map: "lambda nm: '_'.join(nm.split('_')[:2])" strips the final two underscores of the column name ex. SOLAR_TundertankONEFOOT_F_Avg would become SOLAR_TundertankONEFOOT, remove this line if you do not wish to have your column names altered
 | ``ts_tz:`` enter the appropriate timezone for your area and/or the area the data is being generated	
 | ``exclude_fields:` if you have arbitrary fields, like record numbers, you can enter them here to have them omitted from the import
 | ``poster_id:`` enter a unique id
@@ -135,7 +136,7 @@ An example from a test config.yaml file:
 
 Incorporating Your Imported Data Into BMON
 ------------------------------------------
-Follow the :ref:`adding-sensors` instructions to add sensors to BMON if you haven't done so already. The data structure within the SQLite database that BMON runs on is simple. The data from each sensor occupies its own table. The name of the table is the ``Sensor ID`` in our case it's the column name from our csv file - with a caveat that the import doesn't import more than one underscore of the column name so, based on the example below SOLAR_TundertankONEFOOT_F_Avg would become SOLAR_TundertankONEFOOT
+Follow the :ref:`adding-sensors` instructions to add sensors to BMON if you haven't done so already. The data structure within the SQLite database that BMON runs on is simple. The data from each sensor occupies its own table. The name of the table is the ``Sensor ID`` in our case it's the column name from our csv file.
 
 An example .csv file
 
