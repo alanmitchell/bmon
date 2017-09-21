@@ -73,6 +73,7 @@ here.
    
    system-administrator-introduction
    how-to-install-BMON-on-a-web-server
+   how-to-install-BMON-locally
    adding-buildings-and-sensors
    setting-up-sensors-to-post-to-bmon
    multi-building-charts
@@ -84,6 +85,7 @@ here.
    periodic-scripts
    archiving-and-analyzing-data-from-the-system
    system-performance-with-high-loading
+   using-csv-transfer
    
 .. toctree::
    :maxdepth: 2

@@ -3,17 +3,12 @@
 # NOTE:  The pip Python package must be installed to use this
 # requirements.txt file.
 
-# Django is needed but it will be installed through the Webfaction control 
-# panel
-# Django==1.10.2
+Django==1.10.2
 
 django-extensions==1.7.4
 
-# numpy==1.12.1 must be installed prior to running this requirements file
-# due to numexpr install requiring it.
-# install numpy with:  
-#     pip install -I --user numpy==1.12.1
-# as is done in the "install_packages.sh" script.
+numpy==1.12.1 
+
 numexpr==2.6.2
 
 pandas==0.20.3
