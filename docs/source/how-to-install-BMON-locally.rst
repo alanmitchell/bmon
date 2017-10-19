@@ -357,6 +357,25 @@ If everything works, do the following to have nginx uwsgi start automatically
 | ``sudo systemctl enable uwsgi``
 
 
+Cron Jobs
+---------
+
+One cron job is necessary for the BMON application. To edit the your
+crontab file, execute ``crontab -e``. Then, add the following line to
+the file:
+
+::
+
+    */5 * * * * ~/webapps/bmon_django/bmon/manage.py runscript main_cron > /dev/null 2>&1
+
+This cron job: 
+
+* creates calculated reading values and stores Internet weather data in the reading database every half hour
+* checks for active Alert Conditions every five minutes 
+* creates a daily status line in the log file indicating how many sensor readings were stored in the database during the past day (viewable by browsing to ``<Domain URL>/show_log``) 
+* creates a backup of the main Django database every day, and 
+* creates a backup of the reading database every three days
+
 
 
 
