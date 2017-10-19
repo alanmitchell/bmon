@@ -377,7 +377,23 @@ This cron job:
 * creates a backup of the reading database every three days
 
 
+Special Functions
+-----------------
 
+The BMON repository includes a number of preset calculation functions located in ``bmon/bmsapp/calcs`` which are not discussed in any of the BMON documentation though the files themselves have notes included. If you plan on using BMON to collect data from the Sunny Portal you must do the following:
 
+Install Phantomjs
+~~~~~~~~~~~~~~~~~
 
-   
+* visit the `Phantomjs website <http://phantomjs.org/download.html/>`_ and obtain (copy) the link to your bit version's phantomjs package.
+* open a connection to your BMON server and resume working in your project's virtual environment using the ``workon`` command discussed previously in this document ex. ``workon bmon``
+* change directory to your home directory ``cd $home``
+* use wget to download the zipped package using the url you copied previously
+  ex. ``sudo wget https://bitbucket.org/ariya/phantomjs/downloads/phantomjs-2.1.1-linux-x86_64.tar.bz2`` if you were using a 64bit Linux installation
+* begin unzipping the file, in the example above we must first use bzip
+  ``bzip2 -d phantomjs-2.1.1-linux-x86_64.tar.bz2`` 
+* next, unzip the tar file using ``tar xvf phantomjs-2.1.1-linux-x86_64.tar``
+* change directory to the newly created phantomjs directory ``cd phantomjs-2.1.1-linux-x86_64/bin``
+* copy/move the phantomjs file to your Env/bmon/bin directory ``sudo mv phantomjs /home/cchrc/Env/bmon/bin``
+* to verify that everything is in the proper place type ``which phantomjs`` which should return a result showing its location in /Env/bmon/bin
+* after successfully moving the phantomjs file change directory back to $home and remove the remaining phantomjs-2.1.1-linux-x86_64 folder using ``sudo rm -rf phantomjs-2.1.1-linux-x86_64``
