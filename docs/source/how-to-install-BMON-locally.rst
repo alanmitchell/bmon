@@ -121,8 +121,8 @@ Installing the Required Python Packages & BMON Project
 ------------------------------------------------------
 
 | **Install BMON & Required Packages**
-
-| ``sudo git clone https://github.com/alanmitchell/bmon.git``
+| ``cd $HOME``
+| ``git clone https://github.com/alanmitchell/bmon.git``
 
 A directory named bmon will be created in your $home directory
 
@@ -138,7 +138,7 @@ cd bmon (you should be in bmon/bmon now)
 Django requires a ``settings.py`` file to provide essential information for running a project. We will start with a sample settings file and make necessary changes.
 
 | Move to the $home/bmon/bmon directory (yes, the bmon folder inside the bmon folder) and create a settings.py file from the sample located there:
-| ``sudo cp settings_example.py settings.py``
+| ``cp settings_example.py settings.py``
 
 | Open ``settings.py`` in an editor, e.g. ``sudo nano settings.py``. Each one of the settings is documented within the file. Examine each setting carefully for any needed changes.
 
@@ -159,11 +159,11 @@ type ``which python`` and note the path ex. /home/cchrc/Env/bmon/bin/python
 ``cd $home/bmon`` or ``cd ..`` if you just finished the prior step.
 
 | Modify manage.py
-| ``sudo nano manage.py``
+| ``nano manage.py``
 | Change #!/usr/local/bin/python2.7 to whatever path came up when you typed ``which python``
 
 | Test the manage.py file for errors 
-| ``sudo ./manage.py check``
+| ``./manage.py check``
 
 You're looking for System check identified no issues (0 silenced)
 If you get a permission denied error make sure your path is typed correctly in the manage.py file
@@ -172,27 +172,27 @@ Create the Django Database, Install Initial Data, and Prepare Static Files
 --------------------------------------------------------------------------
 
 | Create the Django database file by executing:
-| ``sudo ./manage.py migrate``
+| ``./manage.py migrate``
 
 | Some initial data for common sensor units, sensor categories, and a
    sample building and sensor should be loaded into the database by:
-| ``sudo ./manage.py loaddata init_data.yaml``
+| ``./manage.py loaddata init_data.yaml``
 
 | Copy the static files (images, stylesheets, JavaScript files, etc.)
    into the folder where they will be served by the Static Application
    you created. Do this by executing:
-| ``sudo ./manage.py collectstatic``
+| ``./manage.py collectstatic``
 
 | In order to use the Admin site for setting up sensors and buildings,
    we need to create an admin user. To do this, execute:
-| ``sudo ./manage.py createsuperuser``
+| ``./manage.py createsuperuser``
 
 Enter your desired username, email, and password to complete the
 setup. The username and password created here will be the credentials
 needed to log into the Admin side of the BMON site.
 
 | Test the development server by running the following:
-| ``sudo ./manage.py runserver SERVERIP OR URL:8000``
+| ``./manage.py runserver SERVERIP OR URL:8000``
 
 Then go to SERVERIP OR URL:8000 in your web browser and see if you see a poorly formatted version of BMON (the CSS doesn't load in development). End the test by pressing ``Ctl-C`` to kill the process 
 
