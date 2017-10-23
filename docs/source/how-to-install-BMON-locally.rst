@@ -301,7 +301,7 @@ where chown should indicate YOURUSERNAME:www-data
 
 ----------------------
 
-The only portion of this file that needs to be changed is ``server_name`` which should be changed to either your server IP address or URL
+The only portions of this file that need to be changed are ``server_name`` which should be changed to either your server IP address or URL, and ``root /home/cchrc/bmon;`` which should be changed to your home bmon directory.
 
 | Enable the Site
 | ``sudo ln -s /etc/nginx/sites-available/bmon /etc/nginx/sites-enabled``
@@ -317,9 +317,7 @@ Create an override file (this was done to fix some errors)
 
 | ``sudo mkdir /etc/systemd/system/nginx.service.d``
 
-| ``sudo nano /etc/systemd/system/nginx.service.d/override.conf``
-
-Put a space in the file and save
+| ``sudo touch /etc/systemd/system/nginx.service.d/override.conf``
 
 Change owners and permissions for the override file
 
