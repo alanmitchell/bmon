@@ -126,14 +126,14 @@ Installing the Required Python Packages & BMON Project
 
 A directory named bmon will be created in your $home directory
 
-cd bmon
+| ``cd bmon``
 
-pip install -r requirements.txt
+| ``pip install -r requirements.txt``
 
 Creating BMON Settings File
 ---------------------------
 
-cd bmon (you should be in bmon/bmon now)
+``cd bmon`` (you should be in bmon/bmon now)
 
 Django requires a ``settings.py`` file to provide essential information for running a project. We will start with a sample settings file and make necessary changes.
 
