@@ -125,7 +125,7 @@ An example from a test config.yaml file:
 | ``name_row:`` indication of which row (within the header count) contains the column names of your data, a 2 here means that of the 4 header rows, the second row contains column names (see csv example below)
 | ``field_map:`` is optional, in the example above field_map: "lambda nm: '_'.join(nm.split('_')[:2])" strips the final two underscores of the column name ex. SOLAR_TundertankONEFOOT_F_Avg would become SOLAR_TundertankONEFOOT, remove this line if you do not wish to have your column names altered
 | ``ts_tz:`` enter the appropriate timezone for your area and/or the area the data is being generated	
-| ``exclude_fields:` if you have arbitrary fields, like record numbers, you can enter them here to have them omitted from the import
+| ``exclude_fields:`` if you have arbitrary fields, like record numbers, you can enter them here to have them omitted from the import
 | ``poster_id:`` enter a unique id
 | ``bmon_store_url:`` is the full URL to the storage function of the BMON server, this will include \http://SERVER IP OR URL/readingdb/reading/store, the only information to be changed is the portion immediately following \http://  
 | ``bmon_store_key:`` each BMON server has a unique and secret storage key string; providing this string is required for storing data on the BMON server, copy this from your bmon settings.py file
