@@ -51,11 +51,18 @@ try:
                 df = df[df['Interval kWh'] > 0]    # drop the zero readings
 
                 # get the timestamps, ids and values so they can be stored.
-                # Convert date column to Unix Epoch timestamps
-                stamps = df['Read Date/Time'].dt.tz_localize('US/Alaska', ambiguous='infer').view('int64').values / int(1e9)
-                ids = df['Meter Nbr'].astype('str').values
+                # Convert date column to Unix Epoch timestamps.  Need to include the
+                # ambiguous parameter as shown to avoid errors when DST transitions occur.
+                df['stamps'] = df['Read Date/Time'].dt.tz_localize('US/Alaska', ambiguous='NaT').view('int64').values / int(1e9)
+
+                # The rows that couldn't be converted due to DST transitions end up
+                # with negative time stamps
+                df_final = df[df.stamps > 0]
+
+                stamps = df_final.stamps.values
+                ids = df_final['Meter Nbr'].astype('str').values
                 # multiply 15 min interval kWh by 4 to get average kW
-                vals = (df['Interval kWh'] * 4.0).values
+                vals = (df_final['Interval kWh'] * 4.0).values
 
                 insert_msg = db.insert_reading(stamps, ids, vals)
                 _logger.info('MEA Data processed from %s:\n    %s' % (fname, insert_msg))
