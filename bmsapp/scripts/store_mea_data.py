@@ -52,7 +52,7 @@ try:
 
                 # get the timestamps, ids and values so they can be stored.
                 # Convert date column to Unix Epoch timestamps
-                stamps = df['Read Date/Time'].dt.tz_localize('US/Alaska').view('int64').values / int(1e9)
+                stamps = df['Read Date/Time'].dt.tz_localize('US/Alaska', ambiguous='infer').view('int64').values / int(1e9)
                 ids = df['Meter Nbr'].astype('str').values
                 # multiply 15 min interval kWh by 4 to get average kW
                 vals = (df['Interval kWh'] * 4.0).values
