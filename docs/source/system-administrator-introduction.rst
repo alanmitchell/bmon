@@ -20,6 +20,14 @@ This document gives instructions for installing BMON on a web server.
 Linux skills and preferably some experience with Python and Django are necessary
 to perform this task.
 
+:ref:`Local BMON Installation <how-to-install-BMON-locally>`
+--------------------------------------------------------------
+
+This document gives instructions for installing BMON on a local web server.
+Linux skills and preferably some experience with Python and Django are necessary
+to perform this task.
+
+
 :ref:`Adding Buildings and Sensors <adding-buildings-and-sensors>`
 ------------------------------------------------------------------
 
@@ -112,3 +120,9 @@ A stress test was done on the BMON system using high rates of sensor
 reading posts and chart/report requests. Also, large amounts of
 historical data were present in the test. This document describes the
 results of that testing.
+
+:ref:`Importing Data from CSV Files <using-csv-transfer>`
+---------------------------------------------------------
+
+This document explains how to use the `csv-transfer utility <https://github.com/alanmitchell/csv-transfer/>`_ 
+to import csv data into BMON.
