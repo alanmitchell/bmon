@@ -11,6 +11,7 @@ from cStringIO import StringIO
 import logging
 import django
 import pandas as pd
+import numpy as np
 
 # need to add the directory two above this to the Python path
 # so the bmsapp package can be found
@@ -46,23 +47,36 @@ try:
         if (fname is not None) and ('.xlsx' in fname):
             try:
                 attachment = part.get_payload(decode=True)
-
                 df = pd.read_excel(StringIO(attachment)).dropna(how='all')
-                df = df[df['Interval kWh'] > 0]    # drop the zero readings
 
-                # get the timestamps, ids and values so they can be stored.
-                # Convert date column to Unix Epoch timestamps.  Need to include the
-                # ambiguous parameter as shown to avoid errors when DST transitions occur.
-                df['stamps'] = df['Read Date/Time'].dt.tz_localize('US/Alaska', ambiguous='NaT').view('int64').values / int(1e9)
+                # used to assemble final DataFrame from individual DataFrames from
+                # each row.
+                df_final = pd.DataFrame()
+                for ix, row in df.iterrows():
+                    row_data = row.dropna().values
+                    if len(row_data) == 98:
+                        vals = row_data[2:].astype(float) * 4.0  # x 4 to convert from 15 min kWh to average kW
+                        sensor_id = row_data[0]
 
-                # The rows that couldn't be converted due to DST transitions end up
-                # with negative time stamps
-                df_final = df[df.stamps > 0]
+                        # Make timestamps, 15 minutes apart, starting at 7.5 minutes past
+                        # Midnight.
+                        day_start = row_data[1].tz_localize('US/Alaska', ambiguous='NaT').value // 10 ** 9
+                        seconds = np.array(range(15 * 60 / 2, 3600 * 24, 900))
+                        ts = day_start + seconds
 
-                stamps = df_final.stamps.values
-                ids = df_final['Meter Nbr'].astype('str').values
-                # multiply 15 min interval kWh by 4 to get average kW
-                vals = (df_final['Interval kWh'] * 4.0).values
+                        # Put into DataFrame for easy filtering
+                        dfr = pd.DataFrame({'ts': ts, 'val': vals, 'id': [sensor_id] * 96})
+                        df_final = pd.concat([df_final, dfr])
+
+                # Remove outliers from data.  No zero values, and no very large values,
+                # more than 2.5 times 95th percentile value.
+                find_good = lambda x: (x > 0) & (x < x.quantile(.95) * 2.5)
+                good_data = df_final.groupby('id')['val'].transform(find_good).astype(bool)
+                df_final = df_final[good_data]
+
+                stamps = df_final.ts.values
+                ids = df_final.id.astype('str').values
+                vals = df_final.val.values
 
                 insert_msg = db.insert_reading(stamps, ids, vals)
                 _logger.info('MEA Data processed from %s:\n    %s' % (fname, insert_msg))
