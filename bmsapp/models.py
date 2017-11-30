@@ -599,11 +599,12 @@ class AlertCondition(models.Model):
 
         # get the most current reading for the sensor (last_read), and
         # also fill out a list of all the recent readings that need to
-        # be evaluated to determine if the alert condition is true.
+        # be evaluated to determine if the alert condition is true (last_reads).
         if self.read_count==1:
             last_read = self.sensor.last_read(reading_db)  # will be None if no readings
             last_reads = [last_read] if last_read else []
         else:
+            # last_read() method returns a list when read_count is > 1.
             last_reads = self.sensor.last_read(reading_db, self.read_count)
             last_read = last_reads[0] if len(last_reads) else None
 
