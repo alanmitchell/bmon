@@ -153,9 +153,11 @@ class BMSdata:
         return msg
         
 
-    def last_read(self, sensor_id):
-        """Returns the last reading for a particular sensor.  
-        The reading is returned as a row dictionary.
+    def last_read(self, sensor_id, read_count=1):
+        """Returns the last reading for a particular sensor,
+        or multiple readings if 'read_count' is more than 1.
+        The reading is returned as a row dictionary, or a list of row
+        dictionaries if read_count is more than 1.
         Returns None if no readings are available for the requested sensor.
         """
         sensor_id = str(sensor_id)   # make sure ID is a string
@@ -164,9 +166,12 @@ class BMSdata:
         if sensor_id not in self.sensor_ids:
             return None
 
-        self.cursor.execute('SELECT * FROM [%s] ORDER BY ts DESC LIMIT 1' % sensor_id)
-        row = self.cursor.fetchone()
-        return dict(row) if row else None
+        self.cursor.execute('SELECT * FROM [%s] ORDER BY ts DESC LIMIT %s' % (sensor_id, read_count))
+        if read_count==1:
+            row = self.cursor.fetchone()
+            return dict(row) if row else None
+        else:
+            return [dict(row) for row in self.cursor.fetchall()]
 
     def rowsForOneID(self, sensor_id, start_tm=None, end_tm=None):
         """Returns a list of dictionaries, each dictionary having a 'ts' and 'val' key.  The

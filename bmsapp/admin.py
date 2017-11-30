@@ -91,7 +91,7 @@ class AlertAdminInline(admin.StackedInline):
 
     fieldsets = (
         (None, {'fields': ( ('active', 'sensor'),
-                            ('condition', 'test_value'),
+                            ('condition', 'test_value', 'read_count'),
                             ('only_if_bldg', 'only_if_bldg_mode'),
                             ('alert_message',),
                             ('priority', 'wait_before_next'),

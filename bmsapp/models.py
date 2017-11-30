@@ -102,12 +102,14 @@ class Sensor(models.Model):
     class Meta:
         ordering = ['sensor_id']
 
-    def last_read(self, reading_db):
-        '''Returns the last reading from the sensor as a dictionary with 'ts' and 'val' keys.
-        Returns None if there have been no readings.  'reading_db' is a sensor reading database,
-        an instance of bmsapp.readingdb.bmsdata.BMSdata.
+    def last_read(self, reading_db, read_count=1):
+        '''If 'read_count' is 1, returns the last reading from the sensor as a dictionary
+        with 'ts' and 'val' keys. Returns None if there have been no readings.
+        If 'read_count' is more than 1, returns a list 'read_count' readings (if available),
+        each reading as a dictionary.
+        'reading_db' is a sensor reading database, an instance of bmsapp.readingdb.bmsdata.BMSdata.
         '''
-        return reading_db.last_read(self.sensor_id)
+        return reading_db.last_read(self.sensor_id, read_count)
 
     def format_func(self):
         '''Returns a function suitable for formatting a value from this sensor.
@@ -529,6 +531,17 @@ class AlertCondition(models.Model):
     # the value to test the current sensor value against
     test_value = models.FloatField(verbose_name='this value', blank=True, null=True)
 
+    # the number of readings that have to qualify before alerting
+    READ_COUNT_CHOICES = (
+        (1, '1 time'),
+        (2, '2 times'),
+        (3, '3 times'),
+        (4, '4 times'),
+        (5, '5 times')
+    )
+    read_count = models.PositiveSmallIntegerField('Number of times Condition must occur before alerting',
+                                                  default=1, choices=READ_COUNT_CHOICES)
+
     # fields to qualify the condition test according to building mode
     only_if_bldg = models.ForeignKey(Building, verbose_name='But only if building', blank=True, null=True)
     only_if_bldg_mode = models.ForeignKey(BuildingMode, verbose_name='is in this mode', blank=True, null=True)
@@ -584,8 +597,15 @@ class AlertCondition(models.Model):
         bldgs_str = ', '.join(bldgs)
         sensor_desc = '%s sensor in %s' % (self.sensor.title, bldgs_str)
 
-        # get the most current reading for the sensor
-        last_read = self.sensor.last_read(reading_db)
+        # get the most current reading for the sensor (last_read), and
+        # also fill out a list of all the recent readings that need to
+        # be evaluated to determine if the alert condition is true.
+        if self.read_count==1:
+            last_read = self.sensor.last_read(reading_db)  # will be None if no readings
+            last_reads = [last_read] if last_read else []
+        else:
+            last_reads = self.sensor.last_read(reading_db, self.read_count)
+            last_read = last_reads[0] if len(last_reads) else None
 
         # start the subject
         subject = '%s Priority Alert: ' % choice_text(self.priority, AlertCondition.ALERT_PRIORITY_CHOICES)
@@ -614,46 +634,51 @@ class AlertCondition(models.Model):
                 subject += '%s Inactive' % sensor_desc
                 return subject, msg
 
-        # If there are no readings for this sensor return
-        if last_read is None:
+        # If there are not enough readings for this sensor, return as the
+        # alert condition is not satisfied.
+        if len(last_reads) < self.read_count:
             return None
 
-        # Now look at the value test, considering the building mode if specified.
-        val_test = eval( '%s %s %s' % (last_read['val'], self.condition, self.test_value) )
+        # Loop through the requested number of last readings, testing whether
+        # the alert conditions are satisfied for all the readings.
+        # First see if there was a building mode test requested and test it.
         if self.only_if_bldg is not None and self.only_if_bldg_mode is not None:
-            bldg_mode_test = (self.only_if_bldg.current_mode == self.only_if_bldg_mode)
+            if self.only_if_bldg.current_mode != self.only_if_bldg_mode:
+                # Failed building mode test
+                return None
+
+        # Alert condition must be true for each of the requested readings
+        for read in last_reads:
+            # Evaluate the numeric test condition
+            if not eval( '%s %s %s' % (read['val'], self.condition, self.test_value) ):
+                # Failed value test
+                return None
+
+        # All of the alert conditions were satisfied,
+        # return a subject and message.
+
+        # Get a formatting function for sensor values
+        formatter = self.sensor.format_func()
+        condition_text = choice_text(self.condition, AlertCondition.CONDITION_CHOICES)
+        subject += '%s is %s %s' % (sensor_desc, condition_text, formatter(self.test_value))
+        if self.alert_message.strip():
+            msg = self.alert_message.strip()
+            if msg[-1] != '.':
+                msg += '.'
+            msg = '%s The current sensor reading is %s %s.' % \
+                (msg, formatter(last_read['val']), self.sensor.unit.label)
         else:
-            bldg_mode_test = True
+            msg = 'The %s has a current reading of %s %s, which is %s %s %s.' % \
+                (
+                sensor_desc,
+                formatter(last_read['val']),
+                self.sensor.unit.label,
+                condition_text,
+                formatter(self.test_value),
+                self.sensor.unit.label
+                )
 
-        if val_test and bldg_mode_test:
-            # Value test is in effect, return a subject and message
-            # find the text for the condition.
-
-            # Get a formatting function for sensor values
-            formatter = self.sensor.format_func()
-            condition_text = choice_text(self.condition, AlertCondition.CONDITION_CHOICES)
-            subject += '%s is %s %s' % (sensor_desc, condition_text, formatter(self.test_value))
-            if self.alert_message.strip():
-                msg = self.alert_message.strip()
-                if msg[-1] != '.':
-                    msg += '.'
-                msg = '%s The current sensor reading is %s %s.' % \
-                    (msg, formatter(last_read['val']), self.sensor.unit.label)
-            else:
-                msg = 'The %s has a current reading of %s %s, which is %s %s %s.' % \
-                    (
-                    sensor_desc,
-                    formatter(last_read['val']),
-                    self.sensor.unit.label,
-                    condition_text,
-                    formatter(self.test_value),
-                    self.sensor.unit.label
-                    )
-
-            return subject, msg
-
-        else:
-            return None
+        return subject, msg
 
     def wait_satisfied(self):
         '''Returns True if there has been enough wait between the last notification
