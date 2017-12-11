@@ -6,6 +6,7 @@ from __future__ import division   # needed for transform functions
 import time
 from math import *       # make available for transform functions
 import traceback
+import struct
 import pandas as pd
 import modbus_tk.defines as cst
 from modbus_tk import modbus_tcp
@@ -78,11 +79,30 @@ def run(site_id='', host='', device_id=1, holding_registers=[], **kwargs):
                         if type(addr)==list:
                             # multiple addresses in a list.  Combine the values
                             # MSB first, so start from the back. 16-bits in each digit.
+
+                            # The last element in the list may be a string indicating that this
+                            # is not an integer value and needs further conversion.  Don't use
+                            # that last string element when calculating the number.
+                            num_digits = len(addr)
+                            if type(addr[-1])==str:
+                                num_digits -= 1
+
+                            # reverse the addresses so LSB is first
+                            rev_addr = list(reversed(addr[:num_digits]))
                             mult = 1
                             val = 0
-                            for ad in list(reversed(addr)):
+                            for ad in rev_addr:
                                 val += mult * res[ad - start_address]
                                 mult *= 2**16
+
+                            # If the last entry in the list was a string, that indicates
+                            # that further conversion is needed.
+                            if addr[-1]=='f':
+                                # the number is really a single-precision floating point number;
+                                # convert it.
+                                s = struct.pack('i', val)
+                                val = struct.unpack('f', s)[0]
+
                         else:
                             # single address, just read the value
                             val = res[addr - start_address]
