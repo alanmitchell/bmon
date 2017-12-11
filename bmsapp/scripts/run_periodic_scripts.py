@@ -20,7 +20,7 @@ import random
 import importlib
 import traceback
 import yaml
-from bmsapp.readingdb import bmsdata
+import bmsapp.storereads
 import bmsapp.models
 
 # This is how often the Periodic scripts are checked to see if it is
@@ -131,14 +131,7 @@ class RunScript(threading.Thread):
             if 'readings' in results:
                 sensor_reads = results.pop('readings')
                 if len(sensor_reads):
-                    # change the shape of the sensor readings into separate lists,
-                    # which is what the "insert_reading" function call needs.
-                    ts, ids, vals = zip(*sensor_reads)
-
-                    # get a connection to the reading database and insert
-                    reading_db = bmsdata.BMSdata()
-                    insert_msg = reading_db.insert_reading(ts, ids, vals)
-                    reading_db.close()
+                    insert_msg = bmsapp.storereads.store_many({'readings': sensor_reads})
                     # store this message so it can be seen in the Django Admin
                     # interface
                     results['reading_insert_message'] = insert_msg
