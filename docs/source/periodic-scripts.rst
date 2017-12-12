@@ -360,7 +360,7 @@ final value stored in BMON would be::
 The value 65536 is 2 raised to the 16 power.
 
 The third holding register example also involves a list of MODBUS addresses, but
-a type identifier is added as the last element in the list of addresses:
+a type identifier is added as the last element in the list of addresses::
 
     - [550, [2087, 2086, 'f'], total_heat]
 
