@@ -58,7 +58,9 @@ def run(site_id='', host='', device_id=1, holding_registers=[], **kwargs):
                 addresses = []
                 for it in dfg.address.values:
                     if type(it)==list:
-                        addresses += it
+                        for adr in it:
+                            if type(adr)==int:
+                                addresses.append(adr)
                     else:
                         addresses.append(it)
                 start_address = min(addresses)
