@@ -326,7 +326,7 @@ section will describe the ``Script Parameters in YAML form`` entry.
     is entered as a YAML list; each item in the list describes one holding register
     that will be read and stored under one Sensor ID in BMON.  Each holding register
     is described on one line and is in turn a YAML list of either three or four items.
-    Three examples will be described here.
+    Four examples will be described here.
 
 The first holding register example is::
 
@@ -358,6 +358,17 @@ final value stored in BMON would be::
     which equals:  473,097
 
 The value 65536 is 2 raised to the 16 power.
+
+The third holding register example also involves a list of MODBUS addresses, but
+a type identifier is added as the last element in the list of addresses:
+
+    - [550, [2087, 2086, 'f'], total_heat]
+
+Currently, the only supported identifier is 'f', which indicates that the two 16-bit
+words read from the registers should be interpreted as a single-precision floating
+point number.  The first address listed holds the most-significant 16-bit word and 
+the second address holds the least-signficant word.  Some devices encode floating
+point values using this method.
 
 The final holding register example uses the optional fourth descriptive parameter::
 
