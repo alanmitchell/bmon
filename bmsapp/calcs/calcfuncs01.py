@@ -180,6 +180,20 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         # return the timestamps and runtime values
         return ser_runtime.index.values, ser_runtime.values
 
+    def lastCount(self, sensorID):
+        """Returns the last raw count from a sensor that has been set up to
+        store a counter rate of change; i.e. a sensor that uses the "rate"
+        transform function.
+        'sensorID' is the Sensor ID of the sensor that is currently set up
+            to store the counter rate of change (it uses a transform function
+            using the 'rate' variable).
+        """
+        last_ts, last_val = self.db.last_raw(sensorID)
+        if last_ts:
+            return [last_ts], [last_val]
+        else:
+            return [], []
+
     def OkoValueFromStatus(self, statusID, value=1.0):
         """Converts Okofen Boiler Status values into Pellet Consumption
         of Heat output values.  When the Boiler status value is 5 or 6

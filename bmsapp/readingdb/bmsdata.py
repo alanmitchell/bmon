@@ -305,6 +305,21 @@ class BMSdata:
             self.conn.commit()
             return None, None   # no prior values
 
+    def last_raw(self, sensor_id):
+        """Returns the last raw reading stored in the '_last_raw' table for
+        the sensor with a Sensor ID of 'sensor_id'.  A two-tuple is returned:
+        (timestamp of last raw reading, last raw reading value).  None values
+        are returned if there is no last reading present.
+        """
+        sensor_id = str(sensor_id)  # make sure ID is a string
+
+        self.cursor.execute('SELECT * FROM [_last_raw] WHERE id = ?', (sensor_id,))
+        rec = self.cursor.fetchone()
+        if rec:
+            return rec['ts'], rec['val']
+        else:
+            return None, None  # no prior values
+
     def sensor_id_list(self):
         """Returns a list of Sensor IDs that are present in the Reading
         database.  The returned list is sorted by ID."""

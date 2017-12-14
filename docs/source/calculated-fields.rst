@@ -263,6 +263,34 @@ This special runtime function is also useful with Motion or Occupancy
 Sensors and 1-Wire Motor Sensors used with the `Mini-Monitor 
 <http://mini-monitor-documentation.readthedocs.io/en/latest/>`_.
 
+Storing the Raw Count Values from a Rate-of-Change Sensor
+---------------------------------------------------------
+
+Counter type sensors generally use a Transform function to transform
+the cumulative count registered by the sensor into a rate-of-change of
+the quantity being sensed.  For example, a fuel meter will register the
+total cumulative gallons of fuel consumed.  A Transform function is usually
+applied to the cumulative gallon value to convert it to a rate of use per
+hour or per day.  See the "Pulse Counter Transforms" section on the
+:ref:`transform-expressions` page for further information.
+
+However, somestimes it is desirable to also store the cumulative count
+registered by the sensor, in addition to the rate of change.  The
+``lastCount`` calculated function described in this section meets that
+objective.  The screenshot below shows a typical configuration of the
+calculated function.
+
+.. image:: /_static/last_count.png
+    :align: center
+
+The only parameter necessary is the ``sensorID`` (Sensor ID) of the
+rate-of-change sensor.  This calculated function will then acquire and store the
+last raw count that was used by the sensor to determine the rate of change.
+
+Note that calculated functions only run every 1/2 hour, so the time resolution
+for these count values will be 1/2 hour, even if the counter reports at a more
+frequent interval.
+
 Acquiring Building Energy Usage Information from ARIS
 -----------------------------------------------------
 
