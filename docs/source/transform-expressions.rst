@@ -129,6 +129,11 @@ value. By leaving this ``ignore_zero`` parameter at its default value of
 ``True``, these zero pulse count readings will be ignored and no value
 will be stored until the next valid reading.
 
+``ignore_negative`` (default value = ``True``, the other valid value is
+``False``): If set to ``True`` a backward movement of the counter is ignored
+(it could be due to a reset).  If this parameter is ``False``, a backward
+movement of the counter is reported as a negative rate of change.
+
 ``min_interval`` (default value = 60, measured in seconds): Monnit
 wireless pulse counters sometimes send the same pulse count value twice
 but with slight separation in time, resulting in a zero calculated pulse
