@@ -33,7 +33,7 @@ use of `Cygwin <https://www.cygwin.com/>`_). The skills needed for installation 
 Create the Website and Install the Django Application
 -----------------------------------------------------
 
-The BMON application needs to have Django 1.7.x or greater and Python 2.7.x
+The BMON application needs to have Django 1.10.2 or greater and Python 2.7.x
 installed. On the Webfaction hosting service, Python 2.7 is already
 installed, so none of the steps below perform that task. If installing
 on a system without Python 2.7, you will first need to install Python.
