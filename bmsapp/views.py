@@ -352,7 +352,7 @@ def map_json(request):
                                  "properties": {"facilityName": bldg.title, 
                                                 "facilityID": bldg.id, 
                                                 "message": "", 
-                                                "href": '{}?select_group=0&select_bldg={}'.format(request.build_absolute_uri('/reports/'), bldg.id)
+                                                "href": '{}?select_group=0&select_bldg={}'.format(request.build_absolute_uri('../reports/'), bldg.id)
                                                 }
                                  } )
 
