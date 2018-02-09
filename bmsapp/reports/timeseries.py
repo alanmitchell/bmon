@@ -86,7 +86,7 @@ class TimeSeries(basechart.BaseChart):
 
         opt['layout']['xaxis']['title'] =  "Date/Time (%s)" % self.timezone
         opt['layout']['xaxis']['type'] =  'date'
-        opt['layout']['xaxis']['hoverformat'] = '%a %m/%d %H:%M'
+        opt['layout']['xaxis']['hoverformat'] = '%a %m/%d %H:%M:%S'
 
         opt['layout']['annotations'] = []
         opt['layout']['shapes'] = []
