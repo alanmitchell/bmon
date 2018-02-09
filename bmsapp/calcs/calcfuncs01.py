@@ -141,10 +141,10 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         """
         # determine the timestamp of the last entry in the database for this calculated field.
         last_calc_rec = self.db.last_read(self.calc_id)
-        last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
+        last_ts = last_calc_rec['ts'] if last_calc_rec else 0   # use 0 ts if no records
         
         # constrain this value to greater or equal to 'reach_back'
-        last_ts = max(last_ts, int(time.time() - self.reach_back))
+        last_ts = max(last_ts, time.time() - self.reach_back)
         
         # get the On/Off values starting two hours prior to this in order to capture at least
         # one state change prior to last_ts.  Put these in a Pandas series
@@ -343,10 +343,10 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
 
         # determine the timestamp of the last entry in the database for this calculated field.
         last_calc_rec = self.db.last_read(self.calc_id)
-        last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
+        last_ts = last_calc_rec['ts'] if last_calc_rec else 0   # use 0 ts if no records
         
         # constrain this value to greater or equal to 'reach_back'
-        last_ts = max(last_ts, int(time.time() - self.reach_back))
+        last_ts = max(last_ts, time.time() - self.reach_back)
 
         # IDs and variable names
         sensors = ((A, 'A'), (B, 'B'), (C, 'C'), (D, 'D'), (E, 'E'))
@@ -445,7 +445,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # Evaluate the expression on these variables and append to value list
             try:
                 vals.append(float(eval(expression)))
-                ts.append(int(ix))
+                ts.append(ix)
             except:
                 # if an evaluation error occurs, just don't add anything to the list
                 _logger.warning('Error calculating %s with inputs %s' % (self.calc_id, row))

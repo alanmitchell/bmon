@@ -68,13 +68,12 @@ def store(reading_id, request_data):
     # open the database 
     db = bmsdata.BMSdata()
     
-    # parse the date into a datetime object and then into Unix seconds. Convert to
-    # integer.
+    # parse the date into a datetime object and then into Unix seconds.
     if 'ts' in request_data:
-        ts = int( calendar.timegm(dateutil.parser.parse(request_data['ts']).timetuple()) )
+        ts = calendar.timegm(dateutil.parser.parse(request_data['ts']).timetuple())
     else:
         # no timestamp in query parameters, so assume the timestamp is now.
-        ts = int(time.time())
+        ts = time.time()
 
     # Get the value from the request
     val = request_data['val']
@@ -121,7 +120,7 @@ def store_many(req_data):
 
         for ts, reading_id, val in req_data['readings']:
             try:
-                ts = int(ts) if ts is not None else int(time.time())
+                ts = ts if ts is not None else time.time()
 
                 # Convert/transform the fields for storage.
                 ts, reading_id, val = convert_val(ts, reading_id, val, db)
@@ -140,7 +139,7 @@ def store_many(req_data):
             # data payload
             for reading in req_data['sensorMessages']:
                 try:
-                    ts = int(calendar.timegm(dateutil.parser.parse(reading['messageDate']).timetuple()))
+                    ts = calendar.timegm(dateutil.parser.parse(reading['messageDate']).timetuple())
 
                     # sometimes multiple plot values are encoded by separating with the pipe character
                     # This happens with the CO sensor and the two channel relay.  Use the first value.
@@ -183,7 +182,7 @@ def store_many(req_data):
         #              period.  The 'a' adjustment can be used to produce this midpoint timestamp.
 
         # get the timestamp and convert to UNIX epoch format.
-        ts_base = int( calendar.timegm(dateutil.parser.parse(req_data['published_at']).timetuple()) )
+        ts_base = calendar.timegm(dateutil.parser.parse(req_data['published_at']).timetuple())
 
         # get the base for the sensor id, which is the coreid of the Particle board
         base_id = req_data['coreid']
@@ -197,7 +196,7 @@ def store_many(req_data):
         # A time adjustment value appears with a key of 'a'.  If present, take it out of the
         # data.
         ts_adj = data.get('a', 0)   # use 0 as default adjustment
-        ts_adj = int(float(ts_adj))   # make an integer time adjustment
+        ts_adj = float(ts_adj)      # make a time adjustment
         if 'a' in data:
             del(data['a'])   # delete it out of the data dictionary
 

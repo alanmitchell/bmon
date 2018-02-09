@@ -52,7 +52,7 @@ class BMSdata:
         # real instead of integer in case this table is needed for non counter
         # sensors in the future.
         if '_last_raw' not in self.sensor_ids:
-            self.cursor.execute("CREATE TABLE [_last_raw] (id varchar(50) primary key, ts integer, val real)")
+            self.cursor.execute("CREATE TABLE [_last_raw] (id varchar(50) primary key, ts real, val real)")
             self.conn.commit()
 
     def __del__(self):
@@ -75,7 +75,7 @@ class BMSdata:
         """Adds a table to hold readings from a sensor with the id 'sensor_id'.  Also
         adds the id to the set that holds sensor ids.
         """
-        self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % sensor_id)
+        self.cursor.execute("CREATE TABLE [%s] (ts real primary key, val real)" % sensor_id)
         self.conn.commit()
         self.sensor_ids.add(sensor_id)
 
@@ -115,8 +115,8 @@ class BMSdata:
                 # substitute current time
                 one_ts = time.time()
 
-            # convert time to integer
-            one_ts = int(one_ts)
+            # make sure time is a float
+            one_ts = float(one_ts)
 
             try:
                 # Check to see if sensor table exists.  If not, create it.
@@ -187,9 +187,9 @@ class BMSdata:
 
         sql = 'SELECT ts, val FROM [%s] WHERE 1' % sensor_id
         if start_tm is not None:
-            sql += ' AND ts>=%s' % int(start_tm)
+            sql += ' AND ts>=%s' % start_tm
         if end_tm is not None:
-            sql += ' AND ts<=%s' % int(end_tm)
+            sql += ' AND ts<=%s' % end_tm
         sql += ' ORDER BY ts'
 
         self.cursor.execute(sql)
@@ -206,9 +206,9 @@ class BMSdata:
 
         sql = 'SELECT ts, val FROM [%s] WHERE 1' % sensor_id
         if start_ts is not None:
-            sql += ' AND ts>=%s' % int(start_ts)
+            sql += ' AND ts>=%s' % start_ts
         if end_ts is not None:
-            sql += ' AND ts<=%s' % int(end_ts)
+            sql += ' AND ts<=%s' % end_ts
         sql += ' ORDER BY ts'
 
         try:

@@ -68,7 +68,7 @@ class CalculateReadings:
         
         # determine the timestamp of the last entry in the database for this calculated field.
         last_calc_rec = self.db.last_read(calc_id)
-        last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
+        last_ts = last_calc_rec['ts'] if last_calc_rec else 0   # use 0 ts if no records
         
         # constrain this value to greater or equal to 'earliest_time'
         last_ts = max(last_ts, earliest_time)

@@ -116,7 +116,7 @@ class Transformer:
                 
                 # Stamp the reading at the average of the current and last
                 # timestamp.
-                return int((ts + last_ts)/2.0), id, eval(expr_clean)
+                return (ts + last_ts)/2.0, id, eval(expr_clean)
                 
             else:
                 # there was no last reading in database
