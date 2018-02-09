@@ -58,7 +58,7 @@ class TimeSeries(basechart.BaseChart):
                     values = np.char.mod('%.4g',df.val.values).astype(float).tolist()
                 else:
                     values = np.round(df.val.values).tolist()
-                times = df.index.strftime('%Y-%m-%d %H:%M:%S').tolist()
+                times = df.index.strftime('%Y-%m-%d %H:%M:%S.%f').tolist()
             else:
                 times = []
                 values = []
@@ -86,7 +86,7 @@ class TimeSeries(basechart.BaseChart):
 
         opt['layout']['xaxis']['title'] =  "Date/Time (%s)" % self.timezone
         opt['layout']['xaxis']['type'] =  'date'
-        opt['layout']['xaxis']['hoverformat'] = '%a %m/%d %H:%M:%S'
+        opt['layout']['xaxis']['hoverformat'] = '%a %m/%d %H:%M:%S.%f'
 
         opt['layout']['annotations'] = []
         opt['layout']['shapes'] = []
