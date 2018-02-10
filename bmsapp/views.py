@@ -316,7 +316,7 @@ def get_readings(request, reading_id):
 
     return HttpResponse(json.dumps(result), content_type="application/json")
 
-@login_required
+@login_required(login_url='../admin/login/')
 def show_log(request):
     '''
     Returns the application's log file, without formatting.
@@ -359,7 +359,7 @@ def map_json(request):
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
-@login_required
+@login_required(login_url='../admin/login/')
 def ecobee_auth(request):
     """Used to generated a form so that a System Admin can obtain access keys
     for reading data from the Ecobee thermostat server.
@@ -379,7 +379,7 @@ def ecobee_auth(request):
         ctx.update({'success': success, 'access_token': access_token, 'refresh_token': refresh_token})
         return render_to_response('bmsapp/ecobee_auth_result.html', ctx)
 
-@login_required
+@login_required(login_url='../admin/login/')
 def unassigned_sensors(request):
     """Shows sensors that are in the Reading Database but not assigned to a building.
     """
@@ -416,7 +416,7 @@ def unassigned_sensors(request):
     ctx.update({'sensor_list': sensor_list})
     return render_to_response('bmsapp/unassigned-sensors.html', ctx)
 
-@login_required
+@login_required(login_url='../admin/login/')
 def backup_reading_db(request):
     """Causes a backup of the sensor reading database to occur.
     """
@@ -430,7 +430,7 @@ def wildcard(request, template_name):
     '''
     return render_to_response('bmsapp/%s.html' % template_name, base_context())
 
-@login_required
+@login_required(login_url='../admin/login/')
 def password_change_done(request):
     return render_to_response('registration/password_change_done.html',
         {'user': request.user})
