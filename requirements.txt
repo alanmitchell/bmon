@@ -3,9 +3,9 @@
 # NOTE:  The pip Python package must be installed to use this
 # requirements.txt file.
 
-Django==1.10.2
+django==1.11.10
 
-django-extensions==1.7.4
+django-extensions==2.0.0
 
 numpy==1.12.1 
 
