@@ -265,19 +265,26 @@ Cron Jobs
 
 One cron job is necessary for the BMON application. To edit the your
 crontab file, execute ``crontab -e``. Then, add the following line to
-the file:
+the file, making changes to the path if BMON was installed in a
+non-standard directory:
 
 ::
 
-    */5 * * * * ~/webapps/bmon_django/bmon/manage.py runscript main_cron > /dev/null 2>&1
+    */5 * * * * cd ~/webapps/bmon_django/bmon && ./manage.py runscript main_cron > /dev/null 2>&1
 
 This cron job: 
 
 * creates calculated reading values and stores Internet weather data in the reading database every half hour
-* checks for active Alert Conditions every five minutes 
+* checks for active Alert Conditions every five minutes
+* runs any Periodic Scripts that been configured in the BMON system
 * creates a daily status line in the log file indicating how many sensor readings were stored in the database during the past day (viewable by browsing to ``<Domain URL>/show_log``) 
 * creates a backup of the main Django database every day, and 
 * creates a backup of the reading database every three days
+
+Note that the command executed by the cron job has two parts: 1) first, it
+changes into the base BMON directory, and then it executes the manage.py script.
+This two step process is necessary on the Webfaction server because the Django Python
+package may only be available for scripts executed from a BMON directory.
 
 Redirecting HTTP to HTTPS
 -------------------------
