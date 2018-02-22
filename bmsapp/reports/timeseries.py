@@ -84,8 +84,8 @@ class TimeSeries(basechart.BaseChart):
         # set the chart data
         opt['data'] = series
 
-        # If there there are more than 12 sensors, hide the legend
-        if len(sensor_list) > 12:
+        # If there there are more than 20 sensors, hide the legend
+        if len(sensor_list) > 20:
             opt['layout']['showlegend'] = False
             del opt['layout']['margin']['b']
 
