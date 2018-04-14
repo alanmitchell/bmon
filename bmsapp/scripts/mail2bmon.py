@@ -68,7 +68,7 @@ def process_email(file_pattern, read_function, tz='US/Alaska'):
 
                     insert_msg = 'testing'  # db.insert_reading(stamps, ids, vals)
                     _logger.info('Data processed from %s:\n    %s' % (fname, insert_msg))
-                    with open('~/mail2bmon.log', 'w') as f:
+                    with open('/home/matsuk12/mail2bmon.log', 'w') as f:
                         for tup in zip(stamps, ids, vals):
                             print >> f, tup
 
