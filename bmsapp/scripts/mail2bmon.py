@@ -66,8 +66,11 @@ def process_email(file_pattern, read_function, tz='US/Alaska'):
                     attachment = part.get_payload(decode=True)
                     stamps, ids, vals = read_function(StringIO(attachment), fname, tz)
 
-                    insert_msg = db.insert_reading(stamps, ids, vals)
+                    insert_msg = 'testing'  # db.insert_reading(stamps, ids, vals)
                     _logger.info('Data processed from %s:\n    %s' % (fname, insert_msg))
+                    with open('~/mail2bmon.log', 'w') as f:
+                        for tup in zip(stamps, ids, vals):
+                            print >> f, tup
 
                 except Exception as e:
                     _logger.exception('Error processing data from file %s with %s.' % (fname, read_function.func_name))
