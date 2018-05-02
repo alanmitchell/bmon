@@ -58,7 +58,7 @@ def process_email(file_pattern, read_function, tz='US/Alaska'):
         # the email comes from stdin; read it into a Message object
         msg = email.message_from_file(sys.stdin)
 
-        # Find all the attachments that are Excel files and process
+        # Find all the attachments that match the file pattern.
         for part in msg.walk():
             fname = part.get_filename()
             if (fname is not None) and (re.match(file_pattern, fname, re.I) is not None):
@@ -66,11 +66,8 @@ def process_email(file_pattern, read_function, tz='US/Alaska'):
                     attachment = part.get_payload(decode=True)
                     stamps, ids, vals = read_function(StringIO(attachment), fname, tz)
 
-                    insert_msg = 'testing'  # db.insert_reading(stamps, ids, vals)
+                    insert_msg = db.insert_reading(stamps, ids, vals)
                     _logger.info('Data processed from %s:\n    %s' % (fname, insert_msg))
-                    with open('/home/matsuk12/mail2bmon.log', 'w') as f:
-                        for tup in zip(stamps, ids, vals):
-                            print >> f, tup
 
                 except Exception as e:
                     _logger.exception('Error processing data from file %s with %s.' % (fname, read_function.func_name))
