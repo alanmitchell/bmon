@@ -160,7 +160,8 @@ type ``which python`` and note the path ex. /home/cchrc/Env/bmon/bin/python
 
 | Modify manage.py
 | ``sudo nano manage.py``
-| Change #!/usr/local/bin/python2.7 to whatever path came up when you typed ``which python``
+| Change #!/usr/local/bin/python2.7 to whatever path came up when you typed ``which python``, but the line must begin with
+| ``#!`` before the path to the Python executable.
 
 | Test the manage.py file for errors 
 | ``sudo ./manage.py check``
