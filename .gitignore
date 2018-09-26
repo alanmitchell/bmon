@@ -1,4 +1,5 @@
 settings.py
+.vscode/
 *.sqlite
 *.pyc
 *.log

@@ -3,8 +3,15 @@ This module contains formatting functions for sensor values
 """
 import formatter_codes
 
+def okofen2_status(coded_value):
+    """Okofen Touch Pellet Boiler status codes, newer model in 
+    THRHA Juneau Warehouse and THRHA Angoon Housing.
+    """
+    return formatter_codes.okofen2_status_codes.get(coded_value,
+                                                   'Unknown Code: %s' % coded_value)
+
 def okofen_status(coded_value):
-    """Okofen Pellet Boiler status codes.
+    """Okofen Pellet Boiler status codes, older model in Haines Senior Center.
     """
     return formatter_codes.okofen_status_codes.get(coded_value,
                                                    'Unknown Code: %s' % coded_value)

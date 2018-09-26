@@ -2,7 +2,20 @@
 This module contains dictionaries of formatting codes used by formatters.py
 """
 
-# Okofen Pellet Boiler status codes
+# Okofen Touch Pellet Boiler status codes, model at THRHA Juneau Warehoue
+# and THRHA Angoon Housing
+okofen2_status_codes = {
+ 1: 'Start',
+ 2: 'Ignition',
+ 3: 'Soft Start',
+ 4: 'Heating',
+ 5: 'Shutdown Cycle',
+ 7: 'Filling w/ Pellets',
+ 8: 'Ash',
+ 99: 'Standby',
+}
+
+# Okofen Pellet Boiler status codes, older model at Haines Senior Center
 okofen_status_codes = {
  0: 'Standby',
  1: 'Ignition 1',
