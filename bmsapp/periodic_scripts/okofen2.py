@@ -48,6 +48,7 @@ converters = {
     'boiler_temp_setpt': c_to_f,
     'combustion_chamber_temp': c_to_f,
     'combustion_chamber_temp_setpt': c_to_f,
+    'auger_run_time': lambda x: x / 10.0,
 }
 
 # Fields that are State-type values instead of continuous analog values.
@@ -203,6 +204,7 @@ def run(url= '', site_id='',
 
     finally:
         results['readings'] = readings
+        results['reading_count'] = len(readings)
         results['last_date_loaded'] = last_date.strftime('%Y-%m-%d')
         results['last_ts_loaded'] =  last_ts_loaded
         results['sensor_ids'] = ', '.join(sensor_ids)
