@@ -178,7 +178,8 @@ def run(url= '', site_id='',
 
                     # get a set of filtered sensor readings, filtered to show significant changes.
                     filtered_ts, filtered_vals = find_changes(tstamps, vals,
-                                                              state_change=(col in state_fields))
+                                                              state_change=(col in state_fields),
+                                                              max_spacing=240)
 
                     new_reads = zip(filtered_ts, (sensor_id,) * len(filtered_ts), filtered_vals)
                     
