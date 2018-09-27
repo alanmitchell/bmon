@@ -200,7 +200,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         The required calculation algorithm is identical to that used in the 'runtimeFromOnOff'
         function.  So that function is simply called from this function.
         """
-        self.runtimeFromOnOff(sensorID, runtimeInterval=averageInterval)
+        return self.runtimeFromOnOff(sensorID, runtimeInterval=averageInterval)
 
     def lastCount(self, sensorID):
         """Returns the last raw count from a sensor that has been set up to
