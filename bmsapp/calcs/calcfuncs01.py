@@ -180,6 +180,28 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         # return the timestamps and runtime values
         return ser_runtime.index.values, ser_runtime.values
 
+    def trueTimeAverage(self, sensorID, averageInterval=30):
+        """** No parameters are sensor reading arrays **
+
+        Calculates the time average of a sensor in a fashion that properly
+        addresses readings that are not evenly spaced in time.  These unevenly spaced
+        readings can occur when the sensor records values more frequently when the the
+        sensor's value is changing.  A simple average of the sensor readings would
+        oversample the readings that occur during the periods with a high rate of change
+        of sensor readings.
+
+        'sensorID' is the Sensor ID of the target sensor.  'averageInterval' is the 
+        desired averaging interval expressed in minutes.
+        
+        The timestamp returned for each interval is placed at the midpoint of the interval.  Records
+        are returned for times after the last stored runtime reading, subject to the reach_back
+        constraint established in the constructor of this class.
+
+        The required calculation algorithm is identical to that used in the 'runtimeFromOnOff'
+        function.  So that function is simply called from this function.
+        """
+        self.runtimeFromOnOff(sensorID, runtimeInterval=averageInterval)
+
     def lastCount(self, sensorID):
         """Returns the last raw count from a sensor that has been set up to
         store a counter rate of change; i.e. a sensor that uses the "rate"
