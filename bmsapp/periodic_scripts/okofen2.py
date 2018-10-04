@@ -147,6 +147,7 @@ def run(url= '', site_id='',
                                  sep=';',
                                  decimal=',',
                                  parse_dates=[['Datum ', 'Zeit ']],
+                                 dayfirst=True,
                                  index_col=False,
                                  )
                 # clean up the column names
