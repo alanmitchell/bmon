@@ -204,7 +204,7 @@ BMON is shown below:
 
    integrating-with-siemens-systems
 
-Please note that an alternative and oftentimes better alternative to ``csv-transfer``
+Please note that an oftentimes better alternative to ``csv-transfer``
 is available: `file-to-bmon <https://github.com/alanmitchell/file-to-bmon>`_. This utility
 can load sensor readings from a set of files into BMON.  There is more detail in the
 section below.
