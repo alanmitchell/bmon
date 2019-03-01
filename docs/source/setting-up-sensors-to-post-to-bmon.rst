@@ -204,6 +204,27 @@ BMON is shown below:
 
    integrating-with-siemens-systems
 
+Please note that an alternative and oftentimes better alternative to ``csv-transfer``
+is available: `file-to-bmon <https://github.com/alanmitchell/file-to-bmon>`_. This utility
+can load sensor readings from a set of files into BMON.  There is more detail in the
+section below.
+
+General Utility for Loading Sensor Data from Files
+--------------------------------------------------
+
+The `file-to-bmon <https://github.com/alanmitchell/file-to-bmon>`_ project provides
+a script that can be used to load sensor reading data from a set of files.  The script
+is structured so that custom file Reader modules can be written in Python to parse
+any type of text file containing sensor readings.  The required code in the Reader
+module is focused exclusively on parsing sensor reading data from file, so the
+complexity of the code is relatively low.
+
+This script is often used to process data that is periodically uploaded to a server, such
+as 15-minute electric utility data or data from a conventional datalogger such as the
+Campbell Scientific datalogger.
+
+Please look at the documentation at the above link for more information.
+
 
 `Particle WiFi and Cellular Microcontroller Boards <https://www.particle.io/>`_
 --------------------------------------------------------------------------------
