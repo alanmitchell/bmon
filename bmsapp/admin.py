@@ -4,7 +4,7 @@ This file configures the Admin interface, which allows for editing of the Models
 
 from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, DashboardItem, Unit
 from bmsapp.models import MultiBuildingChart, ChartBuildingInfo, CustomReport
-from bmsapp.models import BuildingGroup, BuildingMode
+from bmsapp.models import Organization, BuildingGroup, BuildingMode
 from bmsapp.models import AlertCondition, AlertRecipient, PeriodicScript
 from django.contrib import admin
 from django.forms import TextInput, Textarea
@@ -81,6 +81,9 @@ class BuildingModeAdmin(admin.ModelAdmin):
 class BuildingGroupAdmin(admin.ModelAdmin):
     filter_horizontal = ('buildings',)
 
+@admin.register(Organization)
+class OrganizationAdmin(admin.ModelAdmin):
+    filter_horizontal = ('buildings', 'building_groups')
 
 class AlertAdminInline(admin.StackedInline):
     '''Used in the Sensor Admin to enter alerts.

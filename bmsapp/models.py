@@ -278,7 +278,7 @@ class Organization(models.Model):
     buildings = models.ManyToManyField(Building)
     
     # The building groups that are present in this Organization
-    building_groups = models.ManyToManyField(BuildingGroup)
+    building_groups = models.ManyToManyField(BuildingGroup, blank=True)
 
     def __unicode__(self):
         return self.title
