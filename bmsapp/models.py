@@ -263,6 +263,28 @@ class BuildingGroup(models.Model):
     class Meta:
         ordering = ['sort_order', 'title']
         
+class Organization(models.Model):
+    """Defines an Organization that the user can use to filter the 
+    buildings and building groups shown in the user interface.
+    """
+    
+    # Name of the Organization
+    title = models.CharField(max_length=80, unique=True)
+    
+    # Determines the order that the Organization will be presented in the UI
+    sort_order = models.IntegerField(default=999)
+    
+    # The buildings that are present in this Organization
+    buildings = models.ManyToManyField(Building)
+    
+    # The building groups that are present in this Organization
+    building_groups = models.ManyToManyField(BuildingGroup)
+
+    def __unicode__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['sort_order', 'title']
 
 class BldgToSensor(models.Model):
     '''
