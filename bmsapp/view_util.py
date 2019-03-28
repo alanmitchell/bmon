@@ -47,6 +47,23 @@ def multi_charts_for_group(group_id):
     # return this as a list, sorted by the sort_order field
     return sorted(found_charts, key=lambda x: x.sort_order)
     
+def organization_list_html():
+    """Returns the html for the organization list options and also returns
+    the ID of the first organization in the list, "All Organizations", which
+    is selected.
+    """
+    # always have the All Organziations option, which has the special id of 0.
+    orgs = [ (0, 'All Organizations', '') ]
+    
+    # add the rest of the organizations.
+    for org in models.Organization.objects.all():
+        orgs.append( (org.id, org.title, '') )
+        
+    # Selected organization is the first one
+    selected_org = orgs[0][0]
+    
+    t = loader.get_template('bmsapp/select_list.html')
+    return t.render( {'item_list': orgs, 'id_to_select': selected_org} ), selected_org
 
 def group_list_html():
     """Returns the html for the building group list options and also returns the

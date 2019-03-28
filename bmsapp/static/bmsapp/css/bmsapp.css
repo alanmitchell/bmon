@@ -40,9 +40,12 @@ a.selected-nav-link:hover {
 	font-size: 40px;
 	font-weight: bold;
 }
+#select_org, #nav_links {
+    display:inline;
+}
 #nav {
 	padding: 5px 10px;
-	background: #B2DBFF;
+    background: #B2DBFF;
 }
 #nav ul {
 	margin: 0;
