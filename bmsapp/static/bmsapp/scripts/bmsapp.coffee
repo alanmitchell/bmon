@@ -147,7 +147,7 @@ update_chart_sensor_lists = (event) ->
 # Updates the list of buildings associated with the Building Group selected.
 update_bldg_list = ->
   # load the building choices from a AJAX query for the selected building group
-  url = "#{$("#BaseURL").text()}bldg-list/#{$("#select_group").val()}/"
+  url = "#{$("#BaseURL").text()}bldg-list/#{$("#select_org").val()}/#{$("#select_group").val()}/"
   $.ajax
     url: url
     dataType: "html"
@@ -250,6 +250,7 @@ $ ->
       serializedInputs();
 
   # Set up controls and functions to respond to events
+  $("#select_org").change update_bldg_list
   $("#select_group").change update_bldg_list
   $("#select_bldg").change update_chart_sensor_lists
   $("#select_chart").change process_chart_change

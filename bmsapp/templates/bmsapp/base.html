@@ -26,9 +26,7 @@
             <div id="nav">
                 <label for="select_org" id="label_org">Organization:</label>
                 <select id="select_org" name="select_org">
-                    <option value="0" selected>All Organzations</option>
-                    <option value="1">Alaska Housing Finance Corp</option>
-                    <option value="2">Kawerak</option>
+                    {{ orgs_html|safe }}
                 </select>
                 <ul id="nav_links">
                     {% for nav_item in bmsapp_nav_links %}

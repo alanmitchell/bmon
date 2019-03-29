@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^custom-reports/$', views.custom_report_list),
     url(r'^custom-reports/(.+)$', views.custom_report),
     url(r'^show-log/$', views.show_log),
-    url(r'^bldg-list/(\d+)/$', views.bldg_list),
+    url(r'^bldg-list/(\d+)/(\d+)/$', views.bldg_list),
     url(r'^chart-sensor-list/(\d+)/(multi)/$', views.chart_sensor_list),
     url(r'^chart-sensor-list/(\d+)/(\d+)/$', views.chart_sensor_list),
     url(r'^map-json/$', views.map_json, name='map-json'),

@@ -57,6 +57,10 @@ def reports(request):
     if None, the first building in the list is selected.
     '''
 
+    # get the html for the list of organizations and ID of the selected
+    # organization.
+    orgs_html, org_id_selected = view_util.organization_list_html()
+
     # get the html for the list of building groups and the ID of the selected 
     # group.
     group_html, group_id_selected = view_util.group_list_html()
@@ -74,7 +78,8 @@ def reports(request):
     sensor_list_html = view_util.sensor_list_html(bldg_id_selected)
 
     ctx = base_context()
-    ctx.update({'groups_html': group_html,
+    ctx.update({'orgs_html': orgs_html,
+                'groups_html': group_html,
                 'bldgs_html': bldgs_html,
                 'chart_list_html': chart_list_html,
                 'sensor_list_html': sensor_list_html,
@@ -266,16 +271,15 @@ def make_store_key(request):
 
     return HttpResponse(k)
 
-def bldg_list(request, group_id):
+def bldg_list(request, org_id, group_id):
     '''
-    Returns a list of buildings in the group identified by the primary key
-    ID of 'group_id'. The 'selected_group' value of 0 means no group
-    selected, so return all buildings.
+    Returns a list of buildings in the organization identified by 'org_id'
+    and the group identified by the primary key ID of 'group_id'. 
 
     The return value is an html snippet of option elements, one for each building.
     '''
 
-    bldgs_html, id_selected = view_util.bldg_list_html(int(group_id))
+    bldgs_html, _ = view_util.bldg_list_html(int(org_id), int(group_id))
 
     return HttpResponse(bldgs_html)
 

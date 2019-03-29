@@ -21,6 +21,19 @@ def to_int(val):
     except:
         return val
 
+def buildings_for_organization(org_id):
+    """Returns a list of building objects that are in the Organization
+    identified by 'org_id'. An org_id of 0 indicates All Buildings.
+    """
+    return models.Building.objects.all() if org_id==0 else \
+        models.Building.objects.filter(organization__pk=org_id)
+
+def groups_for_organization(org_id):
+    """Returns a list of building groups that are in the Organization
+    identified by 'org_id'. An org_id of 0 indicates All groups.
+    """
+    return models.BuildingGroup.objects.all() if org_id==0 else \
+        models.BuildingGroup.objects.filter(organization__pk=org_id)
 
 def buildings_for_group(group_id):
     """Returns a list of building objects that are in the group identified by 
@@ -83,11 +96,13 @@ def group_list_html():
     return t.render( {'item_list': groups, 'id_to_select': selected_gp} ), selected_gp
 
 
-def bldg_list_html(bldg_group_id, selected_bldg_id=None):
+def bldg_list_html(org_id, bldg_group_id, selected_bldg_id=None):
     '''
     Makes the html for the building list options and also returns the ID of the 
-    building that is selected.  'bldg_group_id' is the primary key
-    ID of the building group that filters the building list.  A pk=0 means
+    building that is selected.  'org_id' is the primary key of the Organization
+    that filters the building list.  The list is further filtered by 
+    'bldg_group_id', which is the primary key
+    ID of the building group.  A pk=0 means
     that All buildings are to be included.
     If 'selected_bldg_id' is not None, that building is selected in the list, 
     otherwise the first building in the list is selected.
@@ -97,9 +112,15 @@ def bldg_list_html(bldg_group_id, selected_bldg_id=None):
     # Determine whether a Multi building chart selection should be presented.
     if len(multi_charts_for_group(bldg_group_id)):
         bldgs.append( ('multi', 'Multiple Buildings', '') )
+    
+    # Get intersection of buildings in organization and buildings in group
+    more_bldgs = set(buildings_for_organization(org_id)) & set(buildings_for_group(bldg_group_id))
+    # sort these according to title
+    more_bldgs = list(more_bldgs)
+    more_bldgs.sort(key=lambda x: x.title)
 
     # Add the rest of buildings that are in the group
-    for bldg in buildings_for_group(bldg_group_id):
+    for bldg in more_bldgs:
         bldgs.append( (bldg.id, bldg.title, '') )
 
     if selected_bldg_id==None and len(bldgs)>0:
