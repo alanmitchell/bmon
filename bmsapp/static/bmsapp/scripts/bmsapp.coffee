@@ -17,7 +17,7 @@ inputs_changed = ->
     update_results() 
 
 serializedInputs = ->
-  $("#content select, #content input").serialize()
+  $("#wrap select, #wrap input").serialize()
   
 # Updates the results portion of the page
 update_results = ->
@@ -144,6 +144,21 @@ update_chart_sensor_lists = (event) ->
       $("#select_sensor_y").html(data.sensors)
       process_chart_change()
 
+# Updates the list of building groups associated with the Organization selected.
+update_group_list = ->
+  # load the group choices from a AJAX query for the selected organization
+  url = "#{$("#BaseURL").text()}group-list/#{$("#select_org").val()}/"
+  $.ajax
+    url: url
+    dataType: "html"
+    async: not _loading_inputs
+    success: (data) ->
+      $("#select_group").html(data)
+      if not _loading_inputs
+        # trigger the change event of the building selector to get the 
+        # selected option to process.
+        $("#select_group").trigger "change"
+
 # Updates the list of buildings associated with the Building Group selected.
 update_bldg_list = ->
   # load the building choices from a AJAX query for the selected building group
@@ -187,7 +202,7 @@ handleUrlQuery = () ->
       
     # sort the params so their events fire properly
     sortedNames = do ->
-      names = ['select_group','select_bldg','select_chart']
+      names = ['select_org', 'select_group','select_bldg','select_chart']
       for name of params
         if name not in names
           names.push name
@@ -251,6 +266,7 @@ $ ->
 
   # Set up controls and functions to respond to events
   $("#select_org").change update_bldg_list
+  $("#select_org").change update_group_list
   $("#select_group").change update_bldg_list
   $("#select_bldg").change update_chart_sensor_lists
   $("#select_chart").change process_chart_change

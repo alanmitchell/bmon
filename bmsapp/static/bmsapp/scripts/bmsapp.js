@@ -1,7 +1,7 @@
 (function() {
   // controls whether results are updated automatically or manually by
   // a direct call to 'update_results'
-  var REFRESH_MS, SENSOR_MULTI_CONFIG, _auto_recalc, _loading_inputs, _refresh_timer, get_embed_link, handleUrlQuery, inputs_changed, process_chart_change, serializedInputs, set_visibility, update_bldg_list, update_chart_sensor_lists, update_results, urlQueryString,
+  var REFRESH_MS, SENSOR_MULTI_CONFIG, _auto_recalc, _loading_inputs, _refresh_timer, get_embed_link, handleUrlQuery, inputs_changed, process_chart_change, serializedInputs, set_visibility, update_bldg_list, update_chart_sensor_lists, update_group_list, update_results, urlQueryString,
     indexOf = [].indexOf;
 
   _auto_recalc = true;
@@ -24,7 +24,7 @@
   };
 
   serializedInputs = function() {
-    return $("#content select, #content input").serialize();
+    return $("#wrap select, #wrap input").serialize();
   };
 
   
@@ -180,6 +180,26 @@
     });
   };
 
+  // Updates the list of building groups associated with the Organization selected.
+  update_group_list = function() {
+    var url;
+    // load the group choices from a AJAX query for the selected organization
+    url = `${$("#BaseURL").text()}group-list/${$("#select_org").val()}/`;
+    return $.ajax({
+      url: url,
+      dataType: "html",
+      async: !_loading_inputs,
+      success: function(data) {
+        $("#select_group").html(data);
+        if (!_loading_inputs) {
+          // trigger the change event of the building selector to get the 
+          // selected option to process.
+          return $("#select_group").trigger("change");
+        }
+      }
+    });
+  };
+
   // Updates the list of buildings associated with the Building Group selected.
   update_bldg_list = function() {
     var url;
@@ -236,7 +256,7 @@
     // sort the params so their events fire properly
     sortedNames = (function() {
       var name, names;
-      names = ['select_group', 'select_bldg', 'select_chart'];
+      names = ['select_org', 'select_group', 'select_bldg', 'select_chart'];
       for (name in params) {
         if (indexOf.call(names, name) < 0) {
           names.push(name);
@@ -315,6 +335,7 @@
       return window.location.href = `${$("#BaseURL").text()}reports/results/?` + serializedInputs();
     });
     $("#select_org").change(update_bldg_list);
+    $("#select_org").change(update_group_list);
     $("#select_group").change(update_bldg_list);
     $("#select_bldg").change(update_chart_sensor_lists);
     $("#select_chart").change(process_chart_change);

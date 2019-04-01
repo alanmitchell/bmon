@@ -63,11 +63,11 @@ def reports(request):
 
     # get the html for the list of building groups and the ID of the selected 
     # group.
-    group_html, group_id_selected = view_util.group_list_html()
+    group_html, group_id_selected = view_util.group_list_html(org_id_selected)
 
     # get the html for the list of buildings and the ID of the a selected building
     # (the first building)
-    bldgs_html, bldg_id_selected = view_util.bldg_list_html(group_id_selected, None)
+    bldgs_html, bldg_id_selected = view_util.bldg_list_html(org_id_selected, group_id_selected, None)
 
     # get the html for the list of charts, selecting the first one.  Returns the actual ID
     # of the chart selected.  The group_id of 0 indicates all buildings are being shown.
@@ -271,9 +271,17 @@ def make_store_key(request):
 
     return HttpResponse(k)
 
+def group_list(request, org_id):
+    """Returns a list of building groups associated with the organization identified
+    by 'org_id'.  The return value is an html snippet of option elements, one
+    for each building group.
+    """
+    group_html, _ = view_util.group_list_html(int(org_id))
+
+    return HttpResponse(group_html)
+
 def bldg_list(request, org_id, group_id):
-    '''
-    Returns a list of buildings in the organization identified by 'org_id'
+    '''Returns a list of buildings in the organization identified by 'org_id'
     and the group identified by the primary key ID of 'group_id'. 
 
     The return value is an html snippet of option elements, one for each building.

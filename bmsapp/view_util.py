@@ -78,15 +78,16 @@ def organization_list_html():
     t = loader.get_template('bmsapp/select_list.html')
     return t.render( {'item_list': orgs, 'id_to_select': selected_org} ), selected_org
 
-def group_list_html():
-    """Returns the html for the building group list options and also returns the
+def group_list_html(org_id):
+    """Returns the html for the building group list options associated with
+    the Organization with ID of 'org_id'. Also returns the
     ID of the first group, which is selected.
     """
     # always have the All Buildings option, which has the special id of 0.
     groups = [ (0, 'All Facilities', '') ]
     
     # add the rest of the groups.
-    for gp in models.BuildingGroup.objects.all():
+    for gp in groups_for_organization(org_id):
         groups.append( (gp.id, gp.title, '') )
         
     # Selected group is the first one
