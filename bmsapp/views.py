@@ -137,8 +137,15 @@ def custom_report_list(request):
     The main Custom Reports page - lists all available custom reports
     '''
 
+    # get the html for the list of organizations and ID of the selected
+    # organization.
+    orgs_html, org_id_selected = view_util.organization_list_html()
+
     ctx = base_context()
-    ctx.update({'customReports': view_util.custom_reports()})
+    ctx.update({
+        'orgs_html': orgs_html,
+        'customReports': view_util.custom_reports()
+        })
     
     return render_to_response('bmsapp/customReports.html', ctx)
 

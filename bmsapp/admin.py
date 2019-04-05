@@ -83,7 +83,7 @@ class BuildingGroupAdmin(admin.ModelAdmin):
 
 @admin.register(Organization)
 class OrganizationAdmin(admin.ModelAdmin):
-    filter_horizontal = ('buildings', 'building_groups')
+    filter_horizontal = ('buildings', 'building_groups', 'multi_charts', 'custom_reports')
 
 class AlertAdminInline(admin.StackedInline):
     '''Used in the Sensor Admin to enter alerts.
