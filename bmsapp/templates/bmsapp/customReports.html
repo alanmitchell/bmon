@@ -38,6 +38,15 @@
             background-color: #69C;
             }
     </style>
+    <script>
+        forceReload = function() {
+            location.reload(true);
+        };
+        $(function () {
+            $("#select_org").change(forceReload);
+        });
+    </script>
+        
 {% endblock %}
 
 {% block this_nav_link %}link_custom-reports{% endblock %}

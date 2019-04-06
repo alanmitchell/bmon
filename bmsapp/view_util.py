@@ -209,26 +209,34 @@ def sensor_list_html(bldg_id):
 
     return html
 
-def custom_reports():
-    """Returns a sorted list of Custom Reports.
+def custom_reports(org_id):
+    """Returns a sorted list of Custom Reports available for the organization identified
+    by 'org_id'.
     """
 
     reports_list = []
     current_group = None
     group_reports = []
 
-    for report in models.CustomReport.objects.all():
+    # If the Organization has ID of 0, then that means all buildings and thus all
+    # custom reports.  Otherwise just use the reports for the selected Organization.
+    if org_id == 0:
+        reports = models.CustomReport.objects.all()
+    else:
+        reports = models.Organization.objects.get(id=org_id).custom_reports.all()
+
+    for report in reports:
         if report.group != current_group:
             if not current_group is None:
                 reports_list.append((current_group,group_reports))
             current_group = report.group
             group_reports = []
         group_reports.append(report)
+
+    if not current_group is None:
+        reports_list.append((current_group,group_reports))
     else:
-        if not current_group is None:
-            reports_list.append((current_group,group_reports))
-        else:
-            reports_list.append(('Contact your BMON System Administrator to set up custom reports',[]))
+        reports_list.append(('Contact your BMON System Administrator to set up custom reports',[]))
 
     return reports_list
 

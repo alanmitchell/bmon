@@ -38,7 +38,12 @@ def base_context():
     Returns a Template rendering context with some basic variables.
     Had to do this because I could not run the 'reverse' method from the module level.
     '''
+    # get the html for the list of organizations and ID of the selected
+    # organization.
+    orgs_html, _ = view_util.organization_list_html()
+
     ctx = TMPL_CONTEXT.copy()
+    ctx['orgs_html'] = orgs_html
     ctx['bmsapp_nav_link_base_url'] = reverse('index')
     return ctx
 
@@ -57,17 +62,13 @@ def reports(request):
     if None, the first building in the list is selected.
     '''
 
-    # get the html for the list of organizations and ID of the selected
-    # organization.
-    orgs_html, org_id_selected = view_util.organization_list_html()
-
     # get the html for the list of building groups and the ID of the selected 
     # group.
-    group_html, group_id_selected = view_util.group_list_html(org_id_selected)
+    group_html, group_id_selected = view_util.group_list_html(0)
 
     # get the html for the list of buildings and the ID of the a selected building
     # (the first building)
-    bldgs_html, bldg_id_selected = view_util.bldg_list_html(org_id_selected, group_id_selected, None)
+    bldgs_html, bldg_id_selected = view_util.bldg_list_html(0, group_id_selected, None)
 
     # get the html for the list of charts, selecting the first one.  Returns the actual ID
     # of the chart selected.  The group_id of 0 indicates all buildings are being shown.
@@ -78,8 +79,7 @@ def reports(request):
     sensor_list_html = view_util.sensor_list_html(bldg_id_selected)
 
     ctx = base_context()
-    ctx.update({'orgs_html': orgs_html,
-                'groups_html': group_html,
+    ctx.update({'groups_html': group_html,
                 'bldgs_html': bldgs_html,
                 'chart_list_html': chart_list_html,
                 'sensor_list_html': sensor_list_html,
@@ -133,18 +133,13 @@ def get_embedded_results(request):
             return HttpResponse(script_content, content_type="application/javascript")
 
 def custom_report_list(request):
-    '''
-    The main Custom Reports page - lists all available custom reports
-    '''
-
-    # get the html for the list of organizations and ID of the selected
-    # organization.
-    orgs_html, org_id_selected = view_util.organization_list_html()
-
+    """The main Custom Reports page - lists available custom reports for the
+    organization identified by the query parameter 'select_org'.
+    """
+    org_id = int(request.GET.get('select_org', '0'))
     ctx = base_context()
     ctx.update({
-        'orgs_html': orgs_html,
-        'customReports': view_util.custom_reports()
+        'customReports': view_util.custom_reports(org_id)
         })
     
     return render_to_response('bmsapp/customReports.html', ctx)
@@ -297,7 +292,6 @@ def bldg_list(request, org_id, group_id):
     bldgs_html, _ = view_util.bldg_list_html(int(org_id), int(group_id))
 
     return HttpResponse(bldgs_html)
-
 
 def chart_sensor_list(request, group_id, bldg_id):
     '''

@@ -14,6 +14,7 @@
             $("#{% block this_nav_link %}{% endblock %}").addClass("selected-nav-link").removeAttr("href");
         });
         </script>
+        <script src="{% static 'bmsapp/scripts/base.js' %}?t={{ curtime }}"></script>
         {% block head %}{% endblock %}
     </head>
 
