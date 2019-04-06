@@ -132,7 +132,7 @@ process_chart_change = ->
 # updating the list of apprpriate charts and sensors.
 update_chart_sensor_lists = (event) ->
   # load the options from a AJAX query for the selected building
-  url = "#{$("#BaseURL").text()}chart-sensor-list/#{$("#select_group").val()}/#{$("#select_bldg").val()}/"
+  url = "#{$("#BaseURL").text()}chart-sensor-list/#{$("#select_org").val()}/#{$("#select_bldg").val()}/"
   $.ajax
     url: url
     dataType: "json"

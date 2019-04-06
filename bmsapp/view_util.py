@@ -44,21 +44,15 @@ def buildings_for_group(group_id):
         models.Building.objects.filter(buildinggroup__pk=group_id)
 
 
-def multi_charts_for_group(group_id):
-    """Returns a list of MultiBuildingChart objects where each chart 
-    applies to at least one of the buildings in the Building Group identified
-    by group_id.
+def multi_charts_for_org(org_id):
+    """Returns a list of MultiBuildingChart objects associated with the 
+    Organization indicated by 'org_id'. 
     """
-    
-    # a set to hold the multi charts found
-    found_charts = set()
-    
-    # For each building, add its relevant charts to the set
-    for bldg in buildings_for_group(group_id):
-        found_charts.update( models.MultiBuildingChart.objects.filter(chartbuildinginfo__building__pk=bldg.id) )
-    
-    # return this as a list, sorted by the sort_order field
-    return sorted(found_charts, key=lambda x: x.sort_order)
+    if org_id != 0:
+        return models.Organization.objects.get(id=org_id).multi_charts.all()
+    else:
+        # All organizations requested, so return all multi-building charts.
+        return models.MultiBuildingChart.objects.all()
     
 def organization_list_html():
     """Returns the html for the organization list options and also returns
@@ -111,7 +105,7 @@ def bldg_list_html(org_id, bldg_group_id, selected_bldg_id=None):
     bldgs = []
 
     # Determine whether a Multi building chart selection should be presented.
-    if len(multi_charts_for_group(bldg_group_id)):
+    if len(multi_charts_for_org(org_id)):
         bldgs.append( ('multi', 'Multiple Buildings', '') )
     
     # Get intersection of buildings in organization and buildings in group
@@ -131,14 +125,14 @@ def bldg_list_html(org_id, bldg_group_id, selected_bldg_id=None):
     return t.render( {'item_list': bldgs, 'id_to_select': selected_bldg_id} ), selected_bldg_id
 
 
-def chart_list_html(group_id, bldg_id):
+def chart_list_html(org_id, bldg_id):
     '''
     Makes the html for the chart list options and also returns the ID of the 
     selected chart, which is the first chart in the list.
     'bldg_id' is the ID of the of building to list charts for, or it is the string 
         'multi' indicating that the multi-building charts should be listed.
-    'group_id' is the ID of the building group currently in effect.  If 'bldg_id'
-    is 'multi', only multi-building charts relevant to 'group_id' are shown.
+    'org_id' is the ID of the Organization currently in effect.  If 'bldg_id'
+    is 'multi', only multi-building charts relevant to 'org_id' are shown.
     '''
     if bldg_id != 'multi':
         # check to see if there are any Dashboard items
@@ -154,7 +148,7 @@ def chart_list_html(group_id, bldg_id):
                     cht_list.remove(cht)
                     break
     else:
-        cht_list = multi_charts_for_group(group_id)
+        cht_list = multi_charts_for_org(org_id)
 
     # Get the id of the first chart in the list and also make a generic
     # item list.

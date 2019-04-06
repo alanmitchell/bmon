@@ -71,7 +71,7 @@ def reports(request):
     bldgs_html, bldg_id_selected = view_util.bldg_list_html(0, group_id_selected, None)
 
     # get the html for the list of charts, selecting the first one.  Returns the actual ID
-    # of the chart selected.  The group_id of 0 indicates all buildings are being shown.
+    # of the chart selected.  The org_id of 0 indicates all organizations are being shown.
     chart_list_html, chart_id_selected = view_util.chart_list_html(0, bldg_id_selected)
 
     # get the option item html for the list of sensors associated with this building,
@@ -293,13 +293,13 @@ def bldg_list(request, org_id, group_id):
 
     return HttpResponse(bldgs_html)
 
-def chart_sensor_list(request, group_id, bldg_id):
+def chart_sensor_list(request, org_id, bldg_id):
     '''
     Returns a list of charts and a list of sensors appropriate for a building
     identified by the primary key ID of 'bldg_id'.  'bldg_id' could be the string
     'multi', in which case the list of multi-building charts is returned, and
-    only multi-building charts appropriate for the Building Group identified by
-    'group_id' are returned.  A list of sensors appropriate for 'bldg_id' is
+    only multi-building charts appropriate for the Organization identified by
+    'org_id' are returned.  A list of sensors appropriate for 'bldg_id' is
     also returned.  If 'bldg_id' is 'multi' then no sensors are returned.
     The return lists are html snippets of option elements.  The two different
     option element lists are returned in a JSON object, with the keys 'charts'
@@ -310,9 +310,9 @@ def chart_sensor_list(request, group_id, bldg_id):
     # string 'multi') so that it will match the integer IDs in the database.
     bldg_id = view_util.to_int(bldg_id)
     
-    group_id = int(group_id)
+    org_id = int(org_id)
 
-    charts_html, id_selected = view_util.chart_list_html(group_id, bldg_id)
+    charts_html, id_selected = view_util.chart_list_html(org_id, bldg_id)
     sensor_html = view_util.sensor_list_html(bldg_id)
     result = {'charts': charts_html, 'sensors': sensor_html}
 

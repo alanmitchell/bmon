@@ -165,7 +165,7 @@
   update_chart_sensor_lists = function(event) {
     var url;
     // load the options from a AJAX query for the selected building
-    url = `${$("#BaseURL").text()}chart-sensor-list/${$("#select_group").val()}/${$("#select_bldg").val()}/`;
+    url = `${$("#BaseURL").text()}chart-sensor-list/${$("#select_org").val()}/${$("#select_bldg").val()}/`;
     return $.ajax({
       url: url,
       dataType: "json",
