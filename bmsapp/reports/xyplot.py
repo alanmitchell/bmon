@@ -77,6 +77,7 @@ class XYplot(basechart.BaseChart):
                 now_dt = datetime.now()
                 if div_dt:
                     # A dividing date was provided by the user.
+                    div_dt = div_dt.replace(tzinfo=None)  # needs to be naive
                     ser_params = ( (datetime(1970,1,1), div_dt, 1, 'Prior to %s' % div_datestring, '#2f7ed8', 'circle', 4.5),
                                    (datetime(1970,1,1), div_dt, 0, 'Prior to %s, Unoccupied' % div_datestring, '#2f7ed8', 'triangle-up', 3),
                                    (div_dt, now_dt, 1, '%s and beyond' % div_datestring, '#FF0000', 'circle', 4.5),
