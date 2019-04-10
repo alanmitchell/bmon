@@ -139,6 +139,7 @@ def custom_report_list(request):
     org_id = int(request.GET.get('select_org', '0'))
     ctx = base_context()
     ctx.update({
+        'org_id': org_id,
         'customReports': view_util.custom_reports(org_id)
         })
     
@@ -357,7 +358,13 @@ def map_json(request):
         "crs": {"type": "name", "properties": {"name": "urn:ogc:def:crs:OGC:1.3:CRS83"}},
         "features": []}
 
-    for bldg in models.Building.objects.all():
+    org_id = int(request.GET.get('select_org', '0'))
+    if org_id != 0:
+        bldgs = models.Organization.objects.get(id=org_id).buildings.all()
+    else:
+        bldgs = models.Building.objects.all()
+
+    for bldg in bldgs:
         ret['features'].append( {"type": "Feature", 
                                  "geometry": {"type": "Point", 
                                               "coordinates": [bldg.longitude, bldg.latitude]
@@ -365,7 +372,7 @@ def map_json(request):
                                  "properties": {"facilityName": bldg.title, 
                                                 "facilityID": bldg.id, 
                                                 "message": "", 
-                                                "href": '{}?select_group=0&select_bldg={}'.format(request.build_absolute_uri('../reports/'), bldg.id)
+                                                "href": '{}?select_org={}&select_bldg={}'.format(request.build_absolute_uri('../reports/'), org_id, bldg.id)
                                                 }
                                  } )
 

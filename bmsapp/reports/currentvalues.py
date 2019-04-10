@@ -19,6 +19,7 @@ class CurrentValues(basechart.BaseChart):
         # make a list with the major items being a sensor group and the 
         # minor items being a list of sensor info: 
         #   (sensor name, most recent value, units, how many minutes ago value occurred)
+        org_id = int(self.request_params.get('select_org', 0))
         cur_group = ''
         cur_group_sensor_list = []
         sensor_list = []
@@ -38,7 +39,7 @@ class CurrentValues(basechart.BaseChart):
                                            'unit': b_to_sen.sensor.unit.label,
                                            'minutes_ago': minutes_ago,
                                            'sensor_id': b_to_sen.sensor.id,
-                                           'href': '?select_group={}&select_bldg={}&select_chart={}&select_sensor={}'.format(self.request_params['select_group'], self.bldg_id, basechart.TIME_SERIES_CHART_ID, b_to_sen.sensor.id) ,
+                                           'href': '?select_org={}&select_group={}&select_bldg={}&select_chart={}&select_sensor={}'.format(org_id, self.request_params['select_group'], self.bldg_id, basechart.TIME_SERIES_CHART_ID, b_to_sen.sensor.id) ,
                                            'notes': '%s\nid: %s' % (b_to_sen.sensor.notes, b_to_sen.sensor.sensor_id),
                                            'alerts': '; '.join([message for subject, message in b_to_sen.sensor.alerts(self.reading_db)])})
         # add the last group
