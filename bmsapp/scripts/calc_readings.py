@@ -27,9 +27,9 @@ def run():
     # get a BMSdata object for the sensor reading database and then make a Calculate
     # Readings object.  Other calculated reading classes in addition to CalcReadingFuncs_01
     # can be added to the list and they will be search for matching function names.
-    # Only allow calculated readings within the last 7 days.
+    # Only allow calculated readings within the last 60 days.
     reading_db = bmsdata.BMSdata()
-    calc = calcreadings.CalculateReadings([calcfuncs01.CalcReadingFuncs_01, ], reading_db, 60*24*7)
+    calc = calcreadings.CalculateReadings([calcfuncs01.CalcReadingFuncs_01, ], reading_db, 60*24*60)
 
     # Loop through the calculated sensor readings in the proper calculation order,
     # inserting the calculated values in the database.
