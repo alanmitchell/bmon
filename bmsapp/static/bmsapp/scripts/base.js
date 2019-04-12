@@ -66,7 +66,7 @@
     
     // Update the window location URL
     ser_inputs = $("#wrap select, #wrap input").serialize();
-    newLocation = `${window.location.pathname}?${ser_inputs}`;
+    newLocation = window.location.pathname + "?" + ser_inputs;
     return window.history.pushState({}, '', newLocation);
   };
 

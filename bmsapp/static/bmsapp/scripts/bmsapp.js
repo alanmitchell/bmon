@@ -31,7 +31,7 @@
   // Updates the results portion of the page
   update_results = function() {
     $("body").css("cursor", "wait"); // show hourglass
-    return $.getJSON(`${$("#BaseURL").text()}reports/results/`, serializedInputs()).done(function(results) {
+    return $.getJSON($("#BaseURL").text() + "reports/results/", serializedInputs()).done(function(results) {
       
       // load the returned HTML into the results div, but empty first to ensure
       // event handlers, etc. are removed

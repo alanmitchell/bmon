@@ -48,7 +48,7 @@ processOrgChange = ->
 
   # Update the window location URL
   ser_inputs = $("#wrap select, #wrap input").serialize()
-  newLocation = "#{window.location.pathname}?#{ser_inputs}"
+  newLocation = window.location.pathname + "?" + ser_inputs
   window.history.pushState({}, '', newLocation)
 
 updateLinks = ->
