@@ -52,7 +52,7 @@ processOrgChange = ->
   window.history.pushState({}, '', newLocation)
 
 updateLinks = ->
-  # Update the menu links to include a "select_org" query string with this value
+  # Update the menu links to include a "select_org" query string with this value.
   link_elems = (elem for elem in $('#nav_links a') when elem.getAttribute('href')?)
   orgVal = $('#select_org').val()
   for elem in link_elems
@@ -61,7 +61,7 @@ updateLinks = ->
 
 $ ->
   # If this is the report page, don't handle the state and location
-  # bar, as the script in the report page does that already
+  # bar, as the script in the report page does that already.
   if (window.location.pathname.indexOf "/reports/") >= 0
     _handle_state = false
 
