@@ -2,38 +2,71 @@
   // flag indicating whether this script should handle state
   // and location query parameter updating for the Organization
   // selector.
-  var _handle_state, processOrgChange, setOrgFromQuery, updateLinks;
+  var _handle_state, processOrgChange, queryParams, setOrgFromQuery, updateLinks;
 
   _handle_state = true;
 
   // handle the history.popstate event
   $(window).on("popstate", function(event) {
     if (_handle_state) {
-      return setOrgFromQuery();
+      setOrgFromQuery();
+      return location.reload();
     }
   });
 
+  // Returns an object containing the query parameters from 'url_str'.
+  // The keys of the object are the names of the query parameters.
+  // The value of each element in the object is an array, as one parameter
+  // can have multiple values.
+  // We are avoiding the use of more modern Javascript functions such as URLSearchParms
+  // in order to maintain compatibility with Internet Explorer.
+  queryParams = function(url_str) {
+    var i, len, p, params, pushParam, q, q_parts, queryStart;
+    queryStart = url_str.indexOf('?') + 1;
+    if (queryStart > 0) {
+      q = url_str.substr(queryStart);
+    } else {
+      q = '';
+    }
+    q_parts = q.replace(/\+/g, '%20').split('&');
+    params = {};
+    pushParam = function(p) {
+      var name, name_value, value;
+      name_value = p.split("=");
+      name = decodeURIComponent(name_value[0]);
+      value = name_value.length > 1 ? decodeURIComponent(name_value[1]) : null;
+      if (!(name in params)) {
+        params[name] = [];
+      }
+      return params[name].push(value);
+    };
+    for (i = 0, len = q_parts.length; i < len; i++) {
+      p = q_parts[i];
+      pushParam(p);
+    }
+    return params;
+  };
+
   setOrgFromQuery = function() {
     var orgVal, params;
-    params = new URLSearchParams(window.location.search);
-    orgVal = params.get('select_org') || "0"; // default is 0, All Organizations
+    params = queryParams(window.location.href);
+    if ('select_org' in params) {
+      orgVal = params['select_org'][0];
+    } else {
+      orgVal = "0"; // default, all organizations
+    }
     $("#select_org").val(orgVal);
     return updateLinks(); // update menu links
   };
 
   processOrgChange = function() {
-    var newLocation, newOrg, params;
+    var newLocation, newOrg, ser_inputs;
     newOrg = $('#select_org').val();
     updateLinks(); // update menu bar links
     
-    // update the query string in the address bar
-    params = new URLSearchParams(window.location.search);
-    if (params.has('select_org')) {
-      params.set('select_org', newOrg);
-    } else {
-      params.append('select_org', newOrg);
-    }
-    newLocation = `${window.location.pathname}?${params}`;
+    // Update the window location URL
+    ser_inputs = $("#wrap select, #wrap input").serialize();
+    newLocation = `${window.location.pathname}?${ser_inputs}`;
     return window.history.pushState({}, '', newLocation);
   };
 

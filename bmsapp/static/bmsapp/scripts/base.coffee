@@ -7,10 +7,38 @@ _handle_state = true
 $(window).on "popstate", (event) ->
   if _handle_state
     setOrgFromQuery()
+    location.reload()
+
+# Returns an object containing the query parameters from 'url_str'.
+# The keys of the object are the names of the query parameters.
+# The value of each element in the object is an array, as one parameter
+# can have multiple values.
+# We are avoiding the use of more modern Javascript functions such as URLSearchParms
+# in order to maintain compatibility with Internet Explorer.
+queryParams = (url_str) ->
+  queryStart = url_str.indexOf('?') + 1
+  if queryStart > 0
+    q = url_str.substr(queryStart)
+  else
+    q = ''
+  q_parts = q.replace(/\+/g, '%20').split('&')
+  params = {}
+  pushParam = (p) ->
+    name_value = p.split("=")
+    name = decodeURIComponent(name_value[0])
+    value = if name_value.length > 1 then decodeURIComponent(name_value[1]) else null
+    if !(name of params)
+      params[name] = []
+    params[name].push value
+  pushParam p for p in q_parts
+  params
 
 setOrgFromQuery = ->
-  params = new URLSearchParams(window.location.search)
-  orgVal = params.get('select_org') or "0"     # default is 0, All Organizations
+  params = queryParams(window.location.href)
+  if ('select_org' of params)
+    orgVal = params['select_org'][0]
+  else
+    orgVal = "0"   # default, all organizations
   $("#select_org").val(orgVal)
   updateLinks()    # update menu links
 
@@ -18,13 +46,9 @@ processOrgChange = ->
   newOrg = $('#select_org').val()
   updateLinks()    # update menu bar links
 
-  # update the query string in the address bar
-  params = new URLSearchParams(window.location.search)
-  if params.has('select_org')
-    params.set('select_org', newOrg)
-  else
-    params.append('select_org', newOrg)
-  newLocation = "#{window.location.pathname}?#{params}"
+  # Update the window location URL
+  ser_inputs = $("#wrap select, #wrap input").serialize()
+  newLocation = "#{window.location.pathname}?#{ser_inputs}"
   window.history.pushState({}, '', newLocation)
 
 updateLinks = ->
