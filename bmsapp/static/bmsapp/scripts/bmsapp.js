@@ -24,7 +24,7 @@
 
   update_results = function() {
     $("body").css("cursor", "wait");
-    return $.getJSON("#BaseURL".text() + "reports/results/", serializedInputs()).done(function(results) {
+    return $.getJSON($("#BaseURL").text() + "reports/results/", serializedInputs()).done(function(results) {
       $("body").css("cursor", "default");
       $("#results").empty();
       $("#results").html(results.html);

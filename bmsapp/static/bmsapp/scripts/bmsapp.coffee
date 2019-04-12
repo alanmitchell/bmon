@@ -23,7 +23,7 @@ serializedInputs = ->
 update_results = ->
   $("body").css "cursor", "wait"    # show hourglass
 
-  $.getJSON(("#BaseURL").text() + "reports/results/", serializedInputs()).done((results) -> 
+  $.getJSON($("#BaseURL").text() + "reports/results/", serializedInputs()).done((results) -> 
     # load the returned HTML into the results div, but empty first to ensure
     # event handlers, etc. are removed
     $("body").css "cursor", "default"   # remove hourglass cursor
