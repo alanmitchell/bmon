@@ -1,24 +1,63 @@
 .. _archiving-and-analyzing-data-from-the-system:
 
-Archiving and Analyzing Data from the System
-============================================
+Backing Up and Analyzing Data from the System
+=============================================
 
-All of the data in the Building Monitoring System is stored in a
-`SQLite <http://www.sqlite.org/>`_ database file. The SQLite database
+Data Files and Local Backups
+----------------------------
+
+All of the sensor reading data in the Building Monitoring System is stored in a
+`SQLite <http://www.sqlite.org/>`_ database file. The Sensor Reading SQLite database
 file is stored as:
 
 ::
 
     <project root>/bmsapp/readingdb/data/bms_data.sqlite
 
-A cron job entry is set up to periodically back that file up into the
-directory ``<project root>/bmsapp/readingdb/data/bak`` (the cron job
-calls the `backup script
+In addition to the Sensor Reading data, the metadata that adds information about
+sensors, buidlings, organizations etc. is available in the Django database supporting
+the BMON application.  This is also a SQLite database and is located at:
+
+::
+
+    <project root>/bmon.sqlite
+
+These two databases are automatically backed up locally by the BMON application.
+The Sensor Reading database is backed
+up every 3 days and stored in the directory ``<project root>/bmsapp/readingdb/data/bak``.
+The backup is performed by calling the `backup script
 backup_readingdb.py <https://github.com/alanmitchell/bmon/blob/master/bmsapp/scripts/backup_readingdb.py>`_.
 The data file is gzipped and stored with a file name indicating when it
-was backed up.
+was backed up.  Backup files older than 21 days are deleted.
 
-Any ad hoc analysis of the data can be done by simply copying the SQLite
+The Django database is backed up daily into the local directory
+``<project root>/bak``. It is also compressed with gzip and stored
+with a filename indicating the
+date of backup.
+
+It is advisable to also store these backup files off-server, and the last section
+on this page suggests a method to do that.
+
+Web-based Administration of the Sensor Reading Database
+-------------------------------------------------------
+
+In some cases, it may be useful to install a web-based database
+administration tool onto the server where BMON is hosted. This will
+facilitate archiving, exporting, and data cleaning operations. One such
+tool is `phpLiteAdmin <https://code.google.com/p/phpliteadmin/>`_,
+which can provide a web-based interface to the sensor reading database.
+The tool allows viewing the sensor data, executing SQL statements, and
+exporting sensor reading tables. Installation of the tool is
+straight-forward and documented on the web page link above. When using
+the Webfaction hosting service, installation of the ``Static/CGI/PHP``
+application is required to run the phpLiteAdmin tool, as this tool is a
+PHP web application.
+
+
+Analyzing the Sensor Reading Data
+---------------------------------
+
+Any ad hoc analysis of the sensor reading data can be done by simply copying the SQLite
 data file or one of the backed up versions of the data file onto a
 separate system for analysis. A number of client applications are
 available to display and query SQLite database data. Most programming
@@ -68,14 +107,39 @@ sensor tables. Those are the ``_last_raw`` table, which holds the last
 reading posted from certain tables, and the ``_junk`` table, which is
 used to lock the database when a backup is occurring.
 
-In some cases, it may be useful to install a web-based database
-administration tool onto the server where BMON is hosted. This will
-facilitate archiving, exporting, and data cleaning operations. One such
-tool is `phpLiteAdmin <https://code.google.com/p/phpliteadmin/>`_,
-which can provide a web-based interface to the sensor reading database.
-The tool allows viewing the sensor data, executing SQL statements, and
-exporting sensor reading tables. Installation of the tool is
-straight-forward and documented on the web page link above. When using
-the Webfaction hosting service, installation of the ``Static/CGI/PHP``
-application is required to run the phpLiteAdmin tool, as this tool is a
-PHP web application.
+Off-Server Backup of Data Files
+-------------------------------
+
+It is advisable to back up the two database files to a location off of
+the BMON server.  One approach to this is to use the
+`Amazon Web Services (AWS) S3 Storage Service <https://aws.amazon.com/s3/>`_
+as the destination of those backups.  To use the service, there are a
+number of requirements:
+
+- An AWS Account.
+- Installation of the AWS Command Line Interface as `described here <https://aws.amazon.com/cli/>`_.
+- Installation of AWS credentials on the BMON server as `described here <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`_.
+- Creation of an S3 Bucket to copy the data files into.  This can be done
+  through the online AWS console.
+- Adding lines to the BMON server crontab file to periodically copy backup files to the S3 bucket.
+
+Here is an example of the crontab jobs used to backup both the sensor reading
+and Django database files:
+
+.. code:: bash
+
+    18 11,23 * * * ~/bin/aws s3 sync ~/webapps/django/bmon/bak s3://bmon.xyz.com/ahfc/django
+    25 11,23 * * * ~/bin/aws s3 sync ~/webapps/django/bmon/bmsapp/readingdb/data/bak s3://bmon.xyz.com/ahfc/data --storage-class ONEZONE_IA
+
+These crontab jobs copy any new files from the two BMON backup directories
+to the S3 bucket.  Both jobs run twice a day.  The large sensor reading database file
+uses the S3 storage class of ONEZONE_IA (One Zone Infrequent Access) to reduce
+storage costs.
+
+A `Lifecycle Rule <https://docs.aws.amazon.com/AmazonS3/latest/dev/object-lifecycle-mgmt.html>`_
+was established on the S3 storage bucket to delete backup files that are
+older than 90 days.
+
+For Alaska-owned BMON Servers, an expense-free S3 bucket with associated
+credentials is available to backup BMON data files.  Contact Alan Mitchell
+at alan@analysisnorth.com.
