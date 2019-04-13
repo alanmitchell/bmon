@@ -117,7 +117,7 @@ as the destination of those backups.  To use the service, there are a
 number of requirements:
 
 - An AWS Account.
-- Installation of the AWS Command Line Interface as `described here <https://aws.amazon.com/cli/>`_.
+- Installation of the AWS Command Line Interface on the BMON server as `described here <https://aws.amazon.com/cli/>`_.
 - Installation of AWS credentials on the BMON server as `described here <https://docs.aws.amazon.com/cli/latest/userguide/cli-configure-files.html>`_.
 - Creation of an S3 Bucket to copy the data files into.  This can be done
   through the online AWS console.
