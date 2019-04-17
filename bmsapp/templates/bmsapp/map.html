@@ -15,50 +15,60 @@
         background-color: #fff;
     }
 </style>
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwDNzAbqTajhjNQIv5T76uCmWvVB2XzXk&sensor=false"></script>
+<link rel="stylesheet" href="{% static 'bmsapp/css/leaflet.css' %}" />
+<script src="{% static 'bmsapp/scripts/leaflet.js' %}"></script>
+
 <script>
+  var map;
+  var markers;
+
   drawMap = function() {
-    var map_canvas = document.getElementById('map_canvas');
-    var map_options = {
-      center: new google.maps.LatLng(65, -155),
-      zoom: 4,
-      mapTypeId: google.maps.MapTypeId.TERRAIN
+    if (markers !== undefined) {
+      map.removeLayer(markers);
     }
-    var map = new google.maps.Map(map_canvas, map_options)
+
+    markers = new L.FeatureGroup();
 
     $.getJSON('{% url "map-json" %}' + '?select_org=' + $('#select_org').val(), function(sitesJSON) {
         for (var i = 0; i < sitesJSON.features.length; i++) {
           var site = sitesJSON.features[i];
           var coords = site.geometry.coordinates;
-          var latLng = new google.maps.LatLng(coords[1],coords[0]);
+          var latLng = new L.LatLng(coords[1],coords[0]);
           var markerText = site.properties.facilityName;
           var markerColor = 'green';
           if (site.properties.message.length > 0) {
             markerText = markerText + '\n' + site.properties.message;
             markerColor = 'red';
-          };
-          var marker = new google.maps.Marker({
-            position: latLng,
-            title: markerText,
+          }
+
+          var marker = new L.circleMarker(latLng, {
+            radius: 5,
+            fillOpacity: 1,
+            color: "black",
+            weight: 1,
+            fillColor: markerColor,
             facilityID: site.properties.facilityID.toString(),
             href: site.properties.href,
-            icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: markerColor,
-              fillOpacity: .6,
-              scale: 5,
-              strokeColor: 'black',
-              strokeWeight: .5
-            },
-            scale: .5,
-            map: map
           });
-          google.maps.event.addListener(marker, 'click', function() {window.location.href = this.href})
+
+          marker.bindTooltip(markerText);
+          marker.on("click", function() { window.location.href = this.options.href });
+          marker.addTo(markers);
         }
       });
+
+      markers.addTo(map);
   };
+
   $(function() {
+    map = new L.Map('map_canvas').setView([65, -155], 4);
+    L.tileLayer('http://tile.stamen.com/terrain/{z}/{x}/{y}.png', {
+      attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.',
+      maxZoom: 13
+    }).addTo(map);
+
     $("#select_org").change(drawMap);
+
     drawMap();
   });
 </script>
