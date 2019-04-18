@@ -3,7 +3,7 @@ import time
 from django.template import loader
 import bmsapp.models, bmsapp.data_util, bmsapp.view_util
 import bmsapp.formatters
-import basechart
+from . import basechart
 
 
 class CurrentValuesMulti(basechart.BaseChart):

@@ -8,9 +8,9 @@ import re
 import time
 import logging
 
-import models
-from readingdb import bmsdata
-from calcs import transforms
+from . import models
+from .readingdb import bmsdata
+from .calcs import transforms
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -37,7 +37,7 @@ def convert_val(ts, reading_id, val, db):
         transform_params = ''
 
     # If val is a string, decode it into a float value
-    if type(val) in (str, unicode):
+    if type(val) in (str, str):
         if ('True' in val) or ('Closed' in val) or ('On' in val) or (val.startswith('Motion') or (val.startswith('Light')) or (val.startswith('Voltage'))):
             val = 1.0
         elif  ('False' in val) or ('Open' in val) or ('Off' in val) or (val.startswith('No')):
@@ -202,7 +202,7 @@ def store_many(req_data):
             del(data['a'])   # delete it out of the data dictionary
 
         # loop through the variables, preparing them for insertion
-        for ky in data.keys():
+        for ky in list(data.keys()):
             reading_id = '%s_%s' % (base_id, ky)
             val = data[ky]
             try:

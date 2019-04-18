@@ -7,7 +7,7 @@ from subprocess import check_output
 from django.template import loader
 from django.templatetags.static import static
 
-import models, reports.basechart
+from . import models, reports.basechart
 import markdown
 import time, json, re
 

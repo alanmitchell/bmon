@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import bmsapp.models
 import bmsapp.data_util
-import basechart
+from . import basechart
 import pytz
 
 class Histogram(basechart.BaseChart):

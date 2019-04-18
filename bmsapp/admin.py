@@ -23,7 +23,7 @@ class BldgToSensorInline(admin.TabularInline):
 
     def edit_sensor(self, instance):
         url = reverse('admin:bmsapp_sensor_change', args=(instance.sensor.pk,))
-        return format_html(u'<a href="{}">Edit this Sensor</a>', url)
+        return format_html('<a href="{}">Edit this Sensor</a>', url)
 
     readonly_fields = ('edit_sensor',)
 

@@ -1,10 +1,10 @@
 """Allows acquisition of Internet weather data.
 """
 
-import urllib2, time, json, urllib
+import urllib.request, urllib.error, urllib.parse, time, json, urllib.request, urllib.parse, urllib.error
 from django.conf import settings
-from metar import Metar
-from cache import Cache
+from .metar import Metar
+from .cache import Cache
 
 # cache for storing NWS observations
 _nws_cache = Cache()   
@@ -31,7 +31,7 @@ def getWeatherObservation(stnCode):
         # try 3 times in case of download errors.
         for i in range(3):
             try:
-                read_str = urllib2.urlopen(URL % stnCode).read()
+                read_str = urllib.request.urlopen(URL % stnCode).read()
                 break
             except:
                 # wait before retrying
@@ -68,8 +68,8 @@ def getWUobservation(stnList):
             # not in cache; download from weather underground.
             wu_key = getattr(settings, 'BMSAPP_WU_API_KEY', None)
             if wu_key:
-                url = 'http://api.wunderground.com/api/%s/conditions/q/%s.json' % (wu_key, urllib.quote(stn))
-                json_str = urllib2.urlopen(url).read()
+                url = 'http://api.wunderground.com/api/%s/conditions/q/%s.json' % (wu_key, urllib.parse.quote(stn))
+                json_str = urllib.request.urlopen(url).read()
                 obs = json.loads(json_str)
                 _wu_cache.store(stn, obs)
             else:

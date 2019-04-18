@@ -8,7 +8,7 @@ from django.core.mail import send_mail
 import requests
 import bmsapp.data_util
 import bmsapp.formatters
-import sms_gateways
+from . import sms_gateways
 import yaml
 
 

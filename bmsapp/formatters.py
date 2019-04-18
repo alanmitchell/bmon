@@ -1,7 +1,7 @@
 """
 This module contains formatting functions for sensor values
 """
-import formatter_codes
+from . import formatter_codes
 
 def okofen2_status(coded_value):
     """Okofen Touch Pellet Boiler status codes, newer model in 
@@ -42,7 +42,7 @@ def occupied_formatter(coded_value):
 
 def _bitmask_to_list(encoded_value, bitmask_dictionary):
     output_list = []
-    for bit_offset in bitmask_dictionary.keys():
+    for bit_offset in list(bitmask_dictionary.keys()):
         if int(encoded_value) & (1 << bit_offset):
             output_list.append(bitmask_dictionary[bit_offset])
     return output_list if len(output_list) else ['None']

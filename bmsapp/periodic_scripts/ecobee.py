@@ -76,7 +76,7 @@ class EcobeeDataCollector:
         """
 
         # There must be access and refresh tokens present and 32 characters long.
-        if not type(access_token) in (str, unicode) or not type(refresh_token) in (str, unicode) or \
+        if not type(access_token) in (str, str) or not type(refresh_token) in (str, str) or \
                         len(access_token)!=32 or len(refresh_token)!=32:
             raise ValueError('The Access or Refresh token is not present or invalid.  Reauthorize the BMON application with Ecobee at the "ecobee-auth" URL, and enter the new Access and Refresh token in the Script Parameters input box.')
 
@@ -123,22 +123,22 @@ class EcobeeDataCollector:
                 # get temperature values
                 vals = stat['extendedRuntime']['actualTemperature']
                 vals = [val / 10.0 for val in vals]   # they are expressed in tenths, so convert
-                readings += zip(tstamps, (stat_id+'temp',)*3, vals)
+                readings += list(zip(tstamps, (stat_id+'temp',)*3, vals))
 
                 # get heating setpoints
                 vals = stat['extendedRuntime']['desiredHeat']
                 vals = [val / 10.0 for val in vals]  # they are expressed in tenths, so convert
-                readings += zip(tstamps, (stat_id + 'heat_setpoint',) * 3, vals)
+                readings += list(zip(tstamps, (stat_id + 'heat_setpoint',) * 3, vals))
 
                 # get Humidity values
                 vals = stat['extendedRuntime']['actualHumidity']
-                readings += zip(tstamps, (stat_id + 'rh',) * 3, vals)
+                readings += list(zip(tstamps, (stat_id + 'rh',) * 3, vals))
 
                 # get temperature values
                 vals = stat['extendedRuntime']['auxHeat1']
                 # convert to fractional runtime from seconds / 5 minute interval
                 vals = [val / 300.0 for val in vals]
-                readings += zip(tstamps, (stat_id + 'heat1_run',) * 3, vals)
+                readings += list(zip(tstamps, (stat_id + 'heat1_run',) * 3, vals))
 
                 # Loop through ther Remote Sensors collection, extracting data available there.
                 # Use the lastStatusModified timestamp as the indicator of the time of these

@@ -40,8 +40,8 @@ db = readingdb.bmsdata.BMSdata()
 
 for filename in glob.glob(sys.argv[1]):
     success_count, errors = db.import_text_file(filename)
-    print '\n%s readings successfully stored and %s errors.' % (success_count, len(errors))
+    print('\n%s readings successfully stored and %s errors.' % (success_count, len(errors)))
     if len(errors):
         for err_desc in errors:
-            print err_desc
+            print(err_desc)
 db.close()

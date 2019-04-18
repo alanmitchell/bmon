@@ -13,8 +13,8 @@ from dateutil.parser import parse
 import pandas as pd
 import numpy as np
 
-import models
-import readingdb.bmsdata
+from . import models
+from . import readingdb.bmsdata
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -273,7 +273,7 @@ def sensor_readings(request, sensor_id):
             values = np.char.mod('%.5g', df.val.values).astype(np.float).tolist()
         else:
             values = df.val.values.tolist()
-        all_readings = zip(times, values)
+        all_readings = list(zip(times, values))
 
         result = {
             'status': 'success',

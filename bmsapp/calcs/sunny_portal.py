@@ -213,13 +213,13 @@ def get_one_day(browser, plant_tz, menu_text, fill_NA, graph_num, go_back_one_da
 
 if __name__ == '__main__':
 
-    print 'Nortech'
-    print get_data('d0c174be-ad46-4a43-bf72-af15d0cb93e6')
+    print('Nortech')
+    print(get_data('d0c174be-ad46-4a43-bf72-af15d0cb93e6'))
 
-    print 'Anchorage Solar Building'
-    print get_data('e89960d9-e25e-4cd0-90a0-8698de3e286b', fill_NA=True)
+    print('Anchorage Solar Building')
+    print(get_data('e89960d9-e25e-4cd0-90a0-8698de3e286b', fill_NA=True))
 
-    print 'Alaska Aviation Museum'
+    print('Alaska Aviation Museum')
     # Note that the menu text is case sensitive; default is "Power" and this system
     # has "power" in the menu item.
-    print get_data('548529bf-aa2a-4eba-96c5-77aa2badb84c', menu_text='Energy and power', fill_NA=True, graph_num=0)
+    print(get_data('548529bf-aa2a-4eba-96c5-77aa2badb84c', menu_text='Energy and power', fill_NA=True, graph_num=0))

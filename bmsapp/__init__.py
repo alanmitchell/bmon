@@ -1,1 +1,1 @@
-import logging_setup    # causes logging setup code to run.
+from . import logging_setup    # causes logging setup code to run.

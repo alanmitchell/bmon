@@ -86,7 +86,7 @@ class BMSdata:
         If val is None, the record is not stored in the database and it is recorded as an exception.
         """
         try:
-            recs = zip(ts, id, val)
+            recs = list(zip(ts, id, val))
         except:
             # they were single values, not lists
             recs = [(ts, id, val)]

@@ -3,7 +3,7 @@ from datetime import datetime
 import pytz
 import textwrap
 import bmsapp.models, bmsapp.data_util
-import basechart
+from . import basechart
 
 class TimeSeries(basechart.BaseChart):
     """Chart class for creating Time Series graph.
@@ -100,11 +100,11 @@ class TimeSeries(basechart.BaseChart):
         if len(y_axes) == 1:
             opt['layout']['margin']['l'] = 60
             opt['layout']['margin']['r'] = 20
-            opt['layout']['yaxis']['title'] = y_axes.keys()[0]
+            opt['layout']['yaxis']['title'] = list(y_axes.keys())[0]
         elif len(y_axes) == 2:
             opt['layout']['margin']['l'] = 60
             opt['layout']['margin']['r'] = 60
-            y_axes_by_id = {v: k for k, v in y_axes.iteritems()}
+            y_axes_by_id = {v: k for k, v in y_axes.items()}
             opt['layout']['yaxis']['title'] = y_axes_by_id[1]
             opt['layout']['yaxis2'] = {'title': y_axes_by_id[2],
                                               'overlaying':'y',
@@ -114,7 +114,7 @@ class TimeSeries(basechart.BaseChart):
             opt['layout']['margin']['l'] = 60
             opt['layout']['margin']['r'] = 20           
             opt['layout']['xaxis']['domain'] = [0.10 * (len(y_axes) - 1), 1]          
-            for label, id in y_axes.items():
+            for label, id in list(y_axes.items()):
                 if id == 1:
                     opt['layout']['yaxis']['title'] = label
                 else:

@@ -70,7 +70,7 @@ class Schedule:
 
             # Add the days and times to the schedule dictionary
             day_time_dictionary = dict.fromkeys(days_list, times_list)
-            for day in day_time_dictionary.keys():
+            for day in list(day_time_dictionary.keys()):
                 if day in schedule_dictionary:
                     schedule_dictionary[day] = schedule_dictionary[day] + day_time_dictionary[day]
                 else:
@@ -108,7 +108,7 @@ class Schedule:
         # days_dict = dict([(x.strftime('%A'), x.weekday()) for x in [datetime.date(2001, 1, i) for i in range(1, 8)]])
         days_dict = {'Monday': 0, 'Tuesday': 1, 'Wednesday': 2, 'Thursday': 3, 'Friday': 4, 'Saturday': 5, 'Sunday': 6}
 
-        for day_name in days_dict.keys():
+        for day_name in list(days_dict.keys()):
             if day_name.startswith(day_text.capitalize()):
                 return days_dict[day_name]
 
@@ -216,9 +216,9 @@ if __name__ == '__main__':
     dt_delta = dt_now - datetime.datetime.fromtimestamp(0)
     dt_ts = dt_delta.seconds + (dt_delta.days * 24 * 60 * 60)
 
-    print str(schedule_object.definition)
-    print schedule_object.predominantly_occupied_days
-    print schedule_object.is_occupied(dt_ts)
+    print(str(schedule_object.definition))
+    print(schedule_object.predominantly_occupied_days)
+    print(schedule_object.is_occupied(dt_ts))
     op = schedule_object.occupied_periods(dt_ts, dt_ts + (60 * 60 * 24 * 7), 'exact')
-    print [(datetime.datetime.fromtimestamp(start_dt_ts), datetime.datetime.fromtimestamp(end_dt_ts))
-           for start_dt_ts, end_dt_ts in op]
+    print([(datetime.datetime.fromtimestamp(start_dt_ts), datetime.datetime.fromtimestamp(end_dt_ts))
+           for start_dt_ts, end_dt_ts in op])

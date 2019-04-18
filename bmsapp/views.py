@@ -9,13 +9,13 @@ from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.templatetags.static import static
 
-import models
-import logging_setup
-import view_util
-import storereads
-from reports import basechart
-from readingdb import bmsdata
-import periodic_scripts.ecobee
+from . import models
+from . import logging_setup
+from . import view_util
+from . import storereads
+from .reports import basechart
+from .readingdb import bmsdata
+from . import periodic_scripts.ecobee
 import bmsapp.scripts.backup_readingdb
 
 # Make a logger for this module

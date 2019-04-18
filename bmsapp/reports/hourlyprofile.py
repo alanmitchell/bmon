@@ -1,7 +1,7 @@
 import pandas as pd
 import bmsapp.models
 import bmsapp.data_util
-import basechart
+from . import basechart
 
 
 class HourlyProfile(basechart.BaseChart):

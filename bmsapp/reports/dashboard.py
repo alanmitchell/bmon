@@ -2,7 +2,7 @@ import time
 import bmsapp.models
 import bmsapp.data_util
 import bmsapp.formatters
-import basechart
+from . import basechart
 import markdown
 from datetime import datetime
 import pytz

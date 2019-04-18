@@ -176,7 +176,7 @@ class CalculateReadings:
         # Walk through the parameter list finding parameters that are sensor IDs and extract
         # those out.  Put the special sensor that identifies the sensor to synchronize
         # timestamps on at the front of the 'ids' list.
-        for nm, id in params.items():
+        for nm, id in list(params.items()):
 
             if nm.startswith('id_'):
                 str_id = str(id)    # convert id to string
@@ -211,7 +211,7 @@ class CalculateReadings:
                 return 0
             
             # Put the array of values for each sensor back into the main parameter dictionary
-            for nm, id in id_dict.items():
+            for nm, id in list(id_dict.items()):
                 params[nm] = df[id].values
                 
             # Save the array of timestamps from the synchronized values
@@ -223,8 +223,8 @@ class CalculateReadings:
             # make the lists for insertion into the database
             # Had trouble inserting numpy data types, so convert to regular python data
             # types.
-            ts = map(int, ts_sync)
-            vals = map(float, vals)
+            ts = list(map(int, ts_sync))
+            vals = list(map(float, vals))
 
         else:
             # There were no sensor IDs in the parameter list.  This calculate function must
@@ -234,8 +234,8 @@ class CalculateReadings:
 
             # Had trouble inserting numpy data types, so convert to regular python data
             # types.
-            ts = map(int, stamps)
-            vals = map(float, vals)
+            ts = list(map(int, stamps))
+            vals = list(map(float, vals))
         
         # insert the records into the database.
         self.db.insert_reading(ts, len(ts)*[calc_id], vals)  

@@ -8,7 +8,7 @@ import yaml
 import bmsapp.models, bmsapp.readingdb.bmsdata
 import bmsapp.schedule
 import bmsapp.view_util, bmsapp.data_util
-import chart_config
+from . import chart_config
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)

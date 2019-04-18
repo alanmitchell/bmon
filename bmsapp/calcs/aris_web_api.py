@@ -62,7 +62,7 @@ def get_energy_use(building_id,
         r.raise_for_status()
         response_data = r.json()
     except requests.exceptions.RequestException as e:
-        print e
+        print(e)
         raise
 
     if len(response_data) > 0:
@@ -95,10 +95,10 @@ def get_energy_use(building_id,
                 try:
                     energy_parameter_value = float(response_row[energy_parameter])
                 except:
-                    print "ARIS Value Conversion Error: ", response_row[energy_parameter]
+                    print("ARIS Value Conversion Error: ", response_row[energy_parameter])
                     continue
             else:
-                print "Parameter Name Not Present: ", energy_parameter
+                print("Parameter Name Not Present: ", energy_parameter)
                 continue
 
             # Convert the energy parameter value into appropriate units for the sensor

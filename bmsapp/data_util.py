@@ -92,7 +92,7 @@ def histogram_from_series(pandas_series):
     # weirdly, some integer are "not JSON serializable".  Had to 
     # convert counts to float to avoid the error.  Also, round bin average
     # to 4 significant figures
-    return zip(avg_bins, cts)
+    return list(zip(avg_bins, cts))
 
 def resample_timeseries(pandas_dataframe, averaging_hours, drop_na=True):
     '''

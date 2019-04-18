@@ -7,7 +7,7 @@ database.
 import os
 import sys
 import email
-from cStringIO import StringIO
+from io import StringIO
 import re
 import logging
 import django
@@ -70,10 +70,10 @@ def process_email(file_pattern, read_function, tz='US/Alaska'):
                     _logger.info('Data processed from %s:\n    %s' % (fname, insert_msg))
 
                 except Exception as e:
-                    _logger.exception('Error processing data from file %s with %s.' % (fname, read_function.func_name))
+                    _logger.exception('Error processing data from file %s with %s.' % (fname, read_function.__name__))
 
     except Exception as e:
-        _logger.exception('Error processing data with %s.' % read_function.func_name)
+        _logger.exception('Error processing data with %s.' % read_function.__name__)
 
     finally:
         db.close()

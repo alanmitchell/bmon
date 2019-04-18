@@ -2,7 +2,7 @@
 Transform functions for scaling and transforming sensor readings
 '''
 
-from __future__ import division
+
 from math import *
 import sys
 import logging

@@ -2,7 +2,7 @@
 Multiple registers can be read and returned as new BMON sensor readings.
 """
 
-from __future__ import division   # needed for transform functions
+   # needed for transform functions
 import time
 from math import *       # make available for transform functions
 import traceback

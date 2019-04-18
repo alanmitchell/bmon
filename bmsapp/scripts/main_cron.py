@@ -7,12 +7,12 @@ cron tasks.  It should be run using the django-extensions runscript facility:
 
 from datetime import datetime
 import time
-import calc_readings
-import daily_status
-import backup_django_db
-import backup_readingdb
-import check_alerts
-import run_periodic_scripts
+from . import calc_readings
+from . import daily_status
+from . import backup_django_db
+from . import backup_readingdb
+from . import check_alerts
+from . import run_periodic_scripts
 
 
 def suppress_errors(func):

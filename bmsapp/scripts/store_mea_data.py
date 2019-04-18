@@ -7,7 +7,7 @@ BMON reading database.
 import os
 import sys
 import email
-from cStringIO import StringIO
+from io import StringIO
 import logging
 import django
 import pandas as pd
@@ -61,7 +61,7 @@ try:
                         # Make timestamps, 15 minutes apart, starting at 7.5 minutes past
                         # Midnight.
                         day_start = row_data[1].tz_localize('US/Alaska', ambiguous='NaT').value // 10 ** 9
-                        seconds = np.array(range(15 * 60 / 2, 3600 * 24, 900))
+                        seconds = np.array(list(range(15 * 60 / 2, 3600 * 24, 900)))
                         ts = day_start + seconds
 
                         # Put into DataFrame for easy filtering

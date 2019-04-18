@@ -9,7 +9,7 @@ import calendar
 import logging
 import math
 import string
-from StringIO import StringIO
+from io import StringIO
 
 import pytz
 from dateutil import parser
@@ -58,11 +58,11 @@ def parse_file(csvfile, filename, ts_tz='US/Alaska'):
     # read all lines through the header row, gathering up
     # point names along the way.
     names = []
-    ln = reader.next()
+    ln = next(reader)
     while ln[0] != '<>Date':
         if ln[0].startswith('Point_'):
             names.append(clean_string(ln[1]))
-        ln = reader.next()
+        ln = next(reader)
 
     # Lists to the hold the extracted values
     tstamps = []

@@ -2,7 +2,7 @@ import time
 from django.template import loader
 import bmsapp.models, bmsapp.data_util
 import bmsapp.formatters
-import basechart
+from . import basechart
 import markdown
 
 

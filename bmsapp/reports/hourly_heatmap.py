@@ -1,8 +1,8 @@
 import pandas as pd
 import bmsapp.models
 import bmsapp.data_util
-import basechart
-import chart_config
+from . import basechart
+from . import chart_config
 
 
 class HourlyHeatMap(basechart.BaseChart):

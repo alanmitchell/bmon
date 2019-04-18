@@ -3,8 +3,8 @@ Script to collect sensor readings from an OkoFEN pellet boiler.
 '''
 from datetime import datetime, timedelta, date
 import sys
-import StringIO
-import urlparse
+import io
+import urllib.parse
 import traceback
 import re
 import calendar
@@ -99,9 +99,9 @@ def run(url= '', site_id='', tz_data='US/Alaska', last_date_loaded='2016-01-01',
                 # make the CSV file name
                 fname = next_date.strftime('csv/%Y-%m-%d_00-00.csv')
 
-                resp = requests.get(urlparse.urljoin(url, fname), timeout=10)
+                resp = requests.get(urllib.parse.urljoin(url, fname), timeout=10)
                 doc = resp.text
-                df = pd.read_csv(StringIO.StringIO(doc),
+                df = pd.read_csv(io.StringIO(doc),
                                  sep=';',
                                  decimal=',',
                                  index_col=False,
@@ -141,7 +141,7 @@ def run(url= '', site_id='', tz_data='US/Alaska', last_date_loaded='2016-01-01',
                     filtered_ts, filtered_vals = find_changes(tstamps, vals,
                                                               state_change=(col in STATE_PARAMS))
 
-                    new_reads = zip(filtered_ts, (sensor_id,) * len(filtered_ts), filtered_vals)
+                    new_reads = list(zip(filtered_ts, (sensor_id,) * len(filtered_ts), filtered_vals))
                     readings += new_reads
 
                 # successfully loaded this date, so update the tracking variable

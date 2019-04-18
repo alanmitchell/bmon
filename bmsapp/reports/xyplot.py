@@ -5,7 +5,7 @@ from dateutil import parser
 import numpy as np
 import pandas as pd, pytz
 import bmsapp.models, bmsapp.data_util
-import basechart
+from . import basechart
 
 class XYplot(basechart.BaseChart):
     """Class that creates XY Plot.

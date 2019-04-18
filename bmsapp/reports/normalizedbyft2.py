@@ -1,7 +1,7 @@
-from __future__ import division
+
 import yaml
 import bmsapp.models, bmsapp.data_util
-import basechart
+from . import basechart
 
 class NormalizedByFt2(basechart.BaseChart):
     """

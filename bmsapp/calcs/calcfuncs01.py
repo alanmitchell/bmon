@@ -8,10 +8,10 @@ import logging
 import pandas as pd
 import numpy as np
 import pytz
-import calcreadings
-import internetwx
-import aris_web_api
-import sunny_portal
+from . import calcreadings
+from . import internetwx
+from . import aris_web_api
+from . import sunny_portal
 import bmsapp.data_util
 from bmsapp.models import Sensor, BldgToSensor
 
@@ -163,7 +163,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             return [], []
         
         # turn this into one second data spanning from first entry to last
-        new_index = range(states.index[0], states.index[-1] + 1)
+        new_index = list(range(states.index[0], states.index[-1] + 1))
         ser_one_sec = states.reindex(new_index).ffill()
         
         # average into bins of runtime data

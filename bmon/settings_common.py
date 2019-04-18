@@ -5,7 +5,7 @@ file by adding the overridden settings at the end of that file.
 from os.path import join, dirname, abspath
 
 # We need values from the user's settings file, so import it
-import settings
+from . import settings
 
 # Name of this Django project.  Note that if you change this from bmon, you will also
 # have to change values in the manage.py, wsgi.py, and appache2/conf/httpd.conf files.

@@ -58,7 +58,7 @@ for ix, sens in df.iterrows():
             sensor = Sensor(sensor_id=sens['Sensor ID'], title=sens.Title)
             sen_unit = Unit.objects.filter(label=sens['Unit Label'])[0]
             sensor.unit = sen_unit
-            if type(sens['Calc or Transform Function'])==unicode:
+            if type(sens['Calc or Transform Function'])==str:
                 sensor.is_calculated = True if sens['Is Calc Field']==1.0 else False
                 sensor.tran_calc_function = sens['Calc or Transform Function'].strip()
                 try:
@@ -76,5 +76,5 @@ for ix, sens in df.iterrows():
         link.save()
 
     except:
-        print 'Error processing: %s' % sens
+        print('Error processing: %s' % sens)
         traceback.print_exc()

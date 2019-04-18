@@ -1,7 +1,7 @@
 import numpy as np, pandas as pd, xlwt
 from django.http import HttpResponse
 import bmsapp.models, bmsapp.data_util
-import basechart
+from . import basechart
 
 class ExportData(basechart.BaseChart):
     """Class that exports data as an Excel spreadsheet.

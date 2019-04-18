@@ -8,8 +8,8 @@ Haines Senior Center.
 '''
 from datetime import datetime, timedelta, date
 import sys
-import StringIO
-import urlparse
+import io
+import urllib.parse
 import traceback
 import re
 import calendar
@@ -141,9 +141,9 @@ def run(url= '', site_id='',
                 # make the CSV file name
                 fname = next_date.strftime('logfiles/pelletronic/touch_%Y%m%d.csv')
 
-                resp = requests.get(urlparse.urljoin(url, fname), timeout=15)
+                resp = requests.get(urllib.parse.urljoin(url, fname), timeout=15)
                 doc = resp.text
-                df = pd.read_csv(StringIO.StringIO(doc),
+                df = pd.read_csv(io.StringIO(doc),
                                  sep=';',
                                  decimal=',',
                                  parse_dates=[['Datum ', 'Zeit ']],
@@ -182,7 +182,7 @@ def run(url= '', site_id='',
                                                               state_change=(col in state_fields),
                                                               max_spacing=240)
 
-                    new_reads = zip(filtered_ts, (sensor_id,) * len(filtered_ts), filtered_vals)
+                    new_reads = list(zip(filtered_ts, (sensor_id,) * len(filtered_ts), filtered_vals))
                     
                     # Only keep the readings after last_ts_loaded
                     new_reads_after = [rd for rd in new_reads if rd[0] > last_ts_loaded]
