@@ -163,7 +163,7 @@ class CalculateReadings:
         """
         
         # Get the function parameters as a dictionary
-        params = yaml.load(calcParams)
+        params = yaml.load(calcParams, Loader=yaml.FullLoader)
         if params is None:
             params = {}    # substitute empty dictionary for no parameters
         

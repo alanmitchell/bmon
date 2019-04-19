@@ -157,7 +157,7 @@ class Sensor(models.Model):
                  'sensor_title': self.title,
                  'unit': self.unit.label}
         try:
-            props.update( yaml.load(self.other_properties) )
+            props.update( yaml.load(self.other_properties, Loader=yaml.FullLoader) )
         except:
             # ignore errors
             pass
@@ -232,7 +232,7 @@ class Building(models.Model):
                  'latitude': self.latitude,
                  'longitude': self.longitude}
         try:
-            props.update( yaml.load(self.other_properties) )
+            props.update( yaml.load(self.other_properties, Loader=yaml.FullLoader) )
         except:
             # ignore errors
             pass

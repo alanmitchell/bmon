@@ -34,7 +34,7 @@ class CurrentValuesMulti(basechart.BaseChart):
         for bldg_info in self.chart_info.chartbuildinginfo_set.filter(building__in=buildings):
 
             # get the parameters associated with this building
-            sensors = yaml.load(bldg_info.parameters)
+            sensors = yaml.load(bldg_info.parameters, Loader=yaml.FullLoader)
 
             # make a list with items being a list of sensor info:
             #   (sensor name, most recent value, units, how many minutes ago value occurred)

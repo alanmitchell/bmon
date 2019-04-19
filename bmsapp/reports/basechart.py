@@ -165,7 +165,7 @@ class BaseChart(object):
         # for the multi-building chart object, take the keyword parameter string 
         # and convert it to a Python dictionary or list.
         if bldg_id == 'multi':
-            self.chart_params = yaml.load(chart_info.parameters)
+            self.chart_params = yaml.load(chart_info.parameters, Loader=yaml.FullLoader)
 
         # open the reading database and save it for use by the methods of this object.
         # It is closed automatically in the destructor of the BMSdata class.

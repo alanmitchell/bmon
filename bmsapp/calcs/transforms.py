@@ -34,7 +34,7 @@ class Transformer:
         All three elements of the reading--ts, id, and val--can be transformed by the function.
         '''
         
-        params = yaml.load(trans_params)
+        params = yaml.load(trans_params, Loader=yaml.FullLoader)
         if params is None:
             params = {}    # substitute an empty dictionary for empty parameter string
         if hasattr(self, trans_func.strip()):

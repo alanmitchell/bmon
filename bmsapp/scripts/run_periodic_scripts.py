@@ -105,7 +105,7 @@ class RunScript(threading.Thread):
             params = {}
 
             for param_src in param_sources:
-                new_params = yaml.load(param_src)
+                new_params = yaml.load(param_src, Loader=yaml.FullLoader)
                 if type(new_params) == dict:
                     # Update only if there was a valid dictionary of hidden script results
                     params.update(new_params)
@@ -148,7 +148,7 @@ class RunScript(threading.Thread):
             # input parameters, which are in a list, be deleted from the model object.
             # Exmaple use is to delete one-time authorization parameters
             if 'delete_params' in results:
-                params = yaml.load(self.script.script_parameters)
+                params = yaml.load(self.script.script_parameters, Loader=yaml.FullLoader)
                 if type(params) == dict:
                     for p in results.pop('delete_params'):
                         params.pop(p, None)  # deletes param and no error if not there

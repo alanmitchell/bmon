@@ -59,7 +59,7 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
             bldg_name = bldg_info.building.title   # get the building name
 
             # get the parameters associated with this building
-            bldg_params = yaml.load(bldg_info.parameters)
+            bldg_params = yaml.load(bldg_info.parameters, Loader=yaml.FullLoader)
 
             # get the value records and average into one hour intervals
             df = self.reading_db.dataframeForOneID(bldg_params['id_value'], st_ts, end_ts, self.timezone)
