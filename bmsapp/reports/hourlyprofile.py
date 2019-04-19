@@ -31,7 +31,7 @@ class HourlyProfile(basechart.BaseChart):
         if len(recs):
             # make a pandas DataFrame that has average values for each weekday / hour
             # combination.  Remove the multi-index so that it easier to select certain days
-            df = pd.DataFrame(recs).groupby(('da', 'hr')).mean().reset_index()
+            df = pd.DataFrame(recs).groupby(['da', 'hr']).mean().reset_index()
 
             # Here are the groups of days we want to chart as separate series
             if self.schedule:
