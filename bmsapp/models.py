@@ -65,7 +65,7 @@ class Sensor(models.Model):
     title = models.CharField(max_length = 80)
 
     # the units for the sensor values
-    unit =  models.ForeignKey(Unit)
+    unit =  models.ForeignKey(Unit, models.SET_NULL, blank=True, null=True)
 
     # Adds in a notes field to the Current sensors page.
     notes = models.TextField("Please enter descriptive notes about the sensor.", default="No sensor notes available.")
@@ -188,7 +188,7 @@ class Building(models.Model):
     title = models.CharField(max_length=80, unique=True)
 
     # Current mode that building is in
-    current_mode = models.ForeignKey(BuildingMode, verbose_name='Current Operating Mode', blank=True, null=True)
+    current_mode = models.ForeignKey(BuildingMode, models.SET_NULL, verbose_name='Current Operating Mode', blank=True, null=True)
 
     report_footer = models.TextField(verbose_name='Additional Building Documentation', help_text='Use <a href="http://markdowntutorial.com/"> markdown syntax </a> to add links, pictures, etc.  Note that you <b>must</b> include the url prefix (e.g. <i>http://</i>) in your links.', blank=True, default='')
                                       
@@ -273,11 +273,11 @@ class BldgToSensor(models.Model):
     '''
 
     # The building and sensor that are linked
-    building = models.ForeignKey(Building)
-    sensor = models.ForeignKey(Sensor)
+    building = models.ForeignKey(Building, models.CASCADE)
+    sensor = models.ForeignKey(Sensor, models.CASCADE)
 
     # For this building, the sensor group that the sensor should be classified in.
-    sensor_group = models.ForeignKey(SensorGroup)
+    sensor_group = models.ForeignKey(SensorGroup, models.SET_NULL, blank=True, null=True)
 
     # Within the sensor group, this field determines the sort order of this sensor.
     sort_order = models.IntegerField(default=999)
@@ -294,7 +294,7 @@ class DashboardItem(models.Model):
     """
 
     # The building this Dashboard item is for.
-    building = models.ForeignKey(Building)
+    building = models.ForeignKey(Building, models.CASCADE)
 
     # The Widget type to be used for display of this sensor on the Dashboard.
     GRAPH = 'graph'
@@ -321,7 +321,7 @@ class DashboardItem(models.Model):
     column_number = models.IntegerField(default=1)
 
     # The sensor, if any, used in this Dashboard item
-    sensor = models.ForeignKey(BldgToSensor, null=True, blank=True)
+    sensor = models.ForeignKey(BldgToSensor, models.CASCADE, null=True, blank=True)
 
     # Title, mostly used for Label widgets, but also overrides default title on
     # other widgets
@@ -397,10 +397,10 @@ class ChartBuildingInfo(models.Model):
     '''
     
     # the associated chart
-    chart = models.ForeignKey(MultiBuildingChart)
+    chart = models.ForeignKey(MultiBuildingChart, models.CASCADE)
 
     # the building participating in the Chart
-    building = models.ForeignKey(Building)
+    building = models.ForeignKey(Building, models.CASCADE)
 
     # the parameters for this chart associated with this building, if any.
     # The parameters are entered in YAML format.
@@ -514,7 +514,7 @@ class AlertCondition(models.Model):
     active = models.BooleanField(default=True, help_text='Uncheck the box to Disable the alert.')
 
     # the sensor this condition applies to
-    sensor = models.ForeignKey(Sensor)
+    sensor = models.ForeignKey(Sensor, models.CASCADE)
 
     CONDITION_CHOICES = (
         ('>', 'greater than'),
@@ -543,8 +543,8 @@ class AlertCondition(models.Model):
                                                   default=1, choices=READ_COUNT_CHOICES)
 
     # fields to qualify the condition test according to building mode
-    only_if_bldg = models.ForeignKey(Building, verbose_name='But only if building', blank=True, null=True)
-    only_if_bldg_mode = models.ForeignKey(BuildingMode, verbose_name='is in this mode', blank=True, null=True)
+    only_if_bldg = models.ForeignKey(Building, models.SET_NULL, verbose_name='But only if building', blank=True, null=True)
+    only_if_bldg_mode = models.ForeignKey(BuildingMode, models.SET_NULL, verbose_name='is in this mode', blank=True, null=True)
 
     # alert message.  If left blank a message will be created from other field values.
     alert_message = models.TextField(max_length=400, blank=True,
