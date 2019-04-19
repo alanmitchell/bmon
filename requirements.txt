@@ -1,4 +1,5 @@
-# Base requirements for deployment of BMON
+# Base requirements for deployment of BMON.
+# To use: pip install -r requirements.txt
 
 # NOTE:  The pip Python package must be installed to use this
 # requirements.txt file.
