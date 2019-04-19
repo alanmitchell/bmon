@@ -13,8 +13,8 @@ from dateutil.parser import parse
 import pandas as pd
 import numpy as np
 
-from . import models
-from . import readingdb.bmsdata
+from bmsapp import models
+from bmsapp.readingdb import bmsdata
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -171,7 +171,7 @@ def sensor_readings(request, sensor_id):
     if available.
     """
     try:
-        db = readingdb.bmsdata.BMSdata()  # reading database
+        db = bmsdata.BMSdata()  # reading database
 
         #------ Check all the input parameters
 
@@ -315,7 +315,7 @@ def sensor_list(request):
         if messages:
             return fail_payload(messages)
 
-        db = readingdb.bmsdata.BMSdata()  # reading database
+        db = bmsdata.BMSdata()  # reading database
         sensors = [sensor_info(sensor_id) for sensor_id in db.sensor_id_list()]
 
         result = {

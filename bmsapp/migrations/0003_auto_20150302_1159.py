@@ -23,7 +23,7 @@ class Migration(migrations.Migration):
                 ('priority', models.CharField(default=b'0', max_length=5, verbose_name=b'Priority of this Alert Situation', choices=[(b'-1', b'Low'), (b'0', b'Normal'), (b'1', b'High'), (b'2', b'Emergency')])),
                 ('wait_before_next', models.FloatField(default=4.0, verbose_name=b'Hours to Wait before Notifying Again')),
                 ('last_notified', models.FloatField(default=0.0)),
-                ('only_if_bldg', models.ForeignKey(verbose_name=b'But only if building', blank=True, to='bmsapp.Building', null=True)),
+                ('only_if_bldg', models.ForeignKey(verbose_name=b'But only if building', blank=True, to='bmsapp.Building', on_delete=models.SET_NULL, null=True)),
             ],
             options={
             },
@@ -62,7 +62,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='alertcondition',
             name='only_if_bldg_mode',
-            field=models.ForeignKey(verbose_name=b'is in this mode', blank=True, to='bmsapp.BuildingMode', null=True),
+            field=models.ForeignKey(verbose_name=b'is in this mode', blank=True, to='bmsapp.BuildingMode', on_delete=models.SET_NULL, null=True),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -74,7 +74,7 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='alertcondition',
             name='sensor',
-            field=models.ForeignKey(to='bmsapp.Sensor'),
+            field=models.ForeignKey(to='bmsapp.Sensor', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.RemoveField(
@@ -92,7 +92,8 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='building',
             name='current_mode',
-            field=models.ForeignKey(verbose_name=b'Current Operating Mode', blank=True, to='bmsapp.BuildingMode', null=True),
+            field=models.ForeignKey(verbose_name=b'Current Operating Mode', blank=True, to='bmsapp.BuildingMode', on_delete=models.SET_NULL, null=True),
             preserve_default=True,
         ),
     ]
+ 

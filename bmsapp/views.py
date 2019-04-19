@@ -5,7 +5,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.conf import settings
 from django.templatetags.static import static
 
@@ -15,7 +15,7 @@ from . import view_util
 from . import storereads
 from .reports import basechart
 from .readingdb import bmsdata
-from . import periodic_scripts.ecobee
+from bmsapp.periodic_scripts import ecobee
 import bmsapp.scripts.backup_readingdb
 
 # Make a logger for this module
@@ -388,14 +388,14 @@ def ecobee_auth(request):
     ctx = base_context()
     if request.method == 'GET':
         # Get a PIN and auth code
-        results = periodic_scripts.ecobee.get_pin()
+        results = ecobee.get_pin()
         ctx.update(results)
         return render(request, 'bmsapp/ecobee_authorization.html', ctx)
 
     elif request.method == 'POST':
         req = request.POST.dict()
         # request access and refresh tokens
-        success, access_token, refresh_token = periodic_scripts.ecobee.get_tokens(req['code'])
+        success, access_token, refresh_token = ecobee.get_tokens(req['code'])
         ctx.update({'success': success, 'access_token': access_token, 'refresh_token': refresh_token})
         return render_to_response('bmsapp/ecobee_auth_result.html', ctx)
 

@@ -28,7 +28,7 @@ class SensorGroup(models.Model):
     # A number that determines the order that Sensor Groups will be presented to the user.
     sort_order = models.IntegerField(default=999)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -46,7 +46,7 @@ class Unit(models.Model):
     # the type of physical quantity being measured, e.g. temperature, fluid flow, air flow, power
     measure_type = models.CharField("Measurement Type", max_length=30)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s: %s' % (self.measure_type, self.label)
 
     class Meta:
@@ -96,7 +96,7 @@ class Sensor(models.Model):
     # other field values.
     other_properties = models.TextField("Additional Properties to include when exporting data. YAML form, e.g. room: telecom closet", help_text="One property per line.  Name of Property, a colon, a space, and then the property value.", blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.sensor_id + ": " + self.title
 
     class Meta:
@@ -172,7 +172,7 @@ class BuildingMode(models.Model):
     # name of the mode
     name = models.CharField("Mode Name", max_length=50)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -219,7 +219,7 @@ class Building(models.Model):
     # the sensors and calculated values associated with this building
     sensors = models.ManyToManyField(Sensor, through='BldgToSensor', blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     def key_properties(self):
@@ -257,7 +257,7 @@ class BuildingGroup(models.Model):
     # The buildings that are present in this group
     buildings = models.ManyToManyField(Building)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -282,7 +282,7 @@ class BldgToSensor(models.Model):
     # Within the sensor group, this field determines the sort order of this sensor.
     sort_order = models.IntegerField(default=999)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.building.title + ": " + self.sensor.title
 
     class Meta:
@@ -349,7 +349,7 @@ class DashboardItem(models.Model):
         max_val = self.maximum_axis_value if self.maximum_axis_value is not None else self.maximum_normal_value + axis_extension
         return (min_val, max_val)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.widget_type + ": " + (self.sensor.sensor.title if self.sensor else self.title)
 
     class Meta:
@@ -384,7 +384,7 @@ class MultiBuildingChart(models.Model):
     # determines order of Chart displayed in Admin interface
     sort_order = models.IntegerField(default=999)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -409,7 +409,7 @@ class ChartBuildingInfo(models.Model):
     # determines the order that this building appears in the chart
     sort_order = models.IntegerField(default=999)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.chart.title + ": " + self.building.title
 
     class Meta:
@@ -442,7 +442,7 @@ class AlertRecipient(models.Model):
     pushover_regex = RegexValidator(regex=r'^\w{30}$', message="Pushover ID should be exactly 30 characters long.")
     pushover_id = models.CharField('Pushover ID', validators=[pushover_regex], max_length=30, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.name
 
     class Meta:
@@ -576,7 +576,7 @@ class AlertCondition(models.Model):
     # interface.
     last_notified = models.FloatField(default=0.0)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s %s %s, %s in %s mode' % \
             (self.sensor.title, self.condition, self.test_value, self.only_if_bldg, self.only_if_bldg_mode)
 
@@ -728,7 +728,7 @@ class PeriodicScript(models.Model):
     # for storing authorization tokens or other credentials.
     hidden_script_results = models.TextField('Hidden Script results in YAML form', blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return '%s -- %s' % (self.script_file_name, self.script_parameters.replace('\n', ', '))
 
 class CustomReport(models.Model):
@@ -747,7 +747,7 @@ class CustomReport(models.Model):
     # Markdown text that defines what will appear in the report
     markdown_text = models.TextField(verbose_name='Report Content (in markdown):', help_text='Use <a href="http://markdowntutorial.com/">markdown syntax</a> to add links, pictures, etc.  Note that you <b>must</b> include the url prefix (e.g. <i>http://</i>) in any external links.', blank=True)    
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:
@@ -777,7 +777,7 @@ class Organization(models.Model):
     # Custom Reports associated with this Organization
     custom_reports = models.ManyToManyField(CustomReport, blank=True)
 
-    def __unicode__(self):
+    def __str__(self):
         return self.title
 
     class Meta:

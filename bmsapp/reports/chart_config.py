@@ -48,7 +48,7 @@ config:
   showLink: false
   displaylogo: false
   scrollZoom: true
-''')
+''', Loader=yaml.FullLoader)
 
 def chart_container_html(title="Plotly Chart"):
     # Generate a container element and a hidden title

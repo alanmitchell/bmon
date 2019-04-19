@@ -55,7 +55,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(verbose_name='ID', serialize=False, auto_created=True, primary_key=True)),
                 ('parameters', models.TextField(verbose_name=b'Chart Parameters in YAML Form', blank=True)),
                 ('sort_order', models.IntegerField(default=999)),
-                ('building', models.ForeignKey(to='bmsapp.Building')),
+                ('building', models.ForeignKey(to='bmsapp.Building', on_delete=models.CASCADE)),
             ],
             options={
                 'ordering': ['sort_order'],
@@ -77,8 +77,8 @@ class Migration(migrations.Migration):
                 ('generate_alert', models.BooleanField(default=False)),
                 ('no_alert_start_date', models.DateField(null=True, verbose_name=b'Except from', blank=True)),
                 ('no_alert_end_date', models.DateField(null=True, verbose_name=b'to', blank=True)),
-                ('building', models.ForeignKey(to='bmsapp.Building')),
-                ('sensor', models.ForeignKey(blank=True, to='bmsapp.BldgToSensor', null=True)),
+                ('building', models.ForeignKey(to='bmsapp.Building', on_delete=models.CASCADE)),
+                ('sensor', models.ForeignKey(blank=True, to='bmsapp.BldgToSensor', on_delete=models.CASCADE, null=True)),
             ],
             options={
                 'ordering': ('row_number', 'column_number', 'sensor__sort_order'),
@@ -143,13 +143,13 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='sensor',
             name='unit',
-            field=models.ForeignKey(to='bmsapp.Unit'),
+            field=models.ForeignKey(to='bmsapp.Unit', on_delete=models.SET_NULL, null=True),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='chartbuildinginfo',
             name='chart',
-            field=models.ForeignKey(to='bmsapp.MultiBuildingChart'),
+            field=models.ForeignKey(to='bmsapp.MultiBuildingChart', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
@@ -161,19 +161,19 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name='bldgtosensor',
             name='building',
-            field=models.ForeignKey(to='bmsapp.Building'),
+            field=models.ForeignKey(to='bmsapp.Building', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='bldgtosensor',
             name='sensor',
-            field=models.ForeignKey(to='bmsapp.Sensor'),
+            field=models.ForeignKey(to='bmsapp.Sensor', on_delete=models.CASCADE),
             preserve_default=True,
         ),
         migrations.AddField(
             model_name='bldgtosensor',
             name='sensor_group',
-            field=models.ForeignKey(to='bmsapp.SensorGroup'),
+            field=models.ForeignKey(to='bmsapp.SensorGroup', on_delete=models.SET_NULL, null=True),
             preserve_default=True,
         ),
     ]
