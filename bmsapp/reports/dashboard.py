@@ -81,7 +81,7 @@ class Dashboard(basechart.BaseChart):
                     # db_recs = None
                     value_is_normal = False
                     last_read = dash_item.sensor.sensor.last_read(self.reading_db)
-                    cur_value = float(bmsapp.data_util.formatCurVal(last_read['val']).translate(None, ',')) if last_read else None
+                    cur_value = float(bmsapp.data_util.formatCurVal(last_read['val']).replace(',', '')) if last_read else None
                     if cur_value is None:
                         value_label = 'No Data Available!'
                     else:

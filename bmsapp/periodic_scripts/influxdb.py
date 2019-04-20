@@ -204,8 +204,8 @@ def clean_string(s, sep_char='-'):
     sep_char: The character to substitute in for whitespace and punctuation.
     """
     to_sub = string.whitespace + ',='
-    trans_table = string.maketrans(to_sub, len(to_sub) * sep_char)
-    fixed = string.translate(s, trans_table)
+    trans_table = ''.maketrans(to_sub, len(to_sub) * sep_char)
+    fixed = s.translate(trans_table)
     
     while True:
         new_fixed = fixed.replace(sep_char * 2, sep_char)

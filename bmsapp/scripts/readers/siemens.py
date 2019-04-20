@@ -27,8 +27,8 @@ def clean_string(s):
     s:  The string to clean.
     """
     to_sub = string.whitespace + string.punctuation
-    trans_table = string.maketrans(to_sub, len(to_sub) * '_')
-    fixed = string.translate(s.strip(), trans_table)
+    trans_table = ''.maketrans(to_sub, len(to_sub) * '_')
+    fixed = s.strip().translate(trans_table)
 
     while True:
         new_fixed = fixed.replace('_' * 2, '_')
