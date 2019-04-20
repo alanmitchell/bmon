@@ -34,9 +34,7 @@ def run(site_id='', host='', device_id=1, holding_registers=[], **kwargs):
     readings = []  # accumulate readings here
 
     try:
-        # sort the sensor list and put into DataFrame
-        registers_sorted = sorted(holding_registers)
-        df = pd.DataFrame(data=registers_sorted)
+        df = pd.DataFrame(data=holding_registers)
         if len(df.columns)==3:
             df.columns = ['port', 'address', 'sensor_name']
             # add the transform column, albeit empty
