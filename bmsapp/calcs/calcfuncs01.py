@@ -379,9 +379,11 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                 sensor_ids.append(sensor_id)
                 col_names.append(var)
 
+        # flag indicating whether averaging was requested
+        averaging_requested = (averaging_hours is not None) and (averaging_hours > 0)
         # if time averaging is requested, do that, otherwise interpolate readings to 
         # match Sensor A timestamps.
-        if averaging_hours > 0 and not rolling_average:
+        if averaging_requested and not rolling_average:
             # get the timezone of the first building associated with Sensor 'A'.
             A_sensor = Sensor.objects.filter(sensor_id = A)
             try:
@@ -390,8 +392,9 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                 tz = pytz.timezone(tz_name)
             except:
                 # there may be no buildings associated with the sensor; if so an error
-                # will be thrown and we'll use no timezone.
-                tz = None
+                # will be thrown.  For localize() method below to
+                # work, there needs to be a timezone, so default to Alaska.
+                tz = pytz.timezone('US/Alaska')
             # get a Dataframe with all the sensor data
             df = self.db.dataframeForMultipleIDs(sensor_ids, col_names, start_ts=last_ts, tz=tz)
             df = bmsapp.data_util.resample_timeseries(df, averaging_hours, drop_na=True)
@@ -422,7 +425,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # drop the rows that have NaN values
             df = df.dropna()
 
-        if averaging_hours > 0 and rolling_average:
+        if averaging_requested and rolling_average:
             # compute the rolling average of sensor values. The averaging interval is given
             # by 'averaging_hours' but truncated to the lesser minute.
             df = df.rolling('%smin' % int(averaging_hours * 60)).mean()
@@ -433,7 +436,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         df.index = df.index.astype(np.int64) // 10**9
 
         # put the timestamp in requested place if averaging occurred
-        if averaging_hours > 0:
+        if averaging_requested:
             if rolling_average:
                 # prior to adjustment, stamp is at right edge
                 adj = {'left': -averaging_hours * 3600,
