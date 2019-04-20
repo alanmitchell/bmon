@@ -19,3 +19,4 @@ selenium==3.141.0
 pysnmp==4.4.9
 modbus-tk==0.5.11
 xlrd==1.2.0
+metar==1.7.0

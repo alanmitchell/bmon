@@ -3,7 +3,7 @@
 
 import urllib.request, urllib.error, urllib.parse, time, json, urllib.request, urllib.parse, urllib.error
 from django.conf import settings
-from .metar import Metar
+from metar import Metar
 from .cache import Cache
 
 # cache for storing NWS observations
@@ -31,7 +31,7 @@ def getWeatherObservation(stnCode):
         # try 3 times in case of download errors.
         for i in range(3):
             try:
-                read_str = urllib.request.urlopen(URL % stnCode).read()
+                read_str = urllib.request.urlopen(URL % stnCode).read().decode('utf-8')
                 break
             except:
                 # wait before retrying
@@ -69,7 +69,7 @@ def getWUobservation(stnList):
             wu_key = getattr(settings, 'BMSAPP_WU_API_KEY', None)
             if wu_key:
                 url = 'http://api.wunderground.com/api/%s/conditions/q/%s.json' % (wu_key, urllib.parse.quote(stn))
-                json_str = urllib.request.urlopen(url).read()
+                json_str = urllib.request.urlopen(url).read().decode('utf-8')
                 obs = json.loads(json_str)
                 _wu_cache.store(stn, obs)
             else:
