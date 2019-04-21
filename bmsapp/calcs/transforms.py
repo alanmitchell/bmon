@@ -47,7 +47,7 @@ class Transformer:
     def _eval_expression(self, ts, id, val, expression, 
                          rollover=2**16,
                          max_rate=5.0,
-                         min_interval=60,
+                         min_interval=30,
                          ignore_zero=True,
                          ignore_negative=True):
         """Returns ts, id, and val transformed by the expression 'expression'.
