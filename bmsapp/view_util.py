@@ -374,10 +374,10 @@ def version_date_string():
         # Need to move into directory where this code is located to execute Git command
         dir_git = os.path.dirname(__file__)
         result = check_output('cd %s; git log -n1' % dir_git, shell=True)
+        result = result.decode('utf-8')   # convert to string
         for lin in result.splitlines():
-            lin_str = line.decode("utf-8")       # convert to string
-            if lin_str.startswith('Date:'):
-                ver_date = lin_str[5:].strip()
+            if lin.startswith('Date:'):
+                ver_date = lin[5:].strip()
                 break
     except:
         pass
