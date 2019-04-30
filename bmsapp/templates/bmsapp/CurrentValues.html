@@ -1,23 +1,33 @@
 <h2 id="report_title">{{ report_title }}</h2>
-<table>
-    <thead><tr><th>Sensor</th><th>Value</th><th>Unit</th><th>When</th></tr></thead>
-    <tbody>
-    {% for group in sensor_list %}
-        <tr class="group_header"><td colspan="4">{{ group.0 }}</td></tr>
-        {% for sensor in group.1 %}
-            <tr><td class="indent"><a href="{{ sensor.href }}" title="{{ sensor.notes }}" > {{ sensor.title }} </a></td>
-                {% if sensor.alerts %}
-                <td class="number" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
-                {% else %}
-                <td class="number">
-                {% endif %}
-                    {{ sensor.cur_value }}</td>
-                <td>{{ sensor.unit }}</td>
-                <td>{{ sensor.minutes_ago }} minutes ago</td>
-            </tr>
-        {% endfor %}
-    {% endfor %}
-    </tbody>
-</table>
+<div class="d-flex justify-content-center">
+    <div>
+        <table class="table table-sm table-responsive mt-3">
+            <thead><tr>
+                <th class="text-center">Sensor</th>
+                <th class="text-center">Value</th>
+                <th class="text-center">Unit</th>
+                <th class="text-center">When</th>
+            </tr></thead>
+            <tbody>
+            {% for group in sensor_list %}
+                <tr class="table-secondary"><th colspan="4">{{ group.0 }}</th></tr>
+                {% for sensor in group.1 %}
+                    <tr><td class="pl-4"><a href="{{ sensor.href }}" title="{{ sensor.notes }}" > {{ sensor.title }} </a></td>
+                        {% if sensor.alerts %}
+                        <td class="text-right" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
+                        {% else %}
+                        <td class="text-right">
+                        {% endif %}
+                            {{ sensor.cur_value }}</td>
+                        <td>{{ sensor.unit }}</td>
+                        <td>{{ sensor.minutes_ago }} minutes ago</td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
 <h3>{{ footer_title }}</h3>
 {{ footer | safe }}

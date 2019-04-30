@@ -89,7 +89,7 @@ process_chart_change = ->
 
     # start by hiding all input controls
   set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export',
-    'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period', 'download_many'], false)
+    'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period_group', 'download_many'], false)
 
   # get the chart option control that is selected.  Then use the data
   # attributes of that option element to configure the user interface.
@@ -230,15 +230,12 @@ handleUrlQuery = () ->
 # function that runs when the document is ready.
 $ ->
 
-  # Configure many of the elements that commonly appear in chart configuration
-  # form.
-  $("#time_period").buttonset()
-
   # Related to selecting the range of dates to chart
-  $("#start_date").datepicker dateFormat: "mm/dd/yy"
+  $('#start_date').datepicker uiLibrary: 'bootstrap4'
+  $('#end_date').datepicker uiLibrary: 'bootstrap4'
+
   d = new Date() # current date to use for a default for Start Date
   $("#start_date").val (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear()
-  $("#end_date").datepicker dateFormat: "mm/dd/yy"
   
   # Show and Hide custom date range selector
   $("#time_period").change ->
@@ -249,11 +246,9 @@ $ ->
   $("#time_period").change()
   
   # make refresh button a jQuery button & call update when clicked
-  $("#refresh").button().click update_results
+  $("#refresh").click update_results
   $("#get_embed_link").click get_embed_link     
-  $("#normalize").button()   # checkbox to create normalized (0-100%) hourly profile
-  $("#show_occupied").button()   # checkbox to create normalized (0-100%) hourly profile
-  $("#div_date").datepicker dateFormat: "mm/dd/yy"   # for xy plot
+  $("#div_date").datepicker uiLibrary: 'bootstrap4'   # for xy plot
 
   # special handling of the Excel Export button because the content for this report
   # is not displayed in a normal results div.

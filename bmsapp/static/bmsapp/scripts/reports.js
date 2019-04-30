@@ -54,7 +54,7 @@
     } else {
       link_comment = "<!--- Embedded BMON Chart --->";
     }
-    link_text = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + serializedInputs() + '" style="width: 930px" async></script>';
+    link_text = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + serializedInputs() + '" async></script>';
     link_dialog = $("<div class='popup' title='Copy and paste this text to embed this view in a Custom Report:'><textarea id='embed_link' rows=5 style='width: 99%;font-size: 85%;resize: vertical'>" + link_comment + "&#010;" + link_text + "&#010;</textarea></div>");
     return link_dialog.dialog({
       modal: true,
@@ -98,7 +98,7 @@
 
   process_chart_change = function() {
     var selected_chart_option, sensor_ctrl, vis_ctrls;
-    set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period', 'download_many'], false);
+    set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period_group', 'download_many'], false);
     selected_chart_option = $("#select_chart").find("option:selected");
     vis_ctrls = selected_chart_option.data("ctrls").split(",");
     set_visibility(vis_ctrls, true);
@@ -241,16 +241,14 @@
 
   $(function() {
     var ctrl, ctrls, d, i, len;
-    $(document).tooltip();
-    $("#time_period").buttonset();
-    $("#start_date").datepicker({
-      dateFormat: "mm/dd/yy"
+    $('#start_date').datepicker({
+      uiLibrary: 'bootstrap4'
+    });
+    $('#end_date').datepicker({
+      uiLibrary: 'bootstrap4'
     });
     d = new Date();
     $("#start_date").val((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
-    $("#end_date").datepicker({
-      dateFormat: "mm/dd/yy"
-    });
     $("#time_period").change(function() {
       if ($("input:radio[name=time_period]:checked").val() !== "custom") {
         return $("#custom_dates").hide().find("select, input").prop("disabled", true);
@@ -259,12 +257,10 @@
       }
     });
     $("#time_period").change();
-    $("#refresh").button().click(update_results);
+    $("#refresh").click(update_results);
     $("#get_embed_link").click(get_embed_link);
-    $("#normalize").button();
-    $("#show_occupied").button();
     $("#div_date").datepicker({
-      dateFormat: "mm/dd/yy"
+      uiLibrary: 'bootstrap4'
     });
     $("#download_many").button().click(function() {
       return window.location.href = (($("#BaseURL").text()) + "reports/results/?") + serializedInputs();

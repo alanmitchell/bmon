@@ -8,7 +8,7 @@ class ExportData(basechart.BaseChart):
     """
 
     # see BaseChart for definition of these constants
-    CTRLS = 'ctrl_sensor, ctrl_avg_export, time_period, download_many'
+    CTRLS = 'ctrl_sensor, ctrl_avg_export, time_period_group, download_many'
     MULTI_SENSOR = 1
     AUTO_RECALC = 0
 

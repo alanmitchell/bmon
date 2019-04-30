@@ -21,7 +21,7 @@ class NormalizedByFt2(basechart.BaseChart):
     """
     
     # see BaseChart for definition of these constants
-    CTRLS = 'refresh, time_period'
+    CTRLS = 'refresh, time_period_group'
     
     def result(self):
         """

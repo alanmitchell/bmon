@@ -9,7 +9,7 @@ class HourlyProfile(basechart.BaseChart):
     """
 
     # see BaseChart for definition of these constants
-    CTRLS = 'refresh, ctrl_sensor, ctrl_normalize, time_period'
+    CTRLS = 'refresh, ctrl_sensor, ctrl_normalize, time_period_group'
 
     def result(self):
         """

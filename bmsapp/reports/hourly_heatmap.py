@@ -11,7 +11,7 @@ class HourlyHeatMap(basechart.BaseChart):
     """
 
     # see BaseChart for definition of these constants
-    CTRLS = 'refresh, ctrl_sensor, time_period'
+    CTRLS = 'refresh, ctrl_sensor, time_period_group'
 
     def result(self):
         """
