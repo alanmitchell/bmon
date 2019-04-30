@@ -17,7 +17,7 @@
             display: block;
             padding: 5px 10px;
             margin-top: 10px;
-            width: 800px;
+            width: 100%;
             color: #000;
             background-color: #B2DBFF;
             font-weight: bold;
@@ -27,7 +27,7 @@
             display: block;
             padding: 5px 5px 5px 50px;
             margin-top: 1px;
-            width: 765px;
+            width: 95%;
             color: #0B6311;
             background-color: #D4E7F7;
             font-weight: normal;
@@ -38,14 +38,6 @@
             background-color: #69C;
             }
     </style>
-    <script>
-        forceReload = function() {
-            location.reload(true);
-        };
-        $(function () {
-            $("#select_org").change(forceReload);
-        });
-    </script>
         
 {% endblock %}
 
@@ -68,5 +60,18 @@
         {% endfor %}
     </ul>
 </div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+        forceReload = function() {
+            location.reload(true);
+        };
+        $(function () {
+            $("#select_org").change(forceReload);
+        });
+</script>
 
 {% endblock %}

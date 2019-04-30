@@ -1,14 +1,14 @@
 {% extends "bmsapp/base.html" %}
 {% load staticfiles %}
 
-{% block pagetitle %}{{report_title}}{% endblock %}
-
 {% block head %}
-<script src="//cdn.plot.ly/plotly-latest.min.js"></script>
+
 <script src="{% static 'bmsapp/scripts/gauge.min.js' %}"></script>
 <script src="{% static 'bmsapp/scripts/dashboard.js' %}?t={{ curtime }}"></script>
-<link rel="stylesheet" type="text/css" href="{% static 'bmsapp/css/dashboard.css' %}?t={{ curtime }}">
+
 {% endblock %}
+
+{% block pagetitle %}{{report_title}}{% endblock %}
 
 {% block content %}
 

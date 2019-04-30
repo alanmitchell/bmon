@@ -19,7 +19,7 @@
   };
 
   serializedInputs = function() {
-    return $("#wrap select, #wrap input").serialize();
+    return $("select, input").serialize();
   };
 
   update_results = function() {

@@ -8,8 +8,18 @@
 
 {% block head %}
 <style>
-    li {
-        margin-top: 20px;
+    #admin_tasks li {
+        margin-top: 15px;
+        display: block;
+    }
+    #admin_tasks a {
+        display: block;
+        padding: 5px 5px 5px 5px;
+        width: 95%;
+    }
+    #admin_tasks a:hover {
+        color: #fff;
+        background-color: #69C;
     }
 </style>
 {% endblock %}
@@ -18,7 +28,7 @@
 <br>
 <p>Click a Link below to Access a System Administrator Report or Task:</p>
 
-<ul>
+<ul id="admin_tasks">
     <li><a href="{{ bmsapp_nav_link_base_url }}admin/">System Administrator Functions</a></li>
     <li><a href="http://bmon-documentation.readthedocs.io/en/latest/system-administrator-introduction.html">System Administrator Documentation on Read the Docs</a></li>
     <li><a href="{{ bmsapp_nav_link_base_url }}show-log/">View the Application Error Log</a></li>

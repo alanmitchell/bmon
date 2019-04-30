@@ -17,7 +17,7 @@ inputs_changed = ->
     update_results() 
 
 serializedInputs = ->
-  $("#wrap select, #wrap input").serialize()
+  $("select, input").serialize()
   
 # Updates the results portion of the page
 update_results = ->
@@ -50,7 +50,7 @@ get_embed_link = ->
     link_comment = "<!--- Embedded BMON Chart: #{title.innerText} --->"
   else
     link_comment = "<!--- Embedded BMON Chart --->"
-  link_text = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + serializedInputs() + '" style="width: 930px" async></script>'
+  link_text = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + serializedInputs() + '" async></script>'
   link_dialog = $("<div class='popup' title='Copy and paste this text to embed this view in a Custom Report:'><textarea id='embed_link' rows=5 style='width: 99%;font-size: 85%;resize: vertical'>#{link_comment}&#010;#{link_text}&#010;</textarea></div>")
 
   #link_dialog.text("#{link_comment}#{link_text}")
@@ -229,9 +229,6 @@ handleUrlQuery = () ->
 # ---------------------------------------------------------------
 # function that runs when the document is ready.
 $ ->
-
-  # enable jQuery UI tooltips
-  $(document).tooltip()
 
   # Configure many of the elements that commonly appear in chart configuration
   # form.

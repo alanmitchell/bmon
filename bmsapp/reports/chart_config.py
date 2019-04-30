@@ -13,9 +13,11 @@ renderTo: chart_container     # the name of the div to render into
 data: []    # Trace data is programmatically added here
 
 layout:
+  height: 550
   font:
     family: Open Sans, verdana, arial, sans-serif
     color: black
+    size: 16
   paper_bgcolor: '#EEEEEE'
   hovermode: closest
   titlefont:
@@ -23,7 +25,7 @@ layout:
   autosize: true
   margin:
     l: 65
-    r: 20
+    r: 60
     b: 10
     t: 75
     pad: 5
@@ -38,16 +40,17 @@ layout:
   xaxis:
     title: Date/Time
     titlefont:
-      size: 14
+      size: 16
   yaxis:
     title: Value
     titlefont:
-      size: 14
+      size: 16
 
 config:
+  responsive: true
   showLink: false
   displaylogo: false
-  scrollZoom: true
+  scrollZoom: false
 ''', Loader=yaml.FullLoader)
 
 def chart_container_html(title="Plotly Chart"):
