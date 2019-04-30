@@ -35,11 +35,64 @@
                 </h1>
             </div>
         </div>
+
+        <div id="nav_container" class="container-fluid">
+            <div class="container">
+                <div class="row flex justify-content-around px-0 mx-1 mb-0">
+                    <form class="form-inline">
+                        <label class="mr-2" for="select_org" id="label_org"">Organization:</label>
+                        <select class="form-control" id="select_org" name="select_org">
+                            {{ orgs_html|safe }}
+                        </select>
+                    </form>
+                    <div>
+                        <nav class="navbar navbar-expand-lg navbar-light">
+                            <button class="navbar-toggler" data-toggle="collapse" data-target="#myNav2">
+                                <span class="navbar-toggler-icon"></span>
+                            </button>
+                            <div class="collapse navbar-collapse" id="myNav2">
+                                <ul class="navbar-nav " id="nav_links">
+                                    {% for nav_item in bmsapp_nav_links %}
+                                        <li class="nav-item">
+                                            <a class="nav-link" href="{{ bmsapp_nav_link_base_url }}{{ nav_item.1 }}/" id="link_{{ nav_item.1 }}">{{ nav_item.0 }}</a>
+                                        </li>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+        </div>
+    
+        <div class="container mt-0 pt-3">
                 
+            <h2>{% block title %}{% endblock %}</h2>
+
+            {% block content %}{% endblock %}
+            
+            <hr />
+            <div class="row">
+                <div class="col-auto">
+                    <img class="ml-3" src="{% static 'bmsapp/images/ahfc_logo.png' %}" width="75" height="58" 
+                        border="0" alt="AHFC Logo" style="vertical-align:middle">
+                </div>
+                <div class="col">
+                    <p>Thanks to the Alaska Housing Finance Corporation for funding development of most
+                        of this application.</p>
+                </div>
+            </div>
+            <hr />
+            <div>
+                BMON Version: {{ version_date }}
+            </div>
+
+        </div>   <!-- End main container -->
 
         <!-- jQuery first, then Popper.js, then Bootstrap JS -->
-        <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-            integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+        <script
+            src="https://code.jquery.com/jquery-3.4.0.min.js"
+            integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg="
             crossorigin="anonymous"></script>
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
             integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
@@ -70,34 +123,7 @@
 
         </script>
 
-    </body>
-
-    <body>
-        <div id="wrap">
-
-            <div id="nav">
-                <label for="select_org" id="label_org">Organization:</label>
-                <select id="select_org" name="select_org">
-                    {{ orgs_html|safe }}
-                </select>
-                <ul id="nav_links">
-                    {% for nav_item in bmsapp_nav_links %}
-                        <li><a href="{{ bmsapp_nav_link_base_url }}{{ nav_item.1 }}/" id="link_{{ nav_item.1 }}">{{ nav_item.0 }}</a></li>
-                    {% endfor %}
-                </ul>
-            </div>
-
-            <div id="content">
-                <h1>{% block title %}{% endblock %}</h1>
-                {% block content %}{% endblock %}
-                <p style="clear: both">&nbsp;</p>
-                <hr />
-                <div id="footer">{{ bmsapp_footer|safe }}</div>
-                <hr />
-                <div>BMON Version: {{ version_date }}</div>
-            </div>
-
-        </div>
+        {% block scripts %}{% endblock %}
 
     </body>
 

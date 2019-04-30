@@ -1,4 +1,4 @@
-.row {
+.dash-row {
 	margin: 0 auto;
     text-align: center;
     background: #d4e7f7
@@ -13,7 +13,7 @@
     border: 2px solid #4572A7;
     background-color: white;
 }
-.graph {
+.dash-graph {
     padding: 0;
     margin: auto;
     display: block;

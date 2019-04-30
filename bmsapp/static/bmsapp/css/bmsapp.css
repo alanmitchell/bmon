@@ -5,5 +5,9 @@ body {
 }
 
 #main_header {
-    background:rgb(24, 102, 167);
+    background-color:rgb(24, 102, 167);
+}
+
+#nav_container {
+    background-color:rgb(220, 220, 220);
 }

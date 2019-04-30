@@ -112,7 +112,7 @@ addSparkline = (jqParent, g_info) ->
   widgetID = "widget#{++widgetCounter}"    # this increments the counter too
   jqParent.append( "<div id=\"#{widgetID}\" class=\"dash-widget\">
                         <div class=\"widget-title\">#{g_info.title}</div>
-                        <div class=\"graph\"></div>
+                        <div class=\"dash-graph\"></div>
                         <div class=\"value-label\">#{g_info.value_label}</div>
                     </div>" )
   jqWidget = $("##{widgetID}")
@@ -267,7 +267,7 @@ addWidget = (jqRow, widget_info) ->
 # for the row.  Returns the jQuery row div.
 addRow = (jqParent, widgetRow) ->
   rowID = "row#{++rowCounter}"     # the css id for the row
-  jqParent.append( "<div id=\"#{rowID}\" class=\"row\"></div>" )
+  jqParent.append( "<div id=\"#{rowID}\" class=\"dash-row\"></div>" )
   totalWidth = 0
   jqRow = $("##{rowID}")   # a jQuery element for the new row
   totalWidth += \
