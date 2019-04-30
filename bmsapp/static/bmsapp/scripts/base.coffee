@@ -47,7 +47,7 @@ processOrgChange = ->
   updateLinks()    # update menu bar links
 
   # Update the window location URL
-  ser_inputs = $("#wrap select, #wrap input").serialize()
+  ser_inputs = $("select, input").serialize()
   newLocation = window.location.pathname + "?" + ser_inputs
   window.history.pushState({}, '', newLocation)
 

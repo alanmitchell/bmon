@@ -54,7 +54,7 @@
     var newLocation, newOrg, ser_inputs;
     newOrg = $('#select_org').val();
     updateLinks();
-    ser_inputs = $("#wrap select, #wrap input").serialize();
+    ser_inputs = $("select, input").serialize();
     newLocation = window.location.pathname + "?" + ser_inputs;
     return window.history.pushState({}, '', newLocation);
   };
