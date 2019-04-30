@@ -5,6 +5,7 @@
 {% block title %}Sensors not Assigned to a Building{% endblock %}
 
 {% block content %}
+
 <p>This is a list of sensors that are either:</p>
 
 <ul>
@@ -12,12 +13,18 @@
     <li>They are entered in the list of Sensors but they are not assigned to a building.</li>
 </ul>
 
-<table>
-    <thead><tr><th>Sensor ID</th><th>Last Reading</th><th>When</th><th>Sensor Name, if available</th></tr></thead>
-    <tbody>
+<table class="table table-sm table-striped table-responsive mt-1">
+    <thead><tr>
+        <th class="text-center">Sensor ID</th>
+        <th class="text-center">Last Reading</th>
+        <th class="text-center">When</th>
+        <th class="text-center">Sensor Name, if available</th>
+    </tr></thead>
+    <tbody style="background-color: white">
     {% for sensor in sensor_list %}
-        <tr><td>{{ sensor.id }}</td>
-            <td class="number">{{ sensor.cur_value }}</td>
+        <tr>
+            <td>{{ sensor.id }}</td>
+            <td class="text-right px-4">{{ sensor.cur_value }}</td>
             <td>{{ sensor.minutes_ago }} minutes ago</td>
             <td>{{ sensor.title }}</td>
         </tr>
