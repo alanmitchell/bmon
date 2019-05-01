@@ -1,27 +1,38 @@
 <h2 id="report_title">{{ report_title }}</h2>
-<table>
-    <thead><tr><th>Building Name</th><th>Sensor</th><th>When</th><th>Value</th><th>Unit</th><th>Graph</th></tr></thead>
-    <tbody>
-    {% for building in sensor_list %}
-        {% for sensor in building.group_sensor_list %}
-            <tr>
-                {% if forloop.first %}
-                <td><a href="{{ sensor.building_href }}">{{ building.bldg_name }}</a></td>
-                {% else %}
-                <td></td>
-                {% endif %}
-                <td><a href="{{ sensor.href }}" title={{ sensor.notes }}>{{ sensor.title }}</a></td>
-                <td>{{ sensor.minutes_ago }} minutes ago</td>
-                {% if sensor.alerts %}
-                <td class="number" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
-                {% else %}
-                <td class="number">
-                {% endif %}
-                    {{ sensor.cur_value }}</td>
-                <td>{{ sensor.unit }}</td>
-                <td>{{ sensor.stars }}</td>
-            </tr>
-        {% endfor %}
-    {% endfor %}
-    </tbody>
-</table>
+<div class="d-flex justify-content-center">
+    <div>
+        <table class="table table-sm table-responsive mt-3">
+            <thead><tr>
+                <th class="text-center">Building Name</th>
+                <th class="text-center">Sensor</th>
+                <th class="text-center">When</th>
+                <th class="text-center">Value</th>
+                <th class="text-center">Unit</th>
+                <th class="text-center">Graph</th>
+            </tr></thead>
+            <tbody>
+            {% for building in sensor_list %}
+                {% for sensor in building.group_sensor_list %}
+                    <tr>
+                        {% if forloop.first %}
+                        <td><a href="{{ sensor.building_href }}">{{ building.bldg_name }}</a></td>
+                        {% else %}
+                        <td></td>
+                        {% endif %}
+                        <td><a href="{{ sensor.href }}" title={{ sensor.notes }}>{{ sensor.title }}</a></td>
+                        <td>{{ sensor.minutes_ago }} minutes ago</td>
+                        {% if sensor.alerts %}
+                        <td class="text-right" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
+                        {% else %}
+                        <td class="text-right">
+                        {% endif %}
+                            {{ sensor.cur_value }}</td>
+                        <td>{{ sensor.unit }}</td>
+                        <td>{{ sensor.stars }}</td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>

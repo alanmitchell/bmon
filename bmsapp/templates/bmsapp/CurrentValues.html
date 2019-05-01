@@ -10,7 +10,7 @@
             </tr></thead>
             <tbody>
             {% for group in sensor_list %}
-                <tr class="table-secondary"><th colspan="4">{{ group.0 }}</th></tr>
+                <tr class="group-row"><th colspan="4">{{ group.0 }}</th></tr>
                 {% for sensor in group.1 %}
                     <tr><td class="pl-4"><a href="{{ sensor.href }}" title="{{ sensor.notes }}" > {{ sensor.title }} </a></td>
                         {% if sensor.alerts %}

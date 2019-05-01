@@ -270,11 +270,12 @@
     $("#select_group").change(update_bldg_list);
     $("#select_bldg").change(update_chart_sensor_lists);
     $("#select_chart").change(process_chart_change);
-    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date', 'time_period'];
+    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date'];
     for (i = 0, len = ctrls.length; i < len; i++) {
       ctrl = ctrls[i];
       $("#" + ctrl).change(inputs_changed);
     }
+    $(document).on('change', 'input:radio[name="time_period"]', inputs_changed);
     handleUrlQuery();
     history.replaceState(null, null, "?".concat(serializedInputs()));
     return inputs_changed();

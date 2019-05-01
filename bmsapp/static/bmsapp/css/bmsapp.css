@@ -4,10 +4,14 @@ body {
     background: #D4E7F7;
 }
 
+.group-row {
+    background-color: #B2DBFF;
+}
+
 #main_header {
     background-color:rgb(24, 102, 167);
 }
 
 #nav_container {
-    background-color:rgb(220, 220, 220);
+    background-color:rgb(237, 245, 252);
 }

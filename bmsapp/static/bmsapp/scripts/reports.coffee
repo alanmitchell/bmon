@@ -265,9 +265,11 @@ $ ->
 
   # Set up change handlers for inputs.
   ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 
-    'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date', 
-    'time_period']
+    'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
+
+  # Special change handling of the time period radio inputs.
+  $(document).on 'change', 'input:radio[name="time_period"]', inputs_changed
 
   # Handle any query parameters on the url
   handleUrlQuery()
