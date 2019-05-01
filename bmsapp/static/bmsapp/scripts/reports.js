@@ -221,7 +221,7 @@
       element = $('[name=\'' + name + '\']');
       if (params.hasOwnProperty(name)) {
         new_value = params[name];
-        if (element.parent().attr("class") === "ui-buttonset") {
+        if (element[0].getAttribute("type") === "radio") {
           old_value = element.filter(":radio:checked").val();
         } else {
           old_value = element.val();
