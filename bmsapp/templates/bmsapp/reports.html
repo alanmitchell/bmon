@@ -43,65 +43,32 @@
 
 <hr class="mt-1">
 
-<p>
-    <span id="ctrl_sensor">
-        Select Values to Plot: <select id="select_sensor" name="select_sensor">
-            {{ sensor_list_html|safe }}
-        </select>&nbsp;&nbsp;
-    </span>
-    <span id="ctrl_avg">
-        Data Averaging:
-        <select id="averaging_time" name="averaging_time">
-            <option value="0" selected>None</option>
-            <option value="0.5">30 minutes</option>
-            <option value="1">1 hour</option>
-            <option value="2">2 hour</option>
-            <option value="4">4 hour</option>
-            <option value="8">8 hour</option>
-            <option value="24">1 day</option>
-            <option value="168">1 week</option>
-            <option value="720">1 month</option>
-            <option value="8760">1 year</option>
-        </select>
-    </span>
-    <span id="ctrl_avg_export">
-        Data Averaging:
-        <select id="averaging_time_export" name="averaging_time_export">
-            <option value="0.25">15 minutes</option>
-            <option value="0.5" selected>30 minutes</option>
-            <option value="1">1 hour</option>
-            <option value="2">2 hour</option>
-            <option value="4">4 hour</option>
-            <option value="8">8 hour</option>
-            <option value="24">1 day</option>
-            <option value="168">1 week</option>
-            <option value="720">1 month</option>
-            <option value="8760">1 year</option>
-        </select>
-    </span>
-    <span id="ctrl_normalize">
-        <input type="checkbox" id="normalize" name="normalize"/>
-            <label for="normalize" class="but_lbl">Scale Values to 0 - 100%</label>
-    </span>
-    <span id="ctrl_occupied">
-        <input type="checkbox" id="show_occupied" name="show_occupied"/>
-            <label for="show_occupied" class="but_lbl">Shade Occupied Periods</label>
-    </span>
-</p>
-
-<div id="xy_controls">
-    <p>
-        Sensor X: <select id="select_sensor_x" name="select_sensor_x">
-            {{ sensor_list_html|safe }}
-        </select>&nbsp;&nbsp;
-        Sensor Y: <select id="select_sensor_y" name="select_sensor_y">
-            {{ sensor_list_html|safe }}
-        </select>
-    </p>
-    <p>
-        <span>
-            Data Averaging:
-            <select id="averaging_time_xy" name="averaging_time_xy">
+<form>
+    <div class="form-row align-items-end justify-content-around">
+        <div class="form-group col-auto" id="ctrl_sensor">
+            <label for="select_sensor" style="display: block">Select Values to Plot:</label>
+            <select class="form-control selectpicker" multiple data-width="350px" data-actions-box="true" id="select_sensor" name="select_sensor">
+                {{ sensor_list_html|safe }}
+            </select>
+        </div>
+        <div class="form-group col-auto" id="ctrl_avg">
+            <label for="averaging_time">Data Averaging:</label>
+            <select class="form-control" id="averaging_time" name="averaging_time">
+                <option value="0" selected>None</option>
+                <option value="0.5">30 minutes</option>
+                <option value="1">1 hour</option>
+                <option value="2">2 hour</option>
+                <option value="4">4 hour</option>
+                <option value="8">8 hour</option>
+                <option value="24">1 day</option>
+                <option value="168">1 week</option>
+                <option value="720">1 month</option>
+                <option value="8760">1 year</option>
+            </select>
+        </div>
+        <div class="form-group col-auto" id="ctrl_avg_export">
+            <label for="averaging_time_export">Data Averaging:</label>
+            <select class="form-control" id="averaging_time_export" name="averaging_time_export">
                 <option value="0.25">15 minutes</option>
                 <option value="0.5" selected>30 minutes</option>
                 <option value="1">1 hour</option>
@@ -113,16 +80,66 @@
                 <option value="720">1 month</option>
                 <option value="8760">1 year</option>
             </select>
-        </span>&nbsp;&nbsp;
-        Divide Data at this Date: <input id="div_date" type="text" name="div_date" size="7"/>
-    </p>
-</div>
+        </div>
+        <div id="ctrl_occupied" class="form-check mb-4 ml-3">
+            <input class="form-check-input" type="checkbox" value="" id="show_occupied"
+                name="show_occupied">
+            <label class="form-check-label" for="show_occupied">
+                Shade Occupied Periods
+            </label>
+        </div>
+        <div id="ctrl_normalize" class="form-check mb-4 ml-3">
+            <input class="form-check-input" type="checkbox" value="" id="normalize"
+                name="normalize">
+            <label class="form-check-label" for="normalize">
+                Scale Values to 0 - 100%
+            </label>
+        </div>
+    </div>
+</form>
+
+<form>
+    <div id="xy_controls" class="form-row align-items-end justify-content-around">
+        <div class="form-group col-auto">
+            <label for="select_sensor_x" style="display: block">Sensor X:</label>
+            <select class="form-control" id="select_sensor_x" name="select_sensor_x">
+                {{ sensor_list_html|safe }}
+            </select>
+        </div>
+        <div class="form-group col-auto">
+            <label for="select_sensor_y" style="display: block">Sensor Y:</label>
+            <select class="form-control" id="select_sensor_y" name="select_sensor_y">
+                {{ sensor_list_html|safe }}
+            </select>
+        </div>
+        <div class="form-group col-auto">
+            <label for="averaging_time_xy">Data Averaging:</label>
+            <select class="form-control" id="averaging_time_xy" name="averaging_time_xy">
+                <option value="0">None</option>
+                <option value="0.5 selected">30 minutes</option>
+                <option value="1">1 hour</option>
+                <option value="2">2 hour</option>
+                <option value="4">4 hour</option>
+                <option value="8">8 hour</option>
+                <option value="24">1 day</option>
+                <option value="168">1 week</option>
+                <option value="720">1 month</option>
+                <option value="8760">1 year</option>
+            </select>
+        </div>
+        <div class="form-group col-auto">
+            <label class="mr-1" for="div_date">Divide Data at this Date:</label>
+            <input id="div_date" name="div_date" width="160"/>
+        </div>
+    </div>
+</form>
 
 <hr class="mt-1">
+
 <form>
-    <div class="form-row justify-content-sm-center">
+    <div id="time_period_group" class="form-row justify-content-sm-center">
         <label class="mb-3 mr-1" for="time_period_group">Time Period:</label>
-        <div id="time_period_group" class="btn-group flex-wrap btn-group-toggle form-group col-auto" data-toggle="buttons">
+        <div class="btn-group flex-wrap btn-group-toggle form-group col-auto" data-toggle="buttons">
             <label class="btn btn-secondary btn-sm">
                 <input type="radio" name="time_period" id="4h" value="0.16667" autocomplete="off">
                 <span class="d-none d-sm-inline">4 hr</span><span class="d-sm-none">4h</span>
@@ -173,9 +190,9 @@
     </div>
 </form>
 
-<p>
-<button id="download_many">Download Excel Spreadsheet</button>
-</p>
+<div class="d-flex justify-content-center" style="margin-top: 30px;">
+    <button id="download_many" class="btn btn-secondary">Download Excel Spreadsheet</button>
+</div>
 
 <div id="results">
 </div>

@@ -113,11 +113,15 @@ process_chart_change = ->
     unless sensor_ctrl.attr("multiple") is "multiple"
       sensor_ctrl.off()   # remove any existing handlers
       sensor_ctrl.attr("multiple", "multiple")
-      sensor_ctrl.multiselect SENSOR_MULTI_CONFIG
+      sensor_ctrl.selectpicker('refresh')
+      sensor_ctrl.selectpicker('render')
+      sensor_ctrl.change inputs_changed
   else
     if sensor_ctrl.attr("multiple") == "multiple"
-      sensor_ctrl.multiselect "destroy"
+      #sensor_ctrl.multiselect "destroy"
       sensor_ctrl.removeAttr "multiple"
+      sensor_ctrl.selectpicker('refresh')
+      sensor_ctrl.selectpicker('render')
       sensor_ctrl.off().change inputs_changed
 
   # if manual recalc, then blank out the results area to clear our remnants
@@ -221,11 +225,19 @@ handleUrlQuery = () ->
         if `old_value != new_value`
           element.val(new_value)
           if element.attr("multiple") == "multiple"
-            element.multiselect("refresh")
+            null
+            #element.multiselect("refresh")
       element.change() # trigger the change event
     _loading_inputs = false
     params
   
+# Function to show or hide the Custom Date range inputs
+setCustomDateVis = () ->
+  unless $("input:radio[name=time_period]:checked").val() is "custom"
+    $("#custom_dates").hide().find("select, input").prop( "disabled", true )
+  else
+    $("#custom_dates").show().find("select, input").prop( "disabled", false )
+
 # ---------------------------------------------------------------
 # function that runs when the document is ready.
 $ ->
@@ -238,12 +250,8 @@ $ ->
   $("#start_date").val (d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear()
   
   # Show and Hide custom date range selector
-  $("#time_period").change ->
-    unless $("input:radio[name=time_period]:checked").val() is "custom"
-      $("#custom_dates").hide().find("select, input").prop( "disabled", true )
-    else
-      $("#custom_dates").show().find("select, input").prop( "disabled", false )
-  $("#time_period").change()
+  $(document).on 'change', 'input:radio[name="time_period"]', setCustomDateVis
+  setCustomDateVis()
   
   # make refresh button a jQuery button & call update when clicked
   $("#refresh").click update_results
@@ -265,7 +273,8 @@ $ ->
 
   # Set up change handlers for inputs.
   ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 
-    'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date']
+    'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date',
+    'start_date', 'end_date']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls
 
   # Special change handling of the time period radio inputs.
