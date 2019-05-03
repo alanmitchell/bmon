@@ -80,9 +80,6 @@ set_visibility = (ctrl_list, show) ->
 REFRESH_MS = 600000  # milliseconds between timed refreshes
 _refresh_timer = setInterval update_results, REFRESH_MS
 
-# The configuration options for a the multiselect sensor input
-SENSOR_MULTI_CONFIG = {minWidth: 300, selectedList: 3, close: inputs_changed}
-
 # Handles actions required when the chart type changes.  Mostly sets
 # the visibility of controls.
 process_chart_change = ->
@@ -111,17 +108,17 @@ process_chart_change = ->
   sensor_ctrl = $("#select_sensor")
   if selected_chart_option.data("multi_sensor") == 1
     unless sensor_ctrl.attr("multiple") is "multiple"
-      sensor_ctrl.off()   # remove any existing handlers
+      sensor_ctrl.selectpicker "destroy"
       sensor_ctrl.attr("multiple", "multiple")
-      sensor_ctrl.selectpicker('refresh')
-      sensor_ctrl.selectpicker('render')
-      sensor_ctrl.change inputs_changed
+      sensor_ctrl.selectpicker()
+      sensor_ctrl.selectpicker "render"
+      sensor_ctrl.off().change inputs_changed
   else
     if sensor_ctrl.attr("multiple") == "multiple"
-      #sensor_ctrl.multiselect "destroy"
+      sensor_ctrl.selectpicker "destroy"
       sensor_ctrl.removeAttr "multiple"
-      sensor_ctrl.selectpicker('refresh')
-      sensor_ctrl.selectpicker('render')
+      sensor_ctrl.selectpicker()
+      sensor_ctrl.selectpicker "render"
       sensor_ctrl.off().change inputs_changed
 
   # if manual recalc, then blank out the results area to clear our remnants
@@ -216,7 +213,7 @@ handleUrlQuery = () ->
     _loading_inputs = true
     for name in sortedNames
       element = $('[name=\'' + name + '\']')
-      if params.hasOwnProperty(name)
+      if params.hasOwnProperty(name) and element.length > 0
         new_value = params[name]
         if element[0].getAttribute("type") == "radio"
           old_value = element.filter(":radio:checked").val()
@@ -225,8 +222,7 @@ handleUrlQuery = () ->
         if `old_value != new_value`
           element.val(new_value)
           if element.attr("multiple") == "multiple"
-            null
-            #element.multiselect("refresh")
+            element.selectpicker "refresh"
       element.change() # trigger the change event
     _loading_inputs = false
     params
