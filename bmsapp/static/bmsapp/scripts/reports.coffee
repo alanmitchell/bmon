@@ -220,7 +220,17 @@ handleUrlQuery = () ->
         else
           old_value = element.val()
         if `old_value != new_value`
-          element.val(new_value)
+          if element[0].getAttribute("type") == "radio"
+            # need to use an array to set value of radio buttons.
+            element.val([new_value])
+            # if this is the time_period radio group, reset the active class
+            if element[0].getAttribute("name") == "time_period"
+              # special case due to being a Bootstrap 4 button group.
+              # remove active from labels, and add active to selected radio's label.
+              element.parent().removeClass("active")
+              $('input[name=time_period]:checked').parent().addClass("active")
+          else
+            element.val(new_value)
           if element.attr("multiple") == "multiple"
             element.selectpicker "refresh"
       element.change() # trigger the change event

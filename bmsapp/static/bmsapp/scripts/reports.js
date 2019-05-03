@@ -225,7 +225,15 @@
           old_value = element.val();
         }
         if (old_value != new_value) {
-          element.val(new_value);
+          if (element[0].getAttribute("type") === "radio") {
+            element.val([new_value]);
+            if (element[0].getAttribute("name") === "time_period") {
+              element.parent().removeClass("active");
+              $('input[name=time_period]:checked').parent().addClass("active");
+            }
+          } else {
+            element.val(new_value);
+          }
           if (element.attr("multiple") === "multiple") {
             element.selectpicker("refresh");
           }
