@@ -45,17 +45,18 @@
         <script src="{% static 'bmsapp/scripts/base.js' %}?t={{ curtime }}"></script>
 
         <script>
-            /* Needed to tell selectpicker what version of Bootstrap is being used. */
-            $.fn.selectpicker.Constructor.BootstrapVersion = '4';
+            $(function() {
+                /* Needed to tell selectpicker what version of Bootstrap is being used. */
+                $.fn.selectpicker.Constructor.BootstrapVersion = '4';
 
-            /* Tell select picker to use Mobile select interface, if mobile. */
-            if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
-                $('.selectpicker').selectpicker('mobile');
-            }
+                /* Tell select picker to use Mobile select interface, if mobile. */
+                if( /Android|webOS|iPhone|iPad|iPod|BlackBerry/i.test(navigator.userAgent) ) {
+                    $('.selectpicker').selectpicker('mobile');
+                }
 
-            /* Makes active the nav link associated with the active page */
-            $("#{% block this_nav_link %}{% endblock %}").addClass("active");
-
+                /* Makes active the nav link associated with the active page */
+                $("#{% block this_nav_link %}{% endblock %}").addClass("active");
+            });
         </script>
 
         {% block head %}{% endblock %}
