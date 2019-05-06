@@ -32,7 +32,9 @@ update_results = ->
     $("body").css "cursor", "default"   # remove hourglass cursor
     $("#results").empty()
     $("#results").html results.html
-    
+
+    $('#results [data-toggle="tooltip"]').tooltip()
+
     # Loop through the returned JavaScript objects to create and make them
     $.each results.objects, (ix, obj) ->
       [obj_type, obj_config] = obj
@@ -120,6 +122,7 @@ process_chart_change = ->
     multi.selectpicker('val', [sensor_val]) 
     multi.selectpicker('refresh')
     multi.off().change inputs_changed
+    $('#label_sensor').html('Select Sensors to Plot:')
   else
     sensor_val = multi.selectpicker('val')[0]
     multi.prop('disabled', true)
@@ -129,6 +132,7 @@ process_chart_change = ->
     # transfer over the first selected value from the multi-select
     single.val(sensor_val)
     single.off().change inputs_changed
+    $('#label_sensor').html('Select Sensor to Plot:')
 
   # if this is an XY plot, transfer the sensor value over to
   # the Y sensor selector.

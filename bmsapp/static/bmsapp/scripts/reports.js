@@ -31,6 +31,7 @@
       $("body").css("cursor", "default");
       $("#results").empty();
       $("#results").html(results.html);
+      $('#results [data-toggle="tooltip"]').tooltip();
       return $.each(results.objects, function(ix, obj) {
         var obj_config, obj_type;
         obj_type = obj[0], obj_config = obj[1];
@@ -115,6 +116,7 @@
       multi.selectpicker('val', [sensor_val]);
       multi.selectpicker('refresh');
       multi.off().change(inputs_changed);
+      $('#label_sensor').html('Select Sensors to Plot:');
     } else {
       sensor_val = multi.selectpicker('val')[0];
       multi.prop('disabled', true);
@@ -123,6 +125,7 @@
       single.prop('disabled', false);
       single.val(sensor_val);
       single.off().change(inputs_changed);
+      $('#label_sensor').html('Select Sensor to Plot:');
     }
     if ($('#select_sensor_y').prop('disabled') === false) {
       $('#select_sensor_y').val(sensor_val);

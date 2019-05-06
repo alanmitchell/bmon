@@ -19,10 +19,10 @@
                         {% else %}
                         <td></td>
                         {% endif %}
-                        <td><a href="{{ sensor.href }}" title={{ sensor.notes }}>{{ sensor.title }}</a></td>
+                        <td><a href="{{ sensor.href }}" data-toggle="tooltip" data-html="true" title="{{ sensor.notes }}">{{ sensor.title }}</a></td>
                         <td>{{ sensor.minutes_ago }} minutes ago</td>
                         {% if sensor.alerts %}
-                        <td class="text-right" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
+                        <td class="text-right" data-toggle="tooltip" data-html="true" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
                         {% else %}
                         <td class="text-right">
                         {% endif %}

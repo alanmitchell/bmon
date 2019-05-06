@@ -12,9 +12,9 @@
             {% for group in sensor_list %}
                 <tr class="group-row"><th colspan="4">{{ group.0 }}</th></tr>
                 {% for sensor in group.1 %}
-                    <tr><td class="pl-4"><a href="{{ sensor.href }}" title="{{ sensor.notes }}" > {{ sensor.title }} </a></td>
+                    <tr><td class="pl-4"><a href="{{ sensor.href }}" data-toggle="tooltip" data-html="true" title="{{ sensor.notes | safe }}" > {{ sensor.title }} </a></td>
                         {% if sensor.alerts %}
-                        <td class="text-right" title="{{ sensor.alerts }}" style="background-color:#FF8C8C;">
+                        <td class="text-right" data-toggle="tooltip" data-html="true" title="{{ sensor.alerts | safe }}" style="background-color:#FF8C8C;">
                         {% else %}
                         <td class="text-right">
                         {% endif %}

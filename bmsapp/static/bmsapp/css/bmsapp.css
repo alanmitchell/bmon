@@ -15,3 +15,7 @@ body {
 #nav_container {
     background-color:rgb(237, 245, 252);
 }
+
+.tooltip-inner {
+    max-width: 350px; 
+}

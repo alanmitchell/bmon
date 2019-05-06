@@ -46,7 +46,7 @@
 <form>
     <div class="form-row align-items-end justify-content-center">
         <div class="form-group col-auto" id="ctrl_sensor">
-            <label style="display: block">Select Sensors to Plot:</label>
+            <label id="label_sensor" style="display: block">Select Sensors to Plot:</label>
             <select class="form-control" id="select_sensor" name="select_sensor">
                 {{ sensor_list_html|safe }}
             </select>
@@ -197,7 +197,7 @@
     <button id="download_many" class="btn btn-secondary">Download Excel Spreadsheet</button>
 </div>
 
-<div id="results">
+<div id="results" style="min-height: 550px;">
 </div>
 
 <div class="d-flex justify-content-end">

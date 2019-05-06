@@ -62,6 +62,7 @@ class CurrentValuesMulti(basechart.BaseChart):
                                               'unit': b_to_sen.sensor.unit.label,
                                               'minutes_ago': minutes_ago,
                                               'sensor_id': b_to_sen.sensor.id,
+                                              'notes': '%s<br>ID: %s' % (b_to_sen.sensor.notes, b_to_sen.sensor.sensor_id),
                                               'href': '?select_org={}&select_group={}&select_bldg={}&select_chart={}&select_sensor={}'.format(org_id, self.request_params['select_group'], bldg_info.building.pk, basechart.TIME_SERIES_CHART_ID, b_to_sen.sensor.id) ,
                                               'building_href': '?select_group={}&select_bldg={}'.format(self.request_params['select_group'], bldg_info.building.pk) ,
                                               'alerts': '; '.join([message for subject, message in b_to_sen.sensor.alerts(self.reading_db)])})
