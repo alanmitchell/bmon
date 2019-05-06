@@ -45,7 +45,7 @@ class ExportData(basechart.BaseChart):
         col = 1   # tracks spreadsheet column
         df = pd.DataFrame()
         blank_col_names = []   # need to remember columns that have no readings
-        for id in self.request_params.getlist('select_sensor'):
+        for id in self.request_params.getlist('select_sensor_multi'):
             sensor = bmsapp.models.Sensor.objects.get(pk=id)
 
             # write column heading in spreadsheet

@@ -46,8 +46,11 @@
 <form>
     <div class="form-row align-items-end justify-content-center">
         <div class="form-group col-auto" id="ctrl_sensor">
-            <label for="select_sensor" style="display: block">Select Values to Plot:</label>
-            <select class="form-control selectpicker" multiple data-width="350px" data-actions-box="true" id="select_sensor" name="select_sensor">
+            <label style="display: block">Select Sensors to Plot:</label>
+            <select class="form-control" id="select_sensor" name="select_sensor">
+                {{ sensor_list_html|safe }}
+            </select>
+            <select class="form-control selectpicker" multiple data-width="350px" data-actions-box="true" id="select_sensor_multi" name="select_sensor_multi">
                 {{ sensor_list_html|safe }}
             </select>
         </div>
@@ -116,10 +119,10 @@
             <label for="averaging_time_xy">Data Averaging:</label>
             <select class="form-control" id="averaging_time_xy" name="averaging_time_xy">
                 <option value="0">None</option>
-                <option value="0.5 selected">30 minutes</option>
+                <option value="0.5">30 minutes</option>
                 <option value="1">1 hour</option>
                 <option value="2">2 hour</option>
-                <option value="4">4 hour</option>
+                <option value="4" selected>4 hour</option>
                 <option value="8">8 hour</option>
                 <option value="24">1 day</option>
                 <option value="168">1 week</option>

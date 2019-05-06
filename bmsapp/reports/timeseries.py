@@ -19,7 +19,7 @@ class TimeSeries(basechart.BaseChart):
         """
 
         # Determine the sensors to plot. This creates a list of Sensor objects to plot.
-        sensor_list = [ bmsapp.models.Sensor.objects.get(pk=id) for id in self.request_params.getlist('select_sensor') ]
+        sensor_list = [ bmsapp.models.Sensor.objects.get(pk=id) for id in self.request_params.getlist('select_sensor_multi') ]
 
         # determine the Y axes that will be needed to cover the the list of sensor, based on the labels
         # of the units

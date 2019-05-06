@@ -13,6 +13,9 @@ inputs_changed = ->
       history.replaceState(null,null,"?".concat(serializedInputs()))
     else if serializedInputs() != urlQueryString()
       history.pushState(null,null,"?".concat(serializedInputs()))
+    # having trouble with multi-select refreshing
+    if $('#select_sensor_multi').prop('disabled') == false
+      $('#select_sensor_multi').selectpicker('refresh')
     # update the results display
     update_results() 
 
@@ -104,22 +107,33 @@ process_chart_change = ->
   # set auto recalculation
   _auto_recalc = (selected_chart_option.data("auto_recalc") == 1)
 
-  # Set sensor selector to multiple if needed
-  sensor_ctrl = $("#select_sensor")
+  # Show the proper sensor selector
+  single = $('#select_sensor')
+  multi = $('#select_sensor_multi')
   if selected_chart_option.data("multi_sensor") == 1
-    unless sensor_ctrl.attr("multiple") is "multiple"
-      sensor_ctrl.selectpicker "destroy"
-      sensor_ctrl.attr("multiple", "multiple")
-      sensor_ctrl.selectpicker()
-      sensor_ctrl.selectpicker "render"
-      sensor_ctrl.off().change inputs_changed
+    sensor_val = single.val()
+    single.prop('disabled', true)
+    single.hide()
+    multi.selectpicker('show')
+    multi.prop('disabled', false)
+    # use last value from single select as the starting value for the multi-select
+    multi.selectpicker('val', [sensor_val]) 
+    multi.selectpicker('refresh')
+    multi.off().change inputs_changed
   else
-    if sensor_ctrl.attr("multiple") == "multiple"
-      sensor_ctrl.selectpicker "destroy"
-      sensor_ctrl.removeAttr "multiple"
-      sensor_ctrl.selectpicker()
-      sensor_ctrl.selectpicker "render"
-      sensor_ctrl.off().change inputs_changed
+    sensor_val = multi.selectpicker('val')[0]
+    multi.prop('disabled', true)
+    multi.selectpicker('hide')
+    single.show()
+    single.prop('disabled', false)
+    # transfer over the first selected value from the multi-select
+    single.val(sensor_val)
+    single.off().change inputs_changed
+
+  # if this is an XY plot, transfer the sensor value over to
+  # the Y sensor selector.
+  if $('#select_sensor_y').prop('disabled')  == false
+    $('#select_sensor_y').val(sensor_val)
 
   # if manual recalc, then blank out the results area to clear our remnants
   # from last chart
@@ -141,6 +155,7 @@ update_chart_sensor_lists = (event) ->
     success: (data) ->
       $("#select_chart").html(data.charts)
       $("#select_sensor").html(data.sensors)
+      $("#select_sensor_multi").html(data.sensors)
       $("#select_sensor_x").html(data.sensors)
       $("#select_sensor_y").html(data.sensors)
       process_chart_change()
@@ -229,10 +244,11 @@ handleUrlQuery = () ->
               # remove active from labels, and add active to selected radio's label.
               element.parent().removeClass("active")
               $('input[name=time_period]:checked').parent().addClass("active")
+          else if element.hasClass('selectpicker')
+            # special case of bootstrap-multiselect
+            element.selectpicker('val', new_value)
           else
             element.val(new_value)
-          if element.attr("multiple") == "multiple"
-            element.selectpicker "refresh"
       element.change() # trigger the change event
     _loading_inputs = false
     params

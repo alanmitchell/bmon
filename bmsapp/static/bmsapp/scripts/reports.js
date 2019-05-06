@@ -14,6 +14,9 @@
       } else if (serializedInputs() !== urlQueryString()) {
         history.pushState(null, null, "?".concat(serializedInputs()));
       }
+      if ($('#select_sensor_multi').prop('disabled') === false) {
+        $('#select_sensor_multi').selectpicker('refresh');
+      }
       return update_results();
     }
   };
@@ -91,7 +94,7 @@
   _refresh_timer = setInterval(update_results, REFRESH_MS);
 
   process_chart_change = function() {
-    var selected_chart_option, sensor_ctrl, vis_ctrls;
+    var multi, selected_chart_option, sensor_val, single, vis_ctrls;
     set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period_group', 'download_many'], false);
     selected_chart_option = $("#select_chart").find("option:selected");
     vis_ctrls = selected_chart_option.data("ctrls").split(",");
@@ -101,23 +104,28 @@
       _refresh_timer = setInterval(update_results, REFRESH_MS);
     }
     _auto_recalc = selected_chart_option.data("auto_recalc") === 1;
-    sensor_ctrl = $("#select_sensor");
+    single = $('#select_sensor');
+    multi = $('#select_sensor_multi');
     if (selected_chart_option.data("multi_sensor") === 1) {
-      if (sensor_ctrl.attr("multiple") !== "multiple") {
-        sensor_ctrl.selectpicker("destroy");
-        sensor_ctrl.attr("multiple", "multiple");
-        sensor_ctrl.selectpicker();
-        sensor_ctrl.selectpicker("render");
-        sensor_ctrl.off().change(inputs_changed);
-      }
+      sensor_val = single.val();
+      single.prop('disabled', true);
+      single.hide();
+      multi.selectpicker('show');
+      multi.prop('disabled', false);
+      multi.selectpicker('val', [sensor_val]);
+      multi.selectpicker('refresh');
+      multi.off().change(inputs_changed);
     } else {
-      if (sensor_ctrl.attr("multiple") === "multiple") {
-        sensor_ctrl.selectpicker("destroy");
-        sensor_ctrl.removeAttr("multiple");
-        sensor_ctrl.selectpicker();
-        sensor_ctrl.selectpicker("render");
-        sensor_ctrl.off().change(inputs_changed);
-      }
+      sensor_val = multi.selectpicker('val')[0];
+      multi.prop('disabled', true);
+      multi.selectpicker('hide');
+      single.show();
+      single.prop('disabled', false);
+      single.val(sensor_val);
+      single.off().change(inputs_changed);
+    }
+    if ($('#select_sensor_y').prop('disabled') === false) {
+      $('#select_sensor_y').val(sensor_val);
     }
     if (_auto_recalc === false) {
       $("#results").empty();
@@ -135,6 +143,7 @@
       success: function(data) {
         $("#select_chart").html(data.charts);
         $("#select_sensor").html(data.sensors);
+        $("#select_sensor_multi").html(data.sensors);
         $("#select_sensor_x").html(data.sensors);
         $("#select_sensor_y").html(data.sensors);
         return process_chart_change();
@@ -231,11 +240,10 @@
               element.parent().removeClass("active");
               $('input[name=time_period]:checked').parent().addClass("active");
             }
+          } else if (element.hasClass('selectpicker')) {
+            element.selectpicker('val', new_value);
           } else {
             element.val(new_value);
-          }
-          if (element.attr("multiple") === "multiple") {
-            element.selectpicker("refresh");
           }
         }
       }
