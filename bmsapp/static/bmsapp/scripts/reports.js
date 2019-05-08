@@ -60,20 +60,7 @@
     }
     link_text = '<script src="' + $("#BaseURL").text() + 'reports/embed/' + '?' + serializedInputs() + '" async></script>';
     link_dialog = $("<div class='popup' title='Copy and paste this text to embed this view in a Custom Report:'><textarea id='embed_link' rows=5 style='width: 99%;font-size: 85%;resize: vertical'>" + link_comment + "&#010;" + link_text + "&#010;</textarea></div>");
-    return link_dialog.dialog({
-      modal: true,
-      width: 750,
-      buttons: {
-        "Copy to Clipboard": function() {
-          var success;
-          $("#embed_link").select();
-          return success = document.execCommand("copy");
-        }
-      },
-      close: function() {
-        return $(this).dialog('destroy').remove();
-      }
-    });
+    return $('#embed_link').text(link_comment + '\n' + link_text + '\n');
   };
 
   set_visibility = function(ctrl_list, show) {
