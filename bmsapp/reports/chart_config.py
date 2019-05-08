@@ -55,6 +55,9 @@ config:
   showLink: false
   displaylogo: false
   scrollZoom: false
+  modeBarButtonsToRemove:
+    - resetScale2d
+    - toggleSpikelines
 ''', Loader=yaml.FullLoader)
 
 def chart_container_html(title="Plotly Chart"):
