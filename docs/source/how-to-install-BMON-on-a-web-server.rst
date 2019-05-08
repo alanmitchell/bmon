@@ -6,7 +6,7 @@ How to Install BMON on a Web Server
 This document describes how to install the BMON application on a web
 server. The specific steps shown here apply to installation on the
 `Webfaction Hosting Service <https://www.webfaction.com/>`_, which has
-been used for the first two installations of the BMON application. The
+been used for most of the installations of the BMON application. The
 general goals of each step of the installation are also described, to
 assist in installation on other hosting providers or a standalone server.
 
@@ -33,11 +33,12 @@ use of `Cygwin <https://www.cygwin.com/>`_). The skills needed for installation 
 Create the Website and Install the Django Application
 -----------------------------------------------------
 
-The BMON application needs to have Django 1.10.2 or greater and Python 2.7.x
-installed. On the Webfaction hosting service, Python 2.7 is already
+The BMON application needs to have Django 2.1.7 or greater (safest would be
+a Django 2.1.x release) and Python 3.7
+or greater installed. On the Webfaction hosting service, Python 3.7 is already
 installed, so none of the steps below perform that task. If installing
-on a system without Python 2.7, you will first need to install Python.
-The rest of the steps below install Django 1.7.3 or greater, and configure the
+on a system without Python 3.7, you will first need to install Python.
+The rest of the steps below install Django 2.1.7 or greater, and configure the
 server to use Django to serve requests being made on the Domain you will
 use for the BMON application.
 
@@ -72,10 +73,8 @@ documentation for installing Django <http://docs.webfaction.com/software/django/
 
    *  For the ``Name`` of the application, use ``bmon_django``; the
       ``App category`` is ``Django``; the ``App type`` is a Django
-      release of 1.7.3 or greater (the latest version is 1.11.2 as of June 2017),
-      paired with Python 2.7. (BMON does
-      not work with Django versions prior to 1.7). Also, the BMON app
-      does not support Python 3.x. Leave the other fields at their default
+      release of 2.1.7 or greater,
+      paired with Python 3.7. Leave the other fields at their default
       values. Click the ``Save`` button to complete the Application
       setup.
 
@@ -162,22 +161,18 @@ Install Python Packages
 -----------------------
 
 The BMON application uses some code libraries that do not come with
-Python. In this section, these libraries will be installed with a
-special script that works with the Webfaction hosting service. If you
-are using a different service, look at the contents of the
-``install_packages.sh`` script and the ``requirements.txt`` file located
-in the ``$HOME/webapps/bmon_django/bmon`` directory to see which Python
-packages are required, and then install as appropriate for your system.
+Python. In this section, these libraries will be installed with Python's
+pip package manager using a requirements.txt file that lists the required
+packages.
 
 For installing on Webfaction, first change into the BMON directory,
-``cd $HOME/webapps/bmon_django/bmon``, and then run the following shell
-script that is in that directory:
+``cd $HOME/webapps/bmon_django/bmon``, and then run the following command:
 
 ::
 
-    ./install_packages.sh
+    pip3.7 install --user -r requirements.txt
 
-This script can take a few minutes to complete. There is some chance the
+This command can take a few minutes to complete. There is some chance the
 installation process will be killed due to excessive memory usage
 (probably while installing the ``pandas`` package, and you will receive
 an email to that effect from Webfaction. The email will contain a link
@@ -274,17 +269,24 @@ non-standard directory:
 
 This cron job: 
 
-* creates calculated reading values and stores Internet weather data in the reading database every half hour
+* creates calculated reading values and stores Internet weather data in
+  the reading database every half hour
 * checks for active Alert Conditions every five minutes
 * runs any Periodic Scripts that been configured in the BMON system
-* creates a daily status line in the log file indicating how many sensor readings were stored in the database during the past day (viewable by browsing to ``<Domain URL>/show_log``) 
-* creates a backup of the main Django database every day, and 
+* creates a daily status line in the log file indicating how many sensor
+  readings were stored in the database during the past day (viewable by
+  browsing to ``<Domain URL>/show_log``)
+* creates a backup of the main Django database every day, and
 * creates a backup of the reading database every three days
 
 Note that the command executed by the cron job has two parts: 1) first, it
 changes into the base BMON directory, and then it executes the manage.py script.
 This two step process is necessary on the Webfaction server because the Django Python
 package may only be available for scripts executed from a BMON directory.
+
+If you choose to implement an off-server backup strategy, as described in
+:ref:`archiving-and-analyzing-data-from-the-system`
+you may have an additional cron job task.
 
 Redirecting HTTP to HTTPS
 -------------------------
@@ -359,6 +361,13 @@ follow these steps:
 #. Restart the Django application by navigating to the Apache bin
    directory, ``/home/<username>/webapps/bmon_django/apache2/bin`` and
    then executing the command ``./start``.
+
+#. Note that there is a shell script that performs these upgrade tasks and
+   restarts the server.  The script is ``update.sh`` and is located in the
+   root BMON directory: ``$HOME/webapps/bmon_django/bmon``.  If you need
+   to edit values in the ``settings.py`` file, then you should use the manual
+   upgrade steps to avoid the restart of the server that will occur with the
+   shell script. 
 
 Maintaining the Sensor Reading Database
 ---------------------------------------

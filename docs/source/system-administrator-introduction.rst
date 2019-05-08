@@ -105,10 +105,12 @@ thermostats), and it is possible for a developer to create new scripts
 that will be periodically run by BMON, this document explains the basics of 
 Periodic Scripts while a later document details writing custom scripts.
 
-:ref:`Archiving Data <archiving-and-analyzing-data-from-the-system>`
---------------------------------------------------------------------
+:ref:`Backing Up and Analyzing Data from the System <archiving-and-analyzing-data-from-the-system>`
+---------------------------------------------------------------------------------------------------
 
-This document explains how sensor data is stored in BMON and how it can
+This document explains how key BMON databases are backed up on the server
+and gives suggestions on off-server backup strategies.
+The document also explains how sensor data is stored in BMON and how it can
 be archived or exported from the system for analysis elsewhere (basic
 knowledge of database systems is required). The document is also useful
 if you need to clean-up or remove data from the system.
