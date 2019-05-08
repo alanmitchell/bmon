@@ -10,7 +10,7 @@ class TimeSeries(basechart.BaseChart):
     """
 
     # see BaseChart for definition of these constants
-    CTRLS = 'refresh, ctrl_sensor, ctrl_avg, ctrl_occupied, time_period_group'
+    CTRLS = 'refresh, ctrl_sensor, ctrl_avg, ctrl_occupied, time_period_group, get_embed_link'
     MULTI_SENSOR = 1
 
     def result(self):

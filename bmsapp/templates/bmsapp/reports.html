@@ -17,7 +17,7 @@
 
 <form>
     <div class="form-row align-items-end justify-content-center">
-        <div class="form-group col-auto">
+        <div id="group_controls" class="form-group col-auto">
             <label for="select_group">Facility Group:</label>
             <select class="form-control" id="select_group" name="select_group">
                 {{ groups_html|safe }}
@@ -226,7 +226,7 @@
         <div class="modal-footer">
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             <button type="button" class="btn btn-primary" 
-            onclick="$('#embed_link').select(); document.execCommand('copy')">
+                    onclick="$('#embed_link').select(); document.execCommand('copy')">
                 Copy to Clipboard
             </button>
         </div>

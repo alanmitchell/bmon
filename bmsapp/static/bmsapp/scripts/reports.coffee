@@ -25,6 +25,9 @@ serializedInputs = ->
 # Updates the results portion of the page
 update_results = ->
   $("body").css "cursor", "wait"    # show hourglass
+  
+  # get lingering tooltips from prior result.  Hide them.
+  $('#results [data-toggle="tooltip"]').tooltip('hide')   
 
   $.getJSON($("#BaseURL").text() + "reports/results/", serializedInputs()).done((results) -> 
     # load the returned HTML into the results div, but empty first to ensure
@@ -80,7 +83,8 @@ process_chart_change = ->
 
     # start by hiding all input controls
   set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export',
-    'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period_group', 'download_many'], false)
+    'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period_group', 
+    'download_many', 'get_embed_link'], false)
 
   # get the chart option control that is selected.  Then use the data
   # attributes of that option element to configure the user interface.
@@ -167,6 +171,11 @@ update_group_list = ->
         # trigger the change event of the building selector to get the 
         # selected option to process.
         $("#select_group").trigger "change"
+      # if there is only one item in the facility groups selector, hide it.
+      if document.getElementById("select_group").length > 1
+        $('#group_controls').show()
+      else
+        $('#group_controls').hide()
 
 # Updates the list of buildings associated with the Building Group selected.
 update_bldg_list = ->

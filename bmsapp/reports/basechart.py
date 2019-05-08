@@ -110,7 +110,7 @@ class BaseChart(object):
 
     # This is a comma-separated list of the client HTML controls that need to be
     # visible for this chart.
-    CTRLS = 'time_period_group, refresh'
+    CTRLS = 'time_period_group, refresh, get_embed_link'
 
     # 1 if the Sensor selection control should allow for selecting more than one
     # sensor.

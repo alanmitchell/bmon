@@ -11,7 +11,7 @@ class CurrentValues(basechart.BaseChart):
     """
 
     # see BaseChart for definition of these constants
-    CTRLS = 'refresh'
+    CTRLS = 'refresh, get_embed_link'
     TIMED_REFRESH = 1
 
     def result(self):

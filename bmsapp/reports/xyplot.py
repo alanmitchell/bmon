@@ -12,7 +12,7 @@ class XYplot(basechart.BaseChart):
     """
 
     # see BaseChart for definition of these constants
-    CTRLS = 'refresh, xy_controls, time_period_group'
+    CTRLS = 'refresh, xy_controls, time_period_group, get_embed_link'
 
     def result(self):
         """

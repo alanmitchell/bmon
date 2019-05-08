@@ -28,7 +28,7 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
     """
 
     # see BaseChart for definition of these constants
-    CTRLS = 'refresh, time_period_group'
+    CTRLS = 'refresh, time_period_group, get_embed_link'
     
     def result(self):
         """

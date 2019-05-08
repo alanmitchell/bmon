@@ -27,6 +27,7 @@
 
   update_results = function() {
     $("body").css("cursor", "wait");
+    $('#results [data-toggle="tooltip"]').tooltip('hide');
     return $.getJSON($("#BaseURL").text() + "reports/results/", serializedInputs()).done(function(results) {
       $("body").css("cursor", "default");
       $("#results").empty();
@@ -83,7 +84,7 @@
 
   process_chart_change = function() {
     var multi, selected_chart_option, sensor_val, single, vis_ctrls;
-    set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period_group', 'download_many'], false);
+    set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period_group', 'download_many', 'get_embed_link'], false);
     selected_chart_option = $("#select_chart").find("option:selected");
     vis_ctrls = selected_chart_option.data("ctrls").split(",");
     set_visibility(vis_ctrls, true);
@@ -151,7 +152,12 @@
       success: function(data) {
         $("#select_group").html(data);
         if (!_loading_inputs) {
-          return $("#select_group").trigger("change");
+          $("#select_group").trigger("change");
+        }
+        if (document.getElementById("select_group").length > 1) {
+          return $('#group_controls').show();
+        } else {
+          return $('#group_controls').hide();
         }
       }
     });

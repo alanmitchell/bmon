@@ -10,7 +10,7 @@ class Histogram(basechart.BaseChart):
     """
 
     # see BaseChart for definition of these constants
-    CTRLS = 'refresh, ctrl_sensor, ctrl_avg, time_period_group'
+    CTRLS = 'refresh, ctrl_sensor, ctrl_avg, time_period_group, get_embed_link'
 
     def result(self):
         """
