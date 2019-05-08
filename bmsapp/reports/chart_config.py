@@ -17,7 +17,7 @@ layout:
   font:
     family: Open Sans, verdana, arial, sans-serif
     color: black
-    size: 16
+    size: 13
   paper_bgcolor: '#EEEEEE'
   hovermode: closest
   titlefont:
@@ -40,11 +40,15 @@ layout:
   xaxis:
     title: Date/Time
     titlefont:
-      size: 16
+      size: 15
+    tickfont:
+      size: 15
   yaxis:
     title: Value
     titlefont:
-      size: 16
+      size: 15
+    tickfont:
+      size: 15
 
 config:
   responsive: true
