@@ -49,6 +49,7 @@ layout:
       size: 15
     tickfont:
       size: 15
+    automargin: true
 
 config:
   responsive: true
