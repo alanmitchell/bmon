@@ -21,7 +21,7 @@ layout:
   paper_bgcolor: '#EEEEEE'
   hovermode: closest
   titlefont:
-    size: 22
+    size: 18
   autosize: true
   margin:
     l: 65
