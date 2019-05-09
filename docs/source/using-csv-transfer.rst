@@ -3,7 +3,13 @@
 Using CSV Transfer
 ==================
 
-This document provides basic instructions on installing and using the `CSV-Transfer Utility <https://github.com/alanmitchell/csv-transfer />`_ to import data files into BMON. 
+This document provides basic instructions on installing and using the
+`CSV-Transfer Utility <https://github.com/alanmitchell/csv-transfer />`
+to import data files into BMON. Note that there is a newer utility that
+also can be used to transfer data from files of any format into BMON:
+`file-to-bmon <https://github.com/alanmitchell/file-to-bmon>`.  Examine the
+features of the file-to-bmon utility before choosing the csv-tranfser utility.
+ 
 The instructions provided are written based on having performed a `local BMON installation <how-to-install-BMON-locally />`_ but should work similarly if you have installed
 BMON on a Webfaction server based on `these instructions <how-to-install-BMON-on-a-web-server />`_.
 
