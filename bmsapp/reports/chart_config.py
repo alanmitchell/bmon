@@ -25,7 +25,7 @@ layout:
   autosize: true
   margin:
     l: 65
-    r: 60
+    r: 20
     b: 10
     t: 75
     pad: 5
