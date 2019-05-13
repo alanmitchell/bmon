@@ -560,7 +560,7 @@ parameters:
     date/time of data that you want collected.  Do so by filling out this
     parameter with a date or date/time string in any format. The Enphase
     API will not provide data that occurred more than one year ago, so ensure
-    that this paramter is more recent than one year ago.  After the script
+    that this parameter is more recent than one year ago.  After the script
     runs once, this parameter and the associated timezone parameter described
     below are deleted from the parameters box.  If you don't fill out this
     ``first_date`` parameter, the script will start acquiring data from one
@@ -568,12 +568,12 @@ parameters:
 
 ``first_date_tz`` (optional)
     If you provide a ``first_date`` parameter, you can also provide the timezone
-    that should be used to interpret that date.  If you do not provide a timezone
+    that should be used to interpret that date/time.  If you do not provide a timezone
     the date is assumed to be in the Alaska timezone.  A valid list of timezone
     labels can be `found here. <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`_
 
 ``systems`` (required)
-    The systems to acquire data from are listed here.  The format, inlcuding
+    The systems to acquire data from are listed here.  The format, including
     indentation must be exactly as shown.  Each system has two fields associated
     with it that are required: ``system_id`` - the Enphase System ID for the system,
     and ``user_id`` the Enphase ID of the user that owns the system; (``user_id`` is
@@ -593,29 +593,29 @@ prior run, subject to the one day limitation.
 BMON Sensor IDs
 ~~~~~~~~~~~~~~~
 
-The BMON Sensor ID for each system collected will be of the form:
+The BMON Sensor ID for each system collected will be of the form::
 
     enph_<user_id>_<system_id>
 
 So, for the two systems shown in the example configuration above, the BMON
-Sensor IDs would be:
+Sensor IDs would be::
 
     enph_4e71437334d7a98730a_1023441
     enph_4123a67abc7a51330a_1049390
 
-Prior to setting up the Sensors in BMON, you will see these Sensor IDs show up in
+Prior to setting up the Sensors in BMON, you will see these Sensor IDs in
 the "Find Unassigned Sensors" report found on the "Sys Admin" menu.
 
 Enphase API Rate Limits for Free Plan
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you signed up for the free "Watt" API Plan, your use of the API is limited to
+If you signed up for the free "Watt" Enphase API Plan, your use of the API is limited to
 10 API calls per minute and also limited to 10,000 API calls per month.  If
 you only use your API key in one Periodic Script (remember that you can collect
 data from multiple systems with one script), BMON ensures that you will not
 violate the 10 calls / minute limit.  However, it is up to you to configure the
 script run frequency in order to satisfy the 10,000 calls per month limit.  Here
-is a formula you can use to set the frequency of the script run:
+is a formula you can use to set the frequency of the script run::
 
     Minimum Minutes between Script Runs = 4.464 x (# of systems collected)
 
@@ -627,7 +627,7 @@ requirement.
 The only disadvantage of choosing a longer period between runs of the script
 will be a delay in the availability of the data in BMON.  The script will
 collect all available data since it's prior run (subject to the limit of 1 day's
-worth of data).  So, not data will be lost by running the script infrequently
+worth of data).  So, no data will be lost by running the script infrequently
 (up to 24 hour spacing between script runs).
 
 Send BMON Data to an InfluxDB Time-Series Database
