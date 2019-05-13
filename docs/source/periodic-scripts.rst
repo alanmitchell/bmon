@@ -524,6 +524,112 @@ create a Sensor that estimates the pellet consumption or heat output of
 the boiler by examining the Status (P241 parameter number) sensor of the
 boiler. See the :ref:`calculated-fields` document for more details.
 
+Collect Data from Enphase Solar PV Systems
+------------------------------------------
+
+A Periodic Script is available to collect power production data from
+Solar PV Systems that utilize Enphase microinverters.
+
+Before using this script, two tasks must be completed:
+
+- A developer API key must be obtained and an Enphase application must be
+  set up, according to `the "Creating Your Account and Getting Your
+  API Key" section on this page <https://developer.enphase.com/docs/quickstart.html>`_.
+  This only needs to be done once.
+- For each Enphase system that you want to collect data from,
+  you must obtain permission from the owner that of that system to
+  receive the data.  The process of receiving permission is described on
+  the same web page in the "Getting Access to Enlighten Systems" section.
+
+Here is a screenshot of a sample Periodic Script configuration that
+collects data from an Enphase solar system:
+
+.. image:: /_static/enphase_config.png
+  :align: center
+
+The ``File name of script`` must be ``enphase``. The
+``Script Parameters in YAML form`` input has the following
+parameters:
+
+``api_key`` (required)
+    This is the API key that you obtained in the prerequisite task described
+    above.
+
+``first_date`` (optional)
+    When the script runs for the first time, you can tell it the earliest
+    date/time of data that you want collected.  Do so by filling out this
+    parameter with a date or date/time string in any format. The Enphase
+    API will not provide data that occurred more than one year ago, so ensure
+    that this paramter is more recent than one year ago.  After the script
+    runs once, this parameter and the associated timezone parameter described
+    below are deleted from the parameters box.  If you don't fill out this
+    ``first_date`` parameter, the script will start acquiring data from one
+    day prior to the script run time.
+
+``first_date_tz`` (optional)
+    If you provide a ``first_date`` parameter, you can also provide the timezone
+    that should be used to interpret that date.  If you do not provide a timezone
+    the date is assumed to be in the Alaska timezone.  A valid list of timezone
+    labels can be `found here. <https://en.wikipedia.org/wiki/List_of_tz_database_time_zones>`_
+
+``systems`` (required)
+    The systems to acquire data from are listed here.  The format, inlcuding
+    indentation must be exactly as shown.  Each system has two fields associated
+    with it that are required: ``system_id`` - the Enphase System ID for the system,
+    and ``user_id`` the Enphase ID of the user that owns the system; (``user_id`` is
+    indented two spaces).  Any number of systems can be listed.  Each time the
+    Periodic Script runs, data from each listed system will be acquired.
+
+The script acquires the total system production with 5 minute
+resolution, measured in Watts.  The values are measured by the microinverters and
+may differ somewhat from measurements done by a system production meter connected
+to the Enphase communication module.
+
+For each run of the Periodic Script, the API limits collection to one day's
+worth of data.  The next run of the Script will pick up where it left off,
+acquiring any data available after the last data point collected from the
+prior run, subject to the one day limitation.
+
+BMON Sensor IDs
+~~~~~~~~~~~~~~~
+
+The BMON Sensor ID for each system collected will be of the form:
+
+    enph_<user_id>_<system_id>
+
+So, for the two systems shown in the example configuration above, the BMON
+Sensor IDs would be:
+
+    enph_4e71437334d7a98730a_1023441
+    enph_4123a67abc7a51330a_1049390
+
+Prior to setting up the Sensors in BMON, you will see these Sensor IDs show up in
+the "Find Unassigned Sensors" report found on the "Sys Admin" menu.
+
+Enphase API Rate Limits for Free Plan
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you signed up for the free "Watt" API Plan, your use of the API is limited to
+10 API calls per minute and also limited to 10,000 API calls per month.  If
+you only use your API key in one Periodic Script (remember that you can collect
+data from multiple systems with one script), BMON ensures that you will not
+violate the 10 calls / minute limit.  However, it is up to you to configure the
+script run frequency in order to satisfy the 10,000 calls per month limit.  Here
+is a formula you can use to set the frequency of the script run:
+
+    Minimum Minutes between Script Runs = 4.464 x (# of systems collected)
+
+So, if you are collecting data from 5 systems, you need to wait at
+least 4.464 x 5 = 22.3 minutes between Periodic Script runs.  The "30 min"
+choice on the "How often should script run:" drop-down will satisfy this
+requirement.
+
+The only disadvantage of choosing a longer period between runs of the script
+will be a delay in the availability of the data in BMON.  The script will
+collect all available data since it's prior run (subject to the limit of 1 day's
+worth of data).  So, not data will be lost by running the script infrequently
+(up to 24 hour spacing between script runs).
+
 Send BMON Data to an InfluxDB Time-Series Database
 --------------------------------------------------
 
