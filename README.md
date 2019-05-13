@@ -12,6 +12,11 @@ Here is a link to the [AHFC BMON Web Site](https://bms.ahfc.us/).  Here is a scr
 
 ![AHFC BMON Screenshot](docs/source/_static/sample_screen.png)
 
+Note that a major upgrade to Python 3.7 occurred on May 1, 2019.
+Upgrade of existing systems running the Python 2.7 version will
+require assistance from the developer, Alan Mitchell, alan@analysisnorth.com.
+Please contact him before attempting an upgrade.
+
 For detailed information about this software: 
 
 ### Please see the [BMON Documentation](http://bmon-documentation.readthedocs.io/en/latest/index.html)

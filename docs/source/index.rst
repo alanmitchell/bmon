@@ -23,7 +23,13 @@ indicate the building’s occupied periods):
 
 .. image:: /_static/sample_screen.png
 
-The documentation for the BMON software is divided into three main sections, described below.
+Note that a major upgrade to Python 3.7 occurred on May 1, 2019.
+Upgrade of existing systems running the Python 2.7 version will
+require assistance from the developer, Alan Mitchell, alan@analysisnorth.com.
+Please contact him before attempting an upgrade.
+
+The documentation for the BMON software is divided into
+three main sections, described below.
 
 :ref:`User Introduction <user-introduction>`
 --------------------------------------------
