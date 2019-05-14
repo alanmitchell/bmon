@@ -145,7 +145,6 @@ def run(api_key, systems, first_date=None, first_date_tz='America/Anchorage', la
             'script_error': traceback.format_exc()
         }
 
-    print(last_ts)
     return {
         'readings': readings, 
         'last_ts': last_ts,
