@@ -74,6 +74,9 @@
       } else {
         $(element).hide().find("select, input").prop("disabled", true);
       }
+      $("#report-container").removeClass("d-none");
+      $("#report-container").removeClass("d-block");
+      $("#report-container").addClass("d-block");
     }
     return show;
   };

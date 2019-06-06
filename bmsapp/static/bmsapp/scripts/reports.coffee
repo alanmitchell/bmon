@@ -71,6 +71,9 @@ set_visibility = (ctrl_list, show) ->
       $(element).show().find("select, input:visible").prop( "disabled", false )
     else
       $(element).hide().find("select, input").prop( "disabled", true )
+    $("#report-container").removeClass("d-none")
+    $("#report-container").removeClass("d-block")
+    $("#report-container").addClass("d-block")
   show
 
 # A timer used by some charts to do a timed refresh of the results.

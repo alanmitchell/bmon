@@ -14,224 +14,224 @@
 {% block title %}Charts and Reports{% endblock %}
 
 {% block content %}
+<div id="report-container" class="d-none">
+    <form>
+        <div class="form-row align-items-end justify-content-center">
+            <div id="group_controls" class="form-group col-auto">
+                <label for="select_group">Facility Group:</label>
+                <select class="form-control" id="select_group" name="select_group">
+                    {{ groups_html|safe }}
+                </select>
+            </div>
+            <div class="form-group col-auto">
+                <label for="select_bldg">Facility:</label>
+                <select class="form-control" id="select_bldg" name="select_bldg">
+                    {{ bldgs_html|safe }}
+                </select>
+            </div>
+            <div class="form-group col-auto">
+                <label for="select_chart">Graph/Report:</label>
+                <select class="form-control" id="select_chart" name="select_chart">
+                    {{ chart_list_html|safe }}
+                </select>
+            </div>
+            <div class="form-group col-auto">
+                <button class="btn btn-secondary col" id="refresh" type="button">Refresh Data</button>
+            </div>
+        </div>
+    </form>
 
-<form>
-    <div class="form-row align-items-end justify-content-center">
-        <div id="group_controls" class="form-group col-auto">
-            <label for="select_group">Facility Group:</label>
-            <select class="form-control" id="select_group" name="select_group">
-                {{ groups_html|safe }}
-            </select>
+    <hr class="mt-1">
+
+    <form>
+        <div class="form-row align-items-end justify-content-center">
+            <div class="form-group col-auto" id="ctrl_sensor">
+                <label id="label_sensor" style="display: block">Select Sensors to Plot:</label>
+                <select class="form-control" id="select_sensor" name="select_sensor">
+                    {{ sensor_list_html|safe }}
+                </select>
+                <select class="form-control selectpicker" multiple data-width="350px" data-actions-box="true" id="select_sensor_multi" name="select_sensor_multi">
+                    {{ sensor_list_html|safe }}
+                </select>
+            </div>
+            <div class="form-group col-auto" id="ctrl_avg">
+                <label for="averaging_time">Data Averaging:</label>
+                <select class="form-control" id="averaging_time" name="averaging_time">
+                    <option value="0" selected>None</option>
+                    <option value="0.5">30 minutes</option>
+                    <option value="1">1 hour</option>
+                    <option value="2">2 hour</option>
+                    <option value="4">4 hour</option>
+                    <option value="8">8 hour</option>
+                    <option value="24">1 day</option>
+                    <option value="168">1 week</option>
+                    <option value="720">1 month</option>
+                    <option value="8760">1 year</option>
+                </select>
+            </div>
+            <div class="form-group col-auto" id="ctrl_avg_export">
+                <label for="averaging_time_export">Data Averaging:</label>
+                <select class="form-control" id="averaging_time_export" name="averaging_time_export">
+                    <option value="0.25">15 minutes</option>
+                    <option value="0.5" selected>30 minutes</option>
+                    <option value="1">1 hour</option>
+                    <option value="2">2 hour</option>
+                    <option value="4">4 hour</option>
+                    <option value="8">8 hour</option>
+                    <option value="24">1 day</option>
+                    <option value="168">1 week</option>
+                    <option value="720">1 month</option>
+                    <option value="8760">1 year</option>
+                </select>
+            </div>
+            <div id="ctrl_occupied" class="form-check mb-4 ml-3">
+                <input class="form-check-input" type="checkbox" value="" id="show_occupied"
+                    name="show_occupied">
+                <label class="form-check-label" for="show_occupied">
+                    Shade Occupied Periods
+                </label>
+            </div>
+            <div id="ctrl_normalize" class="form-check mb-4 ml-3">
+                <input class="form-check-input" type="checkbox" value="" id="normalize"
+                    name="normalize">
+                <label class="form-check-label" for="normalize">
+                    Scale Values to 0 - 100%
+                </label>
+            </div>
         </div>
-        <div class="form-group col-auto">
-            <label for="select_bldg">Facility:</label>
-            <select class="form-control" id="select_bldg" name="select_bldg">
-                {{ bldgs_html|safe }}
-            </select>
+    </form>
+
+    <form>
+        <div id="xy_controls" class="form-row align-items-end justify-content-center">
+            <div class="form-group col-auto">
+                <label for="select_sensor_x" style="display: block">Sensor X:</label>
+                <select class="form-control" id="select_sensor_x" name="select_sensor_x">
+                    {{ sensor_list_html|safe }}
+                </select>
+            </div>
+            <div class="form-group col-auto">
+                <label for="select_sensor_y" style="display: block">Sensor Y:</label>
+                <select class="form-control" id="select_sensor_y" name="select_sensor_y">
+                    {{ sensor_list_html|safe }}
+                </select>
+            </div>
+            <div class="form-group col-auto">
+                <label for="averaging_time_xy">Data Averaging:</label>
+                <select class="form-control" id="averaging_time_xy" name="averaging_time_xy">
+                    <option value="0">None</option>
+                    <option value="0.5">30 minutes</option>
+                    <option value="1">1 hour</option>
+                    <option value="2">2 hour</option>
+                    <option value="4" selected>4 hour</option>
+                    <option value="8">8 hour</option>
+                    <option value="24">1 day</option>
+                    <option value="168">1 week</option>
+                    <option value="720">1 month</option>
+                    <option value="8760">1 year</option>
+                </select>
+            </div>
+            <div class="form-group col-auto">
+                <label class="mr-1" for="div_date">Divide Data at this Date:</label>
+                <input id="div_date" name="div_date" width="160"/>
+            </div>
         </div>
-        <div class="form-group col-auto">
-            <label for="select_chart">Graph/Report:</label>
-            <select class="form-control" id="select_chart" name="select_chart">
-                {{ chart_list_html|safe }}
-            </select>
+    </form>
+
+    <hr class="mt-1">
+
+    <form>
+        <div id="time_period_group" class="form-row justify-content-sm-center">
+            <label class="mb-3 mr-1" for="time_period_group">Time Period:</label>
+            <div class="btn-group flex-wrap btn-group-toggle form-group col-auto" data-toggle="buttons">
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="4h" value="0.16667" autocomplete="off">
+                    <span class="d-none d-sm-inline">4 hr</span><span class="d-sm-none">4h</span>
+                </label>
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="1d" value="1" autocomplete="off">
+                    <span class="d-none d-sm-inline">1 da</span><span class="d-sm-none">1d</span>
+                </label>
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="3d" value="3" autocomplete="off">
+                    <span class="d-none d-sm-inline">3 da</span><span class="d-sm-none">3d</span>
+                </label>
+                <label class="btn btn-secondary btn-sm active">
+                    <input type="radio" name="time_period" id="1w" value="7" autocomplete="off" checked>
+                    <span class="d-none d-sm-inline">1 wk</span><span class="d-sm-none">1w</span>
+                </label>
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="2w" value="14" autocomplete="off">
+                    <span class="d-none d-sm-inline">2 wk</span><span class="d-sm-none">2w</span>
+                </label>
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="1m" value="31" autocomplete="off">
+                    <span class="d-none d-sm-inline">1 mo</span><span class="d-sm-none">1m</span>
+                </label>
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="2m" value="61" autocomplete="off">
+                    <span class="d-none d-sm-inline">2 mo</span><span class="d-sm-none">2m</span>
+                </label>
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="4m" value="122" autocomplete="off">
+                    <span class="d-none d-sm-inline">4 mo</span><span class="d-sm-none">4m</span>
+                </label>
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="1y" value="365" autocomplete="off">
+                    <span class="d-none d-sm-inline">1 yr</span><span class="d-sm-none">1y</span>
+                </label>
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="all" value="10000" autocomplete="off">All
+                </label>
+                <label class="btn btn-secondary btn-sm">
+                    <input type="radio" name="time_period" id="custom" value="custom" autocomplete="off">Custom
+                </label>
+            </div>
+            <div class="form-group form-inline col-auto" id="custom_dates">
+                <label class="mr-1" for="start_date"> Start:</label><input id="start_date" name="start_date" width="160"/>
+                <label class="mr-1 ml-2" for="end_date">End:</label><input id="end_date" name="end_date" width="160" />
+            </div>
         </div>
-        <div class="form-group col-auto">
-            <button class="btn btn-secondary col" id="refresh" type="button">Refresh Data</button>
+    </form>
+
+    <div class="d-flex justify-content-center" style="margin-top: 30px;">
+        <button id="download_many" class="btn btn-secondary">Download Excel Spreadsheet</button>
+    </div>
+
+    <div id="results" style="min-height: 550px;">
+    </div>
+
+    <!-- Button to Copy Link to Embed -->
+    <div class="d-flex justify-content-end">
+        <button type="button" class="btn btn-sm btn-primary" id="get_embed_link" data-toggle="modal" data-target="#copy_link">
+            Get Link for Custom Report
+        </button>
+    </div>
+
+    <!-- Patterned after "Live Demo" example at https://getbootstrap.com/docs/4.0/components/modal/ -->
+    <div class="modal fade" id="copy_link" tabindex="-1" role="dialog" aria-labelledby="copy_link_label" aria-hidden="true">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="copy_link_label">Copy Link to Embed</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    Copy and paste this text to embed this view in a Custom Report or any web page:
+                </p>
+                <textarea id='embed_link' rows=7 style='width: 100%;font-size: 85%;resize: vertical'></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" 
+                        onclick="$('#embed_link').select(); document.execCommand('copy')">
+                    Copy to Clipboard
+                </button>
+            </div>
+            </div>
         </div>
     </div>
-</form>
-
-<hr class="mt-1">
-
-<form>
-    <div class="form-row align-items-end justify-content-center">
-        <div class="form-group col-auto" id="ctrl_sensor">
-            <label id="label_sensor" style="display: block">Select Sensors to Plot:</label>
-            <select class="form-control" id="select_sensor" name="select_sensor">
-                {{ sensor_list_html|safe }}
-            </select>
-            <select class="form-control selectpicker" multiple data-width="350px" data-actions-box="true" id="select_sensor_multi" name="select_sensor_multi">
-                {{ sensor_list_html|safe }}
-            </select>
-        </div>
-        <div class="form-group col-auto" id="ctrl_avg">
-            <label for="averaging_time">Data Averaging:</label>
-            <select class="form-control" id="averaging_time" name="averaging_time">
-                <option value="0" selected>None</option>
-                <option value="0.5">30 minutes</option>
-                <option value="1">1 hour</option>
-                <option value="2">2 hour</option>
-                <option value="4">4 hour</option>
-                <option value="8">8 hour</option>
-                <option value="24">1 day</option>
-                <option value="168">1 week</option>
-                <option value="720">1 month</option>
-                <option value="8760">1 year</option>
-            </select>
-        </div>
-        <div class="form-group col-auto" id="ctrl_avg_export">
-            <label for="averaging_time_export">Data Averaging:</label>
-            <select class="form-control" id="averaging_time_export" name="averaging_time_export">
-                <option value="0.25">15 minutes</option>
-                <option value="0.5" selected>30 minutes</option>
-                <option value="1">1 hour</option>
-                <option value="2">2 hour</option>
-                <option value="4">4 hour</option>
-                <option value="8">8 hour</option>
-                <option value="24">1 day</option>
-                <option value="168">1 week</option>
-                <option value="720">1 month</option>
-                <option value="8760">1 year</option>
-            </select>
-        </div>
-        <div id="ctrl_occupied" class="form-check mb-4 ml-3">
-            <input class="form-check-input" type="checkbox" value="" id="show_occupied"
-                name="show_occupied">
-            <label class="form-check-label" for="show_occupied">
-                Shade Occupied Periods
-            </label>
-        </div>
-        <div id="ctrl_normalize" class="form-check mb-4 ml-3">
-            <input class="form-check-input" type="checkbox" value="" id="normalize"
-                name="normalize">
-            <label class="form-check-label" for="normalize">
-                Scale Values to 0 - 100%
-            </label>
-        </div>
-    </div>
-</form>
-
-<form>
-    <div id="xy_controls" class="form-row align-items-end justify-content-center">
-        <div class="form-group col-auto">
-            <label for="select_sensor_x" style="display: block">Sensor X:</label>
-            <select class="form-control" id="select_sensor_x" name="select_sensor_x">
-                {{ sensor_list_html|safe }}
-            </select>
-        </div>
-        <div class="form-group col-auto">
-            <label for="select_sensor_y" style="display: block">Sensor Y:</label>
-            <select class="form-control" id="select_sensor_y" name="select_sensor_y">
-                {{ sensor_list_html|safe }}
-            </select>
-        </div>
-        <div class="form-group col-auto">
-            <label for="averaging_time_xy">Data Averaging:</label>
-            <select class="form-control" id="averaging_time_xy" name="averaging_time_xy">
-                <option value="0">None</option>
-                <option value="0.5">30 minutes</option>
-                <option value="1">1 hour</option>
-                <option value="2">2 hour</option>
-                <option value="4" selected>4 hour</option>
-                <option value="8">8 hour</option>
-                <option value="24">1 day</option>
-                <option value="168">1 week</option>
-                <option value="720">1 month</option>
-                <option value="8760">1 year</option>
-            </select>
-        </div>
-        <div class="form-group col-auto">
-            <label class="mr-1" for="div_date">Divide Data at this Date:</label>
-            <input id="div_date" name="div_date" width="160"/>
-        </div>
-    </div>
-</form>
-
-<hr class="mt-1">
-
-<form>
-    <div id="time_period_group" class="form-row justify-content-sm-center">
-        <label class="mb-3 mr-1" for="time_period_group">Time Period:</label>
-        <div class="btn-group flex-wrap btn-group-toggle form-group col-auto" data-toggle="buttons">
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="4h" value="0.16667" autocomplete="off">
-                <span class="d-none d-sm-inline">4 hr</span><span class="d-sm-none">4h</span>
-            </label>
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="1d" value="1" autocomplete="off">
-                <span class="d-none d-sm-inline">1 da</span><span class="d-sm-none">1d</span>
-            </label>
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="3d" value="3" autocomplete="off">
-                <span class="d-none d-sm-inline">3 da</span><span class="d-sm-none">3d</span>
-            </label>
-            <label class="btn btn-secondary btn-sm active">
-                <input type="radio" name="time_period" id="1w" value="7" autocomplete="off" checked>
-                <span class="d-none d-sm-inline">1 wk</span><span class="d-sm-none">1w</span>
-            </label>
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="2w" value="14" autocomplete="off">
-                <span class="d-none d-sm-inline">2 wk</span><span class="d-sm-none">2w</span>
-            </label>
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="1m" value="31" autocomplete="off">
-                <span class="d-none d-sm-inline">1 mo</span><span class="d-sm-none">1m</span>
-            </label>
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="2m" value="61" autocomplete="off">
-                <span class="d-none d-sm-inline">2 mo</span><span class="d-sm-none">2m</span>
-            </label>
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="4m" value="122" autocomplete="off">
-                <span class="d-none d-sm-inline">4 mo</span><span class="d-sm-none">4m</span>
-            </label>
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="1y" value="365" autocomplete="off">
-                <span class="d-none d-sm-inline">1 yr</span><span class="d-sm-none">1y</span>
-            </label>
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="all" value="10000" autocomplete="off">All
-            </label>
-            <label class="btn btn-secondary btn-sm">
-                <input type="radio" name="time_period" id="custom" value="custom" autocomplete="off">Custom
-            </label>
-        </div>
-        <div class="form-group form-inline col-auto" id="custom_dates">
-            <label class="mr-1" for="start_date"> Start:</label><input id="start_date" name="start_date" width="160"/>
-            <label class="mr-1 ml-2" for="end_date">End:</label><input id="end_date" name="end_date" width="160" />
-        </div>
-    </div>
-</form>
-
-<div class="d-flex justify-content-center" style="margin-top: 30px;">
-    <button id="download_many" class="btn btn-secondary">Download Excel Spreadsheet</button>
 </div>
-
-<div id="results" style="min-height: 550px;">
-</div>
-
-<!-- Button to Copy Link to Embed -->
-<div class="d-flex justify-content-end">
-    <button type="button" class="btn btn-sm btn-primary" id="get_embed_link" data-toggle="modal" data-target="#copy_link">
-        Get Link for Custom Report
-    </button>
-</div>
-
-<!-- Patterned after "Live Demo" example at https://getbootstrap.com/docs/4.0/components/modal/ -->
-<div class="modal fade" id="copy_link" tabindex="-1" role="dialog" aria-labelledby="copy_link_label" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-        <div class="modal-header">
-            <h5 class="modal-title" id="copy_link_label">Copy Link to Embed</h5>
-            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-        <div class="modal-body">
-            <p>
-                Copy and paste this text to embed this view in a Custom Report or any web page:
-            </p>
-            <textarea id='embed_link' rows=7 style='width: 100%;font-size: 85%;resize: vertical'></textarea>
-        </div>
-        <div class="modal-footer">
-            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            <button type="button" class="btn btn-primary" 
-                    onclick="$('#embed_link').select(); document.execCommand('copy')">
-                Copy to Clipboard
-            </button>
-        </div>
-        </div>
-    </div>
-</div>
-
 {% endblock %}
