@@ -82,7 +82,7 @@
         <div id="nav_container" class="container-fluid">
             <div class="container">
                 <div class="row flex justify-content-around px-0 mx-1 mb-0">
-                    <form class="form-inline">
+                    <form class="form-inline{% if orgs_hide %} d-none{% endif %}">
                         <label class="mr-2" for="select_org" id="label_org"">Organization:</label>
                         <select class="form-control" id="select_org" name="select_org">
                             {{ orgs_html|safe }}

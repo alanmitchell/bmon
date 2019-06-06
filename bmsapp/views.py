@@ -41,9 +41,14 @@ def base_context():
     # get the html for the list of organizations and ID of the selected
     # organization.
     orgs_html, _ = view_util.organization_list_html()
+    
+    # determine whether organization selector should be hidden based on how 
+    # many options there are in the select drop down.
+    orgs_hide = (orgs_html.count('value') == 1)
 
     ctx = TMPL_CONTEXT.copy()
     ctx['orgs_html'] = orgs_html
+    ctx['orgs_hide'] = orgs_hide
     ctx['bmsapp_nav_link_base_url'] = reverse('index')
     return ctx
 
