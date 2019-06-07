@@ -1,6 +1,6 @@
 .. _multiple-organizations:
 
-Sharing the BMON Server across Multiple Organizations
+Sharing BMON across Multiple Organizations
 =====================================================
 
 One BMON server can be used to serve multiple Organizations. If this
