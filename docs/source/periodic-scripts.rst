@@ -14,10 +14,16 @@ such as:
 *  Performing a maintenance task.
 
 The *Periodic Script* feature of BMON can be used for this purpose.
-There are currently two Periodic Scripts available in BMON: 1) a script
-to collect temperatures and other data from Ecobee thermostats, 2) a
-script to collect data from an Okofen wood pellet boiler. Those Scripts
-are discussed later in this document.
+There are currently a number of Periodic Scripts available in BMON:
+
+*   a script to collect temperatures and other data from Ecobee thermostats,
+*   a script to collect data from a Modbus TCP device accessible on the Internet,
+*   a script to collect data from a Sensaphone IMS-4000 monitoring device,
+*   a script to collect data from an Okofen wood pellet boiler,
+*   a script to collect data from a Solar PV system using Enphase microinverters,
+*   a script to send data to an InfluxDB database.
+
+Those Scripts are discussed later in this document.
 
 To set up a periodic script, go to the Home screen in the BMON Admin
 interface and select "Periodic Scripts":
