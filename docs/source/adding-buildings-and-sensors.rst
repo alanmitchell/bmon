@@ -6,10 +6,10 @@ Add Buildings and Sensors
 To start using the BMON system, Sensors and Buildings must be added to
 the system. A Sample building and a Sample sensor were added to BMON
 when it was installed on the web server. This document will show how to
-add your actual buildings and sensors to the system. 
+add your actual buildings and sensors to the system.
 
-The sample building and sensor can be deleted once at least one actual building and
-sensor are added to the system.
+The sample building and sensor can be deleted once at least one actual
+building and sensor are added to the system.
 
 Logging into BMON's Admin Interface
 -----------------------------------

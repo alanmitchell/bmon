@@ -35,6 +35,12 @@ After installing BMON, you will need to configure your Buildings and
 Sensors in the system. This document shows how to do that using the
 web-based Admin interface of the BMON system.
 
+:ref:`Sharing BMON Across Multiple Organizations <multiple-organizations>`
+--------------------------------------------------------------------------
+
+A single BMON server can be shared across multiple organizations.  This document
+describes how that is accomplished.
+
 :ref:`Setting Up Sensors to Post to BMON <setting-up-sensors-to-post-to-BMON>`
 ------------------------------------------------------------------------------
 
