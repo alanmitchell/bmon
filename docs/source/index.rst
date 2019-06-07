@@ -81,6 +81,7 @@ here.
    how-to-install-BMON-on-a-web-server
    how-to-install-BMON-locally
    adding-buildings-and-sensors
+   multiple-organizations
    setting-up-sensors-to-post-to-bmon
    multi-building-charts
    sensor-alerts
