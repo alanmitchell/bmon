@@ -9,7 +9,7 @@ import calendar
 import logging
 import math
 import string
-from io import StringIO
+from io import TextIOWrapper
 
 import pytz
 from dateutil import parser
@@ -53,7 +53,8 @@ def parse_file(csvfile, filename, ts_tz='US/Alaska'):
 
     # make a timezone object and a CSV reader object
     tstz = pytz.timezone(ts_tz)
-    reader = csv.reader(csvfile)
+    # Must convert binary stream to a text stream.
+    reader = csv.reader(TextIOWrapper(csvfile, encoding='utf-8'))
 
     # read all lines through the header row, gathering up
     # point names along the way.
