@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.7
 """Stores Siemens DDC point data from email messages with trend file
 attachments.
 """

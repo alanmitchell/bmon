@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3.7
 '''Script that is called by "mail2script" when an email from MEA containing
 usage data is received.  This script stores the reading in the email into
 BMON reading database.
