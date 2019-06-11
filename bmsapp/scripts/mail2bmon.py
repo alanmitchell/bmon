@@ -7,7 +7,7 @@ database.
 import os
 import sys
 import email
-from io import StringIO
+from io import BytesIO
 import re
 import logging
 import django
@@ -42,7 +42,7 @@ def process_email(file_pattern, read_function, tz='US/Alaska'):
     the file.  'read_function' must accept the following parameters 
     in this order:
 
-        file_object: a StringIO file-like object that contains 
+        file_object: a BytesIO file-like object that contains 
             the file contents.
         filename: the name of the file as a string
         tz: the name of an Olson database timezone, that tells 
@@ -64,7 +64,7 @@ def process_email(file_pattern, read_function, tz='US/Alaska'):
             if (fname is not None) and (re.match(file_pattern, fname, re.I) is not None):
                 try:
                     attachment = part.get_payload(decode=True)
-                    stamps, ids, vals = read_function(StringIO(attachment), fname, tz)
+                    stamps, ids, vals = read_function(BytesIO(attachment), fname, tz)
 
                     insert_msg = db.insert_reading(stamps, ids, vals)
                     _logger.info('Data processed from %s:\n    %s' % (fname, insert_msg))

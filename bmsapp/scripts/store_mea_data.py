@@ -7,7 +7,7 @@ BMON reading database.
 import os
 import sys
 import email
-from io import StringIO
+from io import BytesIO
 import logging
 import django
 import pandas as pd
@@ -47,7 +47,7 @@ try:
         if (fname is not None) and ('.xlsx' in fname):
             try:
                 attachment = part.get_payload(decode=True)
-                df = pd.read_excel(StringIO(attachment)).dropna(how='all')
+                df = pd.read_excel(BytesIO(attachment)).dropna(how='all')
 
                 # used to assemble final DataFrame from individual DataFrames from
                 # each row.
@@ -61,7 +61,7 @@ try:
                         # Make timestamps, 15 minutes apart, starting at 7.5 minutes past
                         # Midnight.
                         day_start = row_data[1].tz_localize('US/Alaska', ambiguous='NaT').value // 10 ** 9
-                        seconds = np.array(list(range(15 * 60 / 2, 3600 * 24, 900)))
+                        seconds = np.array(list(range(15 * 60 // 2, 3600 * 24, 900)))
                         ts = day_start + seconds
 
                         # Put into DataFrame for easy filtering
