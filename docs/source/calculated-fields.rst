@@ -218,6 +218,58 @@ for the ``query`` parameter. In this example, two personal weather
 stations are being used with station IDs of ``KAKANCH0124`` and
 ``MD0691``.
 
+--------------
+
+The MesonetAPI service includes a variety of weather stations.
+To gather temperature or wind data from this service, you must first acquire a 
+`Mesonet API Key <https://developers.synopticdata.com/signup/>`_ and enter
+that key into the :ref:`BMON Settings File <how-to-install-BMON-on-a-web-server>` 
+as the ``BMSAPP_WU_API_KEY`` setting (restarting the Django web
+application after changing a setting is necessary).
+
+There is currently no charge for limited use of the API up to 5,000 requests
+and 5 million service units per month. Beyond that  there is charge of 
+5 cents per thousand requests, and 15 cents per million Service Units.
+If either your Requests or Service Units exceed the free tier levels, 
+you will be charged a $5.00 monthly service fee, in addition to the rated 
+charges for any usage above the free tier levels. See the `Mesonet Pricing
+Page <https://developers.synopticdata.com/mesonet/pricing/>`_ for more information.
+
+Here is an example configuration for acquiring temperature data from the
+service:
+
++-----------------+---------------------------------------------+
+|Calculated Field |                                             |
++=================+=============================================+
+|Transform or     | getAllMesonetTemperature                    |
+|Calculated Field |                                             |
+|Function Name:   |                                             |
++-----------------+---------------------------------------------+
+|Function         | stn: F2072                                  |
+|Parameters in    +---------------------------------------------+
+|YAML form:       | request_interval_hours: 2                   |
+|                 +---------------------------------------------+
+|                 | since: 6/1/2019                             |
++-----------------+---------------------------------------------+
+
+The key differences from the National Weather Service configuration are:
+
+*  ``getAllMesonetTemperature`` must be entered into the
+   ``Transform or Calculated Field Function Name`` box. If you are
+   acquiring wind speed data, then the correct entry is
+   ``getAllMesonetWindSpeed``. Capitalization must be as shown.
+*  The ``Function Parameters`` box must contain a ``stn`` entry for the
+   weather station you want data from. To find station codes, refer to
+   the `Mesonet map <http://www.wrh.noaa.gov/map/?&zoom=5&scroll_zoom=false&center=62.0,-150.0&boundaries=false,false,false,false,false,false,false,false,false&tab=observation&obs=true&obs_type=weather&elements=temp,wind,gust&temp_filter=-80,130&gust_filter=0,150&rh_filter=0,100&elev_filter=-300,14000&precip_filter=0.01,18&obs_popup=false&obs_density=60&obs_provider=ALL>`_.
+*  The ``Function Parameters`` box may contain an additional entry for the
+   ``request_interval_hours`` which specifies the minimum interval at which
+   data is updated. To stay within the limit of 5,000 requests per month, the
+   interval can be 0.5 for up to three calculated sensors or 2.0 for up to 13.
+   To estimate the minimum interval you can take the total number of fields
+   that will use the mesonet API and multiply by 0.15. The default is two hours.
+*  The ``Function Parameters`` box may also contain an additional ``since`` entry
+   which specifies the earliest date or date/time to retieve data for.
+   
 Converting On/Off Events into Runtime Fraction
 ----------------------------------------------
 
