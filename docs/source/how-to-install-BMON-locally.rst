@@ -32,82 +32,72 @@ The skills needed for installation are primarily:
 Install and Configure the Server Operating System
 --------------------------------------------------
 
-#. Download the current LTS (long-term support) Version of Ubuntu Server from the `Ubuntu Website <https://www.ubuntu.com/download/server/>`_
+#. Download the current LTS (long-term support) Version of Ubuntu Server from the `Ubuntu Website <https://www.ubuntu.com/download/server/>`_. This documentation was written for Ubuntu Server 18.04.2 LTS.
    
 #. Install the operating system on a suitable network capable physical server or virtual machine 
-   Follow the self guided installation instructions for Ubuntu selecting the manual package selection option
+   Follow the self guided installation instructions for Ubuntu, optionally installing OpenSSH for remote access.
    
-   .. image:: /_static/ubuntu_package_selection.jpg
+#. Run updates using ``sudo apt-get update`` and ``sudo apt-get upgrade``
 
-Optional: Install OpenSSH
-~~~~~~~~~~~~~~~~~~~~~~~~~
-
-If you intend to work on the installation remotely (as in a virtual machine environment) it will be beneficial
-to install OpenSSH and set a static IP. Skip this section if you don't require remote SSH access.
-   
-* Install Open SSH Server and Client
-   ``sudo apt-get install openssh-server openssh-client``
-
-* Determine the current IP address of the computer by running ``ifconfig`` document the IP address, netmask, and gateway information.
-
-* Set Static IP
-   ``sudo nano /etc/network/interfaces``
-
-Your interfaces file should look similar to the following:
-
-| ``auto eth0``
-
-| ``iface eth0 inet static``  
-| ``address yourIPaddress``   
-| ``netmask 255.255.255.0``  
-| ``gateway yourGateway``
-
-.. note:: Unless you receive a Static External IP from your internet service provider this will be a completely local server, only accessible by computers on the same local network (like an office building)
-
-   
+ 
 Installing Necessary Packages
 -----------------------------
 
 In order to run BMON on a local web server you must first install some required packages
 
-| **SQL Server & Associated Packages**
-| ``sudo apt-get install mysql-server``
-| ``mysql_secure_installation``
-| ``sudo apt-get install php php-mysql``
-
 | **Python Dependencies**
-| ``sudo apt-get install build-essential checkinstall``
-| ``sudo apt-get install libreadline-gplv2-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev``
+| ``sudo apt install build-essential checkinstall``
+| ``sudo apt-get install -y build-essential checkinstall libreadline-gplv2-dev python3.7 python3.7-dev libpython3.7-dev uwsgi uwsgi-src uuid-dev libcap-dev libpcre3-dev libncursesw5-dev libssl-dev libsqlite3-dev tk-dev libgdbm-dev libc6-dev libbz2-dev zlib1g-dev openssl libffi-dev python3-dev python3-setuptools wget``
 
-| **Python**
-| ``cd /usr/src``
-| ``sudo wget https://www.python.org/ftp/python/2.7.13/Python-2.7.13.tgz``
-| ``sudo tar xzf Python-2.7.13.tgz``
-| ``sudo rm -rf Python-2.7.13.tgz``
-| ``cd Python-2.7.13/``
-| ``sudo ./configure``
-| ``sudo make altinstall``
+
+| **SQL Server**
+| ``sudo apt-get install mysql-server``
+| ``sudo mysql_secure_installation``
    
-| **Python Pip & Python Dev** 
+| **Python Pip** 
 | ``cd $home``
-| ``sudo apt-get install python-pip``
-| ``pip install --upgrade pip``
-| ``sudo apt-get install python-dev``
+| ``sudo apt-get install python3-pip``
+| ``sudo -H pip3 install --upgrade pip``
+
 
 Installing the Virtual Environment
 -----------------------------------
 It is assumed we are working from within our $home directory
 
 | **Virtualenv & Virtualenvwrapper**
-| ``sudo pip install virtualenv virtualenvwrapper``
+| ``sudo -H pip3 install virtualenv virtualenvwrapper``
 
 | **Adjust your .bashrc file to incorporate the virtual environment variables**
-| ``echo "source /usr/local/bin/virtualenvwrapper.sh" >> ~/.bashrc``
-| ``echo "export WORKON_HOME=~/Env" >> ~/.bashrc``
+You may need to run ``whereis virtualenvwrapper.sh`` and document the path.
+
+| ``sudo nano ~/.bashrc``
+
+|   Add the following to the end of the file:
+|	``export VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3``
+|	``export WORKON_HOME=~/Env``
+|	``source /usr/local/bin/virtualenvwrapper.sh``
+|	``PYTHON=python3.7``
+
 | ``source ~/.bashrc`` 
 
+If the parameters added to your bashrc are correct - virtualenvwrapper scripts will be created like this:
+
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/premkproject
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/postmkproject
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/initialize
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/premkvirtualenv
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/postmkvirtualenv
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/prermvirtualenv
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/postrmvirtualenv
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/predeactivate
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/postdeactivate
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/preactivate
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/postactivate
+| virtualenvwrapper.user_scripts creating /home/cchrc/Env/get_env_details
+
 | **Create your virtual environment**
-| ``mkvirtualenv bmon``
+| ``cd home``
+| ``mkvirtualenv bmon -p python3.7``
 
 You will know you are successful if an Env directory is created within your home directory.
 Once you make your virtual environment, while it's active, your prompt will change
@@ -128,7 +118,7 @@ A directory named bmon will be created in your $home directory
 
 | ``cd bmon``
 
-| ``pip install -r requirements.txt``
+| ``pip3 install -r requirements.txt``
 
 Creating BMON Settings File
 ---------------------------
@@ -147,20 +137,20 @@ Django requires a ``settings.py`` file to provide essential information for runn
 | ``BMSAPP_TITLE_TEXT`` - purely cosmetic, change XYZ to the name of your organization/facility/etc.
 | ``BMSAPP_HEADER`` - purely cosmetic, change XYZ to the name of your organization/facility/etc.
 | ``ALLOWED_HOSTS`` - change to the server IP address or the URL depending on your setup ex. ['172.20.127.167'] (brackets and single quotes necessary)
-| ``SECRET_KEY`` - per the settings file, visit https://docs.djangoproject.com/en/1.7/ref/settings/#std:setting-SECRET_KEY to generate a key 
+| ``SECRET_KEY`` - per the settings file, visit https://www.miniwebtool.com/django-secret-key-generator/ to generate a key 
 | ``BMSAPP_STATIC_APP_NAME`` - indicate the full path of your project to the first level, then add static ex. /home/cchrc/bmon/static
 
 Configuring the Manage.py file
 ------------------------------
 Unlike in the :ref:`how-to-install-BMON-on-a-web-server` documentation, we need to modify the manage.py file to point to the correct python location
 
-type ``which python`` and note the path ex. /home/cchrc/Env/bmon/bin/python
+type ``which python3.7`` and note the path ex. /home/cchrc/Env/bmon/bin/python3.7
 
 ``cd $home/bmon`` or ``cd ..`` if you just finished the prior step.
 
 | Modify manage.py
 | ``sudo nano manage.py``
-| Change #!/usr/local/bin/python2.7 to whatever path came up when you typed ``which python``, but the line must begin with
+| Change #!/usr/local/bin/python3.7 to whatever path came up when you typed ``which python``, but the line must begin with
 | ``#!`` before the path to the Python executable.
 
 | Test the manage.py file for errors 
@@ -197,18 +187,32 @@ needed to log into the Admin side of the BMON site.
 
 Then go to SERVERIP OR URL:8000 in your web browser and see if you see a poorly formatted version of BMON (the CSS doesn't load in development). End the test by pressing ``Ctl-C`` to kill the process 
 
-Now, end your virtual session by typing ``deactivate``
-
-
 Configuring the Webserver
 -------------------------
    
-.. note:: The steps in this section are patterned after the general instructions from Digital Ocean's `How To Serve Django Applications with uWSGI and Nginx on Ubuntu 16.04 <https://www.digitalocean.com/community/tutorials/how-to-serve-django-applications-with-uwsgi-and-nginx-on-ubuntu-16-04/>`_
+.. note:: The steps in this section are patterned after the general instructions from Digital Ocean's `How To Serve Django Applications with uWSGI and Nginx on Ubuntu 18.04 <https://www.digitalocean.com/community/tutorials/how-to-serve-flask-applications-with-uswgi-and-nginx-on-ubuntu-18-04>`_
 
-It is very important that you are no longer in the virtual session, make sure you've typed ``deactivate`` and your prompt has changed before proceeding
+.. note:: We are still working in the virtualenvironment
 
-| **Install UWSGI**
-| ``sudo pip install uwsgi``
+| **Install & Compile UWSGI**
+| ``cd $home``
+| ``sudo wget https://projects.unbit.it/downloads/uwsgi-latest.tar.gz``
+| ``tar zxvf uwsgi-latest.tar.gz``
+| ``sudo rm -rf uwsgi-latest.tar.gz``
+| ``cd to the newly made uwsgi directory``
+| ``python3.7 uwsgiconfig.py --build``
+| ``make PROFILE=nolang``
+
+Create the python 3.7 plugin
+
+| ``PYTHON=python3.7 ./uwsgi --build-plugin "plugins/python python37"``
+
+Link the file
+
+| ``sudo ln -s /home/cchrc/[uwsgi directory]/uwsgi /usr/local/bin/uwsgi``
+
+Now, end your virtual session by typing ``deactivate``
+
 
 | ``sudo mkdir -p /etc/uwsgi/sites``
 
@@ -219,27 +223,31 @@ It is very important that you are no longer in the virtual session, make sure yo
 ----------------------
 
 | [uwsgi]
-
+| plugins-dir = /home/cchrc/[uwsgi directory]
+| plugin = python37
+| 
+| project = bmon
+| uid = cchrc
+| base = /home/%(uid)
+| 
+| chdir = %(base)/%(project)
+| home = %(base)/Env/%(project)
+| module = %(project).wsgi:application
+| pythonpath = %(base)/Env/%(project)/bin/python3.7
+| 
 | master = true
 | processes = 5
-
-| socket = /run/uwsgi/bmon.sock
-
-| chmod-socket = 664
-| chown-socket = cchrc:www-data
-| home = /home/cchrc/Env/bmon
-
-| chdir = /home/cchrc/bmon
-
-| pythonpath = /home/cchrc/Env/bmon
-
-| wsgi-file = /home/cchrc/bmon/bmon/wsgi.py
-| vacuum = true
+| 
+| socket = /run/uwsgi/%(project).sock
+| chown-socket = %(uid):www-data
+| chmod-socket = 660
 
 ----------------------
 
 Explanation:
 
+| plugins-dir = the location of your uwsgi install
+| plugin = tells uwsgi to use python 3.7 as default
 | chown-socket = YOURUSERNAME:www-data
 | home = /path/to/home/Env/bmon
 | chdir = /path/to/project
@@ -256,7 +264,7 @@ Explanation:
 
 | [Unit]
 | Description=uWSGI Emperor service
-
+| 
 | [Service]
 | ExecStartPre=/bin/bash -c 'mkdir -p /run/uwsgi; chown cchrc:www-data /run/uwsgi'
 | ExecStart=/usr/local/bin/uwsgi --emperor /etc/uwsgi/sites
@@ -264,7 +272,7 @@ Explanation:
 | KillSignal=SIGQUIT
 | Type=notify
 | NotifyAccess=all
-
+| 
 | [Install]
 | WantedBy=multi-user.target
 
@@ -273,6 +281,8 @@ Explanation:
 | The only portion of the service file that needs to be modified in your installation is
 | ``ExecStartPre=/bin/bash -c 'mkdir -p /run/uwsgi; chown cchrc:www-data /run/uwsgi'``
 where chown should indicate YOURUSERNAME:www-data
+
+``cd $home``
 
 
 | **Install NGINX**
@@ -286,26 +296,33 @@ where chown should indicate YOURUSERNAME:www-data
 ----------------------
 
 | server {
-|     listen 80;
-|     server_name 172.20.127.167;
+| listen 80;
+| server_name 172.20.127.197;
 | 
-|     location = /favicon.ico { access_log off; log_not_found off; }
-|     location /static/ {
-|         root /home/cchrc/bmon;
-|     }
-| 
-|     location / {
-|         include         uwsgi_params;
-|         uwsgi_pass      unix:/run/uwsgi/bmon.sock;
-|     }
+| location = /favicon.ico { access_log off; log_not_found off; }
+| location /static/ {
+| root /home/cchrc/bmon;
 | }
+| 
+| location / {
+| include uwsgi_params;
+| uwsgi_pass unix:/run/uwsgi/bmon.sock;
+| }
+| }
+
 
 ----------------------
 
-The only portion of this file that needs to be changed is ``server_name`` which should be changed to either your server IP address or URL
+The only portion of this file that needs to be changed is ``server_name`` which should be changed to either your server IP address or URL and ``root`` should reflect your own directory structure.
 
 | Enable the Site
 | ``sudo ln -s /etc/nginx/sites-available/bmon /etc/nginx/sites-enabled``
+
+| Create a uwsgi run directory
+| ``sudo mkdir /run/uwsgi``
+| ``sudo chown -R cchrc:www-data /run/uwsgi``
+| ``sudo chmod -R 774 /run/uwsgi``
+
 
 | Change some owners and permissions to make sure the files are accessible 
 
@@ -329,7 +346,7 @@ Change owners and permissions for the override file
 
 | ``sudo printf "[Service]\nExecStartPost=/bin/sleep 0.1\n" > /etc/systemd/system/nginx.service.d/override.conf``
 
-Fire Up the Server
+Start the Server
 ------------------
 
 | ``sudo systemctl daemon-reload``
@@ -349,6 +366,7 @@ You should now be able to reach your project by going to its respective domain n
 | If you are unable to access the site through your web browser you can test by entering
 | ``sudo uwsgi --http SERVERIP OR URL:8080 --home /home/cchrc/Env/bmon --chdir /home/cchrc/bmon -w bmon.wsgi``
 and visiting the URL.
+| reviewing the nginx error log may also help troubleshoot ``sudo tail -30 /var/log/nginx/error.log`` If you see messages about /run/uwsgi/bmon.sock failed (2: No such file or directory) while connecting to upstream it usually means you need to rerun the permission settings for the /run/uwsgi folder.
 
 .. note:: change the IP address in the line above with either your server's ip address or URL specified in your configuration
 
