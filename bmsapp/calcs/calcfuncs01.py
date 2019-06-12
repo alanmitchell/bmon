@@ -238,7 +238,8 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         # Use the Runtime from On/Off function to get 5 minute average runtime averages
         tstamps, vals = self.runtimeFromOnOff(statusID, 5, convert_func)
         # convert runtime averages to the desired consumption rate
-        vals = vals * value
+        if len(vals):
+            vals = vals * value
 
         return tstamps, vals
 
