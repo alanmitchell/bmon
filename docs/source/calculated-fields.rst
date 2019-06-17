@@ -1,5 +1,5 @@
 .. _calculated-fields:
-
+Calculated Fields
 =================
 
 Calculated Fields are used for two purposes:
