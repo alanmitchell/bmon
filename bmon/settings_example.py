@@ -38,10 +38,10 @@ BMSAPP_HEADER = 'XYZ Remote Monitoring'
 #     The third item (optional) is True if this item should be the default index page for
 #         the application.
 BMSAPP_NAV_LINKS = (('Map', 'map'),
-                    ('Data Charts and Reports', 'reports', True),
+                    ('Graphs/Reports', 'reports', True),
                     ('Custom Reports', 'custom-reports'),
-                    ('Training Videos and Project Reports', 'training-anthc'),
-                    ('System Administrator', 'admin-reports'),
+                    ('Training', 'training-anthc'),
+                    ('Sys Admin', 'admin-reports'),
                     )
 
 # The number of hours before a sensor is considered to be inactive (not posting data).
