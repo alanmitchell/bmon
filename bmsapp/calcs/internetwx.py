@@ -1,13 +1,21 @@
 """Allows acquisition of Internet weather data.
 """
 
-import urllib.request, urllib.error, urllib.parse, time, json, urllib.request, urllib.parse, urllib.error
+import urllib.request
+import urllib.error
+import urllib.parse
+import time
+import json
+import urllib.request
+import urllib.parse
+import urllib.error
 from django.conf import settings
 from metar import Metar
 from .cache import Cache
 
 # cache for storing NWS observations
-_nws_cache = Cache()   
+_nws_cache = Cache()
+
 
 def getWeatherObservation(stnCode):
     """Returns a current weather observation from an NWS weather station, using the metar 
@@ -31,7 +39,8 @@ def getWeatherObservation(stnCode):
         # try 3 times in case of download errors.
         for i in range(3):
             try:
-                read_str = urllib.request.urlopen(URL % stnCode).read().decode('utf-8')
+                read_str = urllib.request.urlopen(
+                    URL % stnCode).read().decode('utf-8')
                 break
             except:
                 # wait before retrying
@@ -41,13 +50,16 @@ def getWeatherObservation(stnCode):
             # retries must have failed if there is no 'read_str' variable.
             raise Exception('Could not access %s.' % stnCode)
 
-        obs = Metar.Metar('\n'.join( read_str.splitlines()[1:] ))  # second line onward
+        # second line onward
+        obs = Metar.Metar('\n'.join(read_str.splitlines()[1:]))
         _nws_cache.store(stnCode, obs)
 
     return obs
 
+
 # cache for storing Weather Underground observations
 _wu_cache = Cache()
+
 
 def getWUobservation(stnList):
     """Returns a current weather observation (dictionary) retrieved from weather underground.
@@ -60,23 +72,109 @@ def getWUobservation(stnList):
         # ignore None stations
         if stn is None:
             continue
-        
+
         # retrieve from cache, if there.
         obs = _wu_cache.get(stn)
-    
+
         if obs is None:
             # not in cache; download from weather underground.
             wu_key = getattr(settings, 'BMSAPP_WU_API_KEY', None)
             if wu_key:
-                url = 'http://api.wunderground.com/api/%s/conditions/q/%s.json' % (wu_key, urllib.parse.quote(stn))
+                url = 'http://api.wunderground.com/api/%s/conditions/q/%s.json' % (
+                    wu_key, urllib.parse.quote(stn))
                 json_str = urllib.request.urlopen(url).read().decode('utf-8')
                 obs = json.loads(json_str)
                 _wu_cache.store(stn, obs)
             else:
-                raise ValueError('No Weather Underground API key in Settings File.')
+                raise ValueError(
+                    'No Weather Underground API key in Settings File.')
 
         if 'current_observation' in obs:
             return obs['current_observation']
-    
+
     # No stations were successful
     raise ValueError("No stations with data.")
+
+
+# cache for storing Mesonet observations
+_mesonet_cache = Cache()
+
+
+def getMesonetObservation(stnList):
+    """Returns a current weather observation (dictionary) retrieved from MesonetAPI.
+    See https://developers.synopticdata.com/mesonet/ for more information.
+
+    'stnList' is a list of stations. Results will be returned only from the first
+    valid station with current data..
+    """
+
+    for stn in stnList:
+        # ignore None stations
+        if stn is None:
+            continue
+
+        # retrieve from cache, if there.
+        obs = _mesonet_cache.get(stn)
+
+        if obs is None:
+            # not in cache; download from internet.
+            api_token = getattr(settings, 'BMSAPP_MESONET_API_TOKEN', None)
+            params = {'token': api_token,
+                      'stid': stn,
+                      'vars': 'air_temp,wind_speed,relative_humidity',
+                      'units': 'english',
+                      'status': 'active',
+                      'within': 60,
+                      'timeformat': '%s'
+                      }
+            query_string = urllib.parse.urlencode(params)
+            url = 'https://api.synopticdata.com/v2/stations/latest?' + query_string
+
+            if api_token:
+                # print('URL: {}'.format(url))
+                json_str = urllib.request.urlopen(url).read().decode('utf-8')
+                obs = json.loads(json_str)
+                _mesonet_cache.store(stn, obs)
+            else:
+                raise ValueError('No Mesonet API key in Settings File.')
+
+        if 'STATION' in obs:
+            return obs['STATION'][0]['OBSERVATIONS']
+
+    # No stations were successful
+    raise ValueError(obs['SUMMARY']['RESPONSE_MESSAGE'])
+
+
+def getMesonetTimeseries(stnID, parameter, last_ts):
+    """Returns weather observations (dictionary) retrieved from MesonetAPI.
+    See https://developers.synopticdata.com/mesonet/ for more information.
+
+    'stnID' is the Mesonet Station ID.
+
+    Returns a list of timestamps and values.
+    """
+    api_token = getattr(settings, 'BMSAPP_MESONET_API_TOKEN', None)
+    params = {'token': api_token,
+              'stid': stnID,
+              'start': time.strftime(r'%Y%m%d%H%M', time.gmtime(last_ts + 1)),
+              'end': time.strftime(r'%Y%m%d%H%M', time.gmtime()),
+              'vars': parameter,
+              'hfmetars': 0,
+              'units': 'english',
+              'timeformat': '%s'
+              }
+    query_string = urllib.parse.urlencode(params)
+    url = 'https://api.synopticdata.com/v2/stations/timeseries?' + query_string
+
+    if api_token:
+        json_str = urllib.request.urlopen(url).read().decode('utf-8')
+        obs = json.loads(json_str)
+    else:
+        raise ValueError('No Mesonet API key in Settings File.')
+
+    if 'STATION' in obs:
+        return obs['STATION'][0]['OBSERVATIONS']
+    else:
+        print(url)
+        print(obs)
+        raise ValueError(obs['SUMMARY']['RESPONSE_MESSAGE'])

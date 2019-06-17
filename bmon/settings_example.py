@@ -1,21 +1,22 @@
 ﻿##################################################
 # Django settings for BMON project               #
 ##################################################
+from .settings_common import *
 import logging
 
-#----------------- Settings Specific to the Monitoring App ----------------------
+# ----------------- Settings Specific to the Monitoring App ----------------------
 
 # The key needed to store sensor readings into the database.
 # This is a REQUIRED setting.  You can have multiple valid storage keys
 # by listing them in a tuple or list:  ('key1', 'key2') or ['key1', 'key2'].
 # You can load https://bms.ahfc.us/make-store-key/ in a browser to generate
 # a suitable random store key.  Any sensors that post data to this site will
-# need to include thise Store Key when they post the data.  
+# need to include thise Store Key when they post the data.
 # See bmsapp/views.storereading() and bmsapp/views.storereadings() for details
 # of how the Store Key is included in a reading post.
 BMSAPP_STORE_KEY = 'PutStorageKeyHere'
 
-# Store key used with old URL pattern. 
+# Store key used with old URL pattern.
 # *** NOT USED WITH NEW INSTALLS.  LEAVE COMMENTED OUT ***
 # BMSAPP_STORE_KEY_OLD = ''
 
@@ -30,18 +31,18 @@ BMSAPP_HEADER = 'XYZ Remote Monitoring'
 #     First item in tuple is Text that will be shown for the link.
 #     Second item is the name of the template that will be rendered to produce the page.
 #          'reports' is a special name that will cause the main reports/charts page to be
-#          rendered. 'custom-reports' is also special and will cause a page showing the 
-#          available custom reports. For other names in this position, there must be a corresponding 
+#          rendered. 'custom-reports' is also special and will cause a page showing the
+#          available custom reports. For other names in this position, there must be a corresponding
 #          [template name].html file present in the templates/bmsapp directory.  The custom
 #          template cannot match any of the URLs listed in urls.py.
 #     The third item (optional) is True if this item should be the default index page for
 #         the application.
-BMSAPP_NAV_LINKS = ( ('Map', 'map'),
-                     ('Data Charts and Reports', 'reports', True),
-                     ('Custom Reports', 'custom-reports'),
-                     ('Training Videos and Project Reports', 'training-anthc'),
-                     ('System Administrator', 'admin-reports'),
-                   )
+BMSAPP_NAV_LINKS = (('Map', 'map'),
+                    ('Graphs/Reports', 'reports', True),
+                    ('Custom Reports', 'custom-reports'),
+                    ('Training', 'training-anthc'),
+                    ('Sys Admin', 'admin-reports'),
+                    )
 
 # The number of hours before a sensor is considered to be inactive (not posting data).
 BMSAPP_SENSOR_INACTIVITY = 2.0   # Hours
@@ -57,10 +58,14 @@ BMSAPP_PUSHOVER_APP_TOKEN = '123456789012345678901234567890'
 # Levels in order from least to greatest severity are:  DEBUG, INFO, WARNING, ERROR, CRITICAL
 BMSAPP_LOG_LEVEL = logging.INFO
 
-# Put a Weather Underground API key here, if you are acquiring temperature or wind
-# data from any Weather Underground sites (getWUtemperature, getWUwindSpeed).  
-# See http://www.wunderground.com/weather/api for details on acuiring a key for your use.
-BMSAPP_WU_API_KEY = ''
+# Put a Mesonet API Token here, if you are acquiring temperature or wind data
+# using the Mesonet API (getAllMesonetTemperature, getAllMesonetWindSpeed).
+# See https://developers.synopticdata.com/signup to obtain a token.
+BMSAPP_MESONET_API_TOKEN = ''
+
+# Weather Underground API is no longer supported due to changes in their service
+# See http://www.wunderground.com/weather/api for details
+# BMSAPP_WU_API_KEY = ''
 
 # Enter URL, Username and Password for the ARIS api here if you are using the
 # getUsageFromARIS calculation function to import building energy usage info
@@ -99,7 +104,7 @@ LANGUAGE_CODE = 'en-us'
 
 # The Names and Emails of people who should be emailed in the case of an
 # application exception.  Everyone appearing in the list will be notified; add
-# additional tuples for each Admin.  Unlike the sample below, remove the # symbol 
+# additional tuples for each Admin.  Unlike the sample below, remove the # symbol
 # in front of each tuple.
 # See documentation at https://docs.djangoproject.com/en/1.7/ref/settings/#std:setting-ADMINS
 # NOTE:  You can also view the error log for the BMON application by browsing to the page:
@@ -108,7 +113,7 @@ ADMINS = (
     # ('Admin Name Here', 'Admin Email Address Here'),
 )
 
-# The following email settings need to be filled out for sending out alerts from 
+# The following email settings need to be filled out for sending out alerts from
 # the BMON app.
 # For the Webfaction hosting service, see documentation at:
 # http://docs.webfaction.com/software/django/getting-started.html#configuring-django-to-send-email-messages
@@ -116,17 +121,19 @@ ADMINS = (
 # https://docs.djangoproject.com/en/1.7/ref/settings/#std:setting-EMAIL_HOST
 
 # the SMTP server used to send mail, 'smtp.webfaction.com' or the Webfaction hosting service
-EMAIL_HOST = 'smtp.webfaction.com'   
+EMAIL_HOST = 'smtp.webfaction.com'
 EMAIL_HOST_USER = 'mailbox_username'
 EMAIL_HOST_PASSWORD = 'mailbox_password'
 # If you are using the Webfaction smtp server, the two FROM adddresses below need to
 # be email addresses set up in your Webfaction account (you can use the same address
 # for both, if desired).  The Webfaction server will not send emails with a FROM address
 # that is not on the Webfaction host.
-DEFAULT_FROM_EMAIL = 'valid_from_email_address'      # this will be the FROM for alert messages
-SERVER_EMAIL = 'valid_from_email_for_error_messages'   # this is the FROM for error messages
+# this will be the FROM for alert messages
+DEFAULT_FROM_EMAIL = 'valid_from_email_address'
+# this is the FROM for error messages
+SERVER_EMAIL = 'valid_from_email_for_error_messages'
 
-# If DEBUG=True, a detailed error traceback is displayed in the browser when an error 
+# If DEBUG=True, a detailed error traceback is displayed in the browser when an error
 # occurs.  This setting should be False for production use for security reasons, but if
 # errors are occurring with use of the application, setting to True provides valuable
 # debug information.
@@ -138,8 +145,6 @@ DEBUG = False
 BMSAPP_STATIC_APP_NAME = 'bmon_static'
 
 # Import settings that are generally common to all installs of BMON.
-from .settings_common import *
 
 # ----- If you need to override any of the settings in the 'settings_common.py' file
 # ----- do so below this point in this file.
-

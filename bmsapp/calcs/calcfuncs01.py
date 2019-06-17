@@ -123,6 +123,89 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             return [int(time.time())], [wind_val]
         else:
             return [], []
+
+    def getLatestMesonetObservation(self, stnList, parameter, min_val=-float("inf"), max_val=float("inf")):
+        """** No parameters are sensor reading arrays **
+
+        Returns just one record of information, timestamped with the reading time
+        """
+        obs = internetwx.getMesonetObservation(stnList)
+
+        # Testing...
+        #print('obs: {}'.format(obs))
+
+        observed_val = float(obs[parameter + '_value_1']['value'])
+        time_val = int(obs[parameter + '_value_1']['date_time'])
+        if observed_val >= min_val and observed_val <= max_val:
+            return [time_val], [observed_val]
+        else:
+            return [], []
+
+    def getAllMesonetObservations(self, stnID, parameter, min_val=-float("inf"), max_val=float("inf"), request_interval_hours=2, since=None):
+        """** No parameters are sensor reading arrays **
+
+        Returns a list of observations from a Mesonet station.
+        """
+        # determine the timestamp of the last entry in the database for this calculated field.
+        last_calc_rec = self.db.last_read(self.calc_id)
+        # use 0 ts if no records
+        last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0
+
+        # check to see if the request interval has elapsed
+        hours_elapsed = (time.time() - last_ts) / 60 / 60
+        print('hours_elapsed = {}'.format(hours_elapsed))
+        if hours_elapsed < request_interval_hours:
+            return [], []
+
+        if since:
+            # constrain this value to greater or equal to 'since'
+            last_ts = max(last_ts, bmsapp.data_util.datestr_to_ts(since))
+        else:
+            # constrain this value to greater or equal to 'reach_back'
+            last_ts = max(last_ts, int(time.time() - self.reach_back))
+
+        # Get the observations from the MesonetAPI
+        obs = internetwx.getMesonetTimeseries(stnID, parameter, last_ts)
+
+        obs_dict = dict(zip(obs['date_time'], obs[parameter + '_set_1']))
+        time_vals = []
+        observed_vals = []
+        for time_val, observed_val in obs_dict.items():
+            if observed_val >= min_val and observed_val <= max_val:
+                time_vals.append(int(time_val))
+                observed_vals.append(float(observed_val))
+
+        return time_vals, observed_vals
+
+    def getMesonetTemperature(self, stn, stn2=None):
+        """** No parameters are sensor reading arrays **
+
+        Returns a temperature (deg F) from a Mesonet station.
+        'stn' is the primary station to use.  'stn2' is a backup station.
+        """
+        return self.getLatestMesonetObservation([stn, stn2], 'air_temp', -120.0, 150.0)
+
+    def getMesonetWindSpeed(self, stn, stn2=None):
+        """** No parameters are sensor reading arrays **
+
+        Returns a wind speed (mph) from a Mesonet station.
+        'stn' is the primary station to use.  'stn2' is a backup station.
+        """
+        return self.getLatestMesonetObservation([stn, stn2], 'wind_speed', 0.0, 150.0)
+
+    def getAllMesonetTemperature(self, stn, request_interval_hours=2, since=None):
+        """** No parameters are sensor reading arrays **
+
+        Returns a list of temperature (deg F) observations from a Mesonet station.
+        """
+        return self.getAllMesonetObservations(stn, 'air_temp', -120.0, 150.0, request_interval_hours, since)
+
+    def getAllMesonetWindSpeed(self, stn, request_interval_hours=2, since=None):
+        """** No parameters are sensor reading arrays **
+
+        Returns a list of wind speed (mph) observations from a Mesonet station.
+        """
+        return self.getAllMesonetObservations(stn, 'wind_speed', 0.0, 150.0, request_interval_hours, since)
     
     def runtimeFromOnOff(self, onOffID, runtimeInterval=30, state_xform_func=None):
         """** No parameters are sensor reading arrays **
