@@ -118,7 +118,7 @@ def getMesonetObservation(stnList):
 
         if obs is None:
             # not in cache; download from internet.
-            api_token = getattr(settings, 'BMSAPP_MESONET_API_KEY', None)
+            api_token = getattr(settings, 'BMSAPP_MESONET_API_TOKEN', None)
             params = {'token': api_token,
                       'stid': stn,
                       'vars': 'air_temp,wind_speed,relative_humidity',
@@ -153,7 +153,7 @@ def getMesonetTimeseries(stnID, parameter, last_ts):
 
     Returns a list of timestamps and values.
     """
-    api_token = getattr(settings, 'BMSAPP_MESONET_API_KEY', None)
+    api_token = getattr(settings, 'BMSAPP_MESONET_API_TOKEN', None)
     params = {'token': api_token,
               'stid': stnID,
               'start': time.strftime(r'%Y%m%d%H%M', time.gmtime(last_ts + 1)),

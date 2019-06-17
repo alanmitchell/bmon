@@ -1,6 +1,5 @@
 .. _calculated-fields:
 
-Calculated Fields
 =================
 
 Calculated Fields are used for two purposes:
@@ -182,49 +181,11 @@ appropriate unit and title changes elsewhere.
 
 --------------
 
-The Weather Underground service has a broader variety of weather
-stations, including personal weather stations. To gather temperature or
-wind data from this service, you must first acquire a `Weather
-Underground API Key <http://www.wunderground.com/weather/api/>`_ and enter
-that key into the :ref:`BMON Settings File <how-to-install-BMON-on-a-web-server>` 
-as the ``BMSAPP_WU_API_KEY`` setting (restarting the Django web
-application after changing a setting is necessary).
-
-Here is an example configuration for acquiring temperature data from the
-service:
-
-.. image:: /_static/calc_ex2.png
-    :align: center
-
-The key differences from the National Weather Service configuration are:
-
-*  ``getWUtemperature`` must be entered into the
-   ``Transform or Calculated Field Function Name`` box. If you are
-   acquiring wind speed data, then the correct entry is
-   ``getWUwindSpeed``. Capitalization must be as shown.
-*  The ``Function Parameters`` box must contain a ``stn`` entry for the
-   main weather station you want data from and an optional ``stn2`` code
-   for a weather station to use as a backup in case the primary station
-   is not available. An example entry is:
-
-::
-
-        stn: pws:KAKANCHO124
-        stn2: pws:MD0691
-
-For information on how to form station codes, see the `Weather Underground API
-documentation <http://www.wunderground.com/weather/api/d/docs?d=data/index>`_
-for the ``query`` parameter. In this example, two personal weather
-stations are being used with station IDs of ``KAKANCH0124`` and
-``MD0691``.
-
---------------
-
-The MesonetAPI service includes a variety of weather stations.
+The MesonetAPI service includes a larger set of weather stations.
 To gather temperature or wind data from this service, you must first acquire a 
-`Mesonet API Key <https://developers.synopticdata.com/signup/>`_ and enter
+`Mesonet API Token <https://developers.synopticdata.com/signup/>`_ and enter
 that key into the :ref:`BMON Settings File <how-to-install-BMON-on-a-web-server>` 
-as the ``BMSAPP_WU_API_KEY`` setting (restarting the Django web
+as the ``BMSAPP_MESONET_API_TOKEN`` setting (restarting the Django web
 application after changing a setting is necessary).
 
 There is currently no charge for limited use of the API up to 5,000 requests
@@ -238,19 +199,17 @@ Page <https://developers.synopticdata.com/mesonet/pricing/>`_ for more informati
 Here is an example configuration for acquiring temperature data from the
 service:
 
-+-----------------+---------------------------------------------+
-|Calculated Field |                                             |
-+=================+=============================================+
-|Transform or     | getAllMesonetTemperature                    |
-|Calculated Field |                                             |
-|Function Name:   |                                             |
-+-----------------+---------------------------------------------+
-|Function         | stn: F2072                                  |
-|Parameters in    +---------------------------------------------+
-|YAML form:       | request_interval_hours: 2                   |
-|                 +---------------------------------------------+
-|                 | since: 6/1/2019                             |
-+-----------------+---------------------------------------------+
++-------------------+---------------------------------------------+
+| Calculated Field  |                                             |
++===================+=============================================+
+|| Transform or     || ``getAllMesonetTemperature``               |
+|| Calculated Field |                                             |
+|| Function Name:   |                                             |
++-------------------+---------------------------------------------+
+|| Function         || ``stn: F2072``                             |
+|| Parameters in    || ``request_interval_hours: 2``              |
+|| YAML form:       || ``since: 6/1/2019``                        |
++-------------------+---------------------------------------------+
 
 The key differences from the National Weather Service configuration are:
 
