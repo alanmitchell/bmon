@@ -131,14 +131,14 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         """
         obs = internetwx.getMesonetObservation(stnList)
 
-        # Testing...
-        #print('obs: {}'.format(obs))
-
-        observed_val = float(obs[parameter + '_value_1']['value'])
-        time_val = int(obs[parameter + '_value_1']['date_time'])
-        if observed_val >= min_val and observed_val <= max_val:
-            return [time_val], [observed_val]
-        else:
+        try:
+            observed_val = float(obs[parameter + '_value_1']['value'])
+            time_val = int(obs[parameter + '_value_1']['date_time'])
+            if observed_val >= min_val and observed_val <= max_val:
+                return [time_val], [observed_val]
+            else:
+                return [], []
+        except TypeError:
             return [], []
 
     def getAllMesonetObservations(self, stnID, parameter, min_val=-float("inf"), max_val=float("inf"), request_interval_hours=2, since=None):
@@ -153,7 +153,6 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
 
         # check to see if the request interval has elapsed
         hours_elapsed = (time.time() - last_ts) / 60 / 60
-        print('hours_elapsed = {}'.format(hours_elapsed))
         if hours_elapsed < request_interval_hours:
             return [], []
 
@@ -171,9 +170,12 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         time_vals = []
         observed_vals = []
         for time_val, observed_val in obs_dict.items():
-            if observed_val >= min_val and observed_val <= max_val:
-                time_vals.append(int(time_val))
-                observed_vals.append(float(observed_val))
+            try:
+                if observed_val >= min_val and observed_val <= max_val:
+                    time_vals.append(int(time_val))
+                    observed_vals.append(float(observed_val))
+            except TypeError:
+                pass  # Ignore values with TypeErrors
 
         return time_vals, observed_vals
 
