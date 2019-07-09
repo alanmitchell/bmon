@@ -87,7 +87,6 @@ class TimeSeries(basechart.BaseChart):
         # If there there are more than 20 sensors, hide the legend
         if len(sensor_list) > 20:
             opt['layout']['showlegend'] = False
-            del opt['layout']['margin']['b']
 
         opt['layout']['xaxis']['title'] =  "Date/Time (%s)" % self.timezone
         opt['layout']['xaxis']['type'] =  'date'
