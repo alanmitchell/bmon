@@ -7,10 +7,11 @@ from django.urls import re_path
 from . import views
 from . import views_api_v1
 
-# Could work on simplifying many of these by usin the new "path" function
+# Could work on simplifying many of these by using the new "path" function
 urlpatterns = [
     re_path(r'^readingdb/reading/(\w+)/store/$', views.store_reading),      # URL to store one reading into database
     re_path(r'^readingdb/reading/store/$', views.store_readings),          # URL to store multiple readings into database
+    re_path(r'^readingdb/reading/store-things/$', views.store_readings_things),          # URL to store readings from Things Network
     re_path(r'^st8(\w+)/', views.store_reading_old),             # Old URL pattern for storing.  Shouldn't be used for new sensors.
     re_path(r'^readingdb/reading/(\w+)/$', views.get_readings),   # gets all readings for one reading ID.
     re_path(r'^$', views.index, name='index'),
