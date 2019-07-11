@@ -248,8 +248,8 @@ def store_readings_things(request):
     '''
     Stores a set of sensor readings from the Things Network in the sensor reading 
     database. The readings are assumed to originate from an HTTP Integration on an
-    Application in the Things Network.  The Authorization header in the request contains
-    the BMON Store Key.  The readings and other data are in the POST data encoded in JSON.
+    Application in the Things Network.  The BMON Store Key is in a custom HTTP header.
+    The readings and other data are in the POST data encoded in JSON.
     '''
     try:
 
@@ -261,12 +261,9 @@ def store_readings_things(request):
         if 'payload_fields' not in req_data:
             return HttpResponse('No Data')
 
-        # See if the store key is valid.  The Authorization header is of the format:
-        #     BMON <store key>
-        try:
-            _, storeKey = request.META['HTTP_AUTHORIZATION'].split()
-        except:
-            storeKey = 'None_Present'
+        # See if the store key is valid.  It's stored in the "store-key" header, which
+        # is found in the "HTTP_STORE_KEY" key in the META dictionary.
+        storeKey = request.META.get('HTTP_STORE_KEY', 'None_Present')
 
         if store_key_is_valid(storeKey):
             readings = []
