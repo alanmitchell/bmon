@@ -1,6 +1,8 @@
 ﻿# Create your views here.
 import sys, logging, json, random, time
 
+import dateutil.parser
+
 from django.http import HttpResponse
 from django.shortcuts import render_to_response, redirect, render
 from django.contrib.auth.decorators import login_required
@@ -228,6 +230,52 @@ def store_readings(request):
             del(req_data['storeKey'])
             _logger.debug('Sensor Readings: %s' % req_data)
             msg = storereads.store_many(req_data)
+            return HttpResponse(msg)
+        else:
+            _logger.warning('Invalid Storage Key in Reading Post: %s', storeKey)
+            return HttpResponse('Invalid Key')
+
+    except:
+        _logger.exception('Error Storing Reading')
+        return HttpResponse(sys.exc_info()[1])
+
+# Payload Fields from Things Network nodes that do not contain sensor
+# readings.
+EXCLUDE_THINGS_FIELDS = ('event', )
+
+@csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
+def store_readings_things(request):
+    '''
+    Stores a set of sensor readings from the Things Network in the sensor reading 
+    database. The readings are assumed to originate from an HTTP Integration on an
+    Application in the Things Network.  The Authorization header in the request contains
+    the BMON Store Key.  The readings and other data are in the POST data encoded in JSON.
+    '''
+    try:
+
+        # The post data is JSON, so decode it.
+        req_data = json.loads(request.body)
+
+        # Return if this is a message that does not have any data in it, like an 
+        # activate or join message.
+        if 'payload_fields' not in req_data:
+            return HttpResponse('No Data')
+
+        # See if the store key is valid.  The Authorization header is of the format:
+        #     BMON <store key>
+        try:
+            _, storeKey = request.META['HTTP_AUTHORIZATION'].split()
+        except:
+            storeKey = 'None_Present'
+
+        if store_key_is_valid(storeKey):
+            readings = []
+            ts = dateutil.parser.parse(req_data['metadata']['time']).timestamp()
+            hdw_serial = req_data['hardware_serial']
+            for fld, val in req_data['payload_fields'].items():
+                if fld not in EXCLUDE_THINGS_FIELDS:
+                    readings.append( [ts, f'{hdw_serial}_{fld}', val] )
+            msg = storereads.store_many({'readings': readings})
             return HttpResponse(msg)
         else:
             _logger.warning('Invalid Storage Key in Reading Post: %s', storeKey)
