@@ -35,9 +35,16 @@ class Dashboard(basechart.BaseChart):
                 cur_row = []
                 cur_row_num = dash_item.row_number
     
+            # determine title for Dashboard item
+            if dash_item.title is not None and len(dash_item.title) > 0:
+                dash_title = dash_item.title
+            elif dash_item.sensor is not None:
+                dash_title = dash_item.sensor.sensor.title
+            else:
+                dash_title = ''
             new_widget = {'type': dash_item.widget_type,
                           'timeChartID': basechart.TIME_SERIES_CHART_ID,
-                          'title': dash_item.title if len(dash_item.title) or (dash_item.sensor is None) else dash_item.sensor.sensor.title
+                          'title': dash_title
                           }
 
             if dash_item.sensor is not None:
