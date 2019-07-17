@@ -273,10 +273,12 @@ def store_readings_things(request):
                 if fld not in EXCLUDE_THINGS_FIELDS:
                     readings.append( [ts, f'{hdw_serial}_{fld}', val] )
 
-            # Also extract the max SNR received by gateways that received this
-            # message
-            snrs = [gtw['snr'] for gtw in req_data['metadata']['gateways']]
-            readings.append([ts, f'{hdw_serial}_snr', max(snrs)])
+            # Also extract the SNR and RSSI received by gateway that received this
+            # message and had the best SNR.
+            sigs = [(gtw['snr'], gtw['rssi']) for gtw in req_data['metadata']['gateways']]
+            snr, rssi = max(sigs)
+            readings.append([ts, f'{hdw_serial}_snr', snr])
+            readings.append([ts, f'{hdw_serial}_rssi', rssi])
 
             msg = storereads.store_many({'readings': readings})
 
