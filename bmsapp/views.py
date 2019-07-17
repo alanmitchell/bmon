@@ -272,7 +272,14 @@ def store_readings_things(request):
             for fld, val in req_data['payload_fields'].items():
                 if fld not in EXCLUDE_THINGS_FIELDS:
                     readings.append( [ts, f'{hdw_serial}_{fld}', val] )
+
+            # Also extract the max SNR received by gateways that received this
+            # message
+            snrs = [gtw['snr'] for gtw in req_data['metadata']['gateways']]
+            readings.append([ts, f'{hdw_serial}_snr', max(snrs)])
+
             msg = storereads.store_many({'readings': readings})
+
             return HttpResponse(msg)
         else:
             _logger.warning('Invalid Storage Key in Reading Post: %s', storeKey)
