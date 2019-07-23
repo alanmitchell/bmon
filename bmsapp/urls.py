@@ -33,7 +33,9 @@ urlpatterns = [
     re_path(r'^backup-readings/$', views.backup_reading_db),
 
     # Views related to the API, version 1
+    re_path(r'^api/v1/version/$', views_api_v1.api_version),
     re_path(r'^api/v1/readings/(.+)/$', views_api_v1.sensor_readings),
+    re_path(r'^api/v1/readings/$', views_api_v1.sensor_readings_multiple),
     re_path(r'^api/v1/sensors/$', views_api_v1.sensor_list),
 
     # catches URLs that don't match the above patterns.  Assumes they give a template name to render.

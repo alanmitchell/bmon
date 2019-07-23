@@ -255,7 +255,7 @@ class BMSdata:
                 df_final = pd.merge(df_final, df, how='outer', left_index=True, right_index=True)
 
         # convert the timezone of the index if requested
-        if tz:
+        if tz and len(df_final) > 0:
             # Convert the dates to the specified timezone...
             # But, for some reason pandas resampling sometimes fails if the datetime index is timezone aware,
             # so after converting the dates we make them timezone naive again.

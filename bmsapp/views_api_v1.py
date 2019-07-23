@@ -6,7 +6,7 @@ see:  https://labs.omniti.com/labs/jsend .
 
 import logging
 from datetime import datetime
-import calendar
+from collections import Counter
 import pytz
 from django.http import JsonResponse
 from dateutil.parser import parse
@@ -16,8 +16,23 @@ import numpy as np
 from bmsapp import models
 from bmsapp.readingdb import bmsdata
 
+# Version number of this API
+API_VERSION = 1.1
+
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
+
+def api_version(request):
+    """API method that returns the version number of the API
+    """
+    result = {
+            'status': 'success',
+            'data': {
+                'version': API_VERSION,
+            }
+        }
+
+    return JsonResponse(result)
 
 def fail_payload(messages):
     """Helper routine. Returns a JSON response with success = fail
@@ -121,6 +136,61 @@ def sensor_info(sensor_id):
 
     return props
 
+def check_sensor_reading_params(request):
+    """Checks the validity of the most of the GET parameters used in the 'sensor_readings'
+    and 'sensor_readings_multiple' methods. Returns error messages in a dictionary keyed
+    on the erroneous parameter and returns variables gathered from the parameters.
+    """
+    
+    # dictionary for error messages
+    messages = {}
+
+    # Valid 'start_ts' ?
+    start_ts = request.GET.get('start_ts', None)
+    if start_ts:
+        try:
+            start_ts = parse(start_ts)
+        except:
+            messages['start_ts'] = "'%s' is not a valid date/time." % start_ts
+
+    # Valid 'end_ts' ?
+    end_ts = request.GET.get('end_ts', None)
+    if end_ts:
+        try:
+            end_ts = parse(end_ts)
+        except:
+            messages['end_ts'] = "'%s' is not a valid date/time." % end_ts
+
+    # Valid timezone?
+    timezone = request.GET.get('timezone', None)
+    if timezone:
+        try:
+            timezone = pytz.timezone(timezone)
+        except:
+            messages['timezone'] = "'%s' is not a valid timezone name." % timezone
+
+    # Test averaging and label_offset strings for validity
+    st = datetime(2017, 1, 1)  # datetime used for testing only
+    averaging = request.GET.get('averaging', None)
+    if averaging:
+        try:
+            pd.date_range(st, periods=1, freq=averaging)
+        except:
+            messages['averaging'] = "'%s' is an invalid time averaging string." % averaging
+
+    label_offset = request.GET.get('label_offset', None)
+    if label_offset:
+        # found that a label_offset of 0 causes hangs, so disallow
+        if label_offset[0]=='0':
+            messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
+        else:
+            try:
+                pd.date_range(st, periods=1, freq=label_offset)
+            except:
+                messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
+
+    return messages, start_ts, end_ts, timezone, averaging, label_offset
+
 def sensor_readings(request, sensor_id):
     """API method. Returns a list of sensor readings for one sensor.  Time limits and
     time averaging can be requested for the returned readings.
@@ -173,59 +243,18 @@ def sensor_readings(request, sensor_id):
     try:
         db = bmsdata.BMSdata()  # reading database
 
-        #------ Check all the input parameters
-
         messages = {}   # used to store input validity messages.
 
         # Is the sensor_id in the database?
         if not db.sensor_id_exists(sensor_id):
             messages['sensor_id'] = "Sensor '%s' is not present in the reading database." % sensor_id
 
-        # Valid 'start_ts' ?
-        start_ts = request.GET.get('start_ts', None)
-        if start_ts:
-            try:
-                start_ts = parse(start_ts)
-            except:
-                messages['start_ts'] = "'%s' is not a valid date/time." % start_ts
+        # Check the input parameters and get the values
+        param_messages, start_ts, end_ts, timezone, averaging, label_offset = \
+            check_sensor_reading_params(request)
+        messages.update(param_messages)
 
-        # Valid 'end_ts' ?
-        end_ts = request.GET.get('end_ts', None)
-        if end_ts:
-            try:
-                end_ts = parse(end_ts)
-            except:
-                messages['end_ts'] = "'%s' is not a valid date/time." % end_ts
-
-        # Valid timezone?
-        timezone = request.GET.get('timezone', None)
-        if timezone:
-            try:
-                timezone = pytz.timezone(timezone)
-            except:
-                messages['timezone'] = "'%s' is not a valid timezone name." % timezone
-
-        # Test averaging and label_offset strings for validity
-        st = datetime(2017, 1, 1)  # datetime used for testing only
-        averaging = request.GET.get('averaging', None)
-        if averaging:
-            try:
-                pd.date_range(st, periods=1, freq=averaging)
-            except:
-                messages['averaging'] = "'%s' is an invalid time averaging string." % averaging
-
-        label_offset = request.GET.get('label_offset', None)
-        if label_offset:
-            # found that a label_offset of 0 causes hangs, so disallow
-            if label_offset[0]=='0':
-                messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
-            else:
-                try:
-                    pd.date_range(st, periods=1, freq=label_offset)
-                except:
-                    messages['label_offset'] = "'%s' is an invalid time label_offset string." % label_offset
-
-        # check for improper query parameters
+        # check for extra, improper query parameters
         messages.update(invalid_query_params(request,
                                              ['timezone', 'start_ts', 'end_ts', 'averaging', 'label_offset']))
 
@@ -254,11 +283,11 @@ def sensor_readings(request, sensor_id):
         # if start and end timestamps are present, convert to Unix Epoch values
         if start_ts:
             ts_aware = timezone.localize(start_ts)
-            start_ts = calendar.timegm(ts_aware.utctimetuple())
+            start_ts = ts_aware.timestamp()
 
         if end_ts:
             ts_aware = timezone.localize(end_ts)
-            end_ts = calendar.timegm(ts_aware.utctimetuple())
+            end_ts = ts_aware.timestamp()
 
         # get the sensor readings
         df = db.dataframeForOneID(sensor_id, start_ts=start_ts, end_ts=end_ts, tz=timezone)
@@ -288,6 +317,7 @@ def sensor_readings(request, sensor_id):
 
     except Exception as e:
         # A processing error occurred.
+        _logger.exception('Error retrieving sensor readings.')
         result = {
             'status': 'error',
             'message': str(e)
@@ -344,7 +374,98 @@ def sensor_readings_multiple(request):
     method, and the timezone of the timestamps returned.
 
     """
-    pass
+    try:
+
+        db = bmsdata.BMSdata()  # reading database
+
+        messages = {}   # used to store input validity messages.
+
+        # get the list of requested sensors
+        sensor_ids = request.GET.getlist('sensor_id')
+
+        # must be at least one sensor.
+        if len(sensor_ids) == 0:
+            messages['sensor_id'] =  'There must be at least one requested sensor.' 
+
+        # check to see if any are invalid
+        sensors_not_valid = []
+        for sensor_id in sensor_ids:
+            if not db.sensor_id_exists(sensor_id):
+                sensors_not_valid.append(sensor_id)
+        if len(sensors_not_valid):
+            messages['sensor_id'] = f"Sensors {', '.join(sensors_not_valid)} not present in the reading database."
+
+        # Check the input parameters and get the values
+        param_messages, start_ts, end_ts, timezone, averaging, label_offset = \
+            check_sensor_reading_params(request)
+        messages.update(param_messages)
+
+        # check for extra, improper query parameters
+        messages.update(invalid_query_params(request,
+                                             ['sensor_id', 'timezone', 'start_ts', 'end_ts', 'averaging', 'label_offset']))
+
+        if messages:
+            # Input errors occurred
+            return fail_payload(messages)
+
+        # if there is no requested timezone (or an invalid one), use the
+        # the most common timezone from the buildings associated with the list of sensors.
+        if timezone is None:
+            timezone = pytz.timezone('UTC')   # default timezone if no valid building tz present
+            tzs = []
+            for sensor in sensor_ids:
+                for bldg in sensor_info(sensor)['buildings']:
+                    tzs.append(bldg['timezone']) 
+            most_common_tz = Counter(tzs).most_common(1)
+            if most_common_tz:
+                tz_name, tz_count = most_common_tz[0]
+                try:
+                    timezone = pytz.timezone(tz_name)
+                except:
+                    # stick with default
+                    pass
+
+        # record the name of the final timezone
+        tz_name = str(timezone)
+
+        # ---- Get the Sensor Readings
+        # if start and end timestamps are present, convert to Unix Epoch values
+        if start_ts:
+            ts_aware = timezone.localize(start_ts)
+            start_ts = ts_aware.timestamp()
+
+        if end_ts:
+            ts_aware = timezone.localize(end_ts)
+            end_ts = ts_aware.timestamp()
+
+        # get the sensor readings
+        df = db.dataframeForMultipleIDs(sensor_ids, start_ts=start_ts, end_ts=end_ts, tz=timezone)
+
+        # if averaging is requested, do it!
+        if averaging and len(df) > 0:
+            df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna()
+
+        # make a dictionary that is formatted with orientation 'split', which is the most
+        # compact form to send the DataFrame
+        result = {
+            'status': 'success',
+            'data': {
+                'readings': df.to_dict(orient='split'),
+                'reading_timezone': tz_name,
+            }
+        }
+
+        return JsonResponse(result)
+
+    except Exception as e:
+        # A processing error occurred.
+        _logger.exception('Error retrieving sensor readings.')
+        result = {
+            'status': 'error',
+            'message': str(e)
+        }
+        return JsonResponse(result, status=500)
+
 
 def sensor_list(request):
     """API Method.  Returns a list of all the sensors in the reading
