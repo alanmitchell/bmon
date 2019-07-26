@@ -40,7 +40,7 @@ urlpatterns = [
 
     # Views related to the API, version 2
     re_path(r'^api/v2/version/$', views_api_v2.api_version),
-    re_path(r'^api/v2/readings/$', views_api_v2.sensor_readings_multiple),
+    re_path(r'^api/v2/readings/$', views_api_v2.sensor_readings),
     re_path(r'^api/v2/sensors/$', views_api_v2.sensors),
     re_path(r'^api/v2/buildings/$', views_api_v2.buildings),
 

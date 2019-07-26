@@ -322,7 +322,9 @@ class BMSdata:
 
     def sensor_id_list(self):
         """Returns a list of Sensor IDs that are present in the Reading
-        database.  The returned list is sorted by ID."""
+        database.  The returned list is sorted by ID.  This includes unassigned sensors
+        (sensors that are in the Django Sensor object list.
+        """
         # Don't return IDs that start with underbar.
         id_list = [sens_id for sens_id in self.sensor_ids if sens_id[0]!='_']
         return sorted(id_list)

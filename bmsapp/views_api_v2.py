@@ -1,4 +1,4 @@
-"""Version 2.x of the API.  Relies on views from API v1.
+"""Version 2.x of the API.  Relies on functions in API v1.
 """
 import logging
 from collections import Counter
@@ -11,7 +11,7 @@ from bmsapp import models
 from bmsapp.readingdb import bmsdata
 from bmsapp.views_api_v1 import (
     fail_payload, 
-    invalid_query_params, 
+    invalid_query_params,
     sensor_info,
     check_sensor_reading_params
 )
@@ -34,7 +34,7 @@ def api_version(request):
 
     return JsonResponse(result)
 
-def sensor_readings_multiple(request):
+def sensor_readings(request):
     """API Method.  Returns readings from multiple sensors, perhaps time-averaged
     and filtered by a date/time range.
 
@@ -177,7 +177,120 @@ def sensor_readings_multiple(request):
         return JsonResponse(result, status=500)
 
 def sensors(request):
-    pass
+    """Returns information about one or more sensors.
+
+    Parameters
+    ----------
+    request:    Django request object
+
+    The 'request' object can have the following query parameters:
+        sensor_id: The Sensor ID of a sensor to include.  This parameter can occur
+            multiple times to request data from multiple sensors.  If the sensor_id
+            parameter is not present, information for **all** sensors is returned.
+
+    Returns
+    -------
+    A JSON response containing an indicator of success or failure, a list of
+    sensors including sensor properties and building association information
+    if available.
+    """
+
+    # TO DO: fill out unit_id with a string from Units table
+    # TO DO: create list: (building_id, sensor_group, sort_order)
+
+
+    try:
+        #------ Check the query parameters
+        messages = invalid_query_params(request, ['sensor_id'])
+        # get a list of all the Sensor IDs in the reading database
+        db = bmsdata.BMSdata()  # reading database
+        all_sensor_ids = db.sensor_id_list()
+
+        # determine the list of Sensor IDs requested by this call
+        sensor_ids = request.GET.getlist('sensor_id')
+
+        if len(sensor_ids) == 0:
+            # no sensors were in the request, which means this should
+            # return all sensors.
+            sensor_ids = all_sensor_ids
+        else:
+            # check to make sure all the Sensor IDs are valid.
+            invalid_ids = set(sensor_ids) - set(all_sensor_ids)
+            if len(invalid_ids):
+                messages['sensor_id'] = f"Invalid Sensor IDs: {', '.join(list(invalid_ids))}"
+        
+        if messages:
+            return fail_payload(messages)
+
+        fields_to_exclude = ['_state']
+        def clean_sensor(s):
+            """Function to clean up Sensor object property dictionary and
+            add some additional info.
+            Parameter 's' is the dictionary of the Django Sensor object, gotten
+            from sensor.__dict__
+            """
+            # remove fields to exclude
+            for fld in fields_to_exclude:
+                s.pop(fld, None)
+
+            # look up the sensor units if present
+            unit_id = s.pop('unit_id')
+            if unit_id:
+                unit = models.Unit.objects.get(pk=unit_id)
+                s['unit'] = unit.label
+            else:
+                s['unit'] = ''
+
+            # Add a list of buildings that this sensor is associated with.
+            if s['id'] is not None:
+                bldgs = []
+                for link in models.BldgToSensor.objects.filter(sensor=s['id']):
+                    bldgs.append( 
+                        {'bldg_id': link.building.pk, 
+                        'sensor_group': link.sensor_group.title,
+                        'sort_order': link.sort_order} 
+                    )
+                s['buildings'] = bldgs
+            else:
+                # no buildings 
+                s['buildings'] = []
+            
+            return s
+
+        sensors = []    # list holding sensor information to return
+
+        # get a default dictionary to use if the Sensor ID is not in the Django model
+        # object list.
+        default_props = models.Sensor().__dict__
+        for sensor_id in sensor_ids:
+
+            try:
+                sensor = models.Sensor.objects.get(sensor_id=sensor_id)
+                sensor_props = sensor.__dict__
+            except:
+                # No Django sensor object yet (this is an unassigned sensor).
+                # Use default values
+                sensor_props = default_props.copy()
+                sensor_props['sensor_id'] = sensor_id
+            sensors.append(clean_sensor(sensor_props))
+
+        result = {
+            'status': 'success',
+            'data': {
+                'sensors': sensors,
+            }
+        }
+        return JsonResponse(result)
+
+    except Exception as e:
+        # A processing error occurred.
+        _logger.exception('Error retrieving sensor information')
+        result = {
+            'status': 'error',
+            'message': str(e)
+        }
+        return JsonResponse(result, status=500)
+
 
 def buildings(request):
     pass
