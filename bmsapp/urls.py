@@ -4,8 +4,9 @@ URLs for the BMS Application
 
 from django.conf.urls import url
 from django.urls import re_path
-from . import views
-from . import views_api_v1
+from bmsapp import views
+from bmsapp import views_api_v1
+from bmsapp import views_api_v2
 
 # Could work on simplifying many of these by using the new "path" function
 urlpatterns = [
@@ -35,8 +36,13 @@ urlpatterns = [
     # Views related to the API, version 1
     re_path(r'^api/v1/version/$', views_api_v1.api_version),
     re_path(r'^api/v1/readings/(.+)/$', views_api_v1.sensor_readings),
-    re_path(r'^api/v1/readings/$', views_api_v1.sensor_readings_multiple),
     re_path(r'^api/v1/sensors/$', views_api_v1.sensor_list),
+
+    # Views related to the API, version 2
+    re_path(r'^api/v2/version/$', views_api_v2.api_version),
+    re_path(r'^api/v2/readings/$', views_api_v2.sensor_readings_multiple),
+    re_path(r'^api/v2/sensors/$', views_api_v2.sensors),
+    re_path(r'^api/v2/buildings/$', views_api_v2.buildings),
 
     # catches URLs that don't match the above patterns.  Assumes they give a template name to render.
     re_path(r'^([^.]+)/$', views.wildcard, name='wildcard'),
