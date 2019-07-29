@@ -195,10 +195,6 @@ def sensors(request):
     if available.
     """
 
-    # TO DO: fill out unit_id with a string from Units table
-    # TO DO: create list: (building_id, sensor_group, sort_order)
-
-
     try:
         #------ Check the query parameters
         messages = invalid_query_params(request, ['sensor_id'])
@@ -293,4 +289,104 @@ def sensors(request):
 
 
 def buildings(request):
-    pass
+    """Returns information about one or more buildings.
+
+    Parameters
+    ----------
+    request:    Django request object
+
+    The 'request' object can have the following query parameters:
+        building_id: The Building ID (Django model primary key) of a building to include.
+            This parameter can occur multiple times to request data from multiple buildings.
+            If the building_id parameter is not present, information for **all** 
+            buildings is returned.
+
+    Returns
+    -------
+    A JSON response containing an indicator of success or failure, a list of
+    buildings including building properties and sensor association information
+    if available.
+    """
+
+    try:
+        #------ Check the query parameters
+        messages = invalid_query_params(request, ['building_id'])
+
+        # Make a list of all building IDs.
+        all_bldg_ids =  [b.pk for b in models.Building.objects.all()]
+        print(all_bldg_ids)
+
+        # determine the list of Building IDs requested by this call
+        bldg_ids = request.GET.getlist('building_id')
+        bldg_ids = [int(i) for i in bldg_ids]
+
+        if len(bldg_ids) == 0:
+            # no builidings were in the request, which means this should
+            # return all buildings.
+            bldg_ids = all_bldg_ids
+        else:
+            # check to make sure all the Building IDs are valid.
+            invalid_ids = set(bldg_ids) - set(all_bldg_ids)
+            if len(invalid_ids):
+                invalid_ids = [str(i) for i in invalid_ids]
+                messages['building_id'] = f"Invalid Building IDs: {', '.join(list(invalid_ids))}"
+        
+        if messages:
+            return fail_payload(messages)
+
+        fields_to_exclude = ['_state']
+        def clean_bldg(b):
+            """Function to clean up Building object property dictionary and
+            add some additional info.
+            Parameter 'b' is the dictionary of the Django Building object, gotten
+            from building.__dict__
+            """
+            # remove fields to exclude
+            for fld in fields_to_exclude:
+                b.pop(fld, None)
+
+            # look up the current Building mode if present
+            current_mode_id = b.pop('current_mode_id')
+            if current_mode_id:
+                current_mode = models.BuildingMode.objects.get(pk=current_mode_id)
+                b['current_mode'] = current_mode.name
+            else:
+                b['current_mode'] = ''
+
+            # Add a list of sensors that this sensor is associated with.
+            # Note that the Sensor ID here is not the Django model primay key; it
+            # is the sensor_id field of the Sensor object, to be consistent with the
+            # sensors() endpoint of this API.
+            sensors = []
+            for link in models.BldgToSensor.objects.filter(building=b['id']):
+                sensors.append( 
+                    {'sensor_id': link.sensor.sensor_id, 
+                    'sensor_group': link.sensor_group.title,
+                    'sort_order': link.sort_order} 
+                )
+            b['sensors'] = sensors
+            
+            return b
+
+        bldgs = []    # list holding building information to return
+        for bldg_id in bldg_ids:
+            bldg = models.Building.objects.get(pk=bldg_id)
+            bldg_props = bldg.__dict__
+            bldgs.append(clean_bldg(bldg_props))
+
+        result = {
+            'status': 'success',
+            'data': {
+                'buildings': bldgs,
+            }
+        }
+        return JsonResponse(result)
+
+    except Exception as e:
+        # A processing error occurred.
+        _logger.exception('Error retrieving building information')
+        result = {
+            'status': 'error',
+            'message': str(e)
+        }
+        return JsonResponse(result, status=500)
