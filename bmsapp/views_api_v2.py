@@ -365,6 +365,14 @@ def buildings(request):
                     'sort_order': link.sort_order} 
                 )
             b['sensors'] = sensors
+
+            # Add a list of organizations that this sensor is associated with.
+            orgs = []
+            for org in models.Organization.objects.filter(buildings=b['id']):
+                orgs.append(
+                    (org.pk, org.title)
+                )
+            b['organizations'] = orgs
             
             return b
 
