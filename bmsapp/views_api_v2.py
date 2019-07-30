@@ -353,7 +353,7 @@ def buildings(request):
             else:
                 b['current_mode'] = ''
 
-            # Add a list of sensors that this sensor is associated with.
+            # Add a list of sensors that this building is associated with.
             # Note that the Sensor ID here is not the Django model primay key; it
             # is the sensor_id field of the Sensor object, to be consistent with the
             # sensors() endpoint of this API.
@@ -366,7 +366,7 @@ def buildings(request):
                 )
             b['sensors'] = sensors
 
-            # Add a list of organizations that this sensor is associated with.
+            # Add a list of organizations that this building is associated with.
             orgs = []
             for org in models.Organization.objects.filter(buildings=b['id']):
                 orgs.append(
@@ -393,6 +393,94 @@ def buildings(request):
     except Exception as e:
         # A processing error occurred.
         _logger.exception('Error retrieving building information')
+        result = {
+            'status': 'error',
+            'message': str(e)
+        }
+        return JsonResponse(result, status=500)
+
+def organizations(request):
+    """Returns information about one or more organizations.
+
+    Parameters
+    ----------
+    request:    Django request object
+
+    The 'request' object can have the following query parameters:
+        organization_id: The Organization ID (Django model primary key) of a organization to include.
+            This parameter can occur multiple times to request data from multiple organizations.
+            If the organization_id parameter is not present, information for **all** 
+            organizations is returned.
+
+    Returns
+    -------
+    A JSON response containing an indicator of success or failure, a list of
+    organizations including organization properties and building association information
+    if available.
+    """
+
+    try:
+        #------ Check the query parameters
+        messages = invalid_query_params(request, ['organization_id'])
+
+        # Make a list of all organization IDs.
+        all_org_ids =  [o.pk for o in models.Organization.objects.all()]
+
+        # determine the list of Organization IDs requested by this call
+        org_ids = request.GET.getlist('organization_id')
+        org_ids = [int(i) for i in org_ids]
+
+        if len(org_ids) == 0:
+            # no builidings were in the request, which means this should
+            # return all buildings.
+            org_ids = all_org_ids
+        else:
+            # check to make sure all the Organization IDs are valid.
+            invalid_ids = set(org_ids) - set(all_org_ids)
+            if len(invalid_ids):
+                invalid_ids = [str(i) for i in invalid_ids]
+                messages['building_id'] = f"Invalid Organization IDs: {', '.join(list(invalid_ids))}"
+        
+        if messages:
+            return fail_payload(messages)
+
+        fields_to_exclude = ['_state']
+        def clean_org(o):
+            """Function to clean up Organization object property dictionary and
+            add some additional info.
+            Parameter 'o' is the dictionary of the Django Organization object, gotten
+            from organization.__dict__
+            """
+            # remove fields to exclude
+            for fld in fields_to_exclude:
+                o.pop(fld, None)
+            
+            return o
+
+        orgs = []    # list holding building information to return
+        for org_id in org_ids:
+            org = models.Organization.objects.get(pk=org_id)
+            org_props = org.__dict__
+            
+            # Add associated buildings
+            bldgs = []
+            for bldg in org.buildings.all():
+                bldgs.append( (bldg.pk, bldg.title) )
+            org_props['buildings'] = bldgs
+
+            orgs.append(clean_org(org_props))
+
+        result = {
+            'status': 'success',
+            'data': {
+                'organizations': orgs,
+            }
+        }
+        return JsonResponse(result)
+
+    except Exception as e:
+        # A processing error occurred.
+        _logger.exception('Error retrieving organization information')
         result = {
             'status': 'error',
             'message': str(e)
