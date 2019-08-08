@@ -178,6 +178,86 @@ class BuildingMode(models.Model):
     class Meta:
         ordering = ['name']
 
+class ElectricRate(models.Model):
+    """Defines an electric rate schedule.
+    """
+    # Name of the Rate Schedule
+    title = models.CharField(max_length=80, unique=True)
+
+    # Determines the order that the Rate Schedule will be presented in the UI
+    sort_order = models.IntegerField(default=999)
+
+    # Monthly fixed customer charge.
+    customer_charge = models.FloatField(
+        'Monthly Fixed Customer Charge, $/month', 
+        default=0.0,
+        help_text='This charge is assessed every month, irrespective of usage.'
+    )
+
+    # Energy rate, 1st block
+    rate1 = models.FloatField(
+        'Rate for first block of usage, $/kWh',
+        default=0.0
+    )
+
+    # 1st Block size, kWh
+    block1 = models.FloatField(
+        '1st Block size in kWh, leave blank to apply to all kWh',
+        blank=True,
+        null=True,
+        help_text='Leave this entry blank if there are no usage blocks and the first rate applies to all kWh.'
+    )
+
+    # Energy rate, 2nd block
+    rate2 = models.FloatField(
+        'Rate for second block of usage, if present, $/kWh',
+        blank=True,
+        null=True,
+        help_text='Only used if there is a second usage block.'
+    )
+
+    # Demand Charge
+    demand_charge = models.FloatField(
+        'Demand Charge for maximum 15 minute power, $/kW/mo',
+        default=0.0,
+        help_text='Generally not used except for Large Commercial rate structures.'
+    )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['sort_order', 'title']
+
+
+class FuelRate(models.Model):
+    """Defines a fuel rate.
+    """
+    # Name of the Rate Schedule
+    title = models.CharField(max_length=80, unique=True)
+
+    # Determines the order that the Rate Schedule will be presented in the UI
+    sort_order = models.IntegerField(default=999)
+
+    # Monthly fixed customer charge.
+    customer_charge = models.FloatField(
+        'Monthly Fixed Customer Charge, $/month', 
+        default=0.0,
+        help_text='This charge is assessed every month, irrespective of usage.'
+    )
+
+    # Fuel price expressed in $/MMBtu
+    rate = models.FloatField(
+        'Fuel Price expressed in $/MMBtu',
+        default=0.0
+    )
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['sort_order', 'title']
+
 
 class Building(models.Model):
     '''
@@ -197,6 +277,92 @@ class Building(models.Model):
 
     # Longitude of building
     longitude = models.FloatField(default=-161.0)
+
+    # Floor area of building
+    floor_area = models.FloatField('Floor area of Building in square feet', null=True, blank=True)
+
+    # Building Type
+    SINGLE_RES = 'S-RES'
+    MULTI_RES = 'M-RES'
+    OFFICE = 'OFFIC'
+    SCHOOL = 'SCH'
+    RETAIL = 'RET'
+    WAREHOUSE = 'WARE'
+    INDUSTRIAL = 'INDUS'
+    OTHER = 'OTHER'
+
+    BUILDING_TYPES = [
+        (SINGLE_RES, 'Single-Family Residential'),
+        (MULTI_RES, 'Multi-Family Residential'),
+        (OFFICE, 'Office'),
+        (SCHOOL, 'School'),
+        (RETAIL, 'Retail'),
+        (WAREHOUSE, 'Warehouse'),
+        (INDUSTRIAL, 'Industrial'),
+        (OTHER, 'Other')
+    ]
+    building_type = models.CharField(
+        'Building Type',
+        max_length=5,
+        choices=BUILDING_TYPES,
+        null=True,
+        blank=True
+    )
+
+    # Building outdoor temperature sensor
+    outdoor_temp = models.CharField(
+        'Outdoor Temperature Sensor ID',
+        max_length=80,
+        blank=True
+    )
+
+    # Building Electric Power Sensors
+    electric_ids = models.TextField(
+        'Building Electric Power Sensor IDs, one per line',
+        blank=True,
+        help_text='Sensors will be added together to determine total electric use.'
+    )
+
+    # Building Fuel Use Sensors
+    fuel_ids = models.TextField(
+        'Building Fuel Use Sensor IDs, one per line',
+        blank=True,
+        help_text='Sensors will be added together to determine total fuel use.'
+    )
+
+    # Electric Rate for Building
+    electric_rate = models.ForeignKey(
+        ElectricRate, 
+        on_delete=models.SET_NULL, 
+        verbose_name='Electric Rate Schedule for Building', 
+        blank=True, null=True
+    )
+
+    # Fuel Rate for Building
+    fuel_rate = models.ForeignKey(
+        FuelRate, 
+        on_delete=models.SET_NULL, 
+        verbose_name='Primary Fuel Price for Building', 
+        blank=True, null=True
+    )
+
+    # Building Indoor Temperature Sensors
+    indoor_temps = models.TextField(
+        'Indoor Temperature Sensor IDs, one per line',
+        blank=True
+    )
+
+    # Building Indoor Light Sensors
+    indoor_lights = models.TextField(
+        'Indoor Light Sensor IDs, one per line',
+        blank=True
+    )
+
+    # CO2 Sensors
+    co2_sensors = models.TextField(
+        'CO2 Sensor IDs, one per line',
+        blank=True
+    )
 
     # Fields related to the Occupied Schedule of the Facility
 
