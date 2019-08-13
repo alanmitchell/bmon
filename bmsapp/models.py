@@ -287,6 +287,7 @@ class Building(models.Model):
     OFFICE = 'OFFIC'
     SCHOOL = 'SCH'
     RETAIL = 'RET'
+    RESTAURANT = 'RES'
     WAREHOUSE = 'WARE'
     INDUSTRIAL = 'INDUS'
     OTHER = 'OTHER'
@@ -297,6 +298,7 @@ class Building(models.Model):
         (OFFICE, 'Office'),
         (SCHOOL, 'School'),
         (RETAIL, 'Retail'),
+        (RESTAURANT, 'Restaurant'),
         (WAREHOUSE, 'Warehouse'),
         (INDUSTRIAL, 'Industrial'),
         (OTHER, 'Other')

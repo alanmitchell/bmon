@@ -6,6 +6,7 @@ from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, Dashboard
 from bmsapp.models import MultiBuildingChart, ChartBuildingInfo, CustomReport
 from bmsapp.models import Organization, BuildingGroup, BuildingMode
 from bmsapp.models import AlertCondition, AlertRecipient, PeriodicScript
+from bmsapp.models import FuelRate, ElectricRate
 from django.contrib import admin
 from django.forms import TextInput, Textarea
 from django.db import models
@@ -212,3 +213,11 @@ class SensorAdmin(admin.ModelAdmin):
 class CustomReportAdmin(admin.ModelAdmin):
     list_display = ('title', 'group')
     formfield_overrides = {models.TextField: {'widget': Textarea(attrs={'rows':20, 'cols':80})}}
+
+@admin.register(FuelRate)
+class FuelRateAdmin(admin.ModelAdmin):
+    list_display = ('title',)
+
+@admin.register(ElectricRate)
+class ElectricRateAdmin(admin.ModelAdmin):
+    list_display = ('title',)
