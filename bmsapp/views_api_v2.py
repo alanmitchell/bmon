@@ -315,7 +315,6 @@ def buildings(request):
 
         # Make a list of all building IDs.
         all_bldg_ids =  [b.pk for b in models.Building.objects.all()]
-        print(all_bldg_ids)
 
         # determine the list of Building IDs requested by this call
         bldg_ids = request.GET.getlist('building_id')
