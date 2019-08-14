@@ -305,7 +305,8 @@ def buildings(request):
     -------
     A JSON response containing an indicator of success or failure, a list of
     buildings including building properties and sensor association information
-    if available.
+    if available.  For fuel_rate and electric_rate fields, associated objects
+    are substituted for the IDs.
     """
 
     try:
@@ -353,6 +354,21 @@ def buildings(request):
             else:
                 b['current_mode'] = ''
 
+            # Add the fuel and elecric rate objects
+            fuel_rate_id = b.pop('fuel_rate_id')
+            if fuel_rate_id:
+                b['fuel_rate'] = models.FuelRate.objects.get(pk=fuel_rate_id).__dict__
+                b['fuel_rate'].pop('_state')
+            else:
+                b['fuel_rate'] = None
+
+            electric_rate_id = b.pop('electric_rate_id')
+            if electric_rate_id:
+                b['electric_rate'] = models.ElectricRate.objects.get(pk=electric_rate_id).__dict__
+                b['electric_rate'].pop('_state')
+            else:
+                b['electric_rate'] = None
+    
             # Add a list of sensors that this building is associated with.
             # Note that the Sensor ID here is not the Django model primay key; it
             # is the sensor_id field of the Sensor object, to be consistent with the
