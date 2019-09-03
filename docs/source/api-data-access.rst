@@ -1,7 +1,10 @@
 .. _api-data-access:
 
+Accessing Data in BMON: API and Python Library
+==============================================
+
 New Data Access Approaches
-==========================
+---------------------------
 
 Two new ways to access BMON data were added in August of 2019.  First,version 2 of
 the HTTP API was developed, adding the ability to request sensor reading data
@@ -20,7 +23,7 @@ of usage are
 Documentation for the version 1 API is documented on the rest of this page.
 
 API Data Access, version 1
-==========================
+---------------------------
 
 A basic Application Programming Interface is available to read data from
 the BMON application.  Currently, there are two available API methods, one
@@ -35,7 +38,7 @@ way to experiment with the API and see the JSON results is clearly formatted
 way.
 
 API Method to Obtain Sensor Readings
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This method allows you to obtain readings from one sensor in the BMON database.
 You can limit the time range of readings returned and you can also have BMON
@@ -43,7 +46,7 @@ first perform time-averaging of the readings (e.g. daily
 average readings).
 
 Request URL
-~~~~~~~~~~~
+++++++++++++
 
 ::
 
@@ -71,7 +74,7 @@ in next section)::
     https://bmon.analysisnorth.com/api/v1/readings/kake_temp/?averaging=1D
 
 Request Parameters
-~~~~~~~~~~~~~~~~~~
++++++++++++++++++++
 
 Below are optional request query parameters that can be used to filter or
 transform the returned sensor readings.
@@ -128,7 +131,7 @@ transform the returned sensor readings.
 
 
 Response Fields
-~~~~~~~~~~~~~~~
+++++++++++++++++
 
 A successful request results in a returned response Status Code of 200, and
 a JSON response with the following JSON key/value fields.
@@ -219,7 +222,7 @@ are marked '(advanced)' in the list below.
 
 
 Example Usage
-~~~~~~~~~~~~~
+++++++++++++++
 
 Here is a sample successful request that asks for monthly average sensors values
 for the ``kake_temp`` sensor, but only including sensor readings
@@ -278,7 +281,7 @@ Here is the JSON response:
     }
 
 Errors
-~~~~~~
++++++++
 
 Errors can occur while processing an API request.  If the errors are related
 to a poorly formed request, then the response from API will return a Status
@@ -313,13 +316,13 @@ The ``status`` field contains the string ``error`` and a ``message`` field is
 provided describing the internal processing error.
 
 API Method to Obtain a List of All Sensors
-------------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 This method allows you to obtain a list of all the sensors in the
 sensor reading database.
 
 Request URL
-~~~~~~~~~~~
+++++++++++++
 
 ::
 
@@ -331,12 +334,12 @@ BMON site accessed at ``https://bmon.analysisnorth.com``::
     https://bmon.analysisnorth.com/api/v1/sensors/
 
 Request Parameters
-~~~~~~~~~~~~~~~~~~
++++++++++++++++++++
 
 There are no valid query parameters associated with this API method.
 
 Response Fields
-~~~~~~~~~~~~~~~
+++++++++++++++++
 
 A successful request results in a returned response Status Code of 200, and
 a JSON response with the following JSON key/value fields.
@@ -352,7 +355,7 @@ a JSON response with the following JSON key/value fields.
     described in the ``readings`` API method call above.
 
 Example Usage
-~~~~~~~~~~~~~
+++++++++++++++
 
 Here is a sample successful request that asks for the sensor list from
 BMON site accessed at ``https://bmon.analysisnorth.com``::
@@ -415,7 +418,7 @@ response.  BMON sites will generally have many more sensors.
     }
 
 Errors
-~~~~~~
++++++++
 
 Errors can occur while processing an API request.  If the errors are related
 to a poorly formed request, then the response from API will return a Status

@@ -28,4 +28,5 @@ describes how a Developer can write custom Periodic Scripts to be run by BMON.
 -----------------------------------------------------
 
 A basic Application Programming Interface (API) is available to read data
-from the BMON application.  This document describes use of that interface.
+from the BMON application.  Also, a Python library wrapping the API is available
+to simplify data access.
