@@ -1,7 +1,26 @@
 .. _api-data-access:
 
-API Data Access
-===============
+New Data Access Approaches
+==========================
+
+Two new ways to access BMON data were added in August of 2019.  First,version 2 of
+the HTTP API was developed, adding the ability to request sensor reading data
+from multiple sensors at once, and adding the ability to request information about
+the buildings and organizations present in the BMON system.  Documentation for
+the new API has not yet been completed; please contact the developer if you wish
+to use the version 2 API.
+
+Next, a Python library has been developed that wraps the version 2 API, simplifying
+access to BMON data when using the Python programming language.  The "bmondata" 
+library is available at this 
+`GitHub repository <https://github.com/alanmitchell/bmondata>`_ and examples
+of usage are 
+`shown on this page. <http://web.analysisnorth.com.s3-us-west-2.amazonaws.com/bmondata/usage_examples.html>`_
+
+Documentation for the version 1 API is documented on the rest of this page.
+
+API Data Access, version 1
+==========================
 
 A basic Application Programming Interface is available to read data from
 the BMON application.  Currently, there are two available API methods, one
