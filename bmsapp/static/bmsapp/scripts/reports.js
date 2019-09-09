@@ -8,14 +8,14 @@
   _loading_inputs = false;
 
   inputs_changed = function() {
+    if ($('#select_sensor_multi').prop('disabled') === false) {
+      $('#select_sensor_multi').selectpicker('refresh');
+    }
     if (_auto_recalc && !_loading_inputs) {
       if (urlQueryString() === '') {
         history.replaceState(null, null, "?".concat(serializedInputs()));
       } else if (serializedInputs() !== urlQueryString()) {
         history.pushState(null, null, "?".concat(serializedInputs()));
-      }
-      if ($('#select_sensor_multi').prop('disabled') === false) {
-        $('#select_sensor_multi').selectpicker('refresh');
       }
       return update_results();
     }

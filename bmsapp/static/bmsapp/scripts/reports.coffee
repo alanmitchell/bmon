@@ -1,3 +1,4 @@
+# Need to use Coffeescript 1.x to maintain IE compatibility.
 # controls whether results are updated automatically or manually by
 # a direct call to 'update_results'
 _auto_recalc = true
@@ -7,15 +8,15 @@ _loading_inputs = false
 
 # Called when inputs that affect the results have changed
 inputs_changed = ->
+  # having trouble with multi-select refreshing
+  if $('#select_sensor_multi').prop('disabled') == false
+    $('#select_sensor_multi').selectpicker('refresh')
   if _auto_recalc and not _loading_inputs
     # update the window location url if needed
     if urlQueryString() == ''
       history.replaceState(null,null,"?".concat(serializedInputs()))
     else if serializedInputs() != urlQueryString()
       history.pushState(null,null,"?".concat(serializedInputs()))
-    # having trouble with multi-select refreshing
-    if $('#select_sensor_multi').prop('disabled') == false
-      $('#select_sensor_multi').selectpicker('refresh')
     # update the results display
     update_results() 
 
