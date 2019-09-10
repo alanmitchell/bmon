@@ -65,7 +65,8 @@ class Sensor(models.Model):
     title = models.CharField(max_length = 80)
 
     # the units for the sensor values
-    unit =  models.ForeignKey(Unit, models.SET_NULL, blank=True, null=True)
+    # Does not allow no value.
+    unit =  models.ForeignKey(Unit, models.SET_DEFAULT, default=1)
 
     # Adds in a notes field to the Current sensors page.
     notes = models.TextField("Please enter descriptive notes about the sensor.", default="No sensor notes available.")
