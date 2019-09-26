@@ -446,7 +446,8 @@ class BldgToSensor(models.Model):
     sensor = models.ForeignKey(Sensor, models.CASCADE)
 
     # For this building, the sensor group that the sensor should be classified in.
-    sensor_group = models.ForeignKey(SensorGroup, models.SET_NULL, blank=True, null=True)
+    # The default value is for the "Miscellaneous" Sensor Group.
+    sensor_group = models.ForeignKey(SensorGroup, models.SET_DEFAULT, default=8)
 
     # Within the sensor group, this field determines the sort order of this sensor.
     sort_order = models.IntegerField(default=999)
