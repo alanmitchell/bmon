@@ -150,12 +150,65 @@ class BuildingSensorListFilter(admin.SimpleListFilter):
             sensor_ids = [b_to_s.sensor.pk for b_to_s in BldgToSensor.objects.filter(building_id=bldg_pk)]
             return queryset.filter(pk__in=sensor_ids)
 
+class SensorAlertExistsListFilter(admin.SimpleListFilter):
+    '''List Filter used to select sensors that have alerts present.
+    See https://docs.djangoproject.com/en/2.2/ref/contrib/admin/#django.contrib.admin.ModelAdmin.list_filter
+    for info on how this built.
+    '''
+
+    # Human-readable title which will be displayed in the
+    # right admin sidebar just above the filter options.
+    # NOTE:  the underbar is a function imported from django.utils.translation
+    title = _('Alerts Present')
+
+    # Parameter for the filter that will be used in the URL query.
+    parameter_name = 'alerts_present'
+
+    def lookups(self, request, model_admin):
+        """
+        Returns a list of tuples. The first element in each
+        tuple is the coded value for the option that will
+        appear in the URL query. The second element is the
+        human-readable name for the option that will appear
+        in the right sidebar.
+        """
+        return (
+            ('active', _('Have Active Alerts')),
+            ('inactive', _('Have Inactive Alerts')),
+            ('none', _('Have No Alerts')),
+        )
+
+    def queryset(self, request, queryset):
+        """
+        Returns the filtered queryset based on the value
+        provided in the query string and retrievable via
+        `self.value()`.
+        """
+        # get the requested alert presence.
+        alert_presence = self.value()
+        if alert_presence is None:
+            # This case occurs when 'All' is selected
+            return queryset
+        elif alert_presence == 'none':
+            sensor_ids = [alert.sensor.pk for alert in AlertCondition.objects.all()]
+            sensor_ids = list(set(sensor_ids))
+            return queryset.exclude(pk__in=sensor_ids)
+        elif alert_presence == 'inactive':
+            sensor_ids = [alert.sensor.pk for alert in AlertCondition.objects.filter(active=False)]
+            sensor_ids = list(set(sensor_ids))
+            return queryset.filter(pk__in=sensor_ids)
+        elif alert_presence == 'active':
+            sensor_ids = [alert.sensor.pk for alert in AlertCondition.objects.filter(active=True)]
+            sensor_ids = list(set(sensor_ids))
+            return queryset.filter(pk__in=sensor_ids)
+        else:
+            return queryset
 
 @admin.register(Sensor)
 class SensorAdmin(admin.ModelAdmin):
     inlines = (BldgToSensorInline2, AlertAdminInline)
     search_fields = ['sensor_id', 'title', 'tran_calc_function']
-    list_filter = ['is_calculated', BuildingSensorListFilter]
+    list_filter = [BuildingSensorListFilter, SensorAlertExistsListFilter, 'is_calculated']
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows':6, 'cols':80})},
     }
