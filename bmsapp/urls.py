@@ -12,7 +12,8 @@ from bmsapp import views_api_v2
 urlpatterns = [
     re_path(r'^readingdb/reading/(\w+)/store/$', views.store_reading),      # URL to store one reading into database
     re_path(r'^readingdb/reading/store/$', views.store_readings),          # URL to store multiple readings into database
-    re_path(r'^readingdb/reading/store-things/$', views.store_readings_things),          # URL to store readings from Things Network
+    re_path(r'^readingdb/reading/store-things/$', views.store_readings_things),  # URL to store readings from Things Network
+    re_path(r'^readingdb/reading/store-rb/$', views.store_readings_radio_bridge),
     re_path(r'^st8(\w+)/', views.store_reading_old),             # Old URL pattern for storing.  Shouldn't be used for new sensors.
     re_path(r'^readingdb/reading/(\w+)/$', views.get_readings),   # gets all readings for one reading ID.
     re_path(r'^$', views.index, name='index'),

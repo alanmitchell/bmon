@@ -239,10 +239,6 @@ def store_readings(request):
         _logger.exception('Error Storing Reading')
         return HttpResponse(sys.exc_info()[1])
 
-# Payload Fields from Things Network nodes that do not contain sensor
-# readings.
-EXCLUDE_THINGS_FIELDS = ('event', )
-
 @csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
 def store_readings_things(request):
     '''
@@ -251,6 +247,11 @@ def store_readings_things(request):
     Application in the Things Network.  The BMON Store Key is in a custom HTTP header.
     The readings and other data are in the POST data encoded in JSON.
     '''
+
+    # Payload Fields from Things Network nodes that do not contain sensor
+    # readings.
+    EXCLUDE_THINGS_FIELDS = ('event', )
+
     try:
 
         # The post data is JSON, so decode it.
@@ -283,6 +284,63 @@ def store_readings_things(request):
             msg = storereads.store_many({'readings': readings})
 
             return HttpResponse(msg)
+        else:
+            _logger.warning('Invalid Storage Key in Reading Post: %s', storeKey)
+            return HttpResponse('Invalid Key')
+
+    except:
+        _logger.exception('Error Storing Reading')
+        return HttpResponse(sys.exc_info()[1])
+
+@csrf_exempt    # needed to accept HTTP POST requests from systems other than this one.
+def store_readings_radio_bridge(request):
+    '''
+    Stores a set of sensor readings from a Radio Bridge LoRaWAN sensor in the sensor reading 
+    database. The readings are assumed to originate from an HTTP Integration on an
+    Application in the Things Network.  The BMON Store Key is in a custom HTTP header.
+    The readings and other data are in the POST data encoded in JSON.
+    '''
+
+    try:
+
+        # The post data is JSON, so decode it.
+        req_data = json.loads(request.body)
+
+        # Return if this is a message that does not have any data in it, like an 
+        # activate or join message.
+        if 'payload_fields' not in req_data:
+            return HttpResponse('No Data')
+
+        # See if the store key is valid.  It's stored in the "store-key" header, which
+        # is found in the "HTTP_STORE_KEY" key in the META dictionary.
+        storeKey = request.META.get('HTTP_STORE_KEY', 'None_Present')
+
+        if store_key_is_valid(storeKey):
+            readings = []
+            ts = dateutil.parser.parse(req_data['metadata']['time']).timestamp()
+            hdw_serial = req_data['hardware_serial']
+
+            pf = req_data['payload_fields']
+            event = pf['EVENT_TYPE']
+            if event == '01':     # Supervisory Event
+                readings.append( [ts, f'{hdw_serial}_battery', float(pf['BATTERY_LEVEL'])] )
+
+            elif event == '07':    # Contact event
+                val = float(pf['SENSOR_STATE'])
+                # Invert their logic: they have a 0 when the contacts are closed
+                val = val * -1 + 1
+                readings.append( [ts, f'{hdw_serial}_state', val] )
+
+            elif event == '09':   # Temperature Event
+                readings.append( [ts, f'{hdw_serial}_temp', pf['TEMPERATURE'] * 1.8 + 32.] )
+
+            else:
+                return HttpResponse('No Data')
+
+            msg = storereads.store_many({'readings': readings})
+
+            return HttpResponse(msg)
+
         else:
             _logger.warning('Invalid Storage Key in Reading Post: %s', storeKey)
             return HttpResponse('Invalid Key')
