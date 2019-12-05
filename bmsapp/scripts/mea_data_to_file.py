@@ -16,6 +16,7 @@ import email
 from io import BytesIO
 import logging
 import logging.handlers
+import time
 import pandas as pd
 import numpy as np
 
@@ -79,8 +80,10 @@ try:
                 good_data = df_final.groupby('id')['val'].transform(find_good).astype(bool)
                 df_final = df_final[good_data]
 
-                # Write to a CSV file
-                out_path = data_path / Path(fname).with_suffix('.csv')
+                # Write to a CSV file. Include a timestamp in the file name so file
+                # are unique.
+                fn = f'{Path(fname).stem}_{time.time():.3f}.csv'
+                out_path = data_path / fn
                 df_final.to_csv(out_path, index=False)  # Pandas takes Path's directly
 
                 _logger.info(f'{len(df_final)} records processed from {fname}')
