@@ -19,7 +19,7 @@ import pandas as pd
 import numpy as np
 
 # Log file for the application
-LOG_FILE = str(Path.expanduser('~/mea_data/email_logs/mea_email.log'))
+LOG_FILE = str(Path('~/mea_data/email_logs/mea_email.log').expanduser())
 
 # create base logger for the application.
 _logger = logging.getLogger('meadata')
@@ -38,7 +38,7 @@ fh.setFormatter(formatter)
 _logger.addHandler(fh)
 
 # variable for the base data directory
-data_path = Path.expanduser('~/mea_data/data')
+data_path = Path('~/mea_data/data').expanduser()
 
 try:
 
