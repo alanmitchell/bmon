@@ -84,7 +84,7 @@ try:
                 # are unique.
                 fn = f'{Path(fname).stem}_{time.time():.3f}.csv'
                 out_path = data_path / fn
-                df_final.to_csv(out_path, index=False)  # Pandas takes Path's directly
+                df_final[['id', 'ts', 'val']].to_csv(out_path, index=False)  # Pandas takes Path's directly
 
                 _logger.info(f'{len(df_final)} records processed from {fname}')
 
