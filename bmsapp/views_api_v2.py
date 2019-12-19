@@ -6,6 +6,7 @@ from collections import Counter
 import pytz
 from django.http import JsonResponse
 from dateutil.parser import parse
+from django.views.decorators.csrf import csrf_exempt
 
 from bmsapp import models
 from bmsapp.readingdb import bmsdata
@@ -22,6 +23,7 @@ API_VERSION = 2.0
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
 
+@csrf_exempt
 def api_version(request):
     """API method that returns the version number of the API
     """
@@ -34,6 +36,7 @@ def api_version(request):
 
     return JsonResponse(result)
 
+@csrf_exempt
 def sensor_readings(request):
     """API Method.  Returns readings from multiple sensors, perhaps time-averaged
     and filtered by a date/time range.
@@ -176,6 +179,7 @@ def sensor_readings(request):
         }
         return JsonResponse(result, status=500)
 
+@csrf_exempt
 def sensors(request):
     """Returns information about one or more sensors.
 
@@ -288,6 +292,7 @@ def sensors(request):
         return JsonResponse(result, status=500)
 
 
+@csrf_exempt
 def buildings(request):
     """Returns information about one or more buildings.
 
@@ -414,6 +419,7 @@ def buildings(request):
         }
         return JsonResponse(result, status=500)
 
+@csrf_exempt
 def organizations(request):
     """Returns information about one or more organizations.
 
