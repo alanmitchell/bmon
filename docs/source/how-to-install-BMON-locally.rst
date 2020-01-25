@@ -78,6 +78,7 @@ You may need to run ``whereis virtualenvwrapper.sh`` and document the path.
 |	``source /usr/local/bin/virtualenvwrapper.sh``
 |	``PYTHON=python3.7``
 
+|   Save the file and then run:
 | ``source ~/.bashrc`` 
 
 If the parameters added to your bashrc are correct - virtualenvwrapper scripts will be created like this:
