@@ -1,0 +1,28 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Energy Reports{% endblock %}
+{% block head %}
+    <style>
+    </style>        
+{% endblock %}
+
+{% block this_nav_link %}link_energy-reports{% endblock %}
+
+{% block content %}
+
+<h2>Energy Reports</h2>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+        forceReload = function() {
+            location.reload(true);
+        };
+        $(function () {
+            $("#select_org").change(forceReload);
+        });
+</script>
+
+{% endblock %}

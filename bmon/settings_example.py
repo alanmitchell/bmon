@@ -37,7 +37,8 @@ BMSAPP_HEADER = 'XYZ Remote Monitoring'
 #     The third item (optional) is True if this item should be the default index page for
 #         the application.
 BMSAPP_NAV_LINKS = (('Map', 'map'),
-                    ('Graphs/Reports', 'reports', True),
+                    ('Graphs', 'reports', True),
+                    ('Energy Reports', 'energy-reports'),
                     ('Custom Reports', 'custom-reports'),
                     ('Training', 'training-anthc'),
                     ('Sys Admin', 'admin-reports'),
