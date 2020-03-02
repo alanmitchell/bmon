@@ -98,6 +98,18 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # not info info available for calculation.
             return [], []
 
+    def getInternetDewpoint(self, stnCode):
+        """** No parameters are sensor reading arrays **
+
+        Returns an outdoor Dewpoint temperature from an NWS weather station in degrees F.
+        Returns just one record of information, timestamped with the current time.
+        """
+        obs = internetwx.getWeatherObservation(stnCode)
+        if obs.dewpt is not None:
+            return [int(time.time())], [obs.dewpt.value() * 1.8 + 32.0]
+        else:
+            return [], []
+
     def getWUtemperature(self, stn, stn2=None):
         """** No parameters are sensor reading arrays **
 
