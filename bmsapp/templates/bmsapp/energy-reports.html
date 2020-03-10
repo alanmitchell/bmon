@@ -1,16 +1,24 @@
 {% extends "bmsapp/base.html" %}
+{% load staticfiles %}
 
 {% block pagetitle %}Energy Reports{% endblock %}
 {% block head %}
-    <style>
-    </style>        
+<style>
+</style>       
+<script src="{% static 'bmsapp/scripts/energy-reports.js' %}"></script>
 {% endblock %}
 
 {% block this_nav_link %}link_energy-reports{% endblock %}
 
 {% block content %}
 
+<span id="energy-reports-url" style="display:none">{{ energy_reports_url }}</span>
+
 <h2>Energy Reports</h2>
+
+<h5><i>{{ error_message }}</i></h5>
+
+<div id="debug-out"></div>
 
 {% endblock %}
 

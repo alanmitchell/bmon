@@ -20,6 +20,7 @@ urlpatterns = [
     re_path(r'^reports/$', views.reports, name='reports'),
     re_path(r'^reports/results/$', views.get_report_results),
     re_path(r'^reports/embed/$', views.get_embedded_results), # javascript embedded version of report results
+    re_path(r'^energy-reports/$', views.energy_reports),
     re_path(r'^custom-reports/$', views.custom_report_list),
     re_path(r'^custom-reports/(.+)$', views.custom_report),
     re_path(r'^show-log/$', views.show_log),
