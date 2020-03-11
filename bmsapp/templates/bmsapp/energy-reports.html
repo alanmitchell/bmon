@@ -20,17 +20,36 @@
 
 <div id="debug-out"></div>
 
+<div class="row mx-1">
+  <form class="form-inline">
+    <label class="mr-2" for="select_bldg" id="label_bldg"">Facility:</label>
+    <select class="form-control" id="select_bldg" name="select_bldg">
+        <option>Test Option</option>
+    </select>
+  </form>
+</div>
+
+<div class="row mx-1 mt-3">
+  <ul id="report-tab-list" class="nav nav-tabs flex-wrap" role="tablist">
+    <li class="nav-item">
+      <a class="nav-link active" data-toggle="tab" href="#home" role="tab">Home</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#profile" role="tab">Profile</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#messages" role="tab">Messages</a>
+    </li>
+    <li class="nav-item">
+      <a class="nav-link" data-toggle="tab" href="#settings" role="tab">Settings</a>
+    </li>
+  </ul>
+</div>
+
+
 {% endblock %}
 
 {% block scripts %}
 
-<script>
-        forceReload = function() {
-            location.reload(true);
-        };
-        $(function () {
-            $("#select_org").change(forceReload);
-        });
-</script>
 
 {% endblock %}
