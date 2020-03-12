@@ -16,6 +16,10 @@
 
 <h2>Energy Reports</h2>
 
+<h5><i>Under Construction: Formatting Improvements in Progress</i></h5>
+
+<hr/>
+
 <h5><i>{{ error_message }}</i></h5>
 
 <div id="debug-out"></div>
@@ -29,23 +33,16 @@
   </form>
 </div>
 
+<hr/>
+
 <div class="row mx-1 mt-3">
   <ul id="report-tab-list" class="nav nav-tabs flex-wrap" role="tablist">
-    <li class="nav-item">
-      <a class="nav-link active" data-toggle="tab" href="#home" role="tab">Home</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-toggle="tab" href="#profile" role="tab">Profile</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-toggle="tab" href="#messages" role="tab">Messages</a>
-    </li>
-    <li class="nav-item">
-      <a class="nav-link" data-toggle="tab" href="#settings" role="tab">Settings</a>
-    </li>
   </ul>
 </div>
 
+<div class="row mt-3">
+  <iframe id="report-content" src="" width="100%" height="1000px"></iframe>
+</div>
 
 {% endblock %}
 
