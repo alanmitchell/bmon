@@ -109,13 +109,19 @@
                 </div>
             </div>
         </div>
-    
+
         <div class="container mt-0 pt-3">
                 
             <h2>{% block title %}{% endblock %}</h2>
 
             {% block content %}{% endblock %}
-            
+        </div>            
+
+        <div class="container-fluid" mt=3>
+            {% block fullwidth %}{% endblock %}
+        </div>
+
+        <div class="container mt-0 pt-3">
             <hr />
             <div class="row">
                 <div class="col-auto">
