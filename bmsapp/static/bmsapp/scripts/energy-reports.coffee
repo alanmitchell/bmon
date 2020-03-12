@@ -79,6 +79,7 @@ load_report = ->
     report_url = "#{ _base_url }organization/#{ $("#select_org").val() }/#{ report_file_name }"
 
   $("#report-content").attr("src", report_url)
+  $("#print-link").attr("href", report_url)     # update link to printable version of report
 
 # ---------------------------------------------------------------
 # function that runs when the document is ready.
@@ -119,3 +120,4 @@ $ ->
     $("#select_org").change update_bldg_list
     $("#select_org").change update_report_list
     $("#select_bldg").change update_report_list
+        
