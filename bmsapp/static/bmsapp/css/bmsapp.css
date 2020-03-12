@@ -1,21 +1,25 @@
 /* App-specific styles */
 
 body {
-    background: #D4E7F7;
+  background: #D4E7F7;
 }
 
 .group-row {
-    background-color: #B2DBFF;
+  background-color: #B2DBFF;
 }
 
 #main_header {
-    background-color:rgb(24, 102, 167);
+  background-color:rgb(24, 102, 167);
 }
 
 #nav_container {
-    background-color:rgb(237, 245, 252);
+  background-color:rgb(237, 245, 252);
 }
 
 .tooltip-inner {
-    max-width: 350px; 
+  max-width: 350px; 
+}
+
+hr {
+  border-top: 1px solid rgba(0, 0, 0, 0.2);
 }

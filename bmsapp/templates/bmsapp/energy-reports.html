@@ -1,0 +1,52 @@
+{% extends "bmsapp/base.html" %}
+{% load staticfiles %}
+
+{% block pagetitle %}Energy Reports{% endblock %}
+{% block head %}
+<style>
+</style>       
+<script src="{% static 'bmsapp/scripts/energy-reports.js' %}"></script>
+{% endblock %}
+
+{% block this_nav_link %}link_energy-reports{% endblock %}
+
+{% block content %}
+
+<span id="energy-reports-url" style="display:none">{{ energy_reports_url }}</span>
+
+<h2>Energy Reports</h2>
+
+<h5><i>Under Construction: Formatting Improvements in Progress</i></h5>
+
+<hr/>
+
+<h5><i>{{ error_message }}</i></h5>
+
+<div id="debug-out"></div>
+
+<div class="row mx-1">
+  <form class="form-inline">
+    <label class="mr-2" for="select_bldg" id="label_bldg"">Facility:</label>
+    <select class="form-control" id="select_bldg" name="select_bldg">
+        <option>Test Option</option>
+    </select>
+  </form>
+</div>
+
+<hr/>
+
+<div class="row mx-1 mt-3">
+  <ul id="report-tab-list" class="nav nav-tabs flex-wrap" role="tablist">
+  </ul>
+</div>
+
+<div class="row mt-3">
+  <iframe id="report-content" src="" width="100%" height="1000px"></iframe>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+
+{% endblock %}

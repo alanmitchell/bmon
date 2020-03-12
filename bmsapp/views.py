@@ -139,6 +139,30 @@ def get_embedded_results(request):
             script_content = view_util.get_embedded_results_script(request, result)
             return HttpResponse(script_content, content_type="application/javascript")
 
+def energy_reports(request):
+    """Presents the BMON Essential Energy Reports page.
+    """
+    # determine the base Energy Reports URL to pass to the template
+    if hasattr(settings, 'ENERGY_REPORTS_URL') and settings.ENERGY_REPORTS_URL is not None:
+        energy_reports_url = settings.ENERGY_REPORTS_URL
+        if energy_reports_url[-1] != '/':
+            # add a slash at end, as it did not contain one.
+            energy_reports_url += '/'
+        error_message = ''
+    else:
+        energy_reports_url = ''
+        error_message = 'Energy Reports are not Available.  Contact your System Administrator for more information.'
+
+    ctx = base_context()
+    ctx.update(
+        {
+            'energy_reports_url': energy_reports_url,
+            'error_message': error_message,
+        }
+    )
+    
+    return render_to_response('bmsapp/energy-reports.html', ctx)
+
 def custom_report_list(request):
     """The main Custom Reports page - lists available custom reports for the
     organization identified by the query parameter 'select_org'.
