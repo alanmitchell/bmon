@@ -56,18 +56,32 @@ update_report_list = ->
     $("#report-tab-list").append html
 
   # Add building reports if this building is in the list
+  # Track # of reports.
+  rpt_count = 0
   if _bldg_reports[bldg]?
     add_report(rpt, "B") for rpt in _bldg_reports[bldg]
+    rpt_count += 1
+  
   # Add Organization reports if this building is in the list
   if _org_reports[org]?
     add_report(rpt, "O") for rpt in _org_reports[org]
+    rpt_count += 1
 
-  # add a handler for the click event on all of the a links associated
-  # with the tabs.
-  $("#report-tab-list a").click load_report
+  if rpt_count > 0
+    $("#report-tabs").show()
+    $("#iframe-related").show()
 
-  # Select the first tab
-  $("#report-tab-list a:first").addClass("active").click()
+    # add a handler for the click event on all of the a links associated
+    # with the tabs.
+    $("#report-tab-list a").click load_report
+
+    # Select the first tab
+    $("#report-tab-list a:first").addClass("active").click()
+
+  else
+    # No reports, so hide tabs and iFrame
+    $("#report-tabs").hide()
+    $("#iframe-related").hide()
 
 load_report = ->
   # href attribute contains info about where the report is located
@@ -120,4 +134,9 @@ $ ->
     $("#select_org").change update_bldg_list
     $("#select_org").change update_report_list
     $("#select_bldg").change update_report_list
+
+  else
+    $("#bldg-selection").hide()
+    $("#report-tabs").hide()
+    $("#iframe-related").hide()
         
