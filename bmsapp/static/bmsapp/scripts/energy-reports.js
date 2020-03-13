@@ -31,7 +31,7 @@
   };
 
   update_report_list = function() {
-    var add_report, bldg, i, j, len, len1, org, ref, ref1, rpt;
+    var add_report, bldg, i, j, len, len1, org, ref, ref1, rpt, rpt_count;
     org = $("#select_org").val();
     bldg = $("#select_bldg").val();
     $("#report-tab-list").empty();
@@ -40,12 +40,14 @@
       html = "<li class=\"nav-item\">\n  <a class=\"nav-link\" data-toggle=\"tab\" href=\"#" + rpt_type + "-" + rpt.file_name + "\" role=\"tab\">" + rpt.title + "</a>\n</li>";
       return $("#report-tab-list").append(html);
     };
+    rpt_count = 0;
     if (_bldg_reports[bldg] != null) {
       ref = _bldg_reports[bldg];
       for (i = 0, len = ref.length; i < len; i++) {
         rpt = ref[i];
         add_report(rpt, "B");
       }
+      rpt_count += 1;
     }
     if (_org_reports[org] != null) {
       ref1 = _org_reports[org];
@@ -53,9 +55,17 @@
         rpt = ref1[j];
         add_report(rpt, "O");
       }
+      rpt_count += 1;
     }
-    $("#report-tab-list a").click(load_report);
-    return $("#report-tab-list a:first").addClass("active").click();
+    if (rpt_count > 0) {
+      $("#report-tabs").show();
+      $("#iframe-related").show();
+      $("#report-tab-list a").click(load_report);
+      return $("#report-tab-list a:first").addClass("active").click();
+    } else {
+      $("#report-tabs").hide();
+      return $("#iframe-related").hide();
+    }
   };
 
   load_report = function() {
@@ -105,6 +115,10 @@
       $("#select_org").change(update_bldg_list);
       $("#select_org").change(update_report_list);
       return $("#select_bldg").change(update_report_list);
+    } else {
+      $("#bldg-selection").hide();
+      $("#report-tabs").hide();
+      return $("#iframe-related").hide();
     }
   });
 

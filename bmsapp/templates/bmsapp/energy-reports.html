@@ -22,9 +22,7 @@
 
 <h5><i>{{ error_message }}</i></h5>
 
-<div id="debug-out"></div>
-
-<div class="row mx-1">
+<div id="bldg-selection" class="row mx-1">
   <form class="form-inline">
     <label class="mr-2" for="select_bldg" id="label_bldg"">Facility:</label>
     <select class="form-control" id="select_bldg" name="select_bldg">
@@ -34,7 +32,7 @@
 
 <hr/>
 
-<div class="row mx-1 mt-3">
+<div id="report-tabs" class="row mx-1 mt-3">
   <ul id="report-tab-list" class="nav nav-tabs flex-wrap" role="tablist">
   </ul>
 </div>
@@ -42,15 +40,17 @@
 {% endblock %}
 
 {% block fullwidth %}
-<div class="row mt-3 mx-2">
-  <div class="col">
-      <a id="print-link" href="" class="float-right" target="_blank">
-        Click Here for Printable Report View
-      </a>
+<div id="iframe-related">
+  <div class="row mt-3 mx-2">
+    <div class="col">
+        <a id="print-link" href="" class="float-right" target="_blank">
+          Click Here for Printable Report View
+        </a>
+    </div>
   </div>
-</div>
-<div class="row mx-2">
-  <iframe id="report-content" src="" width="100%" height="750px"></iframe>
+  <div class="row mx-2">
+    <iframe id="report-content" src="" width="100%" height="750px"></iframe>
+  </div>
 </div>
 {% endblock %}
 
