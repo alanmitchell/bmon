@@ -62,7 +62,7 @@
         </script>
 
         {% block head %}{% endblock %}
-	<title>XYZ Remote Monitoring</title>
+	<title>{{ bmsapp_title_text }} - {%block pagetitle %}{% endblock %}</title>
     </head>
 
     <body>
@@ -72,7 +72,7 @@
         <div id="main_header" class="jumbotron jumbotron-fluid py-2 mb-0 text-light">
             <div class="container">
                 <h1 class="d-flex justify-content-center">
-                    XYZ Remote Monitoring
+                    {{ bmsapp_header|safe }}
                 </h1>
             </div>
         </div>
