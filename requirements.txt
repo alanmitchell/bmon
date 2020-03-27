@@ -21,3 +21,4 @@ modbus-tk==0.5.11
 xlrd==1.2.0
 metar==1.7.0
 lxml==4.3.2
+django-lockdown==3.0.0
