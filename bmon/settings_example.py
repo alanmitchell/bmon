@@ -155,3 +155,14 @@ from .settings_common import *
 
 # ----- If you need to override any of the settings in the 'settings_common.py' file
 # ----- do so below this point in this file.
+
+
+# ----- Settings for Lockdown  
+
+#INSTALLED_APPS += ('lockdown', ) 
+#MIDDLEWARE += ('lockdown.middleware.LockdownMiddleware',)
+#LOCKDOWN_SESSION_KEY = 'lockdown-allow'
+#LOCKDOWN_FORM = 'lockdown.forms.AuthForm'
+
+##LOCKDOWN_LOGOUT_KEY = 'logout'
+##LOCKDOWN_URL_EXCEPTIONS = ('^/secure/$',   # unlock /secure/)
