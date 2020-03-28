@@ -1,4 +1,4 @@
-{% extends "bmsapp/secure.html" %} 
+{% extends "bmsapp/base.html" %} 
 
 {% block content %}
 <div id="lockdown">
@@ -14,4 +14,12 @@
   {% endif %}
 
 </div>
+{% endblock %}
+{% block scripts %}
+<script>
+$(function() {
+  // Remove the Nav Bar from the page. 
+  $("#nav_container").remove();
+});
+</script>
 {% endblock %}

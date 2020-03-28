@@ -52,6 +52,10 @@ def base_context():
     ctx['orgs_html'] = orgs_html
     ctx['orgs_hide'] = orgs_hide
     ctx['bmsapp_nav_link_base_url'] = reverse('index')
+
+    # Only show Logout button if Django Lockdown app is being used.
+    ctx['logout_show'] = ('lockdown' in settings.INSTALLED_APPS)
+
     return ctx
 
 def index(request):
