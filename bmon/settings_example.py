@@ -165,9 +165,9 @@ from .settings_common import *
 #LOCKDOWN_AUTHFORM_STAFF_ONLY = False
 
 #LOCKDOWN_URL_EXCEPTIONS = ( r'^/readingdb/reading/(\w+)/store/$', # URL to store one reading into database
-							r'^/readingdb/reading/store/$', # URL to store multiple readings into database
-							r'^/readingdb/reading/store-things/$', # URL to store readings from Things Network
-							r'^/readingdb/reading/store-rb/$', # Store Rb
-							r'^st8(\w+)/',  # Old URL pattern for storing
-							r'^/readingdb/reading/(\w+)/$', # gets all readings for one reading ID 
-						)
+#							r'^/readingdb/reading/store/$', # URL to store multiple readings into database
+#							r'^/readingdb/reading/store-things/$', # URL to store readings from Things Network
+#							r'^/readingdb/reading/store-rb/$', # Store Rb
+#							r'^st8(\w+)/',  # Old URL pattern for storing
+#							r'^/readingdb/reading/(\w+)/$', # gets all readings for one reading ID 
+#						)
