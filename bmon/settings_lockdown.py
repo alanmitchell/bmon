@@ -18,7 +18,7 @@ LOCKDOWN_AUTHFORM_STAFF_ONLY = False
 
 # An alternative authorization method: user only has to enter one of
 # passwords in the following tuple.  To use this, uncomment line below and
-# comment out the "LOCKDOWN_FORM" line.
+# comment out the "LOCKDOWN_FORM" line above.
 # LOCKDOWN_PASSWORDS = ('letmein', 'beta')
 
 LOCKDOWN_URL_EXCEPTIONS = ( r'^/readingdb/reading/(\w+)/store/$',  # URL to store one reading into database
