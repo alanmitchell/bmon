@@ -54,6 +54,10 @@ class BMSdata:
         if '_last_raw' not in self.sensor_ids:
             self.cursor.execute("CREATE TABLE [_last_raw] (id varchar(50) primary key, ts integer, val real)")
             self.conn.commit()
+            self.sensor_ids.add('_last_raw')
+
+        # because SQLite has case insensitive table names, make a sensor ID set with lower-case names
+        self.sensor_ids_lower = {tbl.lower() for tbl in self.sensor_ids}
 
     def __del__(self):
         """Used to ensure that database is closed when this object is destroyed.
@@ -67,9 +71,10 @@ class BMSdata:
 
     def sensor_id_exists(self, sensor_id):
         """Returns True if 'sensor_id' exists in the reading database, False
-        otherwise.
+        otherwise.  SQLite has case insensitive table names, no need to check
+        lower case version of the ID name.
         """
-        return (sensor_id in self.sensor_ids - {'_last_raw', '_junk'})
+        return (sensor_id.lower() in self.sensor_ids_lower - {'_last_raw', '_junk'})
 
     def add_sensor_table(self, sensor_id):
         """Adds a table to hold readings from a sensor with the id 'sensor_id'.  Also
@@ -78,6 +83,7 @@ class BMSdata:
         self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % sensor_id)
         self.conn.commit()
         self.sensor_ids.add(sensor_id)
+        self.sensor_ids_lower.add(sensor_id.lower())
 
     def insert_reading(self, ts, id, val):
         """Inserts a record or records into the database.  'ts', 'id', and
@@ -120,7 +126,7 @@ class BMSdata:
 
             try:
                 # Check to see if sensor table exists.  If not, create it.
-                if one_id not in self.sensor_ids:
+                if not self.sensor_id_exists(one_id):
                     self.add_sensor_table(one_id)
                 if one_val is not None:    # don't store None values.
                     self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % one_id, (one_ts, one_val))
@@ -163,7 +169,7 @@ class BMSdata:
         sensor_id = str(sensor_id)   # make sure ID is a string
 
         # address case where sensor id does not exist
-        if sensor_id not in self.sensor_ids:
+        if not self.sensor_id_exists(sensor_id):
             return None
 
         self.cursor.execute('SELECT * FROM [%s] ORDER BY ts DESC LIMIT %s' % (sensor_id, read_count))
@@ -182,7 +188,7 @@ class BMSdata:
         sensor_id = str(sensor_id)   # make sure ID is a string
 
         # address case where sensor id does not exist
-        if sensor_id not in self.sensor_ids:
+        if not self.sensor_id_exists(sensor_id):
             return []
 
         sql = 'SELECT ts, val FROM [%s] WHERE 1' % sensor_id
@@ -411,7 +417,7 @@ class BMSdata:
 
                 # if any are not present in the database, create tables for them
                 for s_id in file_sensor_ids:
-                    if s_id not in self.sensor_ids:
+                    if not self.sensor_id_exists(s_id):
                         self.add_sensor_table(s_id)
                 first_row = False
                 continue
