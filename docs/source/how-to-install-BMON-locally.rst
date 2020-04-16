@@ -386,7 +386,7 @@ the file:
 
 ::
 
-    */5 * * * * /home/cchrc/bmon/manage.py runscript main_cron > /dev/null 2>&1
+    */5 * * * * cd /home/cchrc/bmon && ./manage.py runscript main_cron > /dev/null 2>&1
 
 This cron job: 
 
