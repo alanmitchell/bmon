@@ -86,10 +86,11 @@ here.
    multi-building-charts
    sensor-alerts
    creating-a-dashboard
-   custom-reports
    transform-expressions
    calculated-fields
    periodic-scripts
+   custom-jupyter-notebook-reports
+   custom-reports
    archiving-and-analyzing-data-from-the-system
    system-performance-with-high-loading
    using-csv-transfer
