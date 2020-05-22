@@ -460,7 +460,7 @@ def organizations(request):
             invalid_ids = set(org_ids) - set(all_org_ids)
             if len(invalid_ids):
                 invalid_ids = [str(i) for i in invalid_ids]
-                messages['building_id'] = f"Invalid Organization IDs: {', '.join(list(invalid_ids))}"
+                messages['organization_id'] = f"Invalid Organization IDs: {', '.join(list(invalid_ids))}"
         
         if messages:
             return fail_payload(messages)
