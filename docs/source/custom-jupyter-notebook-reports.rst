@@ -89,12 +89,12 @@ GitHub repository.
     </div>
 
 This next video walks through creation of an actual Jupyter Notebook report.  Please not some of the reference
-links below the video for important resources. [*** Under Construction! ***]
+links below the video for important resources. [*** Under Construction - Not Complete! ***]
 
 .. raw:: html
 
     <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe src="https://www.youtube.com/embed/HONwv63EjSE" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+        <iframe src="https://www.youtube.com/embed/NeeG9_4Pxl8" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
     </div>
 
 Here is some `documentation for the bmondata <https://github.com/alanmitchell/bmondata>`_ Python package,
