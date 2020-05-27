@@ -86,18 +86,37 @@ GitHub repository.
 
     <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
         <iframe src="https://www.youtube.com/embed/NeeG9_4Pxl8" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
-    </div>
+    </div><p></p>
 
 This next video walks through creation of an actual Jupyter Notebook report.  Please not some of the reference
-links below the video for important resources. [*** Under Construction - Not Complete! ***]
+links below the video for important resources.
 
 .. raw:: html
 
     <div style="position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; height: auto;">
-        <iframe src="https://www.youtube.com/embed/NeeG9_4Pxl8" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
-    </div>
+        <iframe src="https://www.youtube.com/embed/tvdd6jGIjT4" frameborder="0" allowfullscreen style="position: absolute; top: 0; left: 0; width: 100%; height: 100%;"></iframe>
+    </div><p></p>
+
+As indicated in the video, creation of Custom Jupyter Notebook reports requires installation of
+a couple of special Python packages:
+
+* ``bmondata`` allows access to data (e.g. sensor readings, building characteristics) on BMON servers.
+* ``scrapbook`` is a special library for attaching arbitrary information to Jupyter notebooks. This
+  is used to assign title and report order information to the notebook, which is then used by the
+  report creation script.
+
+To install these packages, execute the following commands::
+
+    pip install bmondata
+    pip install nteract-scrapbook
 
 Here is some `documentation for the bmondata <https://github.com/alanmitchell/bmondata>`_ Python package,
 which allows for easy access to BMON data from within your Jupyter Notebook (or any Python script for
 that matter).  Example usage of the library is `shown here <http://web.analysisnorth.com.s3-us-west-2.amazonaws.com/bmondata/usage_examples.html>`_.
 
+The Jupyter Notebook report that was created in the video above is 
+`available here <https://github.com/alanmitchell/an-bmon-reports/blob/master/templates/organization/Sensors-not-Reporting.ipynb>`_.
+
+The Jupyter Notebook Reports that were used to create the primary Energy Reports
+for BMON are available in `this repository <https://github.com/alanmitchell/bmonreporter-templates>`_.
+Find the reports in the ``templates`` directory.
