@@ -80,7 +80,8 @@ Creating the Custom Jupyter Notebook Report
 This section contains two videos to explain how the Custom Jupyter Report is created.  In
 this first video, the difference between Building reports and Organization reports is
 explained.  Also, the video explains where to store your Custom Juptyer Notebook file in the
-GitHub repository.
+GitHub repository.  (Hint: In the YouTube Settings menu--cog symbol on the lower 
+right--you can increase Playback speed to 1.25x, which may improve your listening experience!)
 
 .. raw:: html
 
