@@ -22,3 +22,4 @@ xlrd==1.2.0
 metar==1.7.0
 lxml==4.3.2
 django-lockdown==3.0.0
+psutil==5.7.0

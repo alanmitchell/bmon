@@ -7,13 +7,14 @@ cron tasks.  It should be run using the django-extensions runscript facility:
 
 from datetime import datetime
 import time
+
 from . import calc_readings
 from . import daily_status
 from . import backup_django_db
 from . import backup_readingdb
 from . import check_alerts
 from . import run_periodic_scripts
-
+from . import terminate_old_cron
 
 def suppress_errors(func):
     '''Runs the function 'func' and suppresses all errors.
@@ -67,3 +68,8 @@ def run():
     # run the sensor reading database backup every 3 days
     if (yr_day % 3) == 0 and hr == 2 and hr_div == 6:
         suppress_errors(backup_readingdb.run)
+
+    # once an hour, check for lingering main_cron processes and kill
+    # old ones.
+    if hr_div == 2:
+        suppress_errors(terminate_old_cron.run)
