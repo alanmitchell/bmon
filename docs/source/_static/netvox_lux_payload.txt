@@ -1,0 +1,11 @@
+function Decoder(bytes, port) {
+if (bytes[0] === 0x01 && bytes[1] === 0x04 && bytes[2] === 0x01) {
+// decode as shown in earlier post
+var battery = (bytes[3] / 10);
+var light = (bytes[4] << 8) | bytes[5];
+return {
+battery: battery,
+light: light,
+};
+}
+}

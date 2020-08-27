@@ -49,6 +49,13 @@ A few different sensor types have been set up to work with BMON (e.g.
 have access to the Internet can be configured to work with BMON. This
 document gives details on how to set up sensors in the system.
 
+:ref:`Setting Up LoRa Sensors to Post to BMON`
+-----------------------------------------------
+
+A page dedicated to LoRaWan sensor types that have been set up to work with BMON 
+including basic information on integrating with `The Things Network <http://thethingsnetwork.org>`_, 
+payload decoders, gateways, and sensor configurations.
+
 :ref:`Multi-Building Charts <multi-building-charts>`
 ----------------------------------------------------
 

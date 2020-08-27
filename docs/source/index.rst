@@ -83,6 +83,7 @@ here.
    adding-buildings-and-sensors
    multiple-organizations
    setting-up-sensors-to-post-to-bmon
+   setting-up-lora-sensors-to-post-to-bmon
    multi-building-charts
    sensor-alerts
    creating-a-dashboard

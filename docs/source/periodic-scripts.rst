@@ -290,7 +290,7 @@ for every remote sensor associated with the thermostat. Remote Sensors
 are not supported by the Ecobee3 Lite thermostat.
 
 Collect Data from Devices with a MODBUS TCP Inteface
---------------------------------------------------
+-----------------------------------------------------
 
 A BMON Periodic Script is available to collect data from devices that have
 a `MODBUS TCP <https://en.wikipedia.org/wiki/Modbus>`_ interface, such as
@@ -386,7 +386,7 @@ the variable ``val`` in the function holds the raw holding register value.  In
 this example, the transform function is ``val/10``, so the holding register
 value is divided by 10 before being stored in BMON.  All Python math operators
 are available, including all of the functions present in the
-`math <https://docs.python.org/2/library/math.html`_ such as ``sin()`` and
+`math <https://docs.python.org/2/library/math.html>`_ such as ``sin()`` and
 ``log()``.
 
 Collect Data from a Sensaphone IMS-4000 Monitoring System
@@ -528,7 +528,7 @@ section of the :ref:`adding-buildings-and-sensors` document.
 There is also a special ``Calculated Field`` function available that can
 create a Sensor that estimates the pellet consumption or heat output of
 the boiler by examining the Status (P241 parameter number) sensor of the
-boiler. See the :ref:`calculated-fields` document for more details.
+boiler. See the :ref:`calculated fields <calculated-fields>` document for more details.
 
 Collect Data from Enphase Solar PV Systems
 ------------------------------------------
