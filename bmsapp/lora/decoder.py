@@ -7,7 +7,7 @@ import base64
 from dateutil.parser import parse
 
 from . import decode_elsys
-from . import decode_lht65
+from . import decode_dragino
 
 def decode(
         integration_payload: Dict[str, Any],
@@ -73,7 +73,7 @@ def decode(
                 # only messages on Port 2 are sensor readings (although haven't yet seen 
                 # any other types of messages from this sensor)
                 if integration_payload['port'] == 2:
-                    fields = decode_lht65.decode(payload)
+                    fields = decode_dragino.decode_lht65(payload)
             elif dev_id_lwr.startswith('elsys') or (dev_id_lwr[:3] in ('ers', 'elt')):
                 # only messages on Port 5 are sensor readings
                 if integration_payload['port']  == 5:

@@ -4,7 +4,7 @@ See Javascript LHT65 decoder at:  http://www.dragino.com/downloads/index.php?dir
 from typing import Dict, Any
 from .decode_utils import bin16dec
 
-def decode(data: bytes) -> Dict[str, Any]:
+def decode_lht65(data: bytes) -> Dict[str, Any]:
     """Returns a dictionary of enginerring values decoded from a Dragino LHT65 Uplink Payload.
     The payload 'data' is a byte array.
     Converts temperatures to Fahrenheit instead of Celsius like the original Dragino decoder.
@@ -93,7 +93,7 @@ def test():
         ('CBD50B0502E60700067FFF', {'temperature': 82.778, 'humidity': 74.2, 'vdd': 3.029, 'pulse': 6}),
     )
     for dta, result in cases:
-        res = decode(bytes.fromhex(dta))
+        res = decode_lht65(bytes.fromhex(dta))
         print(res)
         assert res == result
 
