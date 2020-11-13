@@ -19,6 +19,8 @@ from .reports import basechart
 from .readingdb import bmsdata
 from bmsapp.periodic_scripts import ecobee
 import bmsapp.scripts.backup_readingdb
+from .lora import decoder
+
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -276,42 +278,32 @@ def store_readings_things(request):
     The readings and other data are in the POST data encoded in JSON.
     '''
 
-    # Payload Fields from Things Network nodes that do not contain sensor
-    # readings.
-    EXCLUDE_THINGS_FIELDS = ('event', )
-
     try:
 
         # The post data is JSON, so decode it.
         req_data = json.loads(request.body)
-
-        # Return if this is a message that does not have any data in it, like an 
-        # activate or join message.
-        if 'payload_fields' not in req_data:
-            return HttpResponse('No Data')
 
         # See if the store key is valid.  It's stored in the "store-key" header, which
         # is found in the "HTTP_STORE_KEY" key in the META dictionary.
         storeKey = request.META.get('HTTP_STORE_KEY', 'None_Present')
 
         if store_key_is_valid(storeKey):
-            readings = []
-            ts = dateutil.parser.parse(req_data['metadata']['time']).timestamp()
-            hdw_serial = req_data['hardware_serial']
-            for fld, val in req_data['payload_fields'].items():
-                if fld not in EXCLUDE_THINGS_FIELDS:
-                    readings.append( [ts, f'{hdw_serial}_{fld}', val] )
+            data = decoder.decode(req_data)
+            if len(data['fields']) == 0:
+                return HttpResponse('No Data Found')
 
-            # Also extract the SNR and RSSI received by gateway that received this
-            # message and had the best SNR.
-            sigs = [(gtw['snr'], gtw['rssi']) for gtw in req_data['metadata']['gateways']]
-            snr, rssi = max(sigs)
-            readings.append([ts, f'{hdw_serial}_snr', snr])
-            readings.append([ts, f'{hdw_serial}_rssi', rssi])
+            readings = []
+            ts = data['ts']
+            eui = data['device_eui']
+            for fld, val in data['fields'].items():
+                readings.append( [ts, f'{eui}_{fld}', val] )
+
+            # Also extract the best SNR of the gateways that received this.
+            readings.append([ts, f'{eui}_snr', data['snr'])
 
             msg = storereads.store_many({'readings': readings})
-
             return HttpResponse(msg)
+
         else:
             _logger.warning('Invalid Storage Key in Reading Post: %s', storeKey)
             return HttpResponse('Invalid Key')
