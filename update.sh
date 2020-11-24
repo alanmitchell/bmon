@@ -1,9 +1,10 @@
-#!/bin/sh
+#!/bin/bash
 # Script to update BMON to the most recent version,
 # applying migrations and copying static files to
 # the static serving application.
-../apache2/bin/stop
 git pull
+source bmonenv/bin/activate
 ./manage.py migrate
 ./manage.py collectstatic --noinput
-../apache2/bin/restart
+deactivate
+sudo systemctl restart bmon
