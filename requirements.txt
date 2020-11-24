@@ -4,11 +4,12 @@
 # NOTE:  The pip Python package must be installed to use this
 # requirements.txt file.
 
-Django==2.2.4
-django-extensions==2.1.6
-numpy==1.16.2
-numexpr==2.6.9
-pandas==0.24.2
+Django <3.0
+gunicorn
+django-extensions>=2.1.6
+numpy==1.19.4
+numexpr==2.7.1
+pandas==1.1.4
 python-dateutil===2.8.0
 pytz>=2018.9
 requests==2.21.0
@@ -20,5 +21,4 @@ pysnmp==4.4.9
 modbus-tk==0.5.11
 xlrd==1.2.0
 metar==1.7.0
-lxml==4.3.2
 django-lockdown==3.0.0
