@@ -87,11 +87,8 @@ BMSAPP_ECOBEE_API_KEY = '32 Character API Key goes here'
 # are settings required for the general Django software.
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False.
-# For a Webfaction site using the subdomain that Webfaction provides, the entry
-# would be "bmon.<username>.webfactional.com", where <username> is your Webfaction
-# username; this assumes you are using the 'bmon' subdomain for BMON.
 # More documentation at: https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['bmon.<username>.webfactional.com']
+ALLOWED_HOSTS = ['<domain name of BMON site>', '<IP Address of Server> if want to test''localhost']
 
 # This is the Django Secret Key, needed for security purposes.
 # Make this unique, and don't share it with anybody.
@@ -121,19 +118,16 @@ ADMINS = (
 
 # The following email settings need to be filled out for sending out alerts from
 # the BMON app.
-# For the Webfaction hosting service, see documentation at:
-# http://docs.webfaction.com/software/django/getting-started.html#configuring-django-to-send-email-messages
+# For an article on using Gmail settings:   https://data-flair.training/blogs/django-send-email/
 # For general Django documentation on these settings, see:
 # https://docs.djangoproject.com/en/1.7/ref/settings/#std:setting-EMAIL_HOST
 
 # the SMTP server used to send mail, 'smtp.webfaction.com' or the Webfaction hosting service
-EMAIL_HOST = 'smtp.webfaction.com'
-EMAIL_HOST_USER = 'mailbox_username'
-EMAIL_HOST_PASSWORD = 'mailbox_password'
-# If you are using the Webfaction smtp server, the two FROM adddresses below need to
-# be email addresses set up in your Webfaction account (you can use the same address
-# for both, if desired).  The Webfaction server will not send emails with a FROM address
-# that is not on the Webfaction host.
+EMAIL_USE_TLS = True
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '<something>@gmail.com'
+EMAIL_HOST_PASSWORD = '<password for Gmail account>'
 # this will be the FROM for alert messages
 DEFAULT_FROM_EMAIL = 'valid_from_email_address'
 # this is the FROM for error messages
@@ -144,11 +138,6 @@ SERVER_EMAIL = 'valid_from_email_for_error_messages'
 # errors are occurring with use of the application, setting to True provides valuable
 # debug information.
 DEBUG = False
-
-# This is the name you gave to the Static application created in the Webfaction Control
-# Panel to serve static Django media.  This is only used to create the STATIC_ROOT setting
-# in the settings_common file.
-BMSAPP_STATIC_APP_NAME = 'bmon_static'
 
 # Import settings that are generally common to all installs of BMON.
 from .settings_common import *
