@@ -6,6 +6,28 @@
 
 {% block content %}
 
+<script>
+    $(function () {
+        $(".bmon-sensor-id")
+            .attr("data-toggle","tooltip")
+            .attr("data-original-title", "Click to copy Sensor ID to Clipboard")
+            .css("cursor","pointer")
+            .tooltip()
+            .click(function(){
+                var target = this;
+                navigator.clipboard.writeText(target.innerText).then(function() {
+                    $(target)
+                        .attr("data-original-title", "Copied Sensor ID to Clipboard!")
+                        .tooltip('show')
+                });
+            })
+            .on('hidden.bs.tooltip', function () {
+                $(this).attr("data-original-title", "Click to copy Sensor ID to Clipboard")
+            })
+            
+    });
+</script>
+
 <p>This is a list of sensors that are either:</p>
 
 <ul>
@@ -23,7 +45,7 @@
     <tbody style="background-color: white">
     {% for sensor in sensor_list %}
         <tr>
-            <td>{{ sensor.id }}</td>
+            <td class="bmon-sensor-id">{{ sensor.id }}</td>
             <td class="text-right px-4">{{ sensor.cur_value }}</td>
             <td>{{ sensor.minutes_ago }} minutes ago</td>
             <td>{{ sensor.title }}</td>

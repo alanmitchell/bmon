@@ -39,6 +39,26 @@ update_results = ->
 
     $('#results [data-toggle="tooltip"]').tooltip()
 
+    # apply custom settings to bmon-sensor-id elements
+    $("#results .bmon-sensor-id")
+        .attr("data-toggle","tooltip")
+        .attr("data-original-title", "Click to copy Sensor ID to Clipboard")
+        .css("cursor","pointer")
+        .tooltip()
+        .click ->
+            target = this;
+            navigator.clipboard.writeText(target.innerText).then ->
+                $(target)
+                    .attr("data-original-title", "Copied Sensor ID to Clipboard!")
+                    .tooltip('show')
+                return
+            return
+        .on('hidden.bs.tooltip', ->
+            $(this).attr("data-original-title", "Click to copy Sensor ID to Clipboard")
+            return
+        )
+        
+
     # Loop through the returned JavaScript objects to create and make them
     $.each results.objects, (ix, obj) ->
       [obj_type, obj_config] = obj
