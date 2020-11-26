@@ -120,7 +120,7 @@ ADMINS = (
 # the BMON app.
 # For an article on using Gmail settings:   https://data-flair.training/blogs/django-send-email/
 # For general Django documentation on these settings, see:
-# https://docs.djangoproject.com/en/1.7/ref/settings/#std:setting-EMAIL_HOST
+# https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-EMAIL_HOST
 
 # the SMTP server used to send mail, 'smtp.webfaction.com' or the Webfaction hosting service
 EMAIL_USE_TLS = True

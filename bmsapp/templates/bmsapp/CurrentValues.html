@@ -1,3 +1,4 @@
+
 <h2 id="report_title">{{ report_title }}</h2>
 <div class="d-flex justify-content-center">
     <div class="table-responsive">
@@ -7,10 +8,11 @@
                 <th class="text-center">Value</th>
                 <th class="text-center">Unit</th>
                 <th class="text-center">When</th>
+                <th class="text-center">ID</th>
             </tr></thead>
             <tbody>
             {% for group in sensor_list %}
-                <tr class="group-row"><th colspan="4">{{ group.0 }}</th></tr>
+                <tr class="group-row"><th colspan="5">{{ group.0 }}</th></tr>
                 {% for sensor in group.1 %}
                     <tr><td class="pl-4"><a href="{{ sensor.href }}" data-toggle="tooltip" data-html="true" title="{{ sensor.notes | safe }}" > {{ sensor.title }} </a></td>
                         {% if sensor.alerts %}
@@ -21,6 +23,7 @@
                             {{ sensor.cur_value }}</td>
                         <td>{{ sensor.unit }}</td>
                         <td>{{ sensor.minutes_ago }} minutes ago</td>
+                        <td class="bmon-sensor-id">{{ sensor.sensor_id }}</td>
                     </tr>
                 {% endfor %}
             {% endfor %}
