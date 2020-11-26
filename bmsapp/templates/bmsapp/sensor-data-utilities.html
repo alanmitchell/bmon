@@ -20,18 +20,98 @@
         background-color: #69C;
     }
 </style>
+
+{{ sensor_list|json_script:"sensor_list" }}
+
+<script>
+    const sensor_list = JSON.parse(document.getElementById("sensor_list").textContent);
+    $(function () {
+        sensor_list.forEach(function(e, i){
+            $('#select_sensor_from').append($('<option></option>').val(e.id).text(e.id)); 
+            $('#select_sensor_to').append($('<option></option>').val(e.id).text(e.id));
+            $('#select_sensor_delete').append($('<option></option>').val(e.id).text(e.id));
+        });
+
+    });
+</script>
+
 {% endblock %}
 
 {% block content %}
 <br>
-<p>Click a Link below to execute a Task:</p>
 
-<ul id="admin_tasks">
-    
-    <li><a href="{{ bmsapp_nav_link_base_url }}backup-readings/">Backup Sensor Reading Database...</a></li>
-    <li><a href="javascript:void(0)">Merge Sensors... [not yet implemented]</a></li>
-    <li><a href="javascript:void(0)">Delete Sensor Data... [not yet implemented]</a></li>
-    <li><a href="{{ bmsapp_nav_link_base_url }}unassigned-sensors/">Manage Unassigned Sensors...</a></li>
-</ul>
+<hr class="mt-1">
+<h5>Merge Sensor Data:</h5>
+<form>
+    <div id="merge_controls" class="form-row align-items-end justify-content-left ml-3">
+        <div class="form-group col-auto">
+            <label for="select_sensor_from" style="display: block">From Sensor:</label>
+            <select class="form-control" id="select_sensor_from" name="select_sensor_from">
+            </select>
+        </div>
+        <div class="form-group col-auto">
+            <label for="delete_sensor_from">Delete Sensor?</label>
+            <input id="delete_sensor_from" name="delete_sensor_from" type="checkbox"/>
+        </div>
+        <div class="form-group col-auto">
+            <label for="select_sensor_to" style="display: block">To Sensor:</label>
+            <select class="form-control" id="select_sensor_to" name="select_sensor_to">
+                <option value="[none]"></option>
+            </select>
+        </div>
+        <div class="form-group col-auto">
+            <button class="btn btn-secondary col" id="merge" type="button" disabled>Merge</button>
+        </div>
+    </div>
+</form>
+
+<hr class="mt-1">
+<h5>Delete Sensor Data:</h5>
+<form>
+    <div id="delete_controls" class="form-row align-items-end justify-content-left ml-3">
+        <div class="form-group col-auto">
+            <label for="select_sensor_delete" style="display: block">Sensor:</label>
+            <select class="form-control" id="select_sensor_delete" name="select_sensor_delete">
+            </select>
+        </div>
+        <div class="form-group col-auto">
+            <label for="delete_where">Where:</label>
+            <select class="form-control" id="delete_where" name="averaging_time_xy">
+                <option value="value_equals">Value is Equal To</option>
+                <option value="values_gt">Value is Greater Than</option>
+                <option value="values_lt">Values is Less Than</option>
+                <option value="dates_between">Date is Between</option>
+                <option value="all_values">All Values</option>
+            </select>
+        </div>
+        <div class="form-group col-auto">
+            <label for="delete_where_value">Value:</label>
+            <input id="delete_where_value" name="delete_where_value" width="100"/>
+        </div>
+        <div class="form-group col-auto">
+            <button class="btn btn-secondary col" id="merge" type="button" disabled>Delete</button>
+        </div>
+    </div>
+</form>
+
+<hr class="mt-1">
+<h5>Manage Unassigned Sensors:</h5>
+<form>
+    <div id="manage_unassigned_controls" class="form-row align-items-end justify-content-left ml-5">
+        <div class="form-group col-auto">
+            <button class="btn btn-secondary col" type="button" onclick="location.href='{{ bmsapp_nav_link_base_url }}unassigned-sensors/';">View...</button>
+        </div>
+    </div>
+</form>
+
+<hr class="mt-1">
+<h5>Backup Sensor Readings:</h5>
+<form>
+    <div id="backup_readings_controls" class="form-row align-items-end justify-content-left ml-5">
+        <div class="form-group col-auto">
+            <button class="btn btn-secondary col" type="button" onclick="location.href='{{ bmsapp_nav_link_base_url }}backup-readings/';">Backup</button>
+        </div>
+    </div>
+</form>
 
 {% endblock %}
