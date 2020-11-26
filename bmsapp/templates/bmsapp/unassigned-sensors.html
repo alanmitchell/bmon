@@ -6,6 +6,46 @@
 
 {% block content %}
 
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/v/dt/dt-1.10.22/sl-1.3.1/datatables.min.css"/>
+<script type="text/javascript" src="https://cdn.datatables.net/v/dt/dt-1.10.22/sl-1.3.1/datatables.min.js"></script>
+
+<script>
+    $(function () {
+        $('#Sensors').DataTable({
+            paging: false,
+            scrollY: '80vh',
+            scrollCollapse: true,
+            columnDefs: [ {
+                orderable: false,
+                className: 'select-checkbox',
+                targets:   0
+            } ],
+            select: {
+                style:    'os',
+                selector: 'td:first-child'
+            },
+            order: [[ 1, 'asc' ]]
+        });
+        $(".bmon-sensor-id")
+            .attr("data-toggle","tooltip")
+            .attr("data-original-title", "Click to copy Sensor ID to Clipboard")
+            .css("cursor","pointer")
+            .tooltip()
+            .click(function(){
+                var target = this;
+                navigator.clipboard.writeText(target.innerText).then(function() {
+                    $(target)
+                        .attr("data-original-title", "Copied Sensor ID to Clipboard!")
+                        .tooltip('show')
+                });
+            })
+            .on('hidden.bs.tooltip', function () {
+                $(this).attr("data-original-title", "Click to copy Sensor ID to Clipboard")
+            })
+            
+    });
+</script>
+
 <p>This is a list of sensors that are either:</p>
 
 <ul>
@@ -13,23 +53,26 @@
     <li>They are entered in the list of Sensors but they are not assigned to a building.</li>
 </ul>
 
-<table class="table table-sm table-striped table-responsive mt-1">
-    <thead><tr>
-        <th class="text-center">Sensor ID</th>
-        <th class="text-center">Last Reading</th>
-        <th class="text-center">When</th>
-        <th class="text-center">Sensor Name, if available</th>
-    </tr></thead>
-    <tbody style="background-color: white">
-    {% for sensor in sensor_list %}
-        <tr>
-            <td>{{ sensor.id }}</td>
-            <td class="text-right px-4">{{ sensor.cur_value }}</td>
-            <td>{{ sensor.minutes_ago }} minutes ago</td>
-            <td>{{ sensor.title }}</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
-
+<div style="background-color: white; width: fit-content; padding: 5px;">
+    <table id="Sensors" class="table table-sm table-striped table-responsive mt-1">
+        <thead><tr>
+            <th></th>
+            <th class="text-center">Sensor ID</th>
+            <th class="text-center">Last Reading</th>
+            <th class="text-center">Minutes Ago</th>
+            <th class="text-center">Sensor Name, if available</th>
+        </tr></thead>
+        <tbody style="background-color: white">
+        {% for sensor in sensor_list %}
+            <tr>
+                <td></td>
+                <td class="bmon-sensor-id">{{ sensor.id }}</td>
+                <td class="text-right px-4">{{ sensor.cur_value }}</td>
+                <td>{{ sensor.minutes_ago }}</td>
+                <td>{{ sensor.title }}</td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}

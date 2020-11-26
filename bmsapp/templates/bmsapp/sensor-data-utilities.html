@@ -1,0 +1,37 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Sensor Data Utilities{% endblock %}
+
+{% block title %}Sensor Data Utilities{% endblock %}
+
+{% block head %}
+<style>
+    #admin_tasks li {
+        margin-top: 15px;
+        display: block;
+    }
+    #admin_tasks a {
+        display: block;
+        padding: 5px 5px 5px 5px;
+        width: 95%;
+    }
+    #admin_tasks a:hover {
+        color: #fff;
+        background-color: #69C;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<br>
+<p>Click a Link below to execute a Task:</p>
+
+<ul id="admin_tasks">
+    
+    <li><a href="{{ bmsapp_nav_link_base_url }}backup-readings/">Backup Sensor Reading Database...</a></li>
+    <li><a href="javascript:void(0)">Merge Sensors... [not yet implemented]</a></li>
+    <li><a href="javascript:void(0)">Delete Sensor Data... [not yet implemented]</a></li>
+    <li><a href="{{ bmsapp_nav_link_base_url }}unassigned-sensors/">Manage Unassigned Sensors...</a></li>
+</ul>
+
+{% endblock %}
