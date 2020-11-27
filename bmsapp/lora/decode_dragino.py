@@ -115,21 +115,40 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
         """
         return (data[ix] << 8) | (data[ix + 1])
 
-    # battery voltage
+    # ---- Battery voltage
     batV = int16(0) / 1000.
     res['batteryV'] = batV 
 
-    # voltage across thermistor
-    thermV = int16(2) / 1000.
+    # ---- Thermistor Temperatuare sensor
+    thermV = int16(2) / 1000.     # voltage across thermistor
+
     # if the thermistor is not present, this voltage will be high, and do not return
     # a temperature value
-    if thermV < 0.95 batV:
+    if thermV < 0.97 * batV:
         thermR = thermV / (batV - thermV) * 20000
-        ln_thermR = math.log(thermR)
+        # Steinhart coefficients for Adafruit B=3950K thermistor, -10C, 10C, 30C as points.
+        lnR = math.log(thermR)
+        degK = 1 / (1.441352876e-3 + 1.827883939e-4 * lnR + 2.928343561e-7 * lnR ** 3)
+        degF = (degK - 273.15) * 1.8 + 32
+        res['temperature'] = degF
+
+    # ------- Shore Power
+    shore_ma = int16(4) / 1000.     # current from wall wart in mA
+    
+    # 3V wall wart with 10K resistor produces 0.3 mA of current.  Use 0.2 mA as 
+    # cutoff.
+    res['shorePower'] = 1 if shore_ma > 0.2 else 0
+        
+    # -------- High Water Level
+    res['highWater'] = 1 if data[8] & 0x08 else 0
+
+    # -------- Bilge Pump
+    res['bilgePump'] = 1 if data[8] & 0x10 else 0
+
+    return res
 
 
-
-def test():
+def test_lht65():
     cases = (
         ('CBF60B0D0376010ADD7FFF', {'temperature': 82.922, 'humidity': 88.6, 'vdd': 3.062, 'extTemperature': 82.05799999999999}),
         ('CB040B55025A0401007FFF', {'temperature': 84.218, 'humidity': 60.2, 'vdd': 2.82, 'digital': 1, 'interrupt': 0}),
@@ -143,6 +162,20 @@ def test():
         print(res)
         assert res == result
 
+def test_boat_lt2():
+    cases = (
+        '300C1806012C0000FFFF01',
+        '300C180600BE000000FF01',
+        '300C180600BE000008FF01',
+        '300C180600BE000018FF01',
+        '300C18060000000018FF01',
+        '300C18060000000018FF02',
+    )
+    for dta in cases:
+        res = decode_boat_lt2(bytes.fromhex(dta))
+        print(res)
+
 if __name__ == '__main__':
     # To run this without import error, need to run "python -m decoder.decode_lht65" from the top level directory.
-    test()
+    test_lht65()
+    test_boat_lt2()
