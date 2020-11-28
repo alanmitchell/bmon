@@ -78,6 +78,9 @@ def decode(
                 # only messages on Port 5 are sensor readings
                 if integration_payload['port']  == 5:
                     fields = decode_elsys.decode(payload)
+            elif dev_id_lwr.startswith('boat-lt2'):
+                if integration_payload['port'] == 2:
+                    fields = decode_dragino.decode_boat_lt2(payload)
 
             # some decoders will give a list of values back for one field.  If requested, convert 
             # these into multiple fields with an underscore index at end of field name.
