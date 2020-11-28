@@ -139,11 +139,12 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
     # cutoff.
     res['shorePower'] = 1 if shore_ma > 0.2 else 0
         
+    # Digital Inputs have inverted logic, voltage across the input produces a 0.
     # -------- High Water Level
-    res['highWater'] = 1 if data[8] & 0x08 else 0
+    res['highWater'] = 0 if data[8] & 0x08 else 1
 
     # -------- Bilge Pump
-    res['bilgePump'] = 1 if data[8] & 0x10 else 0
+    res['bilgePump'] = 0 if data[8] & 0x10 else 1
 
     return res
 
