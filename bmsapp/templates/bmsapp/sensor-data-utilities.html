@@ -23,16 +23,104 @@
 
 {{ sensor_list|json_script:"sensor_list" }}
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootbox.js/5.4.0/bootbox.min.js"></script>
+
 <script>
     const sensor_list = JSON.parse(document.getElementById("sensor_list").textContent);
     $(function () {
         sensor_list.forEach(function(e, i){
-            $('#select_sensor_from').append($('<option></option>').val(e.id).text(e.id)); 
-            $('#select_sensor_to').append($('<option></option>').val(e.id).text(e.id));
+            $('#select_sensor_merge_from').append($('<option></option>').val(e.id).text(e.id)); 
+            $('#select_sensor_merge_to').append($('<option></option>').val(e.id).text(e.id));
             $('#select_sensor_delete').append($('<option></option>').val(e.id).text(e.id));
         });
 
+        $('#start_date').datepicker({uiLibrary: 'bootstrap4'});
+        $('#end_date').datepicker({uiLibrary: 'bootstrap4'});
+        d = new Date();
+        $("#start_date").val("1/1/" + d.getFullYear());
+        $("#end_date").val((d.getMonth() + 1) + "/" + d.getDate() + "/" + d.getFullYear());
+
     });
+
+    function display_merge_controls() {
+        if ($("#select_sensor_merge_to").val() == "[none]" || $("#select_sensor_merge_to").val() == $("#select_sensor_merge_from").val()) {
+            $("#btn_merge").prop("disabled",true)
+        } else {
+            $("#btn_merge").prop("disabled",false)
+        }
+    }
+
+    function merge_sensors() {
+        var url = $("#BaseURL").text() + "merge-sensors/"
+        var params = $("#merge_controls *").serialize();
+        $.get(url, params + "&action=query")
+            .done(function (results) {
+                bootbox.confirm(results, function(confirmed){ 
+                    if (confirmed) {
+                        $.get(url, params)
+                            .done(function (results) {
+                                bootbox.alert(results)
+                            })
+                            .fail(function (jqXHR, textStatus, errorThrown) {
+                                bootbox.alert(jqXHR.responseText)
+                            })
+                    } 
+                });
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                bootbox.alert(jqXHR.responseText)})
+    }
+    
+
+    function display_delete_controls() {
+        if ($("#select_delete_where").val().startsWith("all")) {
+            $(".delete_value_controls").prop("hidden",true)
+            $(".delete_date_controls").prop("hidden",true)
+            $("#btn_delete").prop("disabled",false)
+        } else if ($("#select_delete_where").val().startsWith("value")) {
+            $(".delete_value_controls").prop("hidden",false)
+            $(".delete_date_controls").prop("hidden",true)
+            if ($("#delete_where_value").val() == "") {
+                $("#btn_delete").prop("disabled",true)
+            } else {
+                $("#btn_delete").prop("disabled",false)
+            }
+        } else if ($("#select_delete_where").val().startsWith("date")) {
+            $(".delete_value_controls").prop("hidden",true)
+            $(".delete_date_controls").prop("hidden",false)
+            if ($("#start_date").val() == "") {
+                $("#btn_delete").prop("disabled",true)
+            } else if ($("#end_date").val() == "") {
+                $("#btn_delete").prop("disabled",true)
+            } else {
+                $("#btn_delete").prop("disabled",false)
+            }
+        } else {
+            $("#btn_delete").prop("disabled",true)
+        }
+    }
+
+    function delete_sensor_values() {
+        var url = $("#BaseURL").text() + "delete-sensor-values/"
+        var params = $("#delete_controls *").serialize();
+        $.get(url, params + "&action=query")
+            .done(function (results) {
+                bootbox.confirm(results, function(confirmed){ 
+                    if (confirmed) {
+                        $.get(url, params)
+                            .done(function (results) {
+                                bootbox.alert(results)
+                            })
+                            .fail(function (jqXHR, textStatus, errorThrown) {
+                                bootbox.alert(jqXHR.responseText)
+                            })
+                    } 
+                });
+            })
+            .fail(function (jqXHR, textStatus, errorThrown) {
+                bootbox.alert(jqXHR.responseText)})
+    }
+
 </script>
 
 {% endblock %}
@@ -46,21 +134,21 @@
     <div id="merge_controls" class="form-row align-items-end justify-content-left ml-3">
         <div class="form-group col-auto">
             <label for="select_sensor_from" style="display: block">From Sensor:</label>
-            <select class="form-control" id="select_sensor_from" name="select_sensor_from">
+            <select class="form-control" id="select_sensor_merge_from" name="sensor_from">
             </select>
         </div>
         <div class="form-group col-auto">
-            <label for="delete_sensor_from">Delete Sensor?</label>
-            <input id="delete_sensor_from" name="delete_sensor_from" type="checkbox"/>
+            <label for="delete_sensor_from" style="display: block">Delete?</label>
+            <input name="delete" type="checkbox"/>
         </div>
         <div class="form-group col-auto">
             <label for="select_sensor_to" style="display: block">To Sensor:</label>
-            <select class="form-control" id="select_sensor_to" name="select_sensor_to">
+            <select class="form-control" id="select_sensor_merge_to" name="sensor_to" onchange="display_merge_controls()">
                 <option value="[none]"></option>
             </select>
         </div>
         <div class="form-group col-auto">
-            <button class="btn btn-secondary col" id="merge" type="button" disabled>Merge</button>
+            <button class="btn btn-secondary col" id="btn_merge" type="button" disabled onclick="merge_sensors()">Merge</button>
         </div>
     </div>
 </form>
@@ -71,12 +159,12 @@
     <div id="delete_controls" class="form-row align-items-end justify-content-left ml-3">
         <div class="form-group col-auto">
             <label for="select_sensor_delete" style="display: block">Sensor:</label>
-            <select class="form-control" id="select_sensor_delete" name="select_sensor_delete">
+            <select class="form-control" id="select_sensor_delete" name="sensor">
             </select>
         </div>
         <div class="form-group col-auto">
             <label for="delete_where">Where:</label>
-            <select class="form-control" id="delete_where" name="averaging_time_xy">
+            <select class="form-control" id="select_delete_where" name="delete_where" onchange="display_delete_controls()">
                 <option value="value_equals">Value is Equal To</option>
                 <option value="values_gt">Value is Greater Than</option>
                 <option value="values_lt">Values is Less Than</option>
@@ -84,12 +172,18 @@
                 <option value="all_values">All Values</option>
             </select>
         </div>
-        <div class="form-group col-auto">
-            <label for="delete_where_value">Value:</label>
-            <input id="delete_where_value" name="delete_where_value" width="100"/>
+        <div class="form-group col-auto delete_value_controls">
+            <label for="delete_where_value" style="display: block">Value:</label>
+            <input id="delete_where_value" name="value" width="100"  oninput="display_delete_controls()"/>
+        </div>
+        <div class="form-group col-auto delete_date_controls" hidden>
+            <label class="mr-1" for="start_date"> Start:</label><input id="start_date" name="start_date" width="160" oninput="display_delete_controls()"/>
+        </div>
+        <div class="form-group col-auto delete_date_controls" hidden>
+            <label class="mr-1 ml-2" for="end_date">End:</label><input id="end_date" name="end_date" width="160" oninput="display_delete_controls()"/>
         </div>
         <div class="form-group col-auto">
-            <button class="btn btn-secondary col" id="merge" type="button" disabled>Delete</button>
+            <button class="btn btn-secondary col" id="btn_delete" type="button" disabled onclick="delete_sensor_values()">Delete</button>
         </div>
     </div>
 </form>

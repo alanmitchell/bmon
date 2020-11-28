@@ -582,7 +582,6 @@ def ecobee_auth(request):
         return render_to_response('bmsapp/ecobee_auth_result.html', ctx)
 
 
-# @login_required(login_url='../admin/login/')
 def sensor_data_utilities(request):
     """Utilities for managing sensor data.
     """
@@ -590,33 +589,112 @@ def sensor_data_utilities(request):
     db = bmsdata.BMSdata()
     sensor_list = []
     for sens_id in db.sensor_id_list():
-        sensor_info = {'id': sens_id, 'title': '',
-                       'cur_value': '', 'minutes_ago': ''}
+        sensor_info = {'id': sens_id, 'title': ''}
         add_sensor = False
 
         qs = models.Sensor.objects.filter(sensor_id=sens_id)
         if len(qs) > 0:
             sensor = qs[0]   # get the actual Sensor object
+            sensor_info['title'] = sensor.title
+
             # see if this sensor has links to a building
             links = models.BldgToSensor.objects.filter(sensor=sensor)
             if len(links) > 0:
                 # link found
-                sensor_info['title'] = sensor.title
-
-                last_read = db.last_read(sens_id)
-                if last_read:
-                    val = last_read['val']
-                    sensor_info['cur_value'] = '%.5g' % val if abs(
-                        val) < 1e5 else str(val)
-                    sensor_info['minutes_ago'] = '%.1f' % (
-                        (time.time() - last_read['ts'])/60.0)
-
                 sensor_list.append(sensor_info)
 
     ctx = base_context()
     ctx.update({'sensor_list': sensor_list})
     ctx['orgs_hide'] = True
     return render_to_response('bmsapp/sensor-data-utilities.html', ctx)
+
+
+@login_required(login_url='../admin/login/')
+def merge_sensors(request):
+    """Merge readings from one sensor to another
+    """
+    params = request.GET
+
+    action = params.get('action')
+    sensor_from = params.get('sensor_from')
+    sensor_to = params.get('sensor_to')
+    delete_sensor = params.get('delete')
+
+    db = bmsdata.BMSdata()
+    #qs = models.Sensor.objects.filter(sensor_id=params['sensor_from'])[0]
+
+    if action == 'query':
+        try:
+            db.cursor.execute(
+                f'SELECT COUNT(*) FROM [{params["sensor_from"]}]')
+            rec_ct = db.cursor.fetchone()[0]
+        except Exception as e:
+            return HttpResponse(e, status=500)
+        return HttpResponse(f'Do you really want to merge {rec_ct:,} records from {sensor_from} into {sensor_to}?')
+    else:
+        try:
+            db.cursor.execute(
+                f'INSERT INTO [{sensor_to}] SELECT * FROM [{sensor_from}]')
+            if delete_sensor == 'on':
+                db.cursor.execute(f'DROP TABLE [{sensor_from}]')
+            db.conn.commit()
+        except Exception as e:
+            return HttpResponse(e, status=500)
+        return HttpResponse('Records Merged')
+
+
+@login_required(login_url='../admin/login/')
+def delete_sensor_values(request):
+    """Delete values from a sensor
+    """
+    params = request.GET
+
+    action = params.get('action')
+    sensor_id = params.get('sensor')
+    delete_where = params.get('delete_where')
+    where_value = params.get('value')
+    where_start_date = params.get('start_date')
+    where_end_date = params.get('end_date')
+
+    db = bmsdata.BMSdata()
+    #qs = models.Sensor.objects.filter(sensor_id=params['sensor_from'])[0]
+
+    where_clause = ''
+
+    if delete_where == 'all_values':
+        pass
+    elif delete_where == 'value_equals':
+        where_clause = f'WHERE val = {where_value}'
+    elif delete_where == 'values_gt':
+        where_clause = f'WHERE val > {where_value}'
+    elif delete_where == 'values_lt':
+        where_clause = f'WHERE val < {where_value}'
+    elif delete_where == 'dates_between':
+        where_clause = f'WHERE ts > {bmsapp.data_util.datestr_to_ts(start_date)} and ts < {bmsapp.data_util.datestr_to_ts(end_date)}'
+    else:
+        return HttpResponse(f'Invalid parameter: {delete_where}', status=406)
+
+    if action == 'query':
+        try:
+            db.cursor.execute(
+                f'SELECT COUNT(*) FROM [{sensor_id}] {where_clause}')
+            rec_ct = db.cursor.fetchone()[0]
+        except Exception as e:
+            return HttpResponse(e, status=500)
+        if rec_ct == 0:
+            return HttpResponse('No records found that meet the criteria!', status=406)
+        else:
+            return HttpResponse(f'Do you really want to delete {rec_ct:,} records from {sensor_id}?')
+    else:
+        try:
+            db.cursor.execute(
+                f'DELETE FROM [{sensor_id}] {where_clause}')
+            if delete_where == 'all_values':
+                db.cursor.execute(f'DROP TABLE [{sensor_id}]')
+            db.conn.commit()
+        except Exception as e:
+            return HttpResponse(e, status=500)
+        return HttpResponse('Records Deleted')
 
 
 @login_required(login_url='../admin/login/')
