@@ -88,11 +88,12 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
     """Decodes the values from a Dragino LT-22222-L sensor, configured
     to do boat monitoring.  The inputs on the LT-22222-L are wired as 
     follows:
-        AV1 - Boat Battery Voltage
-        AV2 - Voltage across a 10 K-ohm thermistor, with a Beta of 3950K, with a 20 K-ohm
-            pull-up resistor to Boat Battery voltage.
+        AV1, AV2 - Boat Battery Voltage.  Had trouble with AV1, so am using both AV1 and 2
+            and taking the maximum.
         AC1 - Shore Power sensor, which is a DC Wall Wart, 3 - 24 VDC with a 10 K-ohm in
             series to produce a small current.
+        AC2 - Current through a 10 K-ohm thermistor, with a Beta of 3950K, connected to
+            Boat Battery voltage.
         DI1 - High Water sensor, which puts Boat Battery Voltage on this terminal when high
             water is present.
         DI2 - Bilge Pump sensor, which puts Boat Battery Voltage on this terminal if the 
@@ -116,21 +117,25 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
         return (data[ix] << 8) | (data[ix + 1])
 
     # ---- Battery voltage
-    batV = int16(0) / 1000.
-    res['batteryV'] = batV 
+    batV1 = int16(0) / 1000.
+    batV2 = int16(2) / 1000.
+    batV = max(batV1, batV2)
+    res['batteryV'] = batV
 
     # ---- Thermistor Temperatuare sensor
-    thermV = int16(2) / 1000.     # voltage across thermistor
+    thermMA = int16(6) / 1000.     # current through thermistor in mA
 
-    # if the thermistor is not present, this voltage will be high, and do not return
+    # if the thermistor is not present, this current will be low, and do not return
     # a temperature value
-    if thermV < 0.97 * batV:
-        thermR = thermV / (batV - thermV) * 20000
+    if thermMA >= 0.03:
+        thermR = batV / (thermMA / 1000.)
         # Steinhart coefficients for Adafruit B=3950K thermistor, -10C, 10C, 30C as points.
         lnR = math.log(thermR)
         degK = 1 / (1.441352876e-3 + 1.827883939e-4 * lnR + 2.928343561e-7 * lnR ** 3)
         degF = (degK - 273.15) * 1.8 + 32
-        res['temperature'] = degF
+        # Need to correct for self-heating.  I measured 0.33 deg-F / mW.  Quite significant.
+        therm_mW = batV * thermMA
+        res['temperature'] = degF - therm_mW * 0.33
 
     # ------- Shore Power
     shore_ma = int16(4) / 1000.     # current from wall wart in mA
