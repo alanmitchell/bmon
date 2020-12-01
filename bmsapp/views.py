@@ -299,7 +299,7 @@ def store_readings(request):
 @csrf_exempt
 def store_readings_things(request):
     '''
-    Stores a set of sensor readings from the Things Network in the sensor reading 
+    Stores a set of sensor readings from the Things Network in the sensor reading
     database. The readings are assumed to originate from an HTTP Integration on an
     Application in the Things Network.  The BMON Store Key is in a custom HTTP header.
     The readings and other data are in the POST data encoded in JSON.
@@ -345,7 +345,7 @@ def store_readings_things(request):
 @csrf_exempt
 def store_readings_radio_bridge(request):
     '''
-    Stores a set of sensor readings from a Radio Bridge LoRaWAN sensor in the sensor reading 
+    Stores a set of sensor readings from a Radio Bridge LoRaWAN sensor in the sensor reading
     database. The readings are assumed to originate from an HTTP Integration on an
     Application in the Things Network.  The BMON Store Key is in a custom HTTP header.
     The readings and other data are in the POST data encoded in JSON.
@@ -460,7 +460,7 @@ def group_list(request, org_id):
 
 def bldg_list(request, org_id, group_id):
     '''Returns a list of buildings in the organization identified by 'org_id'
-    and the group identified by the primary key ID of 'group_id'. 
+    and the group identified by the primary key ID of 'group_id'.
 
     The return value is an html snippet of option elements, one for each building.
     '''
@@ -621,22 +621,39 @@ def merge_sensors(request):
     delete_sensor = params.get('delete')
 
     db = bmsdata.BMSdata()
-    #qs = models.Sensor.objects.filter(sensor_id=params['sensor_from'])[0]
+
+    try:
+        db.cursor.execute(
+            f'SELECT min(ts) FROM [{params["sensor_to"]}]')
+        where_clause = f' WHERE ts < {db.cursor.fetchone()[0]}'
+    except Exception as e:
+        return HttpResponse(e, status=500)
 
     if action == 'query':
         try:
             db.cursor.execute(
-                f'SELECT COUNT(*) FROM [{params["sensor_from"]}]')
+                f'SELECT COUNT(*) FROM [{params["sensor_from"]}]' + where_clause)
             rec_ct = db.cursor.fetchone()[0]
         except Exception as e:
             return HttpResponse(e, status=500)
-        return HttpResponse(f'Do you really want to merge {rec_ct:,} records from {sensor_from} into {sensor_to}?')
+        if rec_ct == 0:
+            return HttpResponse(f'No {sensor_from} records found with timestamps earlier than {sensor_to}', status=406)
+        else:
+            response_text = f'Do you really want to merge {rec_ct:,} records from {sensor_from} into {sensor_to}'
+            if delete_sensor == 'on':
+                response_text += f' and delete any remaining records from {sensor_from}'
+            response_text += '?'
+            return HttpResponse(response_text)
     else:
         try:
             db.cursor.execute(
-                f'INSERT INTO [{sensor_to}] SELECT * FROM [{sensor_from}]')
+                f'INSERT INTO [{sensor_to}] (ts, val) SELECT ts, val FROM [{sensor_from}]' + where_clause)
             if delete_sensor == 'on':
                 db.cursor.execute(f'DROP TABLE [{sensor_from}]')
+                qs = models.Sensor.objects.filter(
+                    sensor_id=params['sensor_from'])
+                if len(qs) > 0:
+                    qs[0].delete()
             db.conn.commit()
         except Exception as e:
             return HttpResponse(e, status=500)
@@ -657,7 +674,7 @@ def delete_sensor_values(request):
     where_end_date = params.get('end_date')
 
     db = bmsdata.BMSdata()
-    #qs = models.Sensor.objects.filter(sensor_id=params['sensor_from'])[0]
+    # qs = models.Sensor.objects.filter(sensor_id=params['sensor_from'])[0]
 
     where_clause = ''
 
@@ -691,6 +708,10 @@ def delete_sensor_values(request):
                 f'DELETE FROM [{sensor_id}] {where_clause}')
             if delete_where == 'all_values':
                 db.cursor.execute(f'DROP TABLE [{sensor_id}]')
+                qs = models.Sensor.objects.filter(
+                    sensor_id=params['sensor_id'])
+                if len(qs) > 0:
+                    qs[0].delete()
             db.conn.commit()
         except Exception as e:
             return HttpResponse(e, status=500)
