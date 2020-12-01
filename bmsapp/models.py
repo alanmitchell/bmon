@@ -268,16 +268,30 @@ class Building(models.Model):
     # name of the building displayed to users
     title = models.CharField(max_length=80, unique=True)
 
-    # Current mode that building is in
-    current_mode = models.ForeignKey(BuildingMode, models.SET_NULL, verbose_name='Current Operating Mode', blank=True, null=True)
-
-    report_footer = models.TextField(verbose_name='Additional Building Documentation', help_text='Use <a href="http://markdowntutorial.com/"> markdown syntax </a> to add links, pictures, etc.  Note that you <b>must</b> include the url prefix (e.g. <i>http://</i>) in your links.', blank=True, default='')
-                                      
     # Latitude of building
     latitude = models.FloatField(default=62.0)
 
     # Longitude of building
     longitude = models.FloatField(default=-161.0)
+
+    # Fields related to the Occupied Schedule of the Facility
+
+    # The timezone, from the Olson timezone database, where the facility
+    # is located.
+    timezone = models.CharField("Time Zone of Facility, from tz database", 
+        max_length=50, default='US/Alaska')
+
+    # Occupied schedule for building.  No entry means continually occupied.
+    schedule = models.TextField("Occupied Schedule of Facility (e.g. M-F: 8a-5p)", blank=True)
+
+    # Current mode that building is in
+    current_mode = models.ForeignKey(BuildingMode, models.SET_NULL, verbose_name='Current Operating Mode', blank=True, null=True)
+
+    # Descriptive Text that shows at the bottom of the Current Values and Dashboard reports.
+    report_footer = models.TextField(verbose_name='Additional Building Documentation', help_text='Use <a href="http://markdowntutorial.com/"> markdown syntax </a> to add links, pictures, etc.  Note that you <b>must</b> include the url prefix (e.g. <i>http://</i>) in your links.', blank=True, default='')
+
+    # Timeline annotations
+    timeline_annotations = models.TextField("Annotations for events in the building's timeline (e.g. Boiler Replaced: 1/1/2017)", help_text="One annotation per line. Use a colon between the annotation and the date/time.", blank=True)
 
     # Floor area of building
     floor_area = models.FloatField('Floor area of Building in square feet', null=True, blank=True)
@@ -312,6 +326,22 @@ class Building(models.Model):
         blank=True
     )
 
+    # Electric Rate for Building
+    electric_rate = models.ForeignKey(
+        ElectricRate, 
+        on_delete=models.SET_NULL, 
+        verbose_name='Electric Rate Schedule for Building', 
+        blank=True, null=True
+    )
+
+    # Fuel Rate for Building
+    fuel_rate = models.ForeignKey(
+        FuelRate, 
+        on_delete=models.SET_NULL, 
+        verbose_name='Primary Fuel Price for Building', 
+        blank=True, null=True
+    )
+
     # Building outdoor temperature sensor
     outdoor_temp = models.CharField(
         'Outdoor Temperature Sensor ID',
@@ -333,22 +363,6 @@ class Building(models.Model):
         help_text='Sensors will be added together to determine total fuel use.'
     )
 
-    # Electric Rate for Building
-    electric_rate = models.ForeignKey(
-        ElectricRate, 
-        on_delete=models.SET_NULL, 
-        verbose_name='Electric Rate Schedule for Building', 
-        blank=True, null=True
-    )
-
-    # Fuel Rate for Building
-    fuel_rate = models.ForeignKey(
-        FuelRate, 
-        on_delete=models.SET_NULL, 
-        verbose_name='Primary Fuel Price for Building', 
-        blank=True, null=True
-    )
-
     # Building Indoor Temperature Sensors
     indoor_temps = models.TextField(
         'Indoor Temperature Sensor IDs, one per line',
@@ -366,19 +380,6 @@ class Building(models.Model):
         'CO2 Sensor IDs, one per line',
         blank=True
     )
-
-    # Fields related to the Occupied Schedule of the Facility
-
-    # The timezone, from the Olson timezone database, where the facility
-    # is located.
-    timezone = models.CharField("Time Zone of Facility, from tz database", 
-        max_length=50, default='US/Alaska')
-
-    # Occupied schedule for building.  No entry means continually occupied.
-    schedule = models.TextField("Occupied Schedule of Facility (e.g. M-F: 8a-5p)", blank=True)
-
-    # Timeline annotations
-    timeline_annotations = models.TextField("Annotations for events in the building's timeline (e.g. Boiler Replaced: 1/1/2017)", help_text="One annotation per line. Use a colon between the annotation and the date/time.", blank=True)
 
     # Additional Descriptive Properties to include in the key_properties function.
     # These are given higer priority over the other fields so can be used to override 
