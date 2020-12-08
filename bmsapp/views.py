@@ -586,6 +586,10 @@ def sensor_data_utilities(request):
     """Utilities for managing sensor data.
     """
 
+    # get the html for the list of buildings and the ID of the a selected building
+    # (the first building)
+    bldgs_html, bldg_id_selected = view_util.bldg_list_html(0, 0, 0)
+
     db = bmsdata.BMSdata()
     sensor_list = []
     for sens_id in db.sensor_id_list():
@@ -601,10 +605,12 @@ def sensor_data_utilities(request):
             links = models.BldgToSensor.objects.filter(sensor=sensor)
             if len(links) > 0:
                 # link found
+                sensor_info['bldgs'] = [0] + [link['building_id']
+                                              for link in links.values()]
                 sensor_list.append(sensor_info)
 
     ctx = base_context()
-    ctx.update({'sensor_list': sensor_list})
+    ctx.update({'bldgs_html': bldgs_html, 'sensor_list': sensor_list})
     ctx['orgs_hide'] = True
     return render_to_response('bmsapp/sensor-data-utilities.html', ctx)
 
@@ -641,7 +647,7 @@ def merge_sensors(request):
         else:
             response_text = f'Do you really want to merge {rec_ct:,} records from {sensor_from} into {sensor_to}'
             if delete_sensor == 'on':
-                response_text += f' and delete any remaining records from {sensor_from}'
+                response_text += f' and delete all records from {sensor_from}'
             response_text += '?'
             return HttpResponse(response_text)
     else:
@@ -757,6 +763,25 @@ def unassigned_sensors(request):
     ctx = base_context()
     ctx.update({'sensor_list': sensor_list})
     return render_to_response('bmsapp/unassigned-sensors.html', ctx)
+
+
+@login_required(login_url='../admin/login/')
+def delete_unassigned_sensor_ids(request):
+    """Delete a list of unassigned sensor ids
+    """
+    try:
+        row_ids = request.POST.getlist('row_ids[]')
+        db = bmsdata.BMSdata()
+        for sensor_id in row_ids:
+            db.cursor.execute(f'DROP TABLE [{sensor_id}]')
+            qs = models.Sensor.objects.filter(sensor_id=sensor_id)
+            if len(qs) > 0:
+                qs[0].delete()
+        db.conn.commit()
+    except Exception as e:
+        return HttpResponse(e, status=500)
+
+    return HttpResponse(f'Deleted {len(row_ids)} unassigned sensors')
 
 
 @login_required(login_url='../admin/login/')

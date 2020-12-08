@@ -27,12 +27,21 @@
 
 <script>
     const sensor_list = JSON.parse(document.getElementById("sensor_list").textContent);
+
+    function update_sensor_lists() {
+        var selected_bldg = $('#select_bldg').val();
+        ['select_sensor_merge_from','select_sensor_merge_to','select_sensor_delete'].forEach(function(element){
+            $('#'+element).empty();
+            sensor_list.filter(function(e) {return e.bldgs.includes(parseInt(selected_bldg))}).forEach(function(sensor) {
+                $('#'+element).append($('<option></option>').val(sensor.id).text(sensor.id)); 
+
+            });
+        })
+
+    }
+
     $(function () {
-        sensor_list.forEach(function(e, i){
-            $('#select_sensor_merge_from').append($('<option></option>').val(e.id).text(e.id)); 
-            $('#select_sensor_merge_to').append($('<option></option>').val(e.id).text(e.id));
-            $('#select_sensor_delete').append($('<option></option>').val(e.id).text(e.id));
-        });
+        update_sensor_lists();
 
         $('#start_date').datepicker({uiLibrary: 'bootstrap4'});
         $('#end_date').datepicker({uiLibrary: 'bootstrap4'});
@@ -129,65 +138,74 @@
 <br>
 
 <hr class="mt-1">
-<h5>Merge Sensor Data:</h5>
-<form>
-    <div id="merge_controls" class="form-row align-items-end justify-content-left ml-3">
-        <div class="form-group col-auto">
-            <label for="select_sensor_from" style="display: block">From Sensor:</label>
-            <select class="form-control" id="select_sensor_merge_from" name="sensor_from">
-            </select>
+<div id="bldg-selection" class="row mx-1 mb-1">
+    <form class="form-inline">
+        <select class="form-control" id="select_bldg" name="select_bldg" onchange="update_sensor_lists();">
+            <option value="0">All Facilities</option>
+            {{ bldgs_html }}
+        </select>
+    </form>
+</div>
+<div class="ml-4">
+    <h5>Merge Sensor Data:</h5>
+    <form>
+        <div id="merge_controls" class="form-row align-items-end justify-content-left ml-3">
+            <div class="form-group col-auto">
+                <label for="select_sensor_from" style="display: block">From Sensor:</label>
+                <select class="form-control" id="select_sensor_merge_from" name="sensor_from">
+                </select>
+            </div>
+            <div class="form-group col-auto">
+                <label for="delete_sensor_from" style="display: block">Delete<br>From Sensor<br>after Merge?</label>
+                <input name="delete" type="checkbox"/>
+            </div>
+            <div class="form-group col-auto">
+                <label for="select_sensor_to" style="display: block">To Sensor:</label>
+                <select class="form-control" id="select_sensor_merge_to" name="sensor_to" onchange="display_merge_controls()">
+                    <option value="[none]"></option>
+                </select>
+            </div>
+            <div class="form-group col-auto">
+                <button class="btn btn-secondary col" id="btn_merge" type="button" disabled onclick="merge_sensors()">Merge</button>
+            </div>
         </div>
-        <div class="form-group col-auto">
-            <label for="delete_sensor_from" style="display: block">Delete<br>From Sensor<br>after Merge?</label>
-            <input name="delete" type="checkbox"/>
-        </div>
-        <div class="form-group col-auto">
-            <label for="select_sensor_to" style="display: block">To Sensor:</label>
-            <select class="form-control" id="select_sensor_merge_to" name="sensor_to" onchange="display_merge_controls()">
-                <option value="[none]"></option>
-            </select>
-        </div>
-        <div class="form-group col-auto">
-            <button class="btn btn-secondary col" id="btn_merge" type="button" disabled onclick="merge_sensors()">Merge</button>
-        </div>
-    </div>
-</form>
+    </form>
 
-<hr class="mt-1">
-<h5>Delete Sensor Data:</h5>
-<form>
-    <div id="delete_controls" class="form-row align-items-end justify-content-left ml-3">
-        <div class="form-group col-auto">
-            <label for="select_sensor_delete" style="display: block">Sensor:</label>
-            <select class="form-control" id="select_sensor_delete" name="sensor">
-            </select>
+    <hr class="mt-1">
+    <h5>Delete Sensor Data:</h5>
+    <form>
+        <div id="delete_controls" class="form-row align-items-end justify-content-left ml-3">
+            <div class="form-group col-auto">
+                <label for="select_sensor_delete" style="display: block">Sensor:</label>
+                <select class="form-control" id="select_sensor_delete" name="sensor">
+                </select>
+            </div>
+            <div class="form-group col-auto">
+                <label for="delete_where">Where:</label>
+                <select class="form-control" id="select_delete_where" name="delete_where" onchange="display_delete_controls()">
+                    <option value="value_equals">Value is Equal To</option>
+                    <option value="values_gt">Value is Greater Than</option>
+                    <option value="values_lt">Values is Less Than</option>
+                    <option value="dates_between">Date is Between</option>
+                    <option value="all_values">All Values</option>
+                </select>
+            </div>
+            <div class="form-group col-auto delete_value_controls">
+                <label for="delete_where_value" style="display: block">Value:</label>
+                <input id="delete_where_value" name="value" width="100"  oninput="display_delete_controls()"/>
+            </div>
+            <div class="form-group col-auto delete_date_controls" hidden>
+                <label class="mr-1" for="start_date"> Start:</label><input id="start_date" name="start_date" width="160" oninput="display_delete_controls()"/>
+            </div>
+            <div class="form-group col-auto delete_date_controls" hidden>
+                <label class="mr-1 ml-2" for="end_date">End:</label><input id="end_date" name="end_date" width="160" oninput="display_delete_controls()"/>
+            </div>
+            <div class="form-group col-auto">
+                <button class="btn btn-secondary col" id="btn_delete" type="button" disabled onclick="delete_sensor_values()">Delete</button>
+            </div>
         </div>
-        <div class="form-group col-auto">
-            <label for="delete_where">Where:</label>
-            <select class="form-control" id="select_delete_where" name="delete_where" onchange="display_delete_controls()">
-                <option value="value_equals">Value is Equal To</option>
-                <option value="values_gt">Value is Greater Than</option>
-                <option value="values_lt">Values is Less Than</option>
-                <option value="dates_between">Date is Between</option>
-                <option value="all_values">All Values</option>
-            </select>
-        </div>
-        <div class="form-group col-auto delete_value_controls">
-            <label for="delete_where_value" style="display: block">Value:</label>
-            <input id="delete_where_value" name="value" width="100"  oninput="display_delete_controls()"/>
-        </div>
-        <div class="form-group col-auto delete_date_controls" hidden>
-            <label class="mr-1" for="start_date"> Start:</label><input id="start_date" name="start_date" width="160" oninput="display_delete_controls()"/>
-        </div>
-        <div class="form-group col-auto delete_date_controls" hidden>
-            <label class="mr-1 ml-2" for="end_date">End:</label><input id="end_date" name="end_date" width="160" oninput="display_delete_controls()"/>
-        </div>
-        <div class="form-group col-auto">
-            <button class="btn btn-secondary col" id="btn_delete" type="button" disabled onclick="delete_sensor_values()">Delete</button>
-        </div>
-    </div>
-</form>
-
+    </form>
+</div>
 <hr class="mt-1">
 <h5>Manage Unassigned Sensors:</h5>
 <form>
@@ -203,7 +221,7 @@
 <form>
     <div id="backup_readings_controls" class="form-row align-items-end justify-content-left ml-5">
         <div class="form-group col-auto">
-            <button class="btn btn-secondary col" type="button" onclick="location.href='{{ bmsapp_nav_link_base_url }}backup-readings/';">Backup</button>
+            <button class="btn btn-secondary col" type="button" onclick="$('body').css('cursor', 'progress'); location.href='{{ bmsapp_nav_link_base_url }}backup-readings/';">Backup (may take a long time)</button>
         </div>
     </div>
 </form>
