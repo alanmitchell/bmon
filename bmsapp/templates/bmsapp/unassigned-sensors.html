@@ -19,6 +19,8 @@
         }, {});
 
     $(function () {
+        $.fn.dataTable.Buttons.defaults.dom.button.className = 'btn';
+
         var sensor_table = $('#Sensors').DataTable({
             paging: false,
             scrollY: '80vh',
@@ -30,28 +32,36 @@
             } ],
             dom: 'Bfrtip',
             buttons: [
-                'selectAll',
-                'selectNone',
                 {
-                text: 'Delete Selected',
-                action: function ( e, dt, node, config ) {
-                    var row_ids = dt.rows({ selected: true }).ids().toArray();
-                    if (confirm('Do you really want to delete ' + row_ids.length + ' sensors?')) {
-                        $.post( {
-                            url: "delete_ids/", 
-                            data: {'row_ids': row_ids},
-                            headers: {'X-CSRFToken': cookies['csrftoken']}
-                            })
-                        .done(function( data ) {
-                            alert( data )})
-                        .fail(function (jqXHR, textStatus, errorThrown) {
-                            alert( jqXHR.responseText )});
-                        
-                        dt.rows({ selected: true }).remove().draw( false );
+                    text: 'Select all',
+                    className: 'btn-secondary',
+                    action: function (e, dt, node, config) {
+                        dt.rows().deselect();
+                        dt.rows( { search: 'applied' } ).select();
                     }
                 },
-                enabled: false
-            }
+                'selectNone',
+                {
+                    text: 'Delete Selected',
+                    className: 'btn-primary ml-2',
+                    action: function ( e, dt, node, config ) {
+                        var row_ids = dt.rows({ selected: true }).ids().toArray();
+                        if (confirm('Do you really want to delete ' + row_ids.length + ' sensors?')) {
+                            $.post( {
+                                url: "delete_ids/", 
+                                data: {'row_ids': row_ids},
+                                headers: {'X-CSRFToken': cookies['csrftoken']}
+                                })
+                            .done(function( data ) {
+                                alert( data )})
+                            .fail(function (jqXHR, textStatus, errorThrown) {
+                                alert( jqXHR.responseText )});
+                            
+                            dt.rows({ selected: true }).remove().draw( false );
+                        }
+                    },
+                    enabled: false
+                }
             ],
             select: {
                 style:    'multi',
