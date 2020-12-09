@@ -299,7 +299,7 @@ def store_readings(request):
 @csrf_exempt
 def store_readings_things(request):
     '''
-    Stores a set of sensor readings from the Things Network in the sensor reading 
+    Stores a set of sensor readings from the Things Network in the sensor reading
     database. The readings are assumed to originate from an HTTP Integration on an
     Application in the Things Network.  The BMON Store Key is in a custom HTTP header.
     The readings and other data are in the POST data encoded in JSON.
@@ -345,7 +345,7 @@ def store_readings_things(request):
 @csrf_exempt
 def store_readings_radio_bridge(request):
     '''
-    Stores a set of sensor readings from a Radio Bridge LoRaWAN sensor in the sensor reading 
+    Stores a set of sensor readings from a Radio Bridge LoRaWAN sensor in the sensor reading
     database. The readings are assumed to originate from an HTTP Integration on an
     Application in the Things Network.  The BMON Store Key is in a custom HTTP header.
     The readings and other data are in the POST data encoded in JSON.
@@ -460,7 +460,7 @@ def group_list(request, org_id):
 
 def bldg_list(request, org_id, group_id):
     '''Returns a list of buildings in the organization identified by 'org_id'
-    and the group identified by the primary key ID of 'group_id'. 
+    and the group identified by the primary key ID of 'group_id'.
 
     The return value is an html snippet of option elements, one for each building.
     '''
@@ -582,41 +582,147 @@ def ecobee_auth(request):
         return render_to_response('bmsapp/ecobee_auth_result.html', ctx)
 
 
-# @login_required(login_url='../admin/login/')
+@login_required(login_url='../admin/login/')
 def sensor_data_utilities(request):
     """Utilities for managing sensor data.
     """
 
+    # get the html for the list of buildings and the ID of the a selected building
+    # (the first building)
+    bldgs_html, bldg_id_selected = view_util.bldg_list_html(0, 0, 0)
+
     db = bmsdata.BMSdata()
     sensor_list = []
     for sens_id in db.sensor_id_list():
-        sensor_info = {'id': sens_id, 'title': '',
-                       'cur_value': '', 'minutes_ago': ''}
+        sensor_info = {'id': sens_id, 'title': ''}
         add_sensor = False
 
         qs = models.Sensor.objects.filter(sensor_id=sens_id)
         if len(qs) > 0:
             sensor = qs[0]   # get the actual Sensor object
+            sensor_info['title'] = sensor.title
+
             # see if this sensor has links to a building
             links = models.BldgToSensor.objects.filter(sensor=sensor)
             if len(links) > 0:
                 # link found
-                sensor_info['title'] = sensor.title
-
-                last_read = db.last_read(sens_id)
-                if last_read:
-                    val = last_read['val']
-                    sensor_info['cur_value'] = '%.5g' % val if abs(
-                        val) < 1e5 else str(val)
-                    sensor_info['minutes_ago'] = '%.1f' % (
-                        (time.time() - last_read['ts'])/60.0)
-
+                sensor_info['bldgs'] = [0] + [link['building_id']
+                                              for link in links.values()]
                 sensor_list.append(sensor_info)
 
     ctx = base_context()
-    ctx.update({'sensor_list': sensor_list})
+    ctx.update({'bldgs_html': bldgs_html, 'sensor_list': sensor_list})
     ctx['orgs_hide'] = True
     return render_to_response('bmsapp/sensor-data-utilities.html', ctx)
+
+
+@login_required(login_url='../admin/login/')
+def merge_sensors(request):
+    """Merge readings from one sensor to another
+    """
+    params = request.GET
+
+    action = params.get('action')
+    sensor_from = params.get('sensor_from')
+    sensor_to = params.get('sensor_to')
+    delete_sensor = params.get('delete')
+
+    db = bmsdata.BMSdata()
+
+    try:
+        db.cursor.execute(
+            f'SELECT min(ts) FROM [{params["sensor_to"]}]')
+        where_clause = f' WHERE ts < {db.cursor.fetchone()[0]}'
+    except Exception as e:
+        return HttpResponse(e, status=500)
+
+    if action == 'query':
+        try:
+            db.cursor.execute(
+                f'SELECT COUNT(*) FROM [{params["sensor_from"]}]' + where_clause)
+            rec_ct = db.cursor.fetchone()[0]
+        except Exception as e:
+            return HttpResponse(e, status=500)
+        if rec_ct == 0:
+            return HttpResponse(f'No {sensor_from} records found with timestamps earlier than {sensor_to}', status=406)
+        else:
+            response_text = f'Do you really want to merge {rec_ct:,} records from {sensor_from} into {sensor_to}'
+            if delete_sensor == 'on':
+                response_text += f' and delete all records from {sensor_from}'
+            response_text += '?'
+            return HttpResponse(response_text)
+    else:
+        try:
+            db.cursor.execute(
+                f'INSERT INTO [{sensor_to}] (ts, val) SELECT ts, val FROM [{sensor_from}]' + where_clause)
+            if delete_sensor == 'on':
+                db.cursor.execute(f'DROP TABLE [{sensor_from}]')
+                qs = models.Sensor.objects.filter(
+                    sensor_id=params['sensor_from'])
+                if len(qs) > 0:
+                    qs[0].delete()
+            db.conn.commit()
+        except Exception as e:
+            return HttpResponse(e, status=500)
+        return HttpResponse('Records Merged')
+
+
+@login_required(login_url='../admin/login/')
+def delete_sensor_values(request):
+    """Delete values from a sensor
+    """
+    params = request.GET
+
+    action = params.get('action')
+    sensor_id = params.get('sensor')
+    delete_where = params.get('delete_where')
+    where_value = params.get('value')
+    where_start_date = params.get('start_date')
+    where_end_date = params.get('end_date')
+
+    db = bmsdata.BMSdata()
+    # qs = models.Sensor.objects.filter(sensor_id=params['sensor_from'])[0]
+
+    where_clause = ''
+
+    if delete_where == 'all_values':
+        pass
+    elif delete_where == 'value_equals':
+        where_clause = f'WHERE val = {where_value}'
+    elif delete_where == 'values_gt':
+        where_clause = f'WHERE val > {where_value}'
+    elif delete_where == 'values_lt':
+        where_clause = f'WHERE val < {where_value}'
+    elif delete_where == 'dates_between':
+        where_clause = f'WHERE ts > {bmsapp.data_util.datestr_to_ts(start_date)} and ts < {bmsapp.data_util.datestr_to_ts(end_date)}'
+    else:
+        return HttpResponse(f'Invalid parameter: {delete_where}', status=406)
+
+    if action == 'query':
+        try:
+            db.cursor.execute(
+                f'SELECT COUNT(*) FROM [{sensor_id}] {where_clause}')
+            rec_ct = db.cursor.fetchone()[0]
+        except Exception as e:
+            return HttpResponse(e, status=500)
+        if rec_ct == 0:
+            return HttpResponse('No records found that meet the criteria!', status=406)
+        else:
+            return HttpResponse(f'Do you really want to delete {rec_ct:,} records from {sensor_id}?')
+    else:
+        try:
+            db.cursor.execute(
+                f'DELETE FROM [{sensor_id}] {where_clause}')
+            if delete_where == 'all_values':
+                db.cursor.execute(f'DROP TABLE [{sensor_id}]')
+                qs = models.Sensor.objects.filter(
+                    sensor_id=params['sensor_id'])
+                if len(qs) > 0:
+                    qs[0].delete()
+            db.conn.commit()
+        except Exception as e:
+            return HttpResponse(e, status=500)
+        return HttpResponse('Records Deleted')
 
 
 @login_required(login_url='../admin/login/')
@@ -658,6 +764,25 @@ def unassigned_sensors(request):
     ctx = base_context()
     ctx.update({'sensor_list': sensor_list})
     return render_to_response('bmsapp/unassigned-sensors.html', ctx)
+
+
+@login_required(login_url='../admin/login/')
+def delete_unassigned_sensor_ids(request):
+    """Delete a list of unassigned sensor ids
+    """
+    try:
+        row_ids = request.POST.getlist('row_ids[]')
+        db = bmsdata.BMSdata()
+        for sensor_id in row_ids:
+            db.cursor.execute(f'DROP TABLE [{sensor_id}]')
+            qs = models.Sensor.objects.filter(sensor_id=sensor_id)
+            if len(qs) > 0:
+                qs[0].delete()
+        db.conn.commit()
+    except Exception as e:
+        return HttpResponse(e, status=500)
+
+    return HttpResponse(f'Deleted {len(row_ids)} unassigned sensors')
 
 
 @login_required(login_url='../admin/login/')
