@@ -582,6 +582,7 @@ def ecobee_auth(request):
         return render_to_response('bmsapp/ecobee_auth_result.html', ctx)
 
 
+@login_required(login_url='../admin/login/')
 def sensor_data_utilities(request):
     """Utilities for managing sensor data.
     """
