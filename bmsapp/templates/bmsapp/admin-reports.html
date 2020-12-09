@@ -1,23 +1,23 @@
 {% extends "bmsapp/base.html" %}
 
-{% block pagetitle %}Admin Reports{% endblock %}
+{% block pagetitle %}Sys Admin{% endblock %}
 
-{% block title %}System Administrator Reports/Tasks{% endblock %}
+{% block title %}System Administrator Page{% endblock %}
 
 {% block this_nav_link %}link_admin-reports{% endblock %}
 
 {% block head %}
 <style>
-    #admin_tasks li {
+    .admin_tasks li {
         margin-top: 15px;
         display: block;
     }
-    #admin_tasks a {
+    .admin_tasks a {
         display: block;
         padding: 5px 5px 5px 5px;
         width: 95%;
     }
-    #admin_tasks a:hover {
+    .admin_tasks a:hover {
         color: #fff;
         background-color: #69C;
     }
@@ -26,16 +26,26 @@
 
 {% block content %}
 <br>
-<p>Click a Link below to Access a System Administrator Report or Task:</p>
 
-<ul id="admin_tasks">
-    <li><a href="{{ bmsapp_nav_link_base_url }}admin/">System Administrator Functions</a></li>
-    <li><a href="http://bmon-documentation.readthedocs.io/en/latest/system-administrator-introduction.html">System Administrator Documentation on Read the Docs</a></li>
-    <li><a href="{{ bmsapp_nav_link_base_url }}show-log/">View the Application Error Log</a></li>
-    <li><a href="{{ bmsapp_nav_link_base_url }}unassigned-sensors/">Manage Unassigned Sensors...</a></li>
-    <li><a href="{{ bmsapp_nav_link_base_url }}sensor-data-utilities/">Sensor Data Utilities</a></li>
+<h3>Administator Tasks</h3>
+<ul class="admin_tasks">
+    <li><a href="{{ bmsapp_nav_link_base_url }}admin/">System Administration: Configure BMON System</a></li>
+    <li><a href="{{ bmsapp_nav_link_base_url }}unassigned-sensors/">Unassigned Sensors: View and Delete</a></li>
+    <li><a href="{{ bmsapp_nav_link_base_url }}sensor-data-utilities/">Sensor Data Utilities (Eliminate Bad Data, Merge Sensors)</a></li>
     <li><a href="{{ bmsapp_nav_link_base_url }}ecobee-auth/">Authorize Access to an Ecobee Thermostat Account</a></li>
-    <li><a href="http://api.analysisnorth.com/debug">Mini-Monitor Debug Log Page</a></li>
 </ul>
+
+<h3>BMON Documentation</h3>
+<ul class="admin_tasks">
+    <li><a href="http://bmon-documentation.readthedocs.io/en/latest/system-administrator-introduction.html">System Administrator Documentation on Read the Docs</a></li>
+</ul>
+
+<h3>Debugging Tools</h3>
+<ul class="admin_tasks">
+    <li><a href="{{ bmsapp_nav_link_base_url }}show-log/">View the BMON Error Log</a></li>
+    <li><a href="http://api.analysisnorth.com/debug">View the Mini-Monitor (Raspberry Pi) Debug Log Page</a></li>
+</ul>
+
+
 
 {% endblock %}
