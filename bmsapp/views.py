@@ -693,7 +693,7 @@ def delete_sensor_values(request):
     elif delete_where == 'values_lt':
         where_clause = f'WHERE val < {where_value}'
     elif delete_where == 'dates_between':
-        where_clause = f'WHERE ts > {bmsapp.data_util.datestr_to_ts(start_date)} and ts < {bmsapp.data_util.datestr_to_ts(end_date)}'
+        where_clause = f'WHERE ts > {bmsapp.data_util.datestr_to_ts(where_start_date)} and ts < {bmsapp.data_util.datestr_to_ts(where_end_date)}'
     else:
         return HttpResponse(f'Invalid parameter: {delete_where}', status=406)
 
@@ -715,12 +715,12 @@ def delete_sensor_values(request):
             if delete_where == 'all_values':
                 db.cursor.execute(f'DROP TABLE [{sensor_id}]')
                 qs = models.Sensor.objects.filter(
-                    sensor_id=params['sensor_id'])
+                    sensor_id=sensor_id)
                 if len(qs) > 0:
                     qs[0].delete()
             db.conn.commit()
         except Exception as e:
-            return HttpResponse(e, status=500)
+            return HttpResponse(repr(e), status=500)
         return HttpResponse('Records Deleted')
 
 
