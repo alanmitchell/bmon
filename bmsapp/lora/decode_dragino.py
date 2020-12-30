@@ -88,19 +88,17 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
     """Decodes the values from a Dragino LT-22222-L sensor, configured
     to do boat monitoring.  The inputs on the LT-22222-L are wired as 
     follows:
-        AV1, AV2 - Boat Battery Voltage.  Had trouble with AV1, so am using both AV1 and 2
-            and taking the maximum.
-        AC1 - Shore Power sensor, which is a DC Wall Wart, 3 - 24 VDC with a 10 K-ohm in
-            series to produce a small current.
-        AC2 - Current through a 10 K-ohm thermistor, with a Beta of 3950K, connected to
+        AV1 - Boat Battery Voltage. 
+        AV2 - Shore Power sensor, which is a DC Wall Wart, 3 - 24 VDC.
+        AC1 - Current through a 10 K-ohm thermistor, with a Beta of 3950K, connected to
             Boat Battery voltage.
         DI1 - High Water sensor, which puts Boat Battery Voltage on this terminal when high
             water is present.
         DI2 - Bilge Pump sensor, which puts Boat Battery Voltage on this terminal if the 
             bilge pump is running.
     These signals are decoded into their engineering meaning, for example the Shore 
-    Power sensor on the AC1 current input channel is decoded into a 1 if Shore power is
-    present and a 0 if not present (the actual current value is *not* returned).
+    Power sensor on the AV2 voltage channel is decoded into a 1 if Shore power is
+    present and a 0 if not present (the actual voltage value is *not* returned).
     The LT-22222-L must be in Mode = 1; if not, no values are returned.
     """
 
@@ -117,13 +115,15 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
         return (data[ix] << 8) | (data[ix + 1])
 
     # ---- Battery voltage
-    batV1 = int16(0) / 1000.
-    batV2 = int16(2) / 1000.
-    batV = max(batV1, batV2)
+    batV = int16(0) / 1000.
     res['batteryV'] = batV
 
+    # ------- Shore Power
+    shoreV = int16(2) / 1000.     # voltage from wall wart in Volts
+    res['shorePower'] = 1 if shoreV > 2.0 else 0
+
     # ---- Thermistor Temperatuare sensor
-    thermMA = int16(6) / 1000.     # current through thermistor in mA
+    thermMA = int16(4) / 1000.     # current through thermistor in mA
 
     # if the thermistor is not present, this current will be low, and do not return
     # a temperature value
@@ -136,13 +136,6 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
         # Need to correct for self-heating.  I measured 0.33 deg-F / mW.  Quite significant.
         therm_mW = batV * thermMA
         res['temperature'] = degF - therm_mW * 0.33
-
-    # ------- Shore Power
-    shore_ma = int16(4) / 1000.     # current from wall wart in mA
-    
-    # 3V wall wart with 10K resistor produces 0.3 mA of current.  Use 0.2 mA as 
-    # cutoff.
-    res['shorePower'] = 1 if shore_ma > 0.2 else 0
         
     # Digital Inputs have inverted logic, voltage across the input produces a 0.
     # -------- High Water Level
@@ -152,7 +145,6 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
     res['bilgePump'] = 0 if data[8] & 0x10 else 1
 
     return res
-
 
 def test_lht65():
     cases = (
