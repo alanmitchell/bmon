@@ -88,8 +88,8 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
     """Decodes the values from a Dragino LT-22222-L sensor, configured
     to do boat monitoring.  The inputs on the LT-22222-L are wired as 
     follows:
-        AV1 - Boat Battery Voltage. 
-        AV2 - Shore Power sensor, which is a DC Wall Wart, 3 - 24 VDC.
+        AV1 - Shore Power sensor, which is a DC Wall Wart, 3 - 24 VDC. 
+        AV2 - Boat Battery Voltage.
         AC1 - Current through a 10 K-ohm thermistor, with a Beta of 3950K, connected to
             Boat Battery voltage.
         DI1 - High Water sensor, which puts Boat Battery Voltage on this terminal when high
@@ -114,13 +114,13 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
         """
         return (data[ix] << 8) | (data[ix + 1])
 
-    # ---- Battery voltage
-    batV = int16(0) / 1000.
-    res['batteryV'] = batV
-
     # ------- Shore Power
-    shoreV = int16(2) / 1000.     # voltage from wall wart in Volts
+    shoreV = int16(0) / 1000.     # voltage from wall wart in Volts
     res['shorePower'] = 1 if shoreV > 2.0 else 0
+
+    # ---- Battery voltage
+    batV = int16(2) / 1000.
+    res['batteryV'] = batV
 
     # ---- Thermistor Temperatuare sensor
     thermMA = int16(4) / 1000.     # current through thermistor in mA
