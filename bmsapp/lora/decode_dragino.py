@@ -116,7 +116,7 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
 
     # ------- Shore Power
     shoreV = int16(0) / 1000.     # voltage from wall wart in Volts
-    res['shorePower'] = 1 if shoreV > 2.0 else 0
+    res['shorePower'] = 1 if shoreV > 1.0 else 0
 
     # ---- Battery voltage
     batV = int16(2) / 1000.
