@@ -76,11 +76,10 @@ class EcobeeDataCollector:
         """
 
         # There must be access and refresh tokens present and 32 characters long.
-        if not type(access_token) in (str, str) or not type(refresh_token) in (str, str) or \
-                        len(access_token)!=32 or len(refresh_token)!=32:
+        if not type(access_token) in (str, str) or not type(refresh_token) in (str, str):
             raise ValueError('The Access or Refresh token is not present or invalid.  Reauthorize the BMON application with Ecobee at the "ecobee-auth" URL, and enter the new Access and Refresh token in the Script Parameters input box.')
 
-        if type(api_key)!=str or len(api_key)!=32:
+        if type(api_key)!=str:
             raise ValueError('API Key is not present or valid.  It should be entered in the Django Settings file.')
 
         if type(include_occupancy)!=bool:
