@@ -163,7 +163,7 @@ checked. For gathering outdoor dry-bulb temperature, the
 ``getInternetTemp`` (correct capitalization is critical and must be as
 shown). Finally, the ``Function Parameters in YAML form`` box must have
 an entry of ``stnCode:`` plus a 4 character `National Weather Service
-station code <http://www.weather.gov/>`_, in this example (there must be
+station code <https://www.weather.gov/arh/stationlist>`_, in this example (there must be
 a space after the colon):
 
 ::
