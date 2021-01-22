@@ -92,23 +92,27 @@ class Transformer:
                 interval = ts - last_ts
                 count_chg = val - last_val
                 
-                if count_chg < 0:
-                    if ignore_negative:
-                        _logger.warn(
-                            'Counter value move backwards and is requested to be ignored: ts=%s, id=%s, val=%s' % (ts, id, val))
-                        return None, None, None
-                    else:
-                        # Allow the negative change but check for a possible rollover.
-                        if abs(count_chg) > 0.5 * rollover:
-                            count_chg += rollover   # counter rolled over.
-                    
                 if interval < min_interval:
                     # too short of an interval for valid reading
                     _logger.warn('Too short of interval to calculate rate: ts=%s, last_ts=%s, id=%s, val=%s' % (ts, last_ts, id, val))
                     return None, None, None
-                    
+
+                # Calculate the rate of change in units/second
                 rate = count_chg / float(interval)
-                
+
+                if count_chg < 0:
+                    # Counter moved backward.  Either this is a legitimate negative change or a rollover.
+                    if ignore_negative:
+                        # negative changes are not proper, assume this is a rollover
+                        count_chg += rollover
+                        rate = count_chg / float(interval)
+                    else:
+                        # This could be a legit negative value. But, if the rate of change exceeds the max_rate
+                        # then treat it as a rollover instead.
+                        if abs(rate) > max_rate:
+                            count_chg += rollover
+                            rate = count_chg / float(interval)
+                    
                 if abs(rate) > max_rate:
                     # calculated rate is too high, indicates invalid reading.
                     _logger.warn('Too high of counter rate: ts=%s, id=%s, val=%s, rate=%s' % (ts, id, val, rate))
