@@ -29,9 +29,6 @@ django.setup()
 
 from bmsapp.models import DashboardItem, SensorGroup, Unit, Sensor, Building, BldgToSensor
 
-# Read the EUIs from the file and capitalize.
-euis = [eui.strip().upper() for eui in open(sys.argv[1]).readlines() if len(eui)]
-
 # get the needed Sensor Unit objects
 unit_on_off = Unit.objects.filter(label='1=On 0=Off')[0]
 unit_volts = Unit.objects.filter(label='Volts')[0]
@@ -55,6 +52,9 @@ grp_weather = SensorGroup.objects.filter(title='Weather')[0]
 # Get the two Seward weather sensors
 sensor_wx_temp = Sensor.objects.filter(sensor_id='PAWD_temp')[0]
 sensor_wx_wind = Sensor.objects.filter(sensor_id='PAWD_wind')[0]
+
+# Read the EUIs from the file and capitalize.
+euis = [eui.strip().upper() for eui in open(sys.argv[1]).readlines() if len(eui.strip())]
 
 for eui in euis:
     try:
