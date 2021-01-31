@@ -7,7 +7,7 @@ def run(application_key: str, api_key: str, **kwargs) -> dict:
 
     # collecting the data from the ambient weather site for a sensor
     # gathered into a json file format
-    api_url = 'https://api.ambientweather.net/v1/devices?'
+    api_url = 'https://api.ambientweather.net/v1/devices'
     payload = dict(applicationKey=application_key, apiKey=api_key)
     response = requests.get(api_url, params=payload)
     response_body = response.json()

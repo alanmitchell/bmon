@@ -146,6 +146,29 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
 
     return res
 
+def decode_lwl01(data: bytes) -> Dict[str, Any]:
+    """Returns a dictionary of engineering values decoded from a Dragino LWL01 Water Leak
+    Sensor Uplink Payload.
+    The payload 'data' is a byte array.
+    """
+
+    # holds the dictionary of results
+    res = {}
+
+    def int16(ix: int) -> int:
+        """Returns a 16-bit integer from the 2 bytes starting at index 'ix' in data byte array.
+        """
+        return (data[ix] << 8) | (data[ix + 1])
+
+    # Battery voltage
+    res['vdd'] = (int16(0) & 0x3FFF) / 1000
+
+    # Water Presence, 1 = Wet, 0 = Dry
+    res['water'] = 1 if data[0] & 0x40 else 0
+
+    return res
+
+
 def test_lht65():
     cases = (
         ('CBF60B0D0376010ADD7FFF', {'temperature': 82.922, 'humidity': 88.6, 'vdd': 3.062, 'extTemperature': 82.05799999999999}),
