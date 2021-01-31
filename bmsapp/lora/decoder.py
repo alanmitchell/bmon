@@ -74,6 +74,8 @@ def decode(
                 # any other types of messages from this sensor)
                 if integration_payload['port'] == 2:
                     fields = decode_dragino.decode_lht65(payload)
+            elif dev_id_lwr.startswith('lwl01'):
+                fields = decode_dragino.decode_lwl01(payload)
             elif dev_id_lwr.startswith('elsys') or (dev_id_lwr[:3] in ('ers', 'elt')):
                 # only messages on Port 5 are sensor readings
                 if integration_payload['port']  == 5:
