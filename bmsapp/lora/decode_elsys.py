@@ -46,9 +46,9 @@ def decode(data: bytes) -> Dict[str, Any]:
         return 1
 
     def acc(i: int) -> int:
-        res['x'] = bin8dec(data[i + 1])
-        res['y'] = bin8dec(data[i + 2])
-        res['z'] = bin8dec(data[i + 3])
+        res['x'] = bin8dec(data[i + 1]) / 63.0      # converts to Gs
+        res['y'] = bin8dec(data[i + 2]) / 63.0
+        res['z'] = bin8dec(data[i + 3]) / 63.0
         return 3
 
     def light(i: int) -> int:
