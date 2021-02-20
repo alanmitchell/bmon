@@ -83,6 +83,8 @@ def decode(
             elif dev_id_lwr.startswith('boat-lt2'):
                 if integration_payload['port'] == 2:
                     fields = decode_dragino.decode_boat_lt2(payload)
+            elif dev_id_lwr.startswith('ldds'):
+                fields = decode_dragino.decode_ldds(payload)
 
             # some decoders will give a list of values back for one field.  If requested, convert 
             # these into multiple fields with an underscore index at end of field name.
