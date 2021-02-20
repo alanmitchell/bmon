@@ -185,8 +185,8 @@ def decode_ldds(data: bytes) -> Dict[str, Any]:
     # Battery voltage
     res['vdd'] = (int16(0) & 0x3FFF) / 1000
 
-    # Distance in millimeters
-    res['distance'] = int16(2)
+    # Distance in inches
+    res['distance'] = int16(2) / 25.4
 
     return res
 
