@@ -325,9 +325,6 @@ def store_readings_things(request):
             for fld, val in data['fields'].items():
                 readings.append([ts, f'{eui}_{fld}', val])
 
-            # Also extract the best SNR of the gateways that received this.
-            readings.append([ts, f'{eui}_snr', data['snr']])
-
             msg = storereads.store_many({'readings': readings})
             return HttpResponse(msg)
 
