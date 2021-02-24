@@ -13,18 +13,18 @@ import logging
 # need to include thise Store Key when they post the data.
 # See bmsapp/views.storereading() and bmsapp/views.storereadings() for details
 # of how the Store Key is included in a reading post.
-BMSAPP_STORE_KEY = 'PutStorageKeyHere'
+BMSAPP_STORE_KEY = '{{ store_key.stdout }}'
 
 # Store key used with old URL pattern.
 # *** NOT USED WITH NEW INSTALLS.  LEAVE COMMENTED OUT ***
 # BMSAPP_STORE_KEY_OLD = ''
 
 # Text only title of this application.  Used as part of the HTML page title.
-BMSAPP_TITLE_TEXT = 'XYZ Remote Monitoring'
+BMSAPP_TITLE_TEXT = '{{ bmon_site_title }}'
 
 # Header that appears at the top of every page.  Can include HTML
 # and is placed inside a <div> tag with an CSS ID of 'header'.
-BMSAPP_HEADER = 'XYZ Remote Monitoring'
+BMSAPP_HEADER = '{{ bmon_site_title }}'
 
 # Information about the Navigation links that appear at the top of each web page.
 #     First item in tuple is Text that will be shown for the link.
@@ -88,12 +88,12 @@ BMSAPP_ECOBEE_API_KEY = '32 Character API Key goes here'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False.
 # More documentation at: https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = ['<domain name of BMON site>', '<IP Address of Server> if want to test''localhost']
+ALLOWED_HOSTS = {{ allowed_hosts }}
 
 # This is the Django Secret Key, needed for security purposes.
 # Make this unique, and don't share it with anybody.
 # See documentation at https://docs.djangoproject.com/en/1.7/ref/settings/#std:setting-SECRET_KEY
-SECRET_KEY = 'Put a Unique Unpredictable Secret Key Here'
+SECRET_KEY = '{{ django_secret_key.stdout }}'
 
 # Local time zone for this installation. Choices can be found here:
 # http://en.wikipedia.org/wiki/List_of_tz_zones_by_name
@@ -113,7 +113,7 @@ LANGUAGE_CODE = 'en-us'
 # NOTE:  You can also view the error log for the BMON application by browsing to the page:
 #     <application URL>/show-log
 ADMINS = (
-    # ('Admin Name Here', 'Admin Email Address Here'),
+    ('{{ admin_email_name }}', '{{ admin_email_address }}'),
 )
 
 # The following email settings need to be filled out for sending out alerts from
@@ -124,14 +124,14 @@ ADMINS = (
 
 # the SMTP server used to send mail, 'smtp.webfaction.com' or the Webfaction hosting service
 EMAIL_USE_TLS = True
-EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST = '{{ email_smtp_host }}'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = '<something>@gmail.com'
-EMAIL_HOST_PASSWORD = '<password for Gmail account>'
+EMAIL_HOST_USER = '{{ email_username }}'
+EMAIL_HOST_PASSWORD = '{{ email_password }}'
 # this will be the FROM for alert messages
-DEFAULT_FROM_EMAIL = 'valid_from_email_address'
+DEFAULT_FROM_EMAIL = '{{ email_username }}'
 # this is the FROM for error messages
-SERVER_EMAIL = 'valid_from_email_for_error_messages'
+SERVER_EMAIL = '{{ email_username }}'
 
 # If DEBUG=True, a detailed error traceback is displayed in the browser when an error
 # occurs.  This setting should be False for production use for security reasons, but if
