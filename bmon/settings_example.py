@@ -88,7 +88,12 @@ BMSAPP_ECOBEE_API_KEY = '32 Character API Key goes here'
 
 # Hosts/domain names that are valid for this site; required if DEBUG is False.
 # More documentation at: https://docs.djangoproject.com/en/1.7/ref/settings/#allowed-hosts
-ALLOWED_HOSTS = {{ allowed_hosts }}
+ALLOWED_HOSTS = [
+    '{{ bmon_domain }}',
+    'www.{{ bmon_domain }}',
+    '{{ server_ip.stdout }}',
+    'localhost',
+]
 
 # This is the Django Secret Key, needed for security purposes.
 # Make this unique, and don't share it with anybody.
