@@ -17,6 +17,9 @@ Upgrade of existing systems running the Python 2.7 version will
 require assistance from the developer, Alan Mitchell, alan@analysisnorth.com.
 Please contact him before attempting an upgrade.
 
+This version requires Python 3.7 or higher.  For an automated server install
+script, see the [bmon-install project](https://github.com/alanmitchell/bmon-install).
+
 For detailed information about this software: 
 
 ### Please see the [BMON Documentation](http://bmon-documentation.readthedocs.io/en/latest/index.html)
