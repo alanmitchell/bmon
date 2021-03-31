@@ -3,6 +3,6 @@
 # applying migrations and copying static files to
 # the static serving application.
 git pull
-pipenv run ./manage.py migrate
-pipenv run ./manage.py collectstatic --noinput
+env/bin/python manage.py migrate
+env/bin/python manage.py collectstatic --noinput
 sudo systemctl restart bmon
