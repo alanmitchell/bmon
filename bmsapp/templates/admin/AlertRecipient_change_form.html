@@ -1,0 +1,38 @@
+{% extends "admin/change_form.html" %}
+
+{% block after_related_objects %}
+<fieldset class="module aligned">
+    <div class="form-row">  
+      <div>
+              <label for="btn_trigger_alert">Testing:</label>
+              <button  type="button" id="btn_trigger_alert" onclick="testAlert({{ original.id }});">Send A Test Notification</button>
+              <div class="help">You should 'Save' any changes first.</div>
+      </div>
+    </div>
+</fieldset>
+<script
+  src="https://code.jquery.com/jquery-3.4.0.min.js"
+  integrity="sha256-BJeo0qm959uMBGb65z40ejJYGSgR7REI4+CW1fNKwOg="
+  crossorigin="anonymous"></script>
+<script>
+  var cookies = document.cookie
+    .split(';')
+    .map(v => v.split('='))
+    .reduce((acc, v) => {
+    acc[decodeURIComponent(v[0].trim())] = decodeURIComponent(v[1].trim());
+    return acc;
+    }, {});
+
+  function testAlert(recipientID) {
+    $.post( {
+        url: "/test-alert-notifications/", 
+        data: {'recipient': recipientID},
+        headers: {'X-CSRFToken': cookies['csrftoken']}
+        })
+    .done(function( data ) {
+        alert( data )})
+    .fail(function (jqXHR, textStatus, errorThrown) {
+        alert( jqXHR.responseText )});
+  }
+</script>
+{% endblock %}

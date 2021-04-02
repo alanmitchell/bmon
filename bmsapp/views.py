@@ -781,6 +781,19 @@ def delete_unassigned_sensor_ids(request):
 
     return HttpResponse(f'Deleted {len(row_ids)} unassigned sensors')
 
+@login_required(login_url='../admin/login/')
+def alert_log(request):
+    """Shows a log of alerts that have been issued.
+    """
+
+    db = bmsdata.BMSdata()
+
+    db.cursor.execute('SELECT * FROM [_alert_log]')
+    alert_list =  [dict(r) for r in db.cursor.fetchall()]
+
+    ctx = base_context()
+    ctx.update({'alert_list': alert_list})
+    return render_to_response('bmsapp/alert-log.html', ctx)
 
 @login_required(login_url='../admin/login/')
 def backup_reading_db(request):
@@ -789,6 +802,32 @@ def backup_reading_db(request):
     bmsapp.scripts.backup_readingdb.run()
     return HttpResponse('Sensor Reading Backup Complete!')
 
+def test_alert_notifications(request):
+    """Send test notifications
+    """
+    try:
+        recipient = request.POST.get('recipient')
+        recip = models.AlertRecipient.objects.filter(id=recipient)[0]
+        result = recip.notify(subject='BMON Test Alert', message='This is a test of a BMON notification that was sent manually by an administrator.', pushover_priority='0')
+        if result:
+            return HttpResponse(f'The test notifications have been sent.')
+        else:
+            return HttpResponse(f'Failed to send any notifications!',status=500)
+    except Exception as e:
+        return HttpResponse(e,status=500)
+
+def test_alert_value(request):
+    """Test a value to see if it triggers an alert
+    """
+    sensor_id = request.POST.get('sensor')
+    test_value = request.POST.get('test_value')
+    alert = models.AlertCondition.objects.filter(sensor=sensor_id)[0]
+    result = alert.check_condition(reading_db=None, override_value=test_value)
+    if result:
+        subject, msg = result
+        return HttpResponse(f'The value triggered an Alert:\n{subject}\n{msg}')
+    else:
+        return HttpResponse(f'The value did not trigger an Alert')
 
 def wildcard(request, template_name):
     '''
