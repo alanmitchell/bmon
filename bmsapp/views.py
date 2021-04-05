@@ -789,8 +789,9 @@ def alert_log(request):
     db = bmsdata.BMSdata()
 
     db.cursor.execute('SELECT * FROM [_alert_log]')
-    alert_list =  [dict(r) for r in db.cursor.fetchall()]
+    alert_list =  [{**x,'when':time.strftime('%Y-%m-%d %M:%S',time.localtime(x['ts']))} for x in [dict(r) for r in db.cursor.fetchall()]]
 
+    # time.strftime('%Y-%m-%dT%M:%S',time.localtime(alert_list[0]['ts']))
     ctx = base_context()
     ctx.update({'alert_list': alert_list})
     return render_to_response('bmsapp/alert-log.html', ctx)
