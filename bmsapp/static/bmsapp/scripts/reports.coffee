@@ -108,7 +108,7 @@ process_chart_change = ->
     # start by hiding all input controls
   set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export',
     'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period_group', 
-    'download_many', 'get_embed_link'], false)
+    'download_many', 'get_embed_link','ctrl_use_rolling_averaging'], false)
 
   # get the chart option control that is selected.  Then use the data
   # attributes of that option element to configure the user interface.
@@ -320,7 +320,7 @@ $ ->
   $("#select_chart").change process_chart_change
 
   # Set up change handlers for inputs.
-  ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 
+  ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'use_rolling_averaging', 'show_occupied', 
     'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date',
     'start_date', 'end_date']
   $("##{ctrl}").change inputs_changed for ctrl in ctrls

@@ -6,6 +6,7 @@ from datetime import datetime
 import pytz, calendar, time, math
 from dateutil import parser
 import numpy as np
+import pandas as pd
 from django.conf import settings
 
 
@@ -94,7 +95,7 @@ def histogram_from_series(pandas_series):
     # to 4 significant figures
     return list(zip(avg_bins, cts))
 
-def resample_timeseries(pandas_dataframe, averaging_hours, drop_na=True):
+def resample_timeseries(pandas_dataframe, averaging_hours, use_rolling_averaging=False, drop_na=True):
     '''
     Returns a new pandas dataframe that is resampled at the specified "averaging_hours"
     interval.  If the 'averaging_hours' parameter is fractional, the averaging time 
@@ -117,7 +118,20 @@ def resample_timeseries(pandas_dataframe, averaging_hours, drop_na=True):
         }
     params = interval_lookup.get(averaging_hours, {'rule':str(int(averaging_hours * 60)) + 'min', 'loffset':str(int(averaging_hours * 30)) + 'min'})
 
-    new_df = pandas_dataframe.resample(rule=params['rule'], loffset=params['loffset'],label='left').mean()
+    if not use_rolling_averaging:
+        new_df = pandas_dataframe.resample(rule=params['rule'], loffset=params['loffset'],label='left').mean()
+    else:
+        # resample to consistent interval
+        original_interval = pandas_dataframe.index.to_series().diff().quantile(.05)
+        new_df = pandas_dataframe.resample(rule=original_interval).median()
+
+        # apply the rolling averaging
+        new_df = new_df.rolling(int(pd.Timedelta(hours=averaging_hours) / original_interval),center=True,min_periods=1).mean()
+
+        # downsample the result if there are more than 1000 values
+        if len(new_df) > 1000:
+            new_df = new_df.resample(rule=(pandas_dataframe.index[-1] - pandas_dataframe.index[0]) / 1000).mean()
+
     if drop_na:
         new_df = new_df.dropna()
 
