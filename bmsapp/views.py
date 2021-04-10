@@ -14,6 +14,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
 from django.conf import settings
 from django.templatetags.static import static
+from django.template import loader
 
 from . import models
 from . import logging_setup
@@ -795,7 +796,12 @@ def wildcard(request, template_name):
     Used if a URL component doesn't match any of the predefied URL patterns.  Renders
     the template indicated by template_name, adding an '.html' to the name.
     '''
-    return render_to_response('bmsapp/%s.html' % template_name, base_context())
+    try:
+        template = loader.get_template('bmsapp/%s.html' % template_name)
+    except:
+        return HttpResponse('Template %s does not exist.' % template_name)
+    
+    return HttpResponse(template.render(base_context(), request))
 
 
 @login_required(login_url='../admin/login/')
