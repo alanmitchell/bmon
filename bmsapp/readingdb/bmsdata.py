@@ -56,6 +56,15 @@ class BMSdata:
             self.conn.commit()
             self.sensor_ids.add('_last_raw')
 
+        # Check to see if the table that stores alert log records exists.
+        # If not, make it.  Make the value field a 
+        # real instead of integer in case this table is needed for non counter
+        # sensors in the future.
+        if '_alert_log' not in self.sensor_ids:
+            self.cursor.execute("CREATE TABLE [_alert_log] (id varchar(50), ts integer, message varchar(255))")
+            self.conn.commit()
+            self.sensor_ids.add('_alert_log')
+
         # because SQLite has case insensitive table names, make a sensor ID set with lower-case names
         self.sensor_ids_lower = {tbl.lower() for tbl in self.sensor_ids}
 
@@ -334,6 +343,14 @@ class BMSdata:
         # Don't return IDs that start with underbar.
         id_list = [sens_id for sens_id in self.sensor_ids if sens_id[0]!='_']
         return sorted(id_list)
+
+    def log_alert(self, sensor_id, message):
+        """Stores a log of an alert nofification
+        """
+        ts = int(time.time())
+        self.cursor.execute("INSERT INTO [_alert_log] (id, ts, message) VALUES (?, ?, ?)", (sensor_id, ts, message))
+        self.conn.commit()
+
 
     def backup_db(self, days_to_retain):
         """Backs up the database and compresses the backup.  Deletes old backup

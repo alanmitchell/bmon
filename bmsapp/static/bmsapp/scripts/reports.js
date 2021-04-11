@@ -101,7 +101,7 @@
 
   process_chart_change = function () {
     var multi, selected_chart_option, sensor_val, single, vis_ctrls;
-    set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'ctrl_occupied', 'xy_controls', 'time_period_group', 'download_many', 'get_embed_link'], false);
+    set_visibility(['refresh', 'ctrl_sensor', 'ctrl_avg', 'ctrl_avg_export', 'ctrl_normalize', 'ctrl_use_rolling_averaging', 'ctrl_occupied', 'xy_controls', 'time_period_group', 'download_many', 'get_embed_link'], false);
     selected_chart_option = $("#select_chart").find("option:selected");
     vis_ctrls = selected_chart_option.data("ctrls").split(",");
     set_visibility(vis_ctrls, true);
@@ -299,7 +299,7 @@
     $("#select_group").change(update_bldg_list);
     $("#select_bldg").change(update_chart_sensor_lists);
     $("#select_chart").change(process_chart_change);
-    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'show_occupied', 'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date', 'start_date', 'end_date'];
+    ctrls = ['averaging_time', 'averaging_time_export', 'normalize', 'use_rolling_averaging', 'show_occupied', 'select_sensor', 'select_sensor_x', 'select_sensor_y', 'averaging_time_xy', 'div_date', 'start_date', 'end_date'];
     for (i = 0, len = ctrls.length; i < len; i++) {
       ctrl = ctrls[i];
       $("#" + ctrl).change(inputs_changed);

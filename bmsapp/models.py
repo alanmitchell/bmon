@@ -8,6 +8,7 @@ from django.core.mail import send_mail
 import requests
 import bmsapp.data_util
 import bmsapp.formatters
+import bmsapp.schedule
 from . import sms_gateways
 import yaml
 
@@ -409,6 +410,21 @@ class Building(models.Model):
         
         return props
 
+    def current_status(self, ts = time.time()):
+        """Returns the occupied/unoccupied status of a building at a given time
+        """
+        if self.schedule:
+            if self.timezone:
+                scheduleObj = bmsapp.schedule.Schedule(self.schedule, self.timezone)
+            else:
+                scheduleObj = bmsapp.schedule.Schedule(self.schedule, 'US/Alaska')
+            if scheduleObj.is_occupied(ts):
+                return 'Occupied'
+            else:
+                return 'Unoccupied'
+        else:
+            return 'Occupied'
+
     class Meta:
         ordering = ['title']
 
@@ -716,6 +732,7 @@ class AlertCondition(models.Model):
     # fields to qualify the condition test according to building mode
     only_if_bldg = models.ForeignKey(Building, models.SET_NULL, verbose_name='But only if building', blank=True, null=True)
     only_if_bldg_mode = models.ForeignKey(BuildingMode, models.SET_NULL, verbose_name='is in this mode', blank=True, null=True)
+    only_if_bldg_status = models.CharField(verbose_name='and this status', max_length=15, blank=True, null=True, choices=(('Occupied','Occupied'),('Unoccupied','Unoccupied')))
 
     # alert message.  If left blank a message will be created from other field values.
     alert_message = models.TextField(max_length=400, blank=True,
@@ -751,12 +768,49 @@ class AlertCondition(models.Model):
         return '%s %s %s, %s in %s mode' % \
             (self.sensor.title, self.condition, self.test_value, self.only_if_bldg, self.only_if_bldg_mode)
 
-    def check_condition(self, reading_db):
+    def handle(self, reading_db, logger, testing = False):
+        '''This method handles an alert condition, notifying recipients if needed.
+        If 'testing' is set to True, a message will always be sent. The number of alerts (0 or 1)
+        is returned.
+        '''
+        alert_count = 0
+        try:
+            if testing:
+                subject_msg = (f"Test Alert: {self.sensor.title} Sensor","This is just a test.")
+            elif time.time() < (self.last_notified + self.wait_before_next * 3600.0):
+                # if the wait time has not been satisfied, don't notify
+                subject_msg =  None
+            else:
+                subject_msg = self.check_condition(reading_db)
+            if subject_msg:
+                alert_count = 1
+                subject, msg = subject_msg
+                msg_count = 0  # tracks # of successful messages sent
+                for recip in self.recipients.all():
+                    try:
+                        msg_count += recip.notify(subject, msg, self.priority)
+                    except:
+                        logger.exception('Error notifying recipient %s of an alert.' % recip)
+                if msg_count and (not testing):
+                    # at least one message was sent so update the field tracking the timestamp
+                    # of the last notification for this condition.
+                    self.last_notified = time.time()
+                    self.save()
+                    # store a log of the alert
+                    reading_db.log_alert(self.sensor.sensor_id,msg)
+
+        except:
+            logger.exception('Error processing alert %s')
+
+        return alert_count
+
+    def check_condition(self, reading_db, override_value = None):
         '''This method checks to see if the alert condition is in effect, and if so,
         returns a (subject, message) tuple describing the alert.  If the condition is 
         not in effect, None is returned.  'reading_db' is a sensor reading database, an 
-        instance ofbmsapp.readingdb.bmsdata.BMSdata.  If the alert condition is not active, 
-        None is returned.
+        instance ofbmsapp.readingdb.bmsdata.BMSdata.  If an 'override_value' is
+        specified, that value will be tested instead of the last values in the reading
+        database. If the alert condition is not active, None is returned.
         '''
 
         if not self.active:
@@ -771,7 +825,10 @@ class AlertCondition(models.Model):
         # get the most current reading for the sensor (last_read), and
         # also fill out a list of all the recent readings that need to
         # be evaluated to determine if the alert condition is true (last_reads).
-        if self.read_count==1:
+        if not override_value is None:
+            last_read = {'ts': int(time.time()), 'val': float(override_value)}
+            last_reads = [last_read]
+        elif self.read_count==1:
             last_read = self.sensor.last_read(reading_db)  # will be None if no readings
             last_reads = [last_read] if last_read else []
         else:
@@ -814,9 +871,12 @@ class AlertCondition(models.Model):
         # Loop through the requested number of last readings, testing whether
         # the alert conditions are satisfied for all the readings.
         # First see if there was a building mode test requested and test it.
-        if self.only_if_bldg is not None and self.only_if_bldg_mode is not None:
-            if self.only_if_bldg.current_mode != self.only_if_bldg_mode:
+        if self.only_if_bldg is not None:
+            if self.only_if_bldg_mode is not None and (self.only_if_bldg.current_mode != self.only_if_bldg_mode):
                 # Failed building mode test
+                return None
+            if self.only_if_bldg_status is not None and (self.only_if_bldg.current_status(last_reads[0]['ts']) != self.only_if_bldg_status):
+                # Failed building status test
                 return None
 
         # Alert condition must be true for each of the requested readings

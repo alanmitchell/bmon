@@ -26,29 +26,6 @@ def run():
     total_true_alerts = 0
     
     for condx in AlertCondition.objects.all():
-
-        # if the wait time has not been satisfied, don't notify
-        if time.time() < (condx.last_notified + condx.wait_before_next * 3600.0):
-            continue
-
-        try:
-            subject_msg = condx.check_condition(reading_db)
-            if subject_msg:
-                total_true_alerts += 1
-                subject, msg = subject_msg
-                msg_count = 0  # tracks # of successful messages sent
-                for recip in condx.recipients.all():
-                    try:
-                        msg_count += recip.notify(subject, msg, condx.priority)
-                    except:
-                        logger.exception('Error notifying recipient %s of an alert.' % recip)
-                if msg_count:
-                    # at least one message was sent so update the field tracking the timestamp
-                    # of the last notification for this condition.
-                    condx.last_notified = time.time()
-                    condx.save()
-
-        except:
-            logger.exception('Error processing alert %s')
+        total_true_alerts += condx.handle(reading_db, logger)
 
     return total_true_alerts

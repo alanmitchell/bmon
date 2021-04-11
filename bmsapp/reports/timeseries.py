@@ -10,7 +10,7 @@ class TimeSeries(basechart.BaseChart):
     """
 
     # see BaseChart for definition of these constants
-    CTRLS = 'refresh, ctrl_sensor, ctrl_avg, ctrl_occupied, time_period_group, get_embed_link'
+    CTRLS = 'refresh, ctrl_sensor, ctrl_avg, ctrl_use_rolling_averaging, ctrl_occupied, time_period_group, get_embed_link'
     MULTI_SENSOR = 1
 
     def result(self):
@@ -28,8 +28,15 @@ class TimeSeries(basechart.BaseChart):
         # get the requested averaging interval in hours
         if 'averaging_time' in self.request_params:
             averaging_hours = float(self.request_params['averaging_time'])
+            if 'use_rolling_averaging' in self.request_params:
+                use_rolling_averaging = True
+            else:
+                use_rolling_averaging = False
         else:
             averaging_hours = 0
+            use_rolling_averaging = False
+
+
 
         # determine the start time for selecting records and loop through the selected
         # records to get the needed dataset
@@ -51,7 +58,7 @@ class TimeSeries(basechart.BaseChart):
             if not df.empty:
                 # perform average (if requested)
                 if averaging_hours:
-                    df = bmsapp.data_util.resample_timeseries(df,averaging_hours)
+                    df = bmsapp.data_util.resample_timeseries(df,averaging_hours,use_rolling_averaging)
 
                 # create lists for plotly
                 if np.absolute(df.val.values).max() < 10000:

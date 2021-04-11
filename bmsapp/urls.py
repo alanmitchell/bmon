@@ -40,6 +40,7 @@ urlpatterns = [
             views.show_video, name='show-video'),
     re_path(r'^make-store-key/$', views.make_store_key),
     re_path(r'^ecobee-auth/$', views.ecobee_auth),
+    
     re_path(r'^unassigned-sensors/$', views.unassigned_sensors),
     re_path(r'^unassigned-sensors/delete_ids/$',
             views.delete_unassigned_sensor_ids),
@@ -47,6 +48,10 @@ urlpatterns = [
     re_path(r'^sensor-data-utilities/$', views.sensor_data_utilities),
     re_path(r'^merge-sensors/$', views.merge_sensors),
     re_path(r'^delete-sensor-values/$', views.delete_sensor_values),
+
+    re_path(r'^test-alert-notifications/$', views.test_alert_notifications),
+    re_path(r'^test-alert-value/$', views.test_alert_value),
+    re_path(r'^alert-log/$', views.alert_log),
 
     # Views related to the API, version 1
     re_path(r'^api/v1/version/$', views_api_v1.api_version),

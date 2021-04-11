@@ -10,7 +10,7 @@ class Schedule:
     """ This class represents an occupied/unoccupied schedule for a facility.
     """
 
-    def __init__(self, schedule_text, tz_name):
+    def __init__(self, schedule_text, tz_name = 'US/Alaska'):
         """ Constructs a Schedule object.
 
         'schedule_text' is a string that describes the occupied periods

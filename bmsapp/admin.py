@@ -90,13 +90,14 @@ class AlertAdminInline(admin.StackedInline):
     '''Used in the Sensor Admin to enter alerts.
     '''
     model = AlertCondition
+    template = "admin/stacked_alerts.html"
     extra = 0
     filter_horizontal = ('recipients',)
 
     fieldsets = (
         (None, {'fields': ( ('active', 'sensor'),
                             ('condition', 'test_value', 'read_count'),
-                            ('only_if_bldg', 'only_if_bldg_mode'),
+                            ('only_if_bldg', 'only_if_bldg_mode','only_if_bldg_status'),
                             ('alert_message',),
                             ('priority', 'wait_before_next'),
                             ('recipients',)
@@ -243,6 +244,7 @@ class MultiBuildingChartAdmin(admin.ModelAdmin):
 
 @admin.register(AlertRecipient)
 class AlertRecipientAdmin(admin.ModelAdmin):
+    change_form_template = 'admin/AlertRecipient_change_form.html'
     list_display = ('name', 'active' )
     list_editable= ('active',)
     fields = (
