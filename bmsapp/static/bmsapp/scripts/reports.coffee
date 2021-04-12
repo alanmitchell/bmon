@@ -258,6 +258,8 @@ handleUrlQuery = () ->
         new_value = params[name]
         if element[0].getAttribute("type") == "radio"
           old_value = element.filter(":radio:checked").val()
+        else if element[0].getAttribute("type") == "checkbox"
+          old_value = "needs update"
         else
           old_value = element.val()
         if `old_value != new_value`
@@ -270,6 +272,8 @@ handleUrlQuery = () ->
               # remove active from labels, and add active to selected radio's label.
               element.parent().removeClass("active")
               $('input[name=time_period]:checked').parent().addClass("active")
+          else if element[0].getAttribute("type") == "checkbox"
+            element.prop('checked', true)
           else if element.hasClass('selectpicker')
             # special case of bootstrap-multiselect
             element.selectpicker('val', new_value)
