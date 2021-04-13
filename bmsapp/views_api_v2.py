@@ -156,7 +156,7 @@ def sensor_readings(request):
 
         # if averaging is requested, do it!
         if averaging and len(df) > 0:
-            df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna()
+            df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna(how='all')
 
         # make a dictionary that is formatted with orientation 'split', which is the most
         # compact form to send the DataFrame
