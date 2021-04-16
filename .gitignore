@@ -1,4 +1,5 @@
 env/
+static/
 settings.py
 docs/source/_build/
 .vscode/

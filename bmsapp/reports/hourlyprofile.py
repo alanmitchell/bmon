@@ -53,7 +53,7 @@ class HourlyProfile(basechart.BaseChart):
                 a_series = {'x': ['12a', '1a', '2a', '3a', '4a', '5a', '6a', '7a',
                                   '8a', '9a', '10a', '11a', '12p', '1p', '2p', '3p',
                                   '4p', '5p', '6p', '7p', '8p', '9p', '10p', '11p'],
-                            'y': [bmsapp.data_util.round4(df_gp.ix[hr, 'val'])
+                            'y': [bmsapp.data_util.round4(df_gp.loc[hr, 'val'])
                                     if hr in df_gp.index else None for hr in range(24)],
                             'type': 'scatter',
                             'mode': 'lines', 
