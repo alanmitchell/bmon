@@ -123,10 +123,11 @@ def resample_timeseries(pandas_dataframe, averaging_hours, use_rolling_averaging
     else:
         # resample to consistent interval
         original_interval = pandas_dataframe.index.to_series().diff().quantile(.05)
-        new_df = pandas_dataframe.resample(rule=original_interval).median()
+        new_df = pandas_dataframe.resample(rule=original_interval).median().ffill(limit=1)
 
         # apply the rolling averaging
-        new_df = new_df.rolling(int(pd.Timedelta(hours=averaging_hours) / original_interval),center=True,min_periods=1).mean()
+        window_size = int(pd.Timedelta(hours=averaging_hours) / original_interval)
+        new_df = new_df.rolling(window_size,center=True,min_periods=int(window_size * 0.75) + 1).mean()
 
         # downsample the result if there are more than 1000 values
         if len(new_df) > 1000:
