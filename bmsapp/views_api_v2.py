@@ -9,6 +9,8 @@ from dateutil.parser import parse
 from django.views.decorators.csrf import csrf_exempt
 
 from bmsapp import models
+from bmsapp.data_util import weighted_resample_timeseries
+
 from bmsapp.readingdb import bmsdata
 from bmsapp.views_api_v1 import (
     fail_payload, 
@@ -156,7 +158,7 @@ def sensor_readings(request):
 
         # if averaging is requested, do it!
         if averaging and len(df) > 0:
-            df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna(how='all')
+            df = weighted_resample_timeseries(df,averaging,label_offset).dropna(how='all')
 
         # make a dictionary that is formatted with orientation 'split', which is the most
         # compact form to send the DataFrame
