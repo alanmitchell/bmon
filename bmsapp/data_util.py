@@ -154,6 +154,7 @@ def weighted_resample_timeseries(pandas_dataframe, averaging, offset, interp_met
 
     # also create breaks that are shifted 1 day forward
     window_breaks_shifted = window_breaks.shift(freq='1D')
+    window_breaks_shifted = window_breaks_shifted[window_breaks_shifted.index < pandas_dataframe.index.max()]
     window_breaks = window_breaks.append(window_breaks_shifted[~window_breaks_shifted.index.isin(window_breaks.index)])
 
     df = pandas_dataframe.append(window_breaks[~window_breaks.index.isin(pandas_dataframe.index)]).sort_index()
@@ -172,12 +173,16 @@ def weighted_resample_timeseries(pandas_dataframe, averaging, offset, interp_met
     df = df.multiply(value_duration,axis='index')
     df['value_duration_weight'] = value_duration
 
+    # discard the last datapoint (because the weight is unknown)
+    df = df[:-1]
+
     # resample and calculate the weighted average for each time period
     dfResampled = df.resample(rule=averaging, closed='right', label='left').sum()
     dfResampled = dfResampled[pandas_dataframe.columns].div(dfResampled['value_duration_weight'],axis='index')
     
-    # offset the index label to the center of each period
-    dfResampled.index = dfResampled.index + pd.tseries.frequencies.to_offset(offset)
+    if offset:
+        # offset the index label to the center of each period
+        dfResampled.index = dfResampled.index + pd.tseries.frequencies.to_offset(offset)
 
     return dfResampled
 
