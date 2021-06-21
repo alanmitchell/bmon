@@ -36,8 +36,6 @@ class TimeSeries(basechart.BaseChart):
             averaging_hours = 0
             use_rolling_averaging = False
 
-
-
         # determine the start time for selecting records and loop through the selected
         # records to get the needed dataset
         st_ts, end_ts = self.get_ts_range()
@@ -58,7 +56,15 @@ class TimeSeries(basechart.BaseChart):
             if not df.empty:
                 # perform average (if requested)
                 if averaging_hours:
-                    df = bmsapp.data_util.resample_timeseries(df,averaging_hours,use_rolling_averaging)
+                    if sensor.unit.measure_type == 'state':
+                        # if the sensor has defined states
+                        interp_method = 'pad'
+                    else:
+                        interp_method = 'linear'
+                    df = bmsapp.data_util.resample_timeseries(df,averaging_hours,use_rolling_averaging,interp_method=interp_method)
+
+                # limit the number of points to plot
+                df = bmsapp.data_util.decimate_timeseries(df, bin_count=1000,col='val')
 
                 # create lists for plotly
                 if np.absolute(df.val.values).max() < 10000:
@@ -81,7 +87,9 @@ class TimeSeries(basechart.BaseChart):
 
             # if the sensor has defined states, make the series a Step type series.
             if sensor.unit.measure_type == 'state':
-                series_opt['line']['shape'] = 'hv'
+                if not averaging_hours:
+                    series_opt['line']['shape'] = 'hv'
+
             series.append( series_opt )
 
         # Set the basic chart options
