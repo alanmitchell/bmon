@@ -2,7 +2,7 @@ certifi==2020.12.5
 chardet==4.0.0
 django-extensions==3.1.1
 django-lockdown==4.0.0
-django==2.2.19
+django==2.2.24
 et-xmlfile==1.0.1
 gunicorn==20.0.4
 idna==2.10
