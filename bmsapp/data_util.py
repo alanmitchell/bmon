@@ -95,7 +95,7 @@ def histogram_from_series(pandas_series):
     # to 4 significant figures
     return list(zip(avg_bins, cts))
 
-def resample_timeseries(pandas_dataframe, averaging_hours, use_rolling_averaging=False, drop_na=True, interp_method='pad'):
+def resample_timeseries(pandas_dataframe, averaging_hours, use_rolling_averaging=False, drop_na=False, interp_method='pad'):
     '''
     Returns a new pandas dataframe that is resampled at the specified "averaging_hours"
     interval.  If the 'averaging_hours' parameter is fractional, the averaging time 
@@ -177,7 +177,7 @@ def weighted_resample_timeseries(pandas_dataframe, averaging, offset, interp_met
     df = df[:-1]
 
     # resample and calculate the weighted average for each time period
-    dfResampled = df.resample(rule=averaging, closed='right', label='left').sum()
+    dfResampled = df.resample(rule=averaging, closed='right', label='left').sum(min_count=1)
     dfResampled = dfResampled[pandas_dataframe.columns].div(dfResampled['value_duration_weight'],axis='index')
     
     if offset:

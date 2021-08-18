@@ -68,9 +68,9 @@ class TimeSeries(basechart.BaseChart):
 
                 # create lists for plotly
                 if np.absolute(df.val.values).max() < 10000:
-                    values = np.char.mod('%.4g',df.val.values).astype(float).tolist()
+                    values = df.val.round(4).where(df.val.notnull(),None).values.tolist()
                 else:
-                    values = np.round(df.val.values).tolist()
+                    values = df.val.round(0).where(df.val.notnull(),None).values.tolist()
                 times = df.index.strftime('%Y-%m-%d %H:%M:%S').tolist()
             else:
                 times = []
