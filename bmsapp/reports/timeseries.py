@@ -61,7 +61,7 @@ class TimeSeries(basechart.BaseChart):
                         interp_method = 'pad'
                     else:
                         interp_method = 'linear'
-                    df = bmsapp.data_util.resample_timeseries(df,averaging_hours,use_rolling_averaging,interp_method=interp_method)
+                    df = bmsapp.data_util.resample_timeseries(df,averaging_hours,use_rolling_averaging,drop_na=False,interp_method=interp_method)
 
                 # limit the number of points to plot
                 df = bmsapp.data_util.decimate_timeseries(df, bin_count=1000,col='val')

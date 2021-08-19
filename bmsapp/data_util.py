@@ -95,7 +95,7 @@ def histogram_from_series(pandas_series):
     # to 4 significant figures
     return list(zip(avg_bins, cts))
 
-def resample_timeseries(pandas_dataframe, averaging_hours, use_rolling_averaging=False, drop_na=False, interp_method='pad'):
+def resample_timeseries(pandas_dataframe, averaging_hours, use_rolling_averaging=False, drop_na=True, interp_method='pad'):
     '''
     Returns a new pandas dataframe that is resampled at the specified "averaging_hours"
     interval.  If the 'averaging_hours' parameter is fractional, the averaging time 
@@ -149,7 +149,10 @@ def weighted_resample_timeseries(pandas_dataframe, averaging, offset, interp_met
     window_breaks[:] = np.nan
 
     # calculate the average number of hours in the resampling periods
-    averaging_hours = (window_breaks.index.to_series().diff() / pd.Timedelta(1,'hour')).mean()
+    if len(window_breaks) > 1:
+        averaging_hours = (window_breaks.index.to_series().diff() / pd.Timedelta(1,'hour')).mean()
+    else:
+        averaging_hours = 24
     interp_limit = int(24 / averaging_hours) + 1 # limit interpolation to 24 hours or 1 averaging period
 
     # also create breaks that are shifted 1 day forward
@@ -160,7 +163,10 @@ def weighted_resample_timeseries(pandas_dataframe, averaging, offset, interp_met
     df = pandas_dataframe.append(window_breaks[~window_breaks.index.isin(pandas_dataframe.index)]).sort_index()
 
     # interpolate values
-    df = df.interpolate(method=interp_method,limit=interp_limit)
+    if interp_method in ['backfill', 'bfill', 'pad', 'ffill']:
+        df = df.fillna(method=interp_method,limit=interp_limit)
+    else:
+        df = df.interpolate(method=interp_method,limit=interp_limit)
 
     # calculate the 'duration' weights for each row and for each time period (based on difference from previous timestamp)
     value_duration = (df.index.to_series() - df.index.to_series().shift(1)) / pd.Timedelta(1,'hour')
@@ -177,7 +183,7 @@ def weighted_resample_timeseries(pandas_dataframe, averaging, offset, interp_met
     df = df[:-1]
 
     # resample and calculate the weighted average for each time period
-    dfResampled = df.resample(rule=averaging, closed='right', label='left').sum(min_count=1)
+    dfResampled = df.resample(rule=averaging, closed='right', label='left').agg(lambda x: np.sum(x.values))
     dfResampled = dfResampled[pandas_dataframe.columns].div(dfResampled['value_duration_weight'],axis='index')
     
     if offset:
@@ -199,11 +205,13 @@ def decimate_timeseries(df,bin_count=1000,col=None):
         # bin the index values
         bins = df.groupby(pd.cut(df.index,bins=bin_count,labels=np.arange(0,bin_count)).astype(int))
 
-        # keep the max and min value in each bin
-        maximums = df.loc[bins[col].idxmax()]
-        minimums = df.loc[bins[col].idxmin()]
+        # get the indices for the max and min value in each bin
+        max_indices = bins[col].idxmax()
+        max_indices = max_indices.where(~max_indices.isna(),bins.apply(lambda x: x.index[0]))
+        min_indices = bins[col].idxmin()
+        keep_indices = pd.concat([max_indices,min_indices]).drop_duplicates().sort_index()
 
-        return pd.concat([maximums,minimums]).drop_duplicates().sort_index()
+        return df.loc[keep_indices]
     else:
         return df
 
