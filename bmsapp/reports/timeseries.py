@@ -67,10 +67,10 @@ class TimeSeries(basechart.BaseChart):
                 df = bmsapp.data_util.decimate_timeseries(df, bin_count=1000,col='val')
 
                 # create lists for plotly
-                if np.absolute(df.val.values).max() < 10000:
-                    values = df.val.round(4).where(df.val.notnull(),None).values.tolist()
+                if df.val.abs().max() < 10000:
+                    values = [round(x,4) if not np.isnan(x) else None for x in df.val]
                 else:
-                    values = df.val.round(0).where(df.val.notnull(),None).values.tolist()
+                    values = [round(x) if not np.isnan(x) else None for x in df.val]
                 times = df.index.strftime('%Y-%m-%d %H:%M:%S').tolist()
             else:
                 times = []
