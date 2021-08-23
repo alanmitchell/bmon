@@ -208,10 +208,12 @@ def decimate_timeseries(df,bin_count=1000,col=None):
         # get the indices for the max and min value in each bin
         max_indices = bins[col].idxmax()
         max_indices = max_indices.where(~max_indices.isna(),bins.apply(lambda x: x.index[0]))
-        min_indices = bins[col].idxmin()
-        keep_indices = pd.concat([max_indices,min_indices]).drop_duplicates().sort_index()
+        min_indices = bins[col].idxmin().dropna()
+        keep_indices = pd.concat([max_indices,min_indices]).drop_duplicates().dropna()
 
-        return df.loc[keep_indices]
+        decimated_df = df.loc[keep_indices]
+
+        return decimated_df.sort_index()
     else:
         return df
 
