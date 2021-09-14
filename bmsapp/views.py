@@ -401,6 +401,15 @@ def store_readings_radio_bridge(request):
         _logger.exception('Error Storing Reading')
         return HttpResponse(sys.exc_info()[1])
 
+# needed to accept HTTP POST requests from systems other than this one.
+@csrf_exempt
+def store_readings_beaded(request):
+    '''
+    Stores a set of sensor readings from a BeadedStream Ethernet Activator.
+    The readings and other data are in the POST data encoded in XML.
+    '''
+    return HttpResponse('Reached BeadedStream')
+
 
 @csrf_exempt
 def store_reading_old(request, store_key):
