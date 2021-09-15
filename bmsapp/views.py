@@ -4,6 +4,7 @@ import logging
 import json
 import random
 import time
+import xml.etree.ElementTree as ET
 
 import dateutil.parser
 
@@ -408,7 +409,40 @@ def store_readings_beaded(request):
     Stores a set of sensor readings from a BeadedStream Ethernet Activator.
     The readings and other data are in the POST data encoded in XML.
     '''
-    return HttpResponse('Reached BeadedStream')
+
+    try:
+
+        # make a timestamp for the readings
+        ts = time.time()
+
+        # The post data is XML, but returns as a byte string. Decode it.
+        xml_data = request.body.decode('utf-8')
+        root = ET.fromstring(xml_data)
+
+        # list to hold the possible multiple readings in the XML document.
+        readings = []
+        for child in root:
+            if 'owd_DS18' in child.tag:
+                try:
+                    for ch2 in child:
+                        if 'ROMId' in ch2.tag:
+                            sensor_id = 'bs_' + ch2.text
+                        elif 'Temperature' in ch2.tag:
+                            value = float(ch2.text) * 1.8 + 32.0
+                    readings.append( [ts, sensor_id, value])
+                except:
+                    # problem decoding value
+                    _logger.exception('Problem decoding BeadedStream reading.')
+
+        if len(readings) == 0:
+            return HttpResponse('No Data Found')
+
+        msg = storereads.store_many({'readings': readings})
+        return HttpResponse(msg)
+
+    except:
+        _logger.exception('Error Storing Reading')
+        return HttpResponse(sys.exc_info()[1])
 
 
 @csrf_exempt
