@@ -415,6 +415,13 @@ def store_readings_beaded(request):
 
     try:
 
+        # Check for valid Store Key, which is in the Query parameters.
+        storeKey = request.GET.get('storeKey', 'bad')
+        if not store_key_is_valid(storeKey):
+            _logger.warning(
+                'Invalid Storage Key in Reading Post: %s', storeKey)
+            return HttpResponse('Invalid Key')
+
         # make a timestamp for the readings
         ts = time.time()
 
