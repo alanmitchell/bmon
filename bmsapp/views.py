@@ -407,7 +407,10 @@ def store_readings_radio_bridge(request):
 def store_readings_beaded(request):
     '''
     Stores a set of sensor readings from a BeadedStream Ethernet Activator.
-    The readings and other data are in the POST data encoded in XML.
+    At the moment, this routine only parses and stored temperature sensors
+    connected to the Activator.
+    The readings and other data are in the POST data encoded in XML, with
+    some extra header and footer lines.
     '''
 
     try:
@@ -415,9 +418,24 @@ def store_readings_beaded(request):
         # make a timestamp for the readings
         ts = time.time()
 
-        # The post data is XML, but returns as a byte string. Decode it.
-        xml_data = request.body.decode('utf-8')
-        root = ET.fromstring(xml_data)
+        # The post data is XML and contains some header and footer lines that need
+        # to be stripped.  It returns as a byte string, so decode it into a string.
+        data = request.body.decode('utf-8')
+
+        lines = data.splitlines()
+        # find start and end of actual XML document.
+        for st, lin in enumerate(lines):
+            if len(lin) and lin[0] == '<':
+                break
+
+        for end in range(len(lines) - 1, 0, -1):
+            lin = lines[end]
+            if len(lin) and lin[0] == '<':
+                break
+   
+        xml_doc = ''.join(lines[st:end+1])
+
+        root = ET.fromstring(xml_doc)
 
         # list to hold the possible multiple readings in the XML document.
         readings = []
@@ -425,9 +443,9 @@ def store_readings_beaded(request):
             if 'owd_DS18' in child.tag:
                 try:
                     for ch2 in child:
-                        if 'ROMId' in ch2.tag:
+                        if 'SensorID' in ch2.tag:
                             sensor_id = 'bs_' + ch2.text
-                        elif 'Temperature' in ch2.tag:
+                        elif 'TemperatureCalibrated' in ch2.tag:
                             value = float(ch2.text) * 1.8 + 32.0
                     readings.append( [ts, sensor_id, value])
                 except:
