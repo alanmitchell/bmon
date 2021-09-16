@@ -19,6 +19,7 @@ urlpatterns = [
     re_path(r'^readingdb/reading/store-rb/$',
             views.store_readings_radio_bridge),
     re_path(r'^readingdb/reading/store-beaded/$', views.store_readings_beaded),
+    re_path(r'^readingdb/reading/store-beaded$', views.store_readings_beaded),
     # Old URL pattern for storing.  Shouldn't be used for new sensors.
     re_path(r'^st8(\w+)/', views.store_reading_old),
     # gets all readings for one reading ID.
