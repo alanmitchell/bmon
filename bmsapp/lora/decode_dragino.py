@@ -203,7 +203,7 @@ def decode_lsn50(payload_fields: dict) -> Dict[str, Any]:
         'ADC_CH4V': ('analog4', None),
         'Illum': ('light', None),
         'TempC_SHT': ('temperatureSHT', lambda x: x * 1.8 + 32.0),
-        'Hum_SHT': ('humidity', None),
+        'Hum_SHT': ('humiditySHT', None),
         'Distance_cm': ('distance', lambda x: x / 2.54),
         'Distance_signal_strength': ('distanceSignal', None),
         'BatV': ('vdd', None),
