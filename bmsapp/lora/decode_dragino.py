@@ -190,6 +190,46 @@ def decode_ldds(data: bytes) -> Dict[str, Any]:
 
     return res
 
+def decode_lsn50(payload_fields: dict) -> Dict[str, Any]:
+    """Returns a dictionary of engineering values for the LSN50 sensor.  This decoder
+    uses the payload fields that have been decoded by the LSN50 Repository decoder on
+    Things V3.  Thus the Repository Uplink decoder must be enabled on Things V3 for this
+    to work.
+    """
+    # dictionary that allows for relabeling and transforming sensor fields
+    trans = {
+        'ADC_CH0V': ('analog0', None),
+        'ADC_CH1V': ('analog1', None),
+        'ADC_CH4V': ('analog4', None),
+        'Illum': ('light', None),
+        'TempC_SHT': ('temperatureSHT', lambda x: x * 1.8 + 32.0),
+        'Hum_SHT': ('humidity', None),
+        'Distance_cm': ('distance', lambda x: x / 2.54),
+        'Distance_signal_strength': ('distanceSignal', None),
+        'BatV': ('vdd', None),
+        'Digital_IStatus': ('digital', lambda x: 1 if x=='H' else 0),
+        'EXTI_Trigger': ('interrupt', lambda x: 1 if x=='TRUE' else 0),
+        'Door_status': ('door', lambda x: 1 if x=='CLOSE' else 0),
+        'TempC1': ('extTemperature1', lambda x: x * 1.8 + 32.0),
+        'TempC2': ('extTemperature2', lambda x: x * 1.8 + 32.0),
+        'TempC3': ('extTemperature3', lambda x: x * 1.8 + 32.0),
+        'Weight': ('weight', lambda x: x / 453.59),
+        'Count': ('pulse', None),
+    }
+    res = {}
+    for fld, val in payload_fields.items():
+        if fld in trans:
+            try:
+                fld_new, func = trans[fld]
+                if func:
+                    val = func(val)
+                res[fld_new] = val
+            except:
+                # don't include field if an error
+                pass
+
+    return res
+
 def test_lht65():
     cases = (
         ('CBF60B0D0376010ADD7FFF', {'temperature': 82.922, 'humidity': 88.6, 'vdd': 3.062, 'extTemperature': 82.05799999999999}),

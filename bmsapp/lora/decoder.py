@@ -12,18 +12,20 @@ from . import decode_dragino
 def decode(
         integration_payload: Dict[str, Any],
         flatten_value_lists=True,
-        raw_payload_priority=True,
     ) -> Dict[str, float]:
     """ Returns a dictionary of information derived from the payload sent by 
     a Things Network HTTP Integration.  Some general data about the message is included
     (e.g. Unix timestamp) but a full list of the sensor values encoded in the payload are returned
-    in the 'fields' key of the dictionary. These value are pulled from the 'payload_fields' key of
-    the integration_payload (if present) or by decoding the raw_payload.  The 'raw_payload_priority' parameter 
-    determines which source has priority. Only sensor values from the following sensors can currently be
-    decoded from the raw payload:
+    in the 'fields' key of the dictionary. 
+    
+    If already-decoded payload fields are not present, only sensor values from the 
+    following sensors can currently be decoded from the raw payload:
         All Elsys sensors
-        Dragino LHT65, LWL01, LDDS20, LDDS75 sensors.
+        Dragino LHT65, LWL01, LDDS20, LDDS75.
            Also, a special decoding of the LT22222 sensor for boat monitoring is included.
+    Decoding of the following sensors is done below but depend on presence of already-decoded
+    payload fields; these decoded fields are modified by the decoders below (e.g. relabeled, 
+    converted from one engineering unit to another).
     
     Function Parameters are:
     'integration_payload': the data payload that is sent by a Things Network HTTP integration, 
@@ -32,8 +34,6 @@ def decode(
         into a list of values, for example multiple external temperature channels.  If this parameter
         is True (the default), those lists are flattened into separate sensor values by appending
         the list index to the sensor name.
-    'raw_payload_priority': If True (the default), an attempt will be made first to decode the raw payload; if that
-        fails and there is a 'payload_fields' key in the integration post, those values will be used.
     """
 
     # Determine the Things Stack version number, as the integration payload formats
@@ -93,46 +93,49 @@ def decode(
     }
 
     fields = {}      # default to no field data
-    if raw_payload_priority or len(payload_fields) == 0:
-        try:
-            # dispatch to the right decoding function based on characters in the device_id.
-            # if device_id contains "lht65" anywhere in it, use the lht65 decoder
-            # if device_id starts with "ers" or "elsys" or "elt", use the elsys decoder
-            dev_id_lwr = device_id.lower()    # get variable for lower case device ID
-            if 'lht65' in dev_id_lwr:
-                # only messages on Port 2 are sensor readings (although haven't yet seen 
-                # any other types of messages from this sensor)
-                if port == 2:
-                    fields = decode_dragino.decode_lht65(payload)
-            elif dev_id_lwr.startswith('lwl01'):
-                fields = decode_dragino.decode_lwl01(payload)
-            elif dev_id_lwr.startswith('elsys') or (dev_id_lwr[:3] in ('ers', 'elt')):
-                # only messages on Port 5 are sensor readings
-                if port == 5:
-                    fields = decode_elsys.decode(payload)
-            elif dev_id_lwr.startswith('boat-lt2'):
-                if port == 2:
-                    fields = decode_dragino.decode_boat_lt2(payload)
-            elif dev_id_lwr.startswith('ldds'):
-                fields = decode_dragino.decode_ldds(payload)
+    dev_id_lwr = device_id.lower()    # get variable for lower case device ID
+    try:
+        # dispatch to the right decoding function based on characters in the device_id.
+        # if device_id contains "lht65" anywhere in it, use the lht65 decoder
+        # if device_id starts with "ers" or "elsys" or "elt", use the elsys decoder
+        if 'lht65' in dev_id_lwr:
+            # only messages on Port 2 are sensor readings (although haven't yet seen 
+            # any other types of messages from this sensor)
+            if port == 2:
+                fields = decode_dragino.decode_lht65(payload)
+        elif dev_id_lwr.startswith('lwl01'):
+            fields = decode_dragino.decode_lwl01(payload)
+        elif dev_id_lwr.startswith('elsys') or (dev_id_lwr[:3] in ('ers', 'elt')):
+            # only messages on Port 5 are sensor readings
+            if port == 5:
+                fields = decode_elsys.decode(payload)
+        elif dev_id_lwr.startswith('boat-lt2'):
+            if port == 2:
+                fields = decode_dragino.decode_boat_lt2(payload)
+        elif dev_id_lwr.startswith('ldds'):
+            fields = decode_dragino.decode_ldds(payload)
+        elif dev_id_lwr.startswith('lsn50'):
+            # This decoder assumes the DraginoV3 Repository decoder is being used 
+            # on the Things network and uses the decoded fields in our decoder.
+            fields = decode_dragino.decode_lsn50(payload_fields)
 
-            # some decoders will give a list of values back for one field.  If requested, convert 
-            # these into multiple fields with an underscore index at end of field name.
-            if flatten_value_lists:
-                flat_fields = {}
-                fields_to_delete = []
-                for k, v in fields.items():
-                    if type(v) == list:
-                        fields_to_delete.append(k)
-                        for ix, val in enumerate(v):
-                            flat_fields[f'{k}_{ix}'] = val
-                for k in fields_to_delete:
-                    del fields[k]     # remove that item cuz will add individual elements
-                fields.update(flat_fields)
-        except:
-            # Failed at decoding raw payload.  Go on to see if there might be values in 
-            # the payload_fields element.
-            pass
+        # some decoders will give a list of values back for one field.  If requested, convert 
+        # these into multiple fields with an underscore index at end of field name.
+        if flatten_value_lists:
+            flat_fields = {}
+            fields_to_delete = []
+            for k, v in fields.items():
+                if type(v) == list:
+                    fields_to_delete.append(k)
+                    for ix, val in enumerate(v):
+                        flat_fields[f'{k}_{ix}'] = val
+            for k in fields_to_delete:
+                del fields[k]     # remove that item cuz will add individual elements
+            fields.update(flat_fields)
+    except:
+        # Failed at decoding raw payload.  Go on to see if there might be values in 
+        # the payload_fields element.
+        pass
 
     if len(fields) == 0 and len(payload_fields) > 0:
         # get sensor data from already-decoded payload_fields
