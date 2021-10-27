@@ -97,7 +97,7 @@ def decode(data: bytes) -> Dict[str, Any]:
         return 1
 
     def ext_distance(i: int) -> int:
-        res['distance'] = int16(i+1)
+        res['distance'] = int16(i+1) / 25.4   # convert to inches
         return 2
 
     def acc_motion(i: int) -> int:
