@@ -294,6 +294,9 @@ class Building(models.Model):
     # Timeline annotations
     timeline_annotations = models.TextField("Annotations for events in the building's timeline (e.g. Boiler Replaced: 1/1/2017)", help_text="One annotation per line. Use a colon between the annotation and the date/time.", blank=True)
 
+    # Private Building Notes
+    notes_private = models.TextField("Notes only seen by Sys Admins", help_text="Any text is valid and will only be seen by System Administrators.", blank=True)
+ 
     # Floor area of building
     floor_area = models.FloatField('Floor area of Building in square feet', null=True, blank=True)
 
