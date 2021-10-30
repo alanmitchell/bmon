@@ -72,7 +72,7 @@ def decode(
         ts = parse(msg['received_at']).timestamp()
         
         # Extract the strongest SNR across the gateways that received the transmission.
-        snrs = [gtw['snr'] for gtw in msg['rx_metadata']]
+        snrs = [gtw['snr'] for gtw in msg['rx_metadata'] if 'snr' in gtw]
         snr = max(snrs)
 
         # get payload fields if they are present
