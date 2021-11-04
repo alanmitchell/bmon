@@ -76,6 +76,12 @@ class Transformer:
         expr_clean = expression.strip().lower()
         
         if 'rate' in expr_clean:
+            # add the raw count to a raw count table associated with this sensor; thus there 
+            # will be two tables--a table with a counter rate related value and this table that
+            # stores raw counts.  The raw count table will have the passed in sensor ID with a
+            # "_raw" appended to it.
+            self.db.insert_reading(ts, id + '_raw', val)
+
             # A count rate is used in the expression.  Determine it so the
             # expression can be evalulated.
             # Get the last raw reading with timestamp, and replace it with
