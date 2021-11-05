@@ -469,6 +469,46 @@ def store_readings_beaded(request):
         _logger.exception('Error Storing Reading')
         return HttpResponse(sys.exc_info()[1])
 
+@csrf_exempt
+def store_readings_notehub(request):
+    '''
+    Stores a set of sensor readings from the Blues Wireless Notehub. The BMON Store Key is
+    in a custom HTTP header.
+    The readings and other data are in the POST data encoded in JSON.
+    '''
+
+    try:
+
+        # The post data is JSON, so decode it.
+        req_data = json.loads(request.body)
+
+        # See if the store key is valid.  It's stored in the "store-key" header, which
+        # is found in the "HTTP_STORE_KEY" key in the META dictionary.
+        storeKey = request.META.get('HTTP_STORE_KEY', 'None_Present')
+
+        if store_key_is_valid(storeKey):
+
+            # extract timestamp and device serial number
+            ts = req_data['when']
+            dev_id = req_data['device'].split(':')[1]
+
+            # loop through data fields
+            readings = []
+            for fld, val in req_data['body'].items():
+                readings.append([ts, f'{dev_id}_{fld}', val])
+
+            msg = storereads.store_many({'readings': readings})
+            return HttpResponse(msg)
+
+        else:
+            _logger.warning(
+                'Invalid Storage Key in Reading Post: %s', storeKey)
+            return HttpResponse('Invalid Key')
+
+    except:
+        _logger.exception('Error Storing Reading')
+        return HttpResponse(sys.exc_info()[1])
+
 
 @csrf_exempt
 def store_reading_old(request, store_key):
