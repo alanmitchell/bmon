@@ -27,14 +27,15 @@ def convert_val(ts, reading_id, val, db):
 
     # get the Sensor object, if available, to see if there is a transform function
     sensors = models.Sensor.objects.filter( sensor_id=reading_id )
-    if len(sensors)>0:
-        # Take first sensor in list ( should be only one ) and get transform function & parameters
-        transform_func = sensors[0].tran_calc_function
-        transform_params = sensors[0].function_parameters
-    else:
-        # no sensor with the requested ID was found.  Therefore, no transform function and parameters.
-        transform_func = ''
-        transform_params = ''
+    # default to no transformation
+    transform_func = ''
+    transform_params = ''
+    if len(sensors) > 0: 
+        # look at the first sensor (there only should be one).  Don't do a transform if this
+        # is a calculated field
+        if not sensors[0].is_calculated:
+            transform_func = sensors[0].tran_calc_function
+            transform_params = sensors[0].function_parameters
 
     # If val is a string, decode it into a float value
     if type(val) in (str, str):
