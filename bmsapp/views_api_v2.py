@@ -4,6 +4,9 @@ import logging
 from collections import Counter
 
 import pytz
+
+import pandas as pd
+
 from django.http import JsonResponse
 from dateutil.parser import parse
 from django.views.decorators.csrf import csrf_exempt
@@ -152,13 +155,20 @@ def sensor_readings(request):
         if end_ts:
             ts_aware = timezone.localize(end_ts)
             end_ts = ts_aware.timestamp()
-
+        
         # get the sensor readings
-        df = db.dataframeForMultipleIDs(sensor_ids, start_ts=start_ts, end_ts=end_ts, tz=timezone)
-
-        # if averaging is requested, do it!
-        if averaging and len(df) > 0:
-            df = weighted_resample_timeseries(df,averaging,label_offset).dropna(how='all')
+        if averaging:
+            # need to pull each column separately so we don't introduce nulls from mismatched timestamp indices
+            df = pd.DataFrame()
+            for sensor_id in sensor_ids:
+                df_sensor = db.dataframeForOneID(sensor_id, start_ts=start_ts, end_ts=end_ts, tz=timezone)
+                df_sensor.drop('ts', axis=1, inplace=True)    # get rid of ts column
+                df_sensor.rename(columns={'val': str(sensor_id)}, inplace=True)
+                if len(df_sensor) > 0:
+                    df_sensor = weighted_resample_timeseries(df_sensor,averaging,label_offset).dropna(how='all')
+                df = df.merge(df_sensor,how='outer',left_index=True,right_index=True)
+        else:
+            df = db.dataframeForMultipleIDs(sensor_ids, start_ts=start_ts, end_ts=end_ts, tz=timezone)
 
         # make a dictionary that is formatted with orientation 'split', which is the most
         # compact form to send the DataFrame
