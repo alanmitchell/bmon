@@ -80,7 +80,7 @@ def decode(
 
         # get port and frame counter
         port = msg['f_port']
-        frame_counter = msg['f_cnt']
+        frame_counter = msg.get('f_cnt', 0)
 
     else:
         # Unrecognized payload.  Return results with no fields.
