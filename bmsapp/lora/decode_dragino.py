@@ -3,7 +3,7 @@ See Javascript LHT65 decoder at:  http://www.dragino.com/downloads/index.php?dir
 """
 import math
 from typing import Dict, Any
-from .decode_utils import bin16dec
+from .decode_utils import bin16dec, bin8dec
 
 def decode_lht65(data: bytes) -> Dict[str, Any]:
     """Returns a dictionary of enginerring values decoded from a Dragino LHT65 Uplink Payload.
@@ -14,11 +14,7 @@ def decode_lht65(data: bytes) -> Dict[str, Any]:
 
     # holds the dictionary of results
     res = {}
-
-    def int16(ix: int) -> int:
-        """Returns a 16-bit integer from the 2 bytes starting at index 'ix' in data byte array.
-        """
-        return (data[ix] << 8) | (data[ix + 1])
+    int16 = lambda ix: data[ix] << 8 | data[ix + 1]
 
     # Each of the functions below decodes one sensor type.  The function access the 'data' byte
     # array parameter from the enclosing 'decode' function.  The following functions also add
@@ -104,15 +100,11 @@ def decode_boat_lt2(data: bytes) -> Dict[str, Any]:
 
     # holds the dictionary of results
     res = {}
+    int16 = lambda ix: data[ix] << 8 | data[ix + 1]
 
     if (data[10] & 0x3f) != 1:
         # not in Mode = 1, return with no values
         return res
-
-    def int16(ix: int) -> int:
-        """Returns a 16-bit integer from the 2 bytes starting at index 'ix' in data byte array.
-        """
-        return (data[ix] << 8) | (data[ix + 1])
 
     # ------- Shore Power
     shoreV = int16(0) / 1000.     # voltage from wall wart in Volts
@@ -154,11 +146,7 @@ def decode_lwl01(data: bytes) -> Dict[str, Any]:
 
     # holds the dictionary of results
     res = {}
-
-    def int16(ix: int) -> int:
-        """Returns a 16-bit integer from the 2 bytes starting at index 'ix' in data byte array.
-        """
-        return (data[ix] << 8) | (data[ix + 1])
+    int16 = lambda ix: data[ix] << 8 | data[ix + 1]
 
     # Battery voltage
     res['vdd'] = (int16(0) & 0x3FFF) / 1000
@@ -176,11 +164,7 @@ def decode_ldds(data: bytes) -> Dict[str, Any]:
 
     # holds the dictionary of results
     res = {}
-
-    def int16(ix: int) -> int:
-        """Returns a 16-bit integer from the 2 bytes starting at index 'ix' in data byte array.
-        """
-        return (data[ix] << 8) | (data[ix + 1])
+    int16 = lambda ix: data[ix] << 8 | data[ix + 1]
 
     # Battery voltage
     res['vdd'] = (int16(0) & 0x3FFF) / 1000
@@ -190,43 +174,68 @@ def decode_ldds(data: bytes) -> Dict[str, Any]:
 
     return res
 
-def decode_lsn50(payload_fields: dict) -> Dict[str, Any]:
-    """Returns a dictionary of engineering values for the LSN50 sensor.  This decoder
-    uses the payload fields that have been decoded by the LSN50 Repository decoder on
-    Things V3.  Thus the Repository Uplink decoder must be enabled on Things V3 for this
-    to work.
+def decode_lsn50(data: bytes) -> Dict[str, Any]:
+    """Returns a dictionary of engineering values for the LSN50 sensor.
+    The payload 'data' is a byte array.
     """
-    # dictionary that allows for relabeling and transforming sensor fields
-    trans = {
-        'ADC_CH0V': ('analog0', None),
-        'ADC_CH1V': ('analog1', None),
-        'ADC_CH4V': ('analog4', None),
-        'Illum': ('light', None),
-        'TempC_SHT': ('temperatureSHT', lambda x: x * 1.8 + 32.0),
-        'Hum_SHT': ('humiditySHT', None),
-        'Distance_cm': ('distance', lambda x: x / 2.54),
-        'Distance_signal_strength': ('distanceSignal', None),
-        'BatV': ('vdd', None),
-        'Digital_IStatus': ('digital', lambda x: 1 if x=='H' else 0),
-        'EXTI_Trigger': ('interrupt', lambda x: 1 if x=='TRUE' else 0),
-        'Door_status': ('door', lambda x: 1 if x=='CLOSE' else 0),
-        'TempC1': ('extTemperature1', lambda x: x * 1.8 + 32.0),
-        'TempC2': ('extTemperature2', lambda x: x * 1.8 + 32.0),
-        'TempC3': ('extTemperature3', lambda x: x * 1.8 + 32.0),
-        'Weight': ('weight', lambda x: x / 453.59),
-        'Count': ('pulse', None),
-    }
+    int16 = lambda ix: data[ix] << 8 | data[ix + 1]
     res = {}
-    for fld, val in payload_fields.items():
-        if fld in trans:
-            try:
-                fld_new, func = trans[fld]
-                if func:
-                    val = func(val)
-                res[fld_new] = val
-            except:
-                # don't include field if an error
-                pass
+    mode = (data[6] & 0x7C) >> 2
+
+    if (mode != 2) and (mode != 31):
+        res['vdd'] = int16(0) / 1000.
+        res['extTemperature1'] = bin16dec(int16(2)) * 0.18 + 32.
+        res['analog0'] = int16(4) / 1000.
+        res['digital'] = 1 if (data[6] & 0x02) else 0
+        if mode != 6:
+            res['interrupt'] = data[6] & 0x01
+            res['door'] = 1 if data[6] & 0x80 else 0
+
+    if mode == 0:
+        if (data[9] << 8 | data[10]) == 0:
+            res['light'] = bin16dec(int16(7))
+        else:
+            res['temperatureSHT'] = bin16dec(int16(7)) * 0.18 + 32.
+            res['humiditySHT'] = int16(9) / 10.
+
+    elif mode == 1:
+        res['distance'] = int16(7) / 25.4
+        if int16(9) != 65535:
+            res['distanceSignal'] = int16(9)
+
+    elif mode == 2:
+        res['vdd'] = data[11] / 10.
+        res['analog0'] = int16(0) / 1000.
+        res['analog1'] = int16(2) / 1000.
+        res['analog4'] = int16(4) / 1000.
+        res['digital'] = 1 if data[6] & 0x02 else 0
+        res['interrupt'] = data[6] & 0x01
+        res['door'] = 1 if data[6] & 0x80 else 0
+        if (data[9] << 8 | data[10]) == 0:
+            res['light'] = bin16dec(int16(7))
+        else:
+            res['temperatureSHT'] = bin16dec(int16(7)) * 0.18 + 32.
+            res['humiditySHT'] = int16(9) / 10.
+
+    elif mode == 3:
+        res['extTemperature2'] = bin16dec(int16(7)) * 0.18 + 32.
+        res['extTemperature3'] = bin16dec(int16(9)) * 0.18 + 32.
+
+    elif mode == 4:
+        res['weight'] = bin16dec(int16(7)) / 453.59
+
+    elif mode == 5:
+        res['pulse'] = data[7] << 24 | data[8] << 16 | data[9] << 8 | data[10]
+
+    elif mode == 31:
+        res['vdd'] = int16(0) / 1000.
+        res['extTemperature1'] = bin16dec(int16(2)) * 0.18 + 32.
+        res['extTemperature1_min'] = bin8dec(4) * 1.8 + 32.
+        res['extTemperature1_max'] = bin8dec(5) * 1.8 + 32.
+        res['temperatureSHT_min'] = bin8dec(7) * 1.8 + 32.
+        res['temperatureSHT_max'] = bin8dec(8) * 1.8 + 32.
+        res['humiditySHT_min'] =  data[9]
+        res['humiditySHT_max'] =  data[10]
 
     return res
 
@@ -257,7 +266,17 @@ def test_boat_lt2():
         res = decode_boat_lt2(bytes.fromhex(dta))
         print(res)
 
+def test_lsn50():
+    cases = (
+        '0ceeffab01490cffabffab',
+    )
+    for dta in cases:
+        res = decode_lsn50(bytes.fromhex(dta))
+        print(res)
+
 if __name__ == '__main__':
-    # To run this without import error, need to run "python -m decoder.decode_lht65" from the top level directory.
+    # To run this without import error, need to run "python -m lora.decode_dragino" 
+    # from one directory higher (the bmsapp directory).
     test_lht65()
     test_boat_lt2()
+    test_lsn50()

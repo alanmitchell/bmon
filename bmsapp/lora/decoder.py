@@ -113,11 +113,11 @@ def decode(
             if port == 2:
                 fields = decode_dragino.decode_boat_lt2(payload)
         elif dev_id_lwr.startswith('ldds'):
-            fields = decode_dragino.decode_ldds(payload)
+            if port == 2:
+                fields = decode_dragino.decode_ldds(payload)
         elif dev_id_lwr.startswith('lsn50'):
-            # This decoder assumes the DraginoV3 Repository decoder is being used 
-            # on the Things network and uses the decoded fields in our decoder.
-            fields = decode_dragino.decode_lsn50(payload_fields)
+            if port == 2:
+                fields = decode_dragino.decode_lsn50(payload)
 
         # some decoders will give a list of values back for one field.  If requested, convert 
         # these into multiple fields with an underscore index at end of field name.
