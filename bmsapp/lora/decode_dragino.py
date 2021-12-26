@@ -179,12 +179,14 @@ def decode_lsn50(data: bytes) -> Dict[str, Any]:
     The payload 'data' is a byte array.
     """
     int16 = lambda ix: data[ix] << 8 | data[ix + 1]
+    temp16 = lambda ix: bin16dec(int16(ix)) * 0.18 + 32.0
+
     res = {}
     mode = (data[6] & 0x7C) >> 2
 
     if (mode != 2) and (mode != 31):
         res['vdd'] = int16(0) / 1000.
-        res['extTemperature1'] = bin16dec(int16(2)) * 0.18 + 32.
+        res['extTemperature1'] = temp16(2)
         res['analog0'] = int16(4) / 1000.
         res['digital'] = 1 if (data[6] & 0x02) else 0
         if mode != 6:
@@ -195,7 +197,7 @@ def decode_lsn50(data: bytes) -> Dict[str, Any]:
         if (data[9] << 8 | data[10]) == 0:
             res['light'] = bin16dec(int16(7))
         else:
-            res['temperatureSHT'] = bin16dec(int16(7)) * 0.18 + 32.
+            res['temperatureSHT'] = temp16(7)
             res['humiditySHT'] = int16(9) / 10.
 
     elif mode == 1:
@@ -214,12 +216,12 @@ def decode_lsn50(data: bytes) -> Dict[str, Any]:
         if (data[9] << 8 | data[10]) == 0:
             res['light'] = bin16dec(int16(7))
         else:
-            res['temperatureSHT'] = bin16dec(int16(7)) * 0.18 + 32.
+            res['temperatureSHT'] = temp16(7)
             res['humiditySHT'] = int16(9) / 10.
 
     elif mode == 3:
-        res['extTemperature2'] = bin16dec(int16(7)) * 0.18 + 32.
-        res['extTemperature3'] = bin16dec(int16(9)) * 0.18 + 32.
+        res['extTemperature2'] = temp16(7)
+        res['extTemperature3'] = temp16(9)
 
     elif mode == 4:
         res['weight'] = bin16dec(int16(7)) / 453.59
@@ -229,7 +231,7 @@ def decode_lsn50(data: bytes) -> Dict[str, Any]:
 
     elif mode == 31:
         res['vdd'] = int16(0) / 1000.
-        res['extTemperature1'] = bin16dec(int16(2)) * 0.18 + 32.
+        res['extTemperature1'] = temp16(2)
         res['extTemperature1_min'] = bin8dec(4) * 1.8 + 32.
         res['extTemperature1_max'] = bin8dec(5) * 1.8 + 32.
         res['temperatureSHT_min'] = bin8dec(7) * 1.8 + 32.
