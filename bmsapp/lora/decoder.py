@@ -11,7 +11,6 @@ from . import decode_dragino
 
 def decode(
         integration_payload: Dict[str, Any],
-        flatten_value_lists=True,
     ) -> Dict[str, float]:
     """ Returns a dictionary of information derived from the payload sent by 
     a Things Network HTTP Integration.  Some general data about the message is included
@@ -30,10 +29,6 @@ def decode(
     Function Parameters are:
     'integration_payload': the data payload that is sent by a Things Network HTTP integration, 
         in Python dictionary format.
-    'flatten_value_lists': some sensors, including the Elsys ELT-2, decode multiple sensor channels 
-        into a list of values, for example multiple external temperature channels.  If this parameter
-        is True (the default), those lists are flattened into separate sensor values by appending
-        the list index to the sensor name.
     """
 
     # Determine the Things Stack version number, as the integration payload formats
@@ -119,19 +114,6 @@ def decode(
             if port == 2:
                 fields = decode_dragino.decode_lsn50(payload)
 
-        # some decoders will give a list of values back for one field.  If requested, convert 
-        # these into multiple fields with an underscore index at end of field name.
-        if flatten_value_lists:
-            flat_fields = {}
-            fields_to_delete = []
-            for k, v in fields.items():
-                if type(v) == list:
-                    fields_to_delete.append(k)
-                    for ix, val in enumerate(v):
-                        flat_fields[f'{k}_{ix}'] = val
-            for k in fields_to_delete:
-                del fields[k]     # remove that item cuz will add individual elements
-            fields.update(flat_fields)
     except:
         # Failed at decoding raw payload.  Go on to see if there might be values in 
         # the payload_fields element.
@@ -169,8 +151,6 @@ def test():
     ]
     for rec in recs:
         pprint(decode(rec))
-
-    pprint(decode(recs[-1], flatten_value_lists=False))
 
 if __name__ == '__main__':
     # To run this without import error, need to run "python -m lora.decoder" from the 

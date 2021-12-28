@@ -196,13 +196,27 @@ def decode(data: bytes) -> Dict[str, Any]:
         # byte consumed the sensor type identifier.
         i += cur_decode_func(i) + 1
 
+    # Some of the fields may give a list of values back.  Convert 
+    # these into multiple fields with an underscore index at end of field name.
+    flat_fields = {}
+    fields_to_delete = []
+    for k, v in res.items():
+        if type(v) == list:
+            fields_to_delete.append(k)
+            for ix, val in enumerate(v):
+                flat_fields[f'{k}_{ix}'] = val
+    for k in fields_to_delete:
+        del res[k]     # remove that item cuz will add individual elements
+    if len(flat_fields):
+        res.update(flat_fields)
+
     return res
 
 def test():
     results = decode(bytes.fromhex('0100e202290400270506060308070d6219000119FFFF'))
     print(results)
-    assert results == {'temperature': 72.68, 'humidity': 41, 'light': 39, 'motion': 6, 'co2': 776, 'vdd': 3.426, 'extTemperature2': [32.18, 31.82]}
+    assert results == {'temperature': 72.68, 'humidity': 41, 'light': 39, 'motion': 6, 'co2': 776, 'vdd': 3.426, 'extTemperature2_0': 32.18, 'extTemperature2_1': 31.82}
 
 if __name__ == "__main__":
-    # To run this without import error, need to run "python -m decoder.decode_elsys" from the top level directory.
+    # To run this without import error, need to run "python -m lora.decode_elsys" from parent directory.
     test()
