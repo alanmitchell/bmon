@@ -324,8 +324,15 @@ def store_readings_things(request):
             readings = []
             ts = data['ts']
             eui = data['device_eui']
-            for fld, val in data['fields'].items():
-                readings.append([ts, f'{eui}_{fld}', val])
+            # each field is a tuple, normally (field name, value), but it can be
+            # (field name, (value, time offset))
+            for fld, val in data['fields']:
+                if type(val) == tuple:
+                    t_offset = val[1]
+                    val = val[0]
+                else:
+                    t_offset = 0.0
+                readings.append([ts + t_offset, f'{eui}_{fld}', val])
 
             msg = storereads.store_many({'readings': readings})
             return HttpResponse(msg)

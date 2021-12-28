@@ -11,20 +11,22 @@ from . import decode_dragino
 
 def decode(
         integration_payload: Dict[str, Any],
-    ) -> Dict[str, float]:
+    ) -> Dict[str, Any]:
     """ Returns a dictionary of information derived from the payload sent by 
     a Things Network HTTP Integration.  Some general data about the message is included
     (e.g. Unix timestamp) but a full list of the sensor values encoded in the payload are returned
-    in the 'fields' key of the dictionary. 
+    in the 'fields' key of the dictionary. The value of the 'fields' item is a List of tuples:
+    the first element of the tuple is the field name, and the second element is typically a
+    numeric value of the field.  The one exception is that the second element can be a
+    two-element tuple containing: (field value, time offset in seconds).  A non-zero time
+    offset means the sensor value occurred at an offset from the time the LoRa message
+    was received; it is generally a negative offset value meaning it occurred prior in time.
     
     If already-decoded payload fields are not present, only sensor values from the 
     following sensors can currently be decoded from the raw payload:
         All Elsys sensors
-        Dragino LHT65, LWL01, LDDS20, LDDS75.
+        Dragino LHT65, LWL01, LDDS20, LDDS75, LSN50v2
            Also, a special decoding of the LT22222 sensor for boat monitoring is included.
-    Decoding of the following sensors is done below but depend on presence of already-decoded
-    payload fields; these decoded fields are modified by the decoders below (e.g. relabeled, 
-    converted from one engineering unit to another).
     
     Function Parameters are:
     'integration_payload': the data payload that is sent by a Things Network HTTP integration, 
@@ -79,7 +81,7 @@ def decode(
 
     else:
         # Unrecognized payload.  Return results with no fields.
-        return {'fields': {}}
+        return {'fields': []}
 
     # the dictionary that will hold the decoded results.  the 'fields' key will be added later.
     results = {
@@ -87,8 +89,12 @@ def decode(
         'ts': ts,
     }
 
-    fields = {}      # default to no field data
+    fields = []      # default to no field data
     dev_id_lwr = device_id.lower()    # get variable for lower case device ID
+
+    # Note that many of the decoder functions below return the sensor fields as a dictionary.
+    # Both a field dictionary and a field list can be accommodated.  Further down in this
+    # function, a field dictionary is converted to a list of tuples.
     try:
         # dispatch to the right decoding function based on characters in the device_id.
         # if device_id contains "lht65" anywhere in it, use the lht65 decoder
@@ -126,13 +132,23 @@ def decode(
         for ky in EXCLUDE_THINGS_FIELDS:
             fields.pop(ky, None)      # deletes element without an error if not there
 
-    # Add the SNR field on every 4th frame
+    # If the 'fields' variable is a dictionary, convert it to a list of tuples at this point.
+    if type(fields) == dict:
+        fields = list(fields.items())
+
+    # Add the SNR field on every 5th frame
     if frame_counter % 5 == 0:
-        fields['snr'] = snr
+        fields.append(('snr', snr))
 
     # Delete the battery voltage (if present) except every 10th frame
     if frame_counter % 10 != 0:
-        fields.pop('vdd', None)
+        vdd_ix = None
+        for ix, item in enumerate(fields): 
+            if item[0] == 'vdd':
+                vdd_ix = ix
+                break
+        if vdd_ix is not None:
+            fields.pop(vdd_ix)
 
     # Add these fields to the results dictionary
     results['fields'] = fields
