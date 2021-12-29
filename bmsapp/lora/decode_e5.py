@@ -1,6 +1,7 @@
 """Module to decode sensors developed with the SEEED E5 LoRaWAN module.
 """
 from typing import Any, List, Tuple
+import random
 
 def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
     """Decodes the payload from a custom Sensor from Analysis North using the
@@ -25,9 +26,10 @@ def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
             )
 
     elif data[0] == 2:
-        # reboot
+        # reboot.  Return a random value so that it is easy to find reboot points
+        # on the graph.
         fields.append(
-            ('reboot', 1.0)
+            ('reboot', random.random())
         )
 
     return fields
