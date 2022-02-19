@@ -8,6 +8,8 @@ import sys
 import logging
 import yaml
 
+from bmsapp import models
+
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
 
@@ -76,11 +78,30 @@ class Transformer:
         expr_clean = expression.strip().lower()
         
         if 'rate' in expr_clean:
+
             # add the raw count to a raw count table associated with this sensor; thus there 
             # will be two tables--a table with a counter rate related value and this table that
             # stores raw counts.  The raw count table will have the passed in sensor ID with a
-            # "_raw" appended to it.
-            self.db.insert_reading(ts, id + '_raw', val)
+            # "_raw" appended to it.  Also, make sure to apply a transform if one is set up for
+            # the "_raw" sensor
+            raw_id = id + '_raw'
+            val_conv = val          # default is no transform of the value
+
+            # get the Sensor object, if available, to see if there is a transform function to apply
+            # to the raw count
+            sensors = models.Sensor.objects.filter( sensor_id=raw_id )
+            if len(sensors) > 0: 
+                # look at the first sensor (there only should be one).  Don't do a transform if this
+                # is a calculated field
+                if not sensors[0].is_calculated:
+                    transform_func = sensors[0].tran_calc_function
+                    transform_func = transform_func.strip().lower()
+                    if len(transform_func):
+                        val_conv = eval(transform_func)
+
+            self.db.insert_reading(ts, raw_id, val_conv)
+
+            # Done with the absolute count value, move on to the rate calculation.
 
             # A count rate is used in the expression.  Determine it so the
             # expression can be evalulated.
