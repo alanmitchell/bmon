@@ -510,7 +510,8 @@ class DashboardItem(models.Model):
     # start at any value and can skip value; only the order matters.
     column_number = models.IntegerField(default=1)
 
-    # The sensor, if any, used in this Dashboard item
+    # The sensor, if any, used in this Dashboard item. This is actually a 
+    # Building-to-Sensor object that contains a reference to a Sensor.
     sensor = models.ForeignKey(BldgToSensor, models.CASCADE, null=True, blank=True)
 
     # Title, mostly used for Label widgets, but also overrides default title on
