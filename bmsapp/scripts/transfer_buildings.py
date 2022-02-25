@@ -10,6 +10,8 @@ command:
 
 on the source BMON Server.
 
+Back a backup of the Django database (bmon.sqlite) on the destination BMON system.
+
 Run the script with:
     transfer_buildings.py <name of dumpdata file.json>
 
@@ -105,8 +107,8 @@ def add_object_if_missing(model, natural_key, new_rec, ignore_fields=[]):
         return new_obj, True       # True indicates a new object
 
 # %%
-#fn_dump = sys.argv[2]
-fn_dump = '/home/tabb99/temp/bmondump.json'
+fn_dump = sys.argv[1]
+#fn_dump = '/home/tabb99/temp/bmondump.json'
 dump_list = json.load(open(fn_dump, 'r'))
 
 # Reformat the data so that the data structure is a dictionary of dictionaries.
@@ -124,7 +126,6 @@ for item in dump_list:
 bldgs = in_dict['building']
 
 # %%
-#'''
 choices = [
     'All',
     'Selected Buildings'
@@ -142,8 +143,6 @@ else:
         'Use Space Bar to select Buildings to Transfer:',
         choices = choices
     ).ask()
-#'''
-#target_bldgs = [3, 5]
     
 # %%
 # Add all the building modes in case they are needed in the future (beyond the 
@@ -263,5 +262,70 @@ for dash_pk in dashboard_pks:
         new_dash.save()
 
 # --- ALERTS and RECIPIENTS
+print('\nMaking Alerts...')
 
+# Natural Key involves objects, so need to manually test for existence, similar to
+# DashboardItems
+alert_keys = []
+for obj in AlertCondition.objects.all():
+    alert_keys.append( (
+        obj.sensor.sensor_id,
+        obj.condition,
+        obj.test_value,
+        obj.read_count
+        )
+    )
+
+# Get the sensors associated with the target buildings.
+sensor_pks = [link['sensor'] for link in bldg_to_sensors.values() if link['building'] in target_bldgs]
+
+# make unique
+sensor_pks = tuple(set(sensor_pks))
+
+# loop through the alert conditions for these sensors
+for alert_pk in find_matching('alertcondition', 'sensor', sensor_pks):
+    alert = in_dict['alertcondition'][alert_pk]
+
+    # determine the natural key for this item
+    sensor_id = sensors[alert['sensor']]['sensor_id']
+    alert_key = (
+        sensor_id,
+        alert['condition'],
+        alert['test_value'],
+        alert['read_count']
+    )
+
+    if alert_key not in alert_keys:
+        # Alert not present; add it.
+        alert_pruned = alert.copy()
+        alert_pruned.pop('sensor')
+        alert_pruned.pop('only_if_bldg')
+        alert_pruned.pop('only_if_bldg_mode')
+        alert_pruned.pop('recipients')
+        new_alert = AlertCondition(**alert_pruned)
+
+        # Get the related objects
+        sensor_obj = Sensor.objects.filter(sensor_id=sensor_id)[0]
+        new_alert.sensor = sensor_obj
+
+        # theoretically possible building isn't in this set of buildings
+        if alert['only_if_bldg'] is not None:
+            only_bldg_objs = Building.objects.filter(title=bldgs[alert['only_if_bldg']]['title'])
+            if len(only_bldg_objs) > 0:
+                only_bldg_obj = only_bldg_objs[0]
+                new_alert.only_if_bldg = only_bldg_obj
+            else:
+                # skip this Alert; not one of the buildings we're transferring
+                continue
+        if alert['only_if_bldg_mode'] is not None:
+            only_mode_obj = BuildingMode.objects.filter(name=modes[alert['only_if_bldg_mode']]['name'])[0]
+            new_alert.only_if_bldg_mode = only_mode_obj
+
+        new_alert.save()
+
+        # Create needed Alert Recipients and add to Alert.
+        for recip_pk in alert['recipients']:
+            recip = in_dict['alertrecipient'][recip_pk]
+            recip_obj, _ = add_object_if_missing(AlertRecipient, 'name', recip)
+            new_alert.recipients.add(recip_obj)
 # %%
