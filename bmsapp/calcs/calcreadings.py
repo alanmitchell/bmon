@@ -149,10 +149,10 @@ class CalculateReadings:
         in the 'calcParams' string.
 
         If you are using multiple existing sensor readings as inputs to the calculation function,
-        the timestamps of the calculated values are synchronized with one of the sensors. To
-        designate the sensor to be used for synchronization, append '_sync' to that parameter
-        name.  For example, to synchronize on the flow sensor in the 'fluidHeatFlow' function,
-        pass:
+        the timestamps of the calculated values are synchronized with the first sensor listed in
+        the parameter string. To designate a different sensor to be used for synchronization,
+        append '_sync' to that parameter name.  For example, to synchronize on the flow sensor in 
+        the 'fluidHeatFlow' function, pass:
             id_flow_sync: "12345"
         For the other sensor inputs, sensor values are interpolated to the timestamps of the 
         synchronized sensor.
