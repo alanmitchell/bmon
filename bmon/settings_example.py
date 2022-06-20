@@ -40,7 +40,7 @@ BMSAPP_NAV_LINKS = (('Map', 'map'),
                     ('Graphs', 'reports', True),
                     ('Energy Reports', 'energy-reports'),
                     ('Custom Reports', 'custom-reports'),
-                    ('Training', 'training-anthc'),
+                    ('Training', 'training-ahfc'),
                     ('Sys Admin', 'admin-reports'),
                     )
 
