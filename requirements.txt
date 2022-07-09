@@ -9,10 +9,12 @@ idna==2.10
 markdown==3.3.4
 metar==1.8.0
 modbus-tk==1.1.2
-numexpr==2.7.3
-numpy==1.20.1
+numexpr==2.8.1
+numpy==1.21.5
 openpyxl==3.0.7
-pandas==1.2.3
+pandas==1.4.2
+sklearn==1.0.2
+statsmodels==0.13.2
 ply==3.11
 pyasn1==0.4.8
 pycryptodomex==3.10.1
