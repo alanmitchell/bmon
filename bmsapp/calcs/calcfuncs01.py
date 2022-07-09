@@ -12,6 +12,7 @@ from . import calcreadings
 from . import internetwx
 from . import aris_web_api
 from . import sunny_portal
+from . import tank_fuel
 import bmsapp.data_util
 from bmsapp.models import Sensor, BldgToSensor
 
@@ -574,4 +575,51 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                 _logger.warning('Error calculating %s with inputs %s' % (self.calc_id, row))
 
         return ts, vals
+
+    def tankFuelUse(
+        self,                   # See Detailed Docs in tank_fuel module.
+        depth_sensor,           # Sensor ID of the fuel Depth Sensor, which should measure in inches
+        temp_sensor,            # Sensor ID of the Temperature Sensor, located in or near tank
+        tank_model=None,        # Model of tank, string. Only certain models are known
+        tank_gallons=None,      # Alternative to specifying 'tank_model': total tank capacity in gallons
+        tank_max_depth=None,    # Alternative to specifying 'tank_model': depth in inches of a full tank
+        report_hours=24,        # Hours in the time intervals of BTU/hour reported
+        fuel_btus=137452,       # BTUs/gallon of the fuel in the tank.
+        ):
+        """Calculates BTU/hour fuel use from an oil tank based on changes in depth of fuel.  
+        The 'temp_sensor' measures the temperature in the fuel or in the vicinity of the tank
+        and is used to remove temperature effects on the fuel depth measured values.
+        """
+
+        # determine the timestamp of the last entry in the database for this calculated field.
+        last_calc_rec = self.db.last_read(self.calc_id)
+        last_ts = int(last_calc_rec['ts']) if last_calc_rec else 0   # use 0 ts if no records
+        
+        # constrain this value to greater or equal to 'reach_back'
+        last_ts = max(last_ts, int(time.time() - self.reach_back))
+
+        # get data for 7 reporting intervals prior to that, so that time trends are present.
+        ts_start = last_ts - 7 * report_hours * 3600
+            # get the timezone of the first building associated with Sensor 'A'.
+
+        # Use the timezone from the first building associated with the fuel depth sensor
+        depth_sensor_obj = Sensor.objects.filter(sensor_id = depth_sensor)
+        try:
+            bl_sens_link = BldgToSensor.objects.filter(sensor=depth_sensor_obj)[0]    # First building associated with Sensor
+            tz_name = bl_sens_link.building.timezone
+            tz = pytz.timezone(tz_name)
+        except:
+            # there may be no buildings associated with the sensor; if so an error
+            # will be thrown.  For localize() method below to
+            # work, there needs to be a timezone, so default to Alaska.
+            tz = pytz.timezone('US/Alaska')
+
+        # Get a Pandas DataFrame of fuel depth and temperature data values.
+        df = self.db.dataframeForMultipleIDs(
+            [depth_sensor, temp_sensor], 
+            ['depth', 'temp'], 
+            start_ts=ts_start, 
+            tz=tz)
+
+
 
