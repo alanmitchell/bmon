@@ -265,6 +265,8 @@ def main(
     # Make a list of results DataFrames, frames being separated by fills
     list_df = []
     for df_no_fill in df_pieces:
+        if len(df_no_fill) < 3:     # need a minimum length of DataFrame
+            continue
         df_smooth = calculate_smooth_depth(df_no_fill)
         df_rpt = tank_rate_calcs(df_smooth, tank_gallons, tank_max_depth, report_hours, fuel_btus)
         list_df.append(df_rpt)
