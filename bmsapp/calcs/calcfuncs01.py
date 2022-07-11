@@ -621,5 +621,31 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             start_ts=ts_start, 
             tz=tz)
 
+        # Process the data into a list of results DataFrames
+        list_df_results = tank_fuel.main(
+            df, 
+            tank_model=tank_model,
+            tank_gallons=tank_gallons,
+            tank_max_depth=tank_max_depth,
+            report_hours=report_hours,
+            fuel_btus=fuel_btus)
+
+        # Start arrays to hold points that will be posted
+        list_ts = []
+        list_btu_hr = []
+        for dfr in list_df_results:
+            # The index of this DataFrame is in the timezone of the building (naive).
+            # Convert the index back to UTC naive.
+            dfr.index = dfr.index.tz_localize(tz).tz_convert('UTC').tz_localize(None)
+            # now convert the index back to integer Unix timestamps.
+            dfr.index = dfr.index.astype(np.int64) // 10**9
 
 
+            # use datapoint 3 and onward, unless there are less than 3 datapoints, in which case, use the 
+            # last datapoint.  Datapoints will be updated on subsequent runs of the calculated function.
+            st_ix = 2 if len(dfr) >= 3 else len(dfr) - 1
+            for ts, rec in dfr[st_ix:].iterrows():
+                list_ts.append(ts)
+                list_btu_hr.append(rec.btu_hr)
+
+        return list_ts, list_btu_hr
