@@ -12,7 +12,7 @@ from . import calcreadings
 from . import internetwx
 from . import aris_web_api
 from . import sunny_portal
-from . import tank_fuel
+from . import tank_use
 import bmsapp.data_util
 from bmsapp.models import Sensor, BldgToSensor
 
@@ -576,7 +576,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
 
         return ts, vals
 
-    def tankFuelUse(
+    def tankUse(
         self,                   # See Detailed Docs in tank_fuel module.
         depth_sensor,           # Sensor ID of the fuel Depth Sensor, which should measure in inches
         temp_sensor,            # Sensor ID of the Temperature Sensor, located in or near tank
@@ -584,11 +584,12 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         tank_gallons=None,      # Alternative to specifying 'tank_model': total tank capacity in gallons
         tank_max_depth=None,    # Alternative to specifying 'tank_model': depth in inches of a full tank
         report_hours=24,        # Hours in the time intervals of BTU/hour reported
-        fuel_btus=137452,       # BTUs/gallon of the fuel in the tank.
+        measure='btu',          # type of usage to report, btu = 'BTU/hour', gallon = 'gallon/hour'
+        fuel_btus=137452,       # BTUs/gallon of the fuel in the tank, used if 'measure'= 'btu'
         ):
-        """Calculates BTU/hour fuel use from an oil tank based on changes in depth of fuel.  
-        The 'temp_sensor' measures the temperature in the fuel or in the vicinity of the tank
-        and is used to remove temperature effects on the fuel depth measured values.
+        """Calculates BTU/hour fuel use or gallon/hour use from tank based on changes in depth of liquid.  
+        The 'temp_sensor' measures the temperature in the liquid or in the vicinity of the tank
+        and is used to remove temperature effects on the depth measured values.
         """
 
         # determine the timestamp of the last entry in the database for this calculated field.
@@ -622,7 +623,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             tz=tz)
 
         # Process the data into a list of results DataFrames
-        list_df_results = tank_fuel.main(
+        list_df_results = tank_use.main(
             df, 
             tank_model=tank_model,
             tank_gallons=tank_gallons,
@@ -632,7 +633,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
 
         # Start arrays to hold points that will be posted
         list_ts = []
-        list_btu_hr = []
+        list_usage = []
         for dfr in list_df_results:
             # The index of this DataFrame is in the timezone of the building (naive).
             # Convert the index back to UTC naive.
@@ -640,12 +641,16 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # now convert the index back to integer Unix timestamps.
             dfr.index = dfr.index.astype(np.int64) // 10**9
 
-
             # use datapoint 3 and onward, unless there are less than 3 datapoints, in which case, use the 
             # last datapoint.  Datapoints will be updated on subsequent runs of the calculated function.
             st_ix = 2 if len(dfr) >= 3 else len(dfr) - 1
             for ts, rec in dfr[st_ix:].iterrows():
                 list_ts.append(ts)
-                list_btu_hr.append(rec.btu_hr)
+                if measure.lower().startswith('btu'):
+                    list_usage.append(rec.btu_hr)
+                elif measure.lower().startswith('gal'):
+                    list_usage.append(rec.gal_hr)
+                else:
+                    raise ValueError('"measure" calculated function parameter is invalid.')
 
-        return list_ts, list_btu_hr
+        return list_ts, list_usage

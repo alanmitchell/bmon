@@ -1,5 +1,7 @@
 #!/usr/bin/env python
 # coding: utf-8
+"""Module to convert tank temperature and liquid depth readings into rate-of-use values.
+"""
 
 import pandas as pd
 from pandas.tseries.frequencies import to_offset
