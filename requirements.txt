@@ -10,7 +10,7 @@ markdown==3.3.4
 metar==1.8.0
 modbus-tk==1.1.2
 numexpr==2.8.1
-numpy==1.21.5
+numpy==1.22.0
 openpyxl==3.0.7
 pandas==1.4.2
 scikit-learn==1.0.2
