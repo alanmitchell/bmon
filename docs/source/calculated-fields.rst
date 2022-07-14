@@ -274,8 +274,111 @@ This special runtime function is also useful with Motion or Occupancy
 Sensors and 1-Wire Motor Sensors used with the `Mini-Monitor 
 <http://mini-monitor-documentation.readthedocs.io/en/latest/>`_.
 
+Calculating Rate of Use from a Liquid Tank such as Fuel Tank
+------------------------------------------------------------
+
+Sensors are available that can determine the depth of liquid in a tank.  One
+example of such a sensor is an ultrasonic distance measuring sensor mounted on
+the top of the tank looking down at the liquid in the tank.  Pressure sensors can
+be used to determine the depth of liquid in a tank. While the depth of liquid in
+the tank is a useful quantity to measure and display, it is also useful to know
+how fast the liquid is leaving the tank; i.e. the rate-of-use of the liquid.
+
+The ``tankUse`` calculated sensor function is available to create a new calculated
+sensor that shows the rate-of-use from a tank.  The function needs two sensors to
+supply the data for determining rate of use:
+
+* A sensor that reports depth of liquid in the tank in inches.  For a distance-meansuring sensor
+  mounted at the top of the tank looking downward, a sensor Transform can be entered,
+  e.g. ``39.41 - val``, that converts the distance measured to the liquid surface into a
+  liquid depth.  Determining the constant in this Transform can be done by recording a 
+  liquid depth reading from a sight glass or a dipstick at a time when a sensor reading
+  of the distance to liquid surface is available.  The 39.41 value in the prior formula was
+  determined by adding a dipstick reading of 22.25 inches to a distance-to-liquid reading of
+  17.16 inches.
+
+* A sensor that measures the temperature near the tank, or on the tank wall. Liquids expand
+  and contract with temperature, and some sensors themselves change their readings with
+  temperature, so the ``tankUse`` function uses the temperature readings to factor out
+  temperature impacts on the liquid depth measurement.
+
+The screenshot below shows a basic use of the ``tankUse`` function:
+
+.. image:: /_static/tank_use.png
+    :align: center
+
+The ``depth_sensor`` and ``temp_sensor`` parameters are required and give the Sensor IDs of
+the two sensors previously described.  The depth sensor must report inches of liquid depth.
+The temperature sensor can report in any units and be located on or near the tank (on the tank
+is most accurate.)  The ``tank_model`` parameter identifies the model of tank being measured.
+Only certain Greer tanks are known by the function, but other tanks can be modeled through
+use of tank geometry parameters described below.  As set up above, this function will report
+BTU/hour of usage from the tank, assuming the tank contains #1 Heating Oil.
+
+Here is the full list of available parameters for the function:
+
+``depth_sensor`` **Parameter, required**
+
+The Sensor ID of the liquid depth sensor, which must report in inches.
+
+``temp_sensor`` **Parameter, required**
+
+The Sensor ID fo the temperature sensor, mounted on or in the tank (most accurate) or near
+the tank.  The sensor can report in any units.
+
+``tank_model`` **Parameter, optional**
+
+The function needs to know the size and shape of the tank.  Certain models of tanks are
+known by the function, and if your tank is one of those, this parameter can be
+used to identify the tank model.  The following Above Ground Single Wall UL 142 tanks from
+Greer are known by the function; the ``tank_model`` ID is shown:
+
+* ``greer300``:  300 gallon Greer tank (horizontal, cylindrical)
+* ``greer500``:  500 gallon Greer tank (horizontal, cylindrical)
+* ``greer1000``: 1,000 gallon Green tank (horizontal, cylindrical)
+* ``greer1500``: 1,000 gallon Green tank (horizontal, cylindrical)
+
+If you do *not* specify a ``tank_model``, you must specify both a ``tank_gallons`` and
+a ``tank_max_depth`` parameter, described below.
+
+``tank_gallons`` **Parameter, optional**
+
+If ``tank_model`` is not specified, you must provide the ``tank_gallons`` parameter, giving
+the tank capacity measured in gallons.
+
+``tank_max_depth`` **Parameter, optional**
+
+If ``tank_model`` is not specified, you must provide the ``tank_max_depth`` parameter.
+The function assumes that the tank is a horizontal, cylindrical tank, and this
+``tank_max_depth`` parameter gives the liquid depth that occurs when the tank is full.
+The parameter must expressed in inches.
+
+``report_hours`` **Parameter, optional, default value: ``24``**
+
+The function reports tank usage for fixed intervals of time.  This parameter controls how
+long those intervals are.  The default value of 24 (expressed in hours) means that usage
+will be reported for daily intervals.  Given current sensor technology, it is
+recommended that ``report_hours`` values should be 24 or greater.  Sub-day resolution is
+not accurate given the temperature and noise effects experienced by tank depth sensors.
+
+``measure`` **Parameter, optional, default value: ``btu``**
+
+The function can report rate-of-use from the tank in two different units of measure: BTU/hour
+and gallons/hour.  To select BTU/hour, ``measure`` should be set to ``btu``, which is the
+default.  To select gallons/hour, ``measure`` should be set to ``gallon``.
+
+``fuel_btus`` **Parameter, optional, default value: ``137452``**
+
+If the ``measure`` selected is ``btu``, this parameter gives the number of BTUs in a gallon
+of tank fuel, defaulting to 137,452 BTUs/gallon.
+
 Storing the Raw Count Values from a Rate-of-Change Sensor
 ---------------------------------------------------------
+
+*Note*: this function is not needed with the current BMON release, as every
+counter-type sensor that uses a "rate" transform will automatically generate
+a second sensor that holds the cumulative count.  This sensor will have the
+Sensor ID of the original sensor plus the suffix "_raw".
 
 Counter type sensors generally use a Transform function to transform
 the cumulative count registered by the sensor into a rate-of-change of
