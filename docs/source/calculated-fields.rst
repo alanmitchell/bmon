@@ -323,20 +323,21 @@ The Sensor ID of the liquid depth sensor, which must report in inches.
 
 ``temp_sensor`` **Parameter, required**
 
-The Sensor ID fo the temperature sensor, mounted on or in the tank (most accurate) or near
+The Sensor ID of the temperature sensor, mounted on or in the tank (most accurate), or near
 the tank.  The sensor can report in any units.
 
 ``tank_model`` **Parameter, optional**
 
 The function needs to know the size and shape of the tank.  Certain models of tanks are
 known by the function, and if your tank is one of those, this parameter can be
-used to identify the tank model.  The following Above Ground Single Wall UL 142 tanks from
-Greer are known by the function; the ``tank_model`` ID is shown:
+used to identify the tank model.  A number of Above Ground Single Wall UL 142 tanks from
+Greer are known by the function. The ``tank_model`` ID and tank model of known tanks
+are shown below:
 
 * ``greer300``:  300 gallon Greer tank (horizontal, cylindrical)
 * ``greer500``:  500 gallon Greer tank (horizontal, cylindrical)
 * ``greer1000``: 1,000 gallon Green tank (horizontal, cylindrical)
-* ``greer1500``: 1,000 gallon Green tank (horizontal, cylindrical)
+* ``greer1500``: 1,500 gallon Green tank (horizontal, cylindrical)
 
 If you do *not* specify a ``tank_model``, you must specify both a ``tank_gallons`` and
 a ``tank_max_depth`` parameter, described below.
@@ -351,26 +352,26 @@ the tank capacity measured in gallons.
 If ``tank_model`` is not specified, you must provide the ``tank_max_depth`` parameter.
 The function assumes that the tank is a horizontal, cylindrical tank, and this
 ``tank_max_depth`` parameter gives the liquid depth that occurs when the tank is full.
-The parameter must expressed in inches.
+The parameter must be expressed in inches.
 
-``report_hours`` **Parameter, optional, default value: ``24``**
+``report_hours`` **Parameter, optional, default value:** ``24``
 
 The function reports tank usage for fixed intervals of time.  This parameter controls how
 long those intervals are.  The default value of 24 (expressed in hours) means that usage
 will be reported for daily intervals.  Given current sensor technology, it is
-recommended that ``report_hours`` values should be 24 or greater.  Sub-day resolution is
+recommended that ``report_hours`` values be set to 24 or greater.  Sub-day resolution is
 not accurate given the temperature and noise effects experienced by tank depth sensors.
 
-``measure`` **Parameter, optional, default value: ``btu``**
+``measure`` **Parameter, optional, default value:** ``btu``
 
 The function can report rate-of-use from the tank in two different units of measure: BTU/hour
 and gallons/hour.  To select BTU/hour, ``measure`` should be set to ``btu``, which is the
 default.  To select gallons/hour, ``measure`` should be set to ``gallon``.
 
-``fuel_btus`` **Parameter, optional, default value: ``137452``**
+``fuel_btus`` **Parameter, optional, default value:** ``137452``
 
 If the ``measure`` selected is ``btu``, this parameter gives the number of BTUs in a gallon
-of tank fuel, defaulting to 137,452 BTUs/gallon.
+of tank fuel, defaulting to 137,452 BTUs/gallon, which is appropriate for #1 Heating Oil.
 
 Storing the Raw Count Values from a Rate-of-Change Sensor
 ---------------------------------------------------------
