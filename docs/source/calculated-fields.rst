@@ -313,7 +313,11 @@ The temperature sensor can report in any units and be located on or near the tan
 is most accurate.)  The ``tank_model`` parameter identifies the model of tank being measured.
 Only certain Greer tanks are known by the function, but other tanks can be modeled through
 use of tank geometry parameters described below.  As set up above, this function will report
-BTU/hour of usage from the tank, assuming the tank contains #1 Heating Oil.
+daily-average BTU/hour of usage from the tank, assuming the tank contains #1 Heating Oil.
+
+Note that the most recent data points created by the function will be updated in subsequent
+runs of the function to improve accuracy.  Estimating rate-of-use from a tank has better
+accuracy when data before and after the reporting period is available.
 
 Here is the full list of available parameters for the function:
 
