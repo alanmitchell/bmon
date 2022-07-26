@@ -476,7 +476,7 @@ class BldgToSensor(models.Model):
         return self.building.title + ": " + self.sensor.title
 
     class Meta:
-        ordering = ('building__title', 'sensor_group__sort_order', 'sort_order')
+        ordering = ('building__title', 'sensor_group__sort_order', 'sort_order', 'sensor__title')
 
 
 class DashboardItem(models.Model):
