@@ -239,6 +239,12 @@ def decode_lsn50(data: bytes) -> Dict[str, Any]:
         res['humiditySHT_min'] =  data[9]
         res['humiditySHT_max'] =  data[10]
 
+    # for convenience, add a "motor" sensor value, which is just the inverse of the 
+    # "door" sensor.  This is can be used with the Analysis North Motor Sensor, and 1
+    # will indicate motor On and 0 is motor Off.
+    if 'door' in res:
+        res['motor'] = 1 if res['door'] == 0 else 0
+
     return res
 
 def test_lht65():
