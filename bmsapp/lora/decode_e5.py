@@ -43,7 +43,7 @@ def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
     elif data[0] == 4:
         # ID plus a value
         field_id = int.from_bytes(data[1:6], 'big')
-        val = int.from_bytes(x[6:], 'big')
+        val = int.from_bytes(data[6:], 'big')
         fields.append(
             (str(field_id), val)
         )
