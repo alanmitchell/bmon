@@ -32,12 +32,20 @@ def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
             ('reboot', random.random())
         )
 
-    elif data[0]  == 3:
+    elif data[0] == 3:
         # average power for an interval.
         pwr = int16(1) * 0.1    # power is given in tenths of Watt in payload
         ts_offset = -int16(3)   # timestamp offset, needs to be negative
         fields.append(
             ('power', (pwr, ts_offset))
+        )
+
+    elif data[0] == 4:
+        # ID plus a value
+        field_id = int.from_bytes(data[1:6], 'big')
+        val = int.from_bytes(x[6:], 'big')
+        fields.append(
+            (str(field_id), val)
         )
 
     return fields
