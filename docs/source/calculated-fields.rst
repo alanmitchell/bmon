@@ -354,9 +354,18 @@ the tank capacity measured in gallons.
 ``tank_max_depth`` **Parameter, optional**
 
 If ``tank_model`` is not specified, you must provide the ``tank_max_depth`` parameter.
-The function assumes that the tank is a horizontal, cylindrical tank, and this
-``tank_max_depth`` parameter gives the liquid depth that occurs when the tank is full.
+The ``tank_max_depth`` parameter gives the liquid depth that occurs when the tank is full.
 The parameter must be expressed in inches.
+
+``linear``  **Parameter, optional, default value:** ``False``
+
+If ``linear`` is set to False, the default, the tank is assumed to be a horizontal, cylindrical
+tank.  If ``linear`` is True, then the volume of liquid in the tank is assumed to be directly
+proportional to depth of liquid; this is true for vertical, cylindrical and rectangular tanks.
+In general, it is true for any tank where the horizontal cross-sectional area does not change across the
+usable height of the tank.  Note that if the ``tank_model`` parameter is entered, then the ``linear``
+parameter is forcibly set to a value consistent with the chosen ``tank_model``; a user-entered value is
+ignored.
 
 ``report_hours`` **Parameter, optional, default value:** ``24``
 

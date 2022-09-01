@@ -586,6 +586,8 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         report_hours=24,        # Hours in the time intervals of BTU/hour reported
         measure='btu',          # type of usage to report, btu = 'BTU/hour', gallon = 'gallon/hour'
         fuel_btus=137452,       # BTUs/gallon of the fuel in the tank, used if 'measure'= 'btu'
+        linear=False,           # If True, liquid volume is assumed to be linear with depth. If False, 
+                                #   tank is assumed to be a horizontal cylinder.
         ):
         """Calculates BTU/hour fuel use or gallon/hour use from tank based on changes in depth of liquid.  
         The 'temp_sensor' measures the temperature in the liquid or in the vicinity of the tank
@@ -629,7 +631,9 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             tank_gallons=tank_gallons,
             tank_max_depth=tank_max_depth,
             report_hours=report_hours,
-            fuel_btus=fuel_btus)
+            fuel_btus=fuel_btus,
+            linear=linear
+            )
 
         # Start arrays to hold points that will be posted
         list_ts = []

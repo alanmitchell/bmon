@@ -149,7 +149,14 @@ def calculate_smooth_depth(df):
 
     return dfp
 
-def tank_rate_calcs(df_input, tank_gallons, tank_max_depth, report_hours, fuel_heat_content):
+def tank_rate_calcs(
+    df_input, 
+    tank_gallons, 
+    tank_max_depth, 
+    report_hours, 
+    fuel_heat_content,
+    linear
+    ):
     """Calculates rate of fuel use from the tank across the requested reporting period.
     Assumes that the tank is a horizontal cyclindrical tank.
     Inputs are:
@@ -160,6 +167,7 @@ def tank_rate_calcs(df_input, tank_gallons, tank_max_depth, report_hours, fuel_h
         tank_max_depth:  maximum fuel depth in inches
         report_hours:    spacing of rate of fuel use values produced by this function, in hours
         fuel_heat_content: BTUs per gallon of oil in tank at 15 deg-C (59 deg-F)
+        linear: False: horizontal cylindrical tank, True: volume is linear with liquid depth.
 
     Returns a DataFrame, indexed by a timestamp placed at the center of the reporting interval, with
     the columns of 'gal_hr' (gallons per hour of fuel used from the tank), and 'btu_hr' (BTUs per 
@@ -172,8 +180,11 @@ def tank_rate_calcs(df_input, tank_gallons, tank_max_depth, report_hours, fuel_h
     # calculate normalized depth, 0 - 1.0 (fraction of full-depth), and then calculate volume of 
     # fuel from that.
     d = dff.depth / tank_max_depth
-    # Ben Loeffler developed this curve fit for a horizontal cylindrical tank.
-    dff['gallons'] = (-1.1153 * d**3 + 1.6729 * d**2 + 0.4549 * d - 0.0063) * tank_gallons
+    if linear:
+        dff['gallons'] = d * tank_gallons
+    else:
+        # Ben Loeffler developed this curve fit for a horizontal cylindrical tank.
+        dff['gallons'] = (-1.1153 * d**3 + 1.6729 * d**2 + 0.4549 * d - 0.0063) * tank_gallons
 
     # drop the depth column, no longer needed.
     dff.drop(columns=['depth'], inplace=True)
@@ -220,6 +231,7 @@ def main(
     tank_max_depth=None,    # Alternative to specifying 'tank_model': depth in inches of a full tank
     report_hours=24,        # Hours in the time intervals of BTU/hour and gallons/hour reported
     fuel_btus=137452,       # BTUs/gallon of the fuel in the tank.
+    linear=False,           # False: horizontal cylindrical tank, True: volume is linear with liquid depth.
     ):
     """Returns a list of DataFrames containing gallon/hour (column name 'gal_hr') and BTU/hour (column 
     name 'btu_hr') fuel use derived from changes in depth of fuel in a fuel tank.  Inputs are:
@@ -243,20 +255,23 @@ def main(
             given the current sensing technology.
     fuel_btus:  The number of BTUs in a gallon of fuel in the tank.  Defaults to an average number
             for #1 Heating Oil.
+    linear:  False: horizontal cylindrical tank, True: tank volume linear with depth.  Overridden if 
+            "tank_model" is provided.
     """
 
-    # dictionary mapping Tank IDs to (tank capacity in gallons, tank max fuel depth in inches)
+    # dictionary mapping Tank IDs to (tank capacity in gallons, tank max fuel depth in inches,
+    # linear parmeter: False means horizontal cylindrical, True means vertical volume linear with depth)
     tanks = {
-        'greer300': (300, 37.78),
-        'greer500': (500, 44.78),
-        'greer1000': (1000, 63.72),
-        'greer1500': (1500, 63.63),
+        'greer300': (300, 37.78, False),
+        'greer500': (500, 44.78, False),
+        'greer1000': (1000, 63.72, False),
+        'greer1500': (1500, 63.63, False),
     }
 
     # if a Tank ID is given, lookup size parameters for tank.
     if tank_model is not None:
         tmodel = tank_model.lower()
-        tank_gallons, tank_max_depth = tanks[tmodel]
+        tank_gallons, tank_max_depth, linear = tanks[tmodel]
 
     # clean up data and add ts column
     df = clean_raw_data(df_raw)
@@ -270,7 +285,7 @@ def main(
         if len(df_no_fill) < 3:     # need a minimum length of DataFrame
             continue
         df_smooth = calculate_smooth_depth(df_no_fill)
-        df_rpt = tank_rate_calcs(df_smooth, tank_gallons, tank_max_depth, report_hours, fuel_btus)
+        df_rpt = tank_rate_calcs(df_smooth, tank_gallons, tank_max_depth, report_hours, fuel_btus, linear)
         list_df.append(df_rpt)
 
     return list_df
