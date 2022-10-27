@@ -48,8 +48,11 @@ def decode(
         ts = parse(integration_payload['metadata']['time']).timestamp()
         
         # Extract the strongest SNR across the gateways that received the transmission.
-        snrs = [gtw['snr'] for gtw in integration_payload['metadata']['gateways']]
-        snr = max(snrs)
+        try:
+            snrs = [gtw['snr'] for gtw in integration_payload['metadata']['gateways']]
+            snr = max(snrs)
+        except:
+            snr = None
 
         # get payload fields if they are present
         payload_fields = integration_payload.get('payload_fields', {})
@@ -70,8 +73,12 @@ def decode(
         ts = parse(msg['received_at']).timestamp()
         
         # Extract the strongest SNR across the gateways that received the transmission.
-        snrs = [gtw['snr'] for gtw in msg['rx_metadata'] if 'snr' in gtw]
-        snr = max(snrs)
+        # SNR may not be present, so protect against that
+        try:
+            snrs = [gtw['snr'] for gtw in msg['rx_metadata'] if 'snr' in gtw]
+            snr = max(snrs)
+        except:
+            snr = None
 
         # get payload fields if they are present
         payload_fields = msg.get('decoded_payload', {})
@@ -123,25 +130,24 @@ def decode(
         elif dev_id_lwr.startswith('e5'):
             if port == 8:
                 fields = decode_e5.decode_e5(payload)
+        elif len(payload_fields) > 0:
+            # Unfamiliar sensor, so get data from already decoded payload_fields if
+            # present.
+            EXCLUDE_THINGS_FIELDS = ('event', )    # fields not to include
+            fields = payload_fields.copy()
+            for ky in EXCLUDE_THINGS_FIELDS:
+                fields.pop(ky, None)      # deletes element without an error if not there
 
     except:
-        # Failed at decoding raw payload.  Go on to see if there might be values in 
-        # the payload_fields element.
+        # Failed at decoding raw payload.
         pass
-
-    if len(fields) == 0 and len(payload_fields) > 0:
-        # get sensor data from already-decoded payload_fields
-        EXCLUDE_THINGS_FIELDS = ('event', )    # fields not to include
-        fields = payload_fields.copy()
-        for ky in EXCLUDE_THINGS_FIELDS:
-            fields.pop(ky, None)      # deletes element without an error if not there
 
     # If the 'fields' variable is a dictionary, convert it to a list of tuples at this point.
     if type(fields) == dict:
         fields = list(fields.items())
 
     # Add the SNR field on every 5th frame
-    if frame_counter % 5 == 0:
+    if frame_counter % 5 == 0 and snr is not None:
         fields.append(('snr', snr))
 
     # Delete the battery voltage (if present) except every 10th frame
