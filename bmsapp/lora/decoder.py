@@ -138,6 +138,15 @@ def decode(
             for ky in EXCLUDE_THINGS_FIELDS:
                 fields.pop(ky, None)      # deletes element without an error if not there
 
+        # sometimes people use device ID prefix that is not correct, no error occurs because the port
+        # is not correct, and we land here with values in the payload_fields but not in fields. Use
+        # the values in the payload_fields.  This fixed an ANTHC problem with a pressure sensor.
+        if len(fields) == 0 and len(payload_fields) > 0:
+            EXCLUDE_THINGS_FIELDS = ('event', )    # fields not to include
+            fields = payload_fields.copy()
+            for ky in EXCLUDE_THINGS_FIELDS:
+                fields.pop(ky, None)      # deletes element without an error if not there
+
     except:
         # Failed at decoding raw payload.
         pass
