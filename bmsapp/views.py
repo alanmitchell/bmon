@@ -26,7 +26,7 @@ from .readingdb import bmsdata
 from bmsapp.periodic_scripts import ecobee
 import bmsapp.scripts.backup_readingdb
 from .lora import decoder
-
+from . import notehub
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -495,15 +495,7 @@ def store_readings_notehub(request):
 
         if store_key_is_valid(storeKey):
 
-            # extract timestamp and device serial number
-            ts = req_data['when']
-            dev_id = req_data['device'].split(':')[1]
-
-            # loop through data fields
-            readings = []
-            for fld, val in req_data['body'].items():
-                readings.append([ts, f'{dev_id}_{fld}', val])
-
+            readings = notehub.extract_readings(req_data)
             msg = storereads.store_many({'readings': readings})
             return HttpResponse(msg)
 
