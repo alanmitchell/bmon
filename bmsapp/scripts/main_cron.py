@@ -45,6 +45,11 @@ def run():
     # which 5 minute period within in the hour, 0-11
     hr_div = int(now.minute / 5)
 
+    # once an hour, check for lingering main_cron processes and kill
+    # old ones.
+    if hr_div == 2:
+        suppress_errors(terminate_old_cron.run)
+
     # run periodic scripts.  They all run on some multiple of five minutes.
     suppress_errors(run_periodic_scripts.run)
 
@@ -68,8 +73,3 @@ def run():
     # run the sensor reading database backup every 3 days
     if (yr_day % 3) == 0 and hr == 2 and hr_div == 6:
         suppress_errors(backup_readingdb.run)
-
-    # once an hour, check for lingering main_cron processes and kill
-    # old ones.
-    if hr_div == 2:
-        suppress_errors(terminate_old_cron.run)
