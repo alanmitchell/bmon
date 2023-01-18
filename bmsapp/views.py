@@ -891,15 +891,12 @@ def delete_unassigned_sensor_ids(request):
 
 @login_required(login_url='../admin/login/')
 def alert_log(request):
-    """Shows a log of alerts that have been issued in the last 60 days.
+    """Shows a log of the last 3000 alerts in reverse chronological order.
     """
-    
-    # timestamp 60 days ago
-    ts_min = int(time.time() - 3600 * 24 * 60)
 
     db = bmsdata.BMSdata()
 
-    db.cursor.execute(f'SELECT * FROM [_alert_log] WHERE ts > {ts_min}')
+    db.cursor.execute(f'SELECT * FROM [_alert_log] ORDER BY ts DESC LIMIT 3000')
     alert_list =  [{**x,'when':time.strftime('%Y-%m-%d %H:%M',time.localtime(x['ts']))} for x in [dict(r) for r in db.cursor.fetchall()]]
 
     ctx = base_context()
