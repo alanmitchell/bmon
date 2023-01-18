@@ -36,11 +36,11 @@ def getWeatherObservation(stnCode):
 
     if obs is None:
 
-        # try 3 times in case of download errors.
-        for i in range(3):
+        # try 2 times in case of download errors.
+        for i in range(2):
             try:
                 read_str = urllib.request.urlopen(
-                    URL % stnCode).read().decode('utf-8')
+                    URL % stnCode, timeout=7.0).read().decode('utf-8')
                 break
             except:
                 # wait before retrying
@@ -82,7 +82,7 @@ def getWUobservation(stnList):
             if wu_key:
                 url = 'http://api.wunderground.com/api/%s/conditions/q/%s.json' % (
                     wu_key, urllib.parse.quote(stn))
-                json_str = urllib.request.urlopen(url).read().decode('utf-8')
+                json_str = urllib.request.urlopen(url, timeout=7.0).read().decode('utf-8')
                 obs = json.loads(json_str)
                 _wu_cache.store(stn, obs)
             else:
@@ -132,7 +132,7 @@ def getMesonetObservation(stnList):
 
             if api_token:
                 # print('URL: {}'.format(url))
-                json_str = urllib.request.urlopen(url).read().decode('utf-8')
+                json_str = urllib.request.urlopen(url, timeout=7.0).read().decode('utf-8')
                 obs = json.loads(json_str)
                 _mesonet_cache.store(stn, obs)
             else:
@@ -167,7 +167,7 @@ def getMesonetTimeseries(stnID, parameter, last_ts):
     url = 'https://api.synopticdata.com/v2/stations/timeseries?' + query_string
 
     if api_token:
-        json_str = urllib.request.urlopen(url).read().decode('utf-8')
+        json_str = urllib.request.urlopen(url, timeout=7.0).read().decode('utf-8')
         obs = json.loads(json_str)
     else:
         raise ValueError('No Mesonet API key in Settings File.')
