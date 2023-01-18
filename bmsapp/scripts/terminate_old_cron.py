@@ -17,7 +17,7 @@ def run():
     # determine the User name that is running BMON.
     this_user = getpass.getuser()
 
-    completed = subprocess.run('ps -u $USER -o pid,etimes,command', shell=True, text=True, check=False, stdout=subprocess.PIPE)
+    completed = subprocess.run(f'ps -u {this_user} -o pid,etimes,command', shell=True, text=True, check=False, stdout=subprocess.PIPE)
     for proc in completed.stdout.splitlines():
         if 'runscript main_cron' in proc:
             flds = proc.split()
