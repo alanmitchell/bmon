@@ -247,6 +247,7 @@ class AlertRecipientAdmin(admin.ModelAdmin):
     change_form_template = 'admin/AlertRecipient_change_form.html'
     list_display = ('name', 'active' )
     list_editable= ('active',)
+    search_fields = ['name', 'email_address', 'cell_number', 'pushover_id']
     fields = (
         ('active', 'name'), 
         ('notify_email', 'email_address'), 
