@@ -13,13 +13,17 @@ def extract_readings(req_data):
     # first determine the format of the Notehub message.
     if 'reading_type' in req_data:
         reading_type = req_data['reading_type']
+    elif 'pv_monitoring' in req_data['product']:
+        reading_type = 'fields_in_body'
+    elif 'tempmonitor' in req_data['product']:
+        reading_type = 'standalone'
     else:
-        reading_type = 'one_reading_set'
+        raise ValueError(f"Unknown Blues Notehub reading type, device: {req_data['best_id']}")
 
     # the list that will hold the extracted readings
     readings = []
 
-    if reading_type == 'one_reading_set':
+    if reading_type == 'fields_in_body':
         # this was the format used for Tyler's solar monitoring in Kenny Lake.
         # multiple field values are stored in the body of the request.
 
@@ -38,6 +42,17 @@ def extract_readings(req_data):
         data_compressed = base64.b64decode(req_data['readings'])
         data = bz2.decompress(data_compressed)
         readings = ast.literal_eval(data.decode('utf-8'))
+    
+    elif reading_type == 'standalone':
+        ts = req_data['when']
+        dev_id = req_data['best_id']
+        fields = []
+        if 'temp' in req_data:
+            fields.append(('temperature', req_data['temp'] * 1.8 + 32.0))
+
+        readings = []
+        for fld, val in fields:
+            readings.append([ts, f'{dev_id}_{fld}', val])
 
     else:
         raise ValueError(f'Unrecognized Notehub reading type: {reading_type}')
