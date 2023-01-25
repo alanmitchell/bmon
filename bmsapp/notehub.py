@@ -3,6 +3,7 @@
 import base64
 import bz2
 import ast
+import random
 
 def extract_readings(req_data):
     """Returns a list of sensor readings (ts, sensor_id, val) from a Notehub Route
@@ -44,11 +45,15 @@ def extract_readings(req_data):
         readings = ast.literal_eval(data.decode('utf-8'))
     
     elif reading_type == 'standalone':
+        # Notecard is operating stand-alone without microprocessor.
         ts = req_data['when']
         dev_id = req_data['best_id']
         fields = []
         if 'temp' in req_data:
             fields.append(('temperature', req_data['temp'] * 1.8 + 32.0))
+        if 'voltage' in req_data and random.random() < 0.2:
+            # add voltage voltage for 1/5 of the readings to save database space.
+            fields.append(('vdd', req_data['voltage']))
 
         readings = []
         for fld, val in fields:
