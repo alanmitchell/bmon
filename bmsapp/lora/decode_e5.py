@@ -54,12 +54,12 @@ def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
         flow_count = int.from_bytes(data[4:7], 'big')           # gallons
         temp_hot = int.from_bytes(data[7:9], 'big') / 10.0      # deg F
         temp_cold = int.from_bytes(data[9:11], 'big') / 10.0    # deg F
-        fields.append(
+        fields = [
             ('heat', heat_count),
             ('flow', flow_count),
             ('temp_hot', temp_hot),
             ('temp_cold', temp_cold)
-        )
+        ]
 
     return fields
 
