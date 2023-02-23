@@ -48,6 +48,19 @@ def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
             (str(field_id), val)
         )
 
+    elif data[0] == 5:
+        # BTU meter values
+        heat_count = int.from_bytes(data[1:4], 'big') / 10.0    # now in deg-F * gallons
+        flow_count = int.from_bytes(data[4:7], 'big')           # gallons
+        temp_hot = int.from_bytes(data[7:9], 'big') / 10.0      # deg F
+        temp_cold = int.from_bytes(data[9:11], 'big') / 10.0    # deg F
+        fields.append(
+            ('heat', heat_count),
+            ('flow', flow_count),
+            ('temp_hot', temp_hot),
+            ('temp_cold', temp_cold)
+        )
+
     return fields
 
 if __name__ == "__main__":
