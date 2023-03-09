@@ -64,7 +64,7 @@ def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
     elif data[0] == 6:
         # multi-channel counter
         channel_ct = (len(data) - 1) / 3
-        for ch in channel_ct:
+        for ch in range(channel_ct):
             ct = int.from_bytes(data[1 + ch*3 : 4 + ch*3], 'big')
             fields.append(
                 (f'count{ch}', ct)
