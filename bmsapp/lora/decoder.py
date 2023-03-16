@@ -9,6 +9,7 @@ from dateutil.parser import parse
 from . import decode_elsys
 from . import decode_dragino
 from . import decode_e5
+from . import decode_modbus
 
 def decode(
         integration_payload: Dict[str, Any],
@@ -127,6 +128,9 @@ def decode(
         elif dev_id_lwr.startswith('lsn50'):
             if port == 2:
                 fields = decode_dragino.decode_lsn50(payload)
+        elif dev_id_lwr.startswith('rs485'):
+            if port == 2:
+                fields = decode_modbus.decode(payload)
         elif dev_id_lwr.startswith('e5'):
             if port == 8:
                 fields = decode_e5.decode_e5(payload)
