@@ -19,8 +19,6 @@ The User can select the buildings to transfer from the file, or request that All
 transferred.
 '''
 # %%
-from audioop import add
-from dataclasses import field
 import os
 import sys
 import json
@@ -47,7 +45,7 @@ from bmsapp.models import DashboardItem, SensorGroup, Unit, Sensor, Building, Bl
 def find_matching(model_name, field_name, field_vals):
     """Searches the input data dictionary (in_dict at the module level) 
     for records that match certain criteria.  The primary keys of the matching 
-    records are returend in a list.
+    records are returned in a list.
     The Model searched is 'model_name'. Within those objects, the 'field_name'
     is the field that tested.  That field must have a value in the list of 
     'field_vals'.  'field_vals' can also be a scalar if only one value is
@@ -227,9 +225,16 @@ print('\nMaking Dashboard Items...')
 # make a list of (building name, sensor_id, widget type) for the
 # destination system. Remember that the reference to the Sensor for a DashboardItem
 # is actually a reference to a Bldg-to-Sensor item.
+# The exception to this is for Label Widgets, which do *not* have a Sensor object. For
+# those widgets, the created key tuple is (building name, widget title, widget type)
 dash_keys = []
 for obj in DashboardItem.objects.all():
-    dash_keys.append( (obj.building.title, obj.sensor.sensor.sensor_id, obj.widget_type) )
+    if obj.widget_type != 'label':
+        # Sometimes it's a bad dashboard item and there is no sensor
+        if obj.sensor:
+            dash_keys.append( (obj.building.title, obj.sensor.sensor.sensor_id, obj.widget_type) )
+    else:
+        dash_keys.append( (obj.building.title, obj.title, obj.widget_type) )
 
 # Find the dashboard items related to the target building set.
 dashboard_pks = find_matching('dashboarditem', 'building', target_bldgs)
@@ -237,21 +242,32 @@ for dash_pk in dashboard_pks:
     dash = in_dict['dashboarditem'][dash_pk]
 
     # if the dashboard doesn't exist, add it. First determine the key for this item.
-    sensor_id = sensors[bldg_to_sensors[dash['sensor']]['sensor']]['sensor_id']
-    dash_key = (bldgs[dash['building']]['title'], sensor_id, dash['widget_type'])
+    if dash['widget_type'] != 'label':
+        if dash['sensor']:
+            key2 = sensors[bldg_to_sensors[dash['sensor']]['sensor']]['sensor_id']
+        else:
+            # bad dashboard item, no sensor
+            continue
+    else:
+        key2 = dash['title']
+    dash_key = (bldgs[dash['building']]['title'], key2, dash['widget_type'])
+
     if dash_key not in dash_keys:
 
         # Get the associated building object. We know this exists
         bldg_obj = Building.objects.filter(title=bldgs[dash['building']]['title'])[0]
         
-        # Get sensor object, which is acutally a Building-to-Sensor Object
-        b_to_s_objs = BldgToSensor.objects.filter(building__title=bldg_obj.title, sensor__sensor_id=sensor_id)
-        if len(b_to_s_objs) > 0:
+        # Get sensor object if this is not a label, which is acutally a Building-to-Sensor Object
+        if dash['widget_type'] != 'label':
+            b_to_s_objs = BldgToSensor.objects.filter(building__title=bldg_obj.title, sensor__sensor_id=key2)
             # take first item
-            b_to_s_obj = b_to_s_objs[0]
+            if len(b_to_s_objs):
+                b_to_s_obj = b_to_s_objs[0]
+            else:
+                print(f'No sensor for Dash item: {dash}')
+                continue
         else:
-            # maybe not possible, but sensor does not exist, go on to next dashboard item
-            continue
+            b_to_s_obj = None
 
         dash_pruned = dash.copy()
         dash_pruned.pop('building')
