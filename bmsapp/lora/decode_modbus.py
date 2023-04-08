@@ -46,13 +46,15 @@ def decode_tmag(data: bytes) -> Dict[str, Any]:
     res = {}
     int16 = lambda ix: data[ix] << 8 | data[ix + 1]
 
-    res['flow'] = float_inverse(data[:4]) * 4.403     # converts m3/hr to gpm
-    res['heat_rate'] = float_inverse(data[4:8])
-    heat_total = long(data[8:12]) + float_inverse(data[12:16])
-    res['heat_total'] = heat_total / 1000.0    # in MMBTU
+    if data != b'\xFF' * len(data):    # if error or no response, data will be all 0xFF bytes
+        res['flow'] = float_inverse(data[:4]) * 4.403     # converts m3/hr to gpm
+        res['heat_rate'] = float_inverse(data[4:8])
+        
+        heat_total = long(data[8:12]) + float_inverse(data[12:16])
+        res['heat_total'] = heat_total / 1000.0    # in MMBTU
 
-    res['temperatureA'] = int16(16) * 0.18 + 32.0
-    res['temperatureB'] = int16(18) * 0.18 + 32.0
+        res['temperatureA'] = int16(16) * 0.18 + 32.0
+        res['temperatureB'] = int16(18) * 0.18 + 32.0
 
     return res
 
