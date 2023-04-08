@@ -1,3 +1,6 @@
+
+bmon.sqlite.prior
+training.json
 env/
 static/
 settings.py
