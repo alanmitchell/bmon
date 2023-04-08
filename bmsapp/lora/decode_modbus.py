@@ -27,27 +27,32 @@ def long_inverse(byte_data: bytes) -> int:
     reversed_words = byte_data[2:4] + byte_data[:2]
     return struct.unpack('>l', reversed_words)[0]
 
+def long(byte_data: bytes) -> int:
+    # Returns a 32-bit integer from the 4-byte array 'byte_data', which is
+    # formatted in the long format.
+    return struct.unpack('>l', byte_data)[0]
 
 def decode_tmag(data: bytes) -> Dict[str, Any]:
     """Decodes Spire T-Mag MODBUS payload with following structure:
     bytes 0:3 -   flow rate m3/hr, float inverse, return gallons/minute
-    bytes 4:7 -   heat rate in kW, float inverse, return BTU/hour
-    bytes 8:11 -  total heat in kWh, long inverse, combine with next and return MMBTU
-    bytes 12:15 - total heat, decimal portion, float inverse, kWh, combined with above
-    bytes 16:17 - temperature A in deg-C, unsigned 16-bit int, returned in deg-F
-    bytes 18:19 - temperature B in deg-C, unsigned 16-bit int, returned in deg-F
+    bytes 4:7 -   heat rate in kBTU/hr, float inverse, return kBTU/hour
+    bytes 8:11 -  total heat in kBTU, long (not inverse, despite manual), combine with next
+                     and return MMBTU
+    bytes 12:15 - total heat, decimal portion, float inverse, kBTU, combine with above
+    bytes 16:17 - temperature A in tenths deg-C, unsigned 16-bit int, returned in deg-F
+    bytes 18:19 - temperature B in tenths deg-C, unsigned 16-bit int, returned in deg-F
     """
     # holds the dictionary of results
     res = {}
     int16 = lambda ix: data[ix] << 8 | data[ix + 1]
 
     res['flow'] = float_inverse(data[:4]) * 4.403     # converts m3/hr to gpm
-    res['heat_rate'] = float_inverse(data[4:8]) * 3413.   # from kW to BTU/hr
-    heat_total = long_inverse(data[8:12]) + float_inverse(data[12:16])
-    res['heat_total'] = heat_total * 0.003413    # in MMBTU
+    res['heat_rate'] = float_inverse(data[4:8])
+    heat_total = long(data[8:12]) + float_inverse(data[12:16])
+    res['heat_total'] = heat_total / 1000.0    # in MMBTU
 
-    res['temperatureA'] = int16(16) * 1.8 + 32.0
-    res['temperatureB'] = int16(18) * 1.8 + 32.0
+    res['temperatureA'] = int16(16) * 0.18 + 32.0
+    res['temperatureB'] = int16(18) * 0.18 + 32.0
 
     return res
 
