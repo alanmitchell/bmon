@@ -39,7 +39,7 @@ def long(byte_data: bytes) -> int:
 
 def decode_tmag(data: bytes) -> Dict[str, Any]:
     """Decodes Spire T-Mag MODBUS payload with following structure:
-    bytes 0:3 -   flow rate m3/hr, float standard order (despite manual), return gallons/minute
+    bytes 0:3 -   flow rate gpm (manual says m3/hr), float standard order (despite manual), return gpm
     bytes 4:7 -   heat rate in kBTU/hr, float standard order (despite manual), return kBTU/hour
     bytes 8:11 -  total heat in kBTU, long (not inverse, despite manual), combine with next
                      and return MMBTU
@@ -52,7 +52,7 @@ def decode_tmag(data: bytes) -> Dict[str, Any]:
     int16 = lambda ix: data[ix] << 8 | data[ix + 1]
 
     if data != b'\xFF' * len(data):    # if error or no response, data will be all 0xFF bytes
-        res['flow'] = float_std(data[:4]) * 4.403     # converts m3/hr to gpm
+        res['flow'] = float_std(data[:4])     
         res['heat_rate'] = float_std(data[4:8])
         
         res['heat_total'] = long(data[8:12]) / 1000.0    # in MMBTU
