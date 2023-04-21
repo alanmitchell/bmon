@@ -3,6 +3,9 @@
 How to Install BMON on a Web Server
 ===================================
 
+**NOTE:** For an automated installation script that can install BMON
+on a Linux server, please see the `bmon-install GitHub Project <https://github.com/alanmitchell/bmon-install>`_.
+
 This document describes how to install the BMON application on a web
 server. The specific steps shown here apply to installation on the
 `Webfaction Hosting Service <https://www.webfaction.com/>`_, which has

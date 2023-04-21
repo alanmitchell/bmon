@@ -31,13 +31,6 @@ Please contact him before attempting an upgrade.
 The documentation for the BMON software is divided into
 three main sections, described below.
 
-:ref:`User Introduction <user-introduction>`
---------------------------------------------
-
-This section contains documentation for users who are viewing and
-analyzing the data in the system. This documentation does not address
-any issues related to installing and configuring the system.
-
 :ref:`System Administrator Introduction <system-administrator-introduction>`
 ----------------------------------------------------------------------------
 
@@ -64,14 +57,6 @@ holding the source code is `located here <https://github.com/alanmitchell/bmon>`
 Contact information for key BMON personnel and developers is available
 here.
 
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Users
-   
-   user-introduction
-   
 .. toctree::
    :maxdepth: 2
    :hidden:
