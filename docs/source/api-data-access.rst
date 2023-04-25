@@ -326,7 +326,7 @@ Request URL
 
 ::
 
-    GET /api/v1/readings/sensors/
+    GET /api/v1/sensors/
 
 Here is a sample method call requesting the sensor list from the
 BMON site accessed at ``https://bmon.analysisnorth.com``::
