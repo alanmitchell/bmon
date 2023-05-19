@@ -13,6 +13,10 @@
     #content {
         background-color: #fff;
     }
+
+    button.gm-ui-hover-effect {
+        visibility: hidden;
+    }
 </style>
 
 {% endblock %}
@@ -25,16 +29,269 @@
 
 {% block scripts %}
 
-<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAwDNzAbqTajhjNQIv5T76uCmWvVB2XzXk&sensor=false"></script>
 <script>
-  drawMap = function() {
-    var map_canvas = document.getElementById('map_canvas');
-    var map_options = {
+  (g=>{var h,a,k,p="The Google Maps JavaScript API",c="google",l="importLibrary",q="__ib__",m=document,b=window;b=b[c]||(b[c]={});var d=b.maps||(b.maps={}),r=new Set,e=new URLSearchParams,u=()=>h||(h=new Promise(async(f,n)=>{await (a=m.createElement("script"));e.set("libraries",[...r]+"");for(k in g)e.set(k.replace(/[A-Z]/g,t=>"_"+t[0].toLowerCase()),g[k]);e.set("callback",c+".maps."+q);a.src=`https://maps.${c}apis.com/maps/api/js?`+e;d[q]=f;a.onerror=()=>h=n(Error(p+" could not load."));a.nonce=m.querySelector("script[nonce]")?.nonce||"";m.head.append(a)}));d[l]?console.warn(p+" only loads once. Ignoring:",g):d[l]=(f,...n)=>r.add(f)&&u().then(()=>d[l](f,...n))})({
+    key: "AIzaSyAwDNzAbqTajhjNQIv5T76uCmWvVB2XzXk",
+    v: "quarterly",
+  });
+</script>
+<script src="https://unpkg.com/@googlemaps/markerclusterer/dist/index.min.js"></script>
+
+<script>
+  let map;
+  
+  async function drawMap() {
+    // Request libraries when needed, not in the script tag.
+    const { Map } = await google.maps.importLibrary("maps");
+
+    const grayscaleStyle = [
+      {
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#f5f5f5"
+          }
+        ]
+      },
+      {
+        "elementType": "labels.icon",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#616161"
+          }
+        ]
+      },
+      {
+        "elementType": "labels.text.stroke",
+        "stylers": [
+          {
+            "color": "#f5f5f5"
+          }
+        ]
+      },
+      {
+        "featureType": "administrative.land_parcel",
+        "elementType": "labels",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "administrative.land_parcel",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#bdbdbd"
+          }
+        ]
+      },
+      {
+        "featureType": "poi",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#eeeeee"
+          }
+        ]
+      },
+      {
+        "featureType": "poi",
+        "elementType": "labels.text",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "poi",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#757575"
+          }
+        ]
+      },
+      {
+        "featureType": "poi.business",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "poi.park",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#e5e5e5"
+          }
+        ]
+      },
+      {
+        "featureType": "poi.park",
+        "elementType": "labels.text",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "poi.park",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#9e9e9e"
+          }
+        ]
+      },
+      {
+        "featureType": "road",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#ffffff"
+          }
+        ]
+      },
+      {
+        "featureType": "road.arterial",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#757575"
+          }
+        ]
+      },
+      {
+        "featureType": "road.highway",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#dadada"
+          }
+        ]
+      },
+      {
+        "featureType": "road.highway",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#616161"
+          }
+        ]
+      },
+      {
+        "featureType": "road.local",
+        "elementType": "labels",
+        "stylers": [
+          {
+            "visibility": "off"
+          }
+        ]
+      },
+      {
+        "featureType": "road.local",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#9e9e9e"
+          }
+        ]
+      },
+      {
+        "featureType": "transit.line",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#e5e5e5"
+          }
+        ]
+      },
+      {
+        "featureType": "transit.station",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#eeeeee"
+          }
+        ]
+      },
+      {
+        "featureType": "water",
+        "elementType": "geometry",
+        "stylers": [
+          {
+            "color": "#c9c9c9"
+          }
+        ]
+      },
+      {
+        "featureType": "water",
+        "elementType": "labels.text.fill",
+        "stylers": [
+          {
+            "color": "#9e9e9e"
+          }
+        ]
+      }
+    ]
+
+    map = new Map(document.getElementById("map_canvas"), {
       center: new google.maps.LatLng(65, -155),
       zoom: 4,
-      mapTypeId: google.maps.MapTypeId.TERRAIN
+      mapTypeId: google.maps.MapTypeId.TERRAIN,
+      styles: grayscaleStyle
+    });
+
+    const infowindow = new google.maps.InfoWindow({});
+
+    const markers = []
+
+    function addMarkerListeners(marker, infowindow) {
+
+      marker.addListener('mouseover', function(e) {
+        if (marker.alerts.length > 0) {
+          let alert_list = document.createElement('ul')
+          marker.alerts.forEach((item) => {
+            let li = document.createElement("li");
+            li.innerText = item[1];
+            alert_list.appendChild(li);
+          });
+
+          let windowContent = document.createElement('div')
+          let windowTitle = document.createElement('h6')
+          windowTitle.innerText = marker.title
+          windowContent.appendChild(windowTitle)
+          windowContent.appendChild(alert_list)
+
+          infowindow.setContent(windowContent)
+          infowindow.open(map,marker);
+        }
+      });
+
+      marker.addListener('mouseout', function() {        
+        infowindow.close();
+      });
+
+      if (marker.href != undefined) {
+        marker.addListener('click', function() {        
+          window.location.href = marker.href
+        });
+      }
     }
-    var map = new google.maps.Map(map_canvas, map_options)
 
     $.getJSON('{% url "map-json" %}' + '?select_org=' + $('#select_org').val(), function(sitesJSON) {
         for (var i = 0; i < sitesJSON.features.length; i++) {
@@ -42,29 +299,89 @@
           var coords = site.geometry.coordinates;
           var latLng = new google.maps.LatLng(coords[1],coords[0]);
           var markerText = site.properties.facilityName;
-          var markerColor = 'green';
+
+          var markerColor  = '#1866a7';
           if (site.properties.message.length > 0) {
             markerText = markerText + '\n' + site.properties.message;
             markerColor = 'red';
           };
+          if (site.properties.alerts.length > 0) {
+            markerText = markerText + '\n' + site.properties.message;
+            markerColor = 'red';
+          };
+
+          const svg = window.btoa(`
+            <svg fill="${markerColor}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+              <circle cx="120" cy="120" opacity=".7" r="75" />
+              <circle cx="120" cy="120" opacity=".3" r="100" />
+              <circle cx="120" cy="120" opacity=".2" r="120" />
+              <circle cx="120" cy="120" opacity=".7" r="15" fill="white"/>
+            </svg>`);
+
           var marker = new google.maps.Marker({
             position: latLng,
             title: markerText,
             facilityID: site.properties.facilityID.toString(),
+            alerts: site.properties.alerts,
             href: site.properties.href,
             icon: {
-              path: google.maps.SymbolPath.CIRCLE,
-              fillColor: markerColor,
-              fillOpacity: .6,
-              scale: 5,
-              strokeColor: 'black',
-              strokeWeight: .5
+              url: `data:image/svg+xml;base64,${svg}`,
+              scaledSize: new google.maps.Size(20, 20),
             },
             scale: .5,
             map: map
           });
-          google.maps.event.addListener(marker, 'click', function() {window.location.href = this.href})
+
+          addMarkerListeners(marker, infowindow);
+
+          markers.push(marker);
         }
+
+        const clusterRenderer = {
+                render: ({ markers, count, position }, stats) => {
+                  // merge the alerts
+                  alerts = [].concat.apply([],markers.map(marker => marker.alerts))
+
+                  // set color based on the alerts
+                  var color = '#1866a7';
+                  if (alerts.length > 0) {
+                    color = 'red'
+                  }
+
+                  // create svg url with fill color
+                  const svg = window.btoa(`
+                  <svg fill="${color}" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 240">
+                    <circle cx="120" cy="120" opacity=".6" r="70" />
+                    <circle cx="120" cy="120" opacity=".3" r="90" />
+                    <circle cx="120" cy="120" opacity=".2" r="110" />
+                    <circle cx="120" cy="120" opacity=".1" r="130" />
+                  </svg>`);
+
+                  // create marker using svg icon
+                  const clusterMarker = new google.maps.Marker({
+                    position,
+                    icon: {
+                      url: `data:image/svg+xml;base64,${svg}`,
+                      scaledSize: new google.maps.Size(40, 40),
+                    },
+                    label: {
+                      text: String(count),
+                      color: "rgba(255,255,255,0.9)",
+                      fontSize: "11px",
+                    },
+                    title: `${count} locations (zoom in for details)`,
+                    // adjust zIndex to be above other markers
+                    zIndex: 1000 + count,
+                    alerts: alerts
+                  });
+
+                  addMarkerListeners(clusterMarker, infowindow);
+
+                  return clusterMarker;
+                  },
+            }
+
+            const markerCluster = new markerClusterer.MarkerClusterer({ map, markers, renderer: clusterRenderer });
       });
   };
   $(function() {

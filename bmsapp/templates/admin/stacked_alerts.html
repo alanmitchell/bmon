@@ -27,8 +27,8 @@
     <div class="form-row">  
       <div>
               <label for="btn_test_alert_value">Test a Value:</label>
-              <input type="number" name="alertcondition_test_value" value="0" step="any" id="alertcondition_test_value">
-              <button  type="button" id="btn_test_alert_value" onclick="testAlertValue(this.form);">Check Value</button>
+              <input type="number" name="alertcondition_{{ inline_admin_form.pk_field.field.value }}_test_value" value="0" step="any" id="alertcondition_{{ inline_admin_form.pk_field.field.value }}_test_value">
+              <button  type="button" id="btn_test_alert_value" onclick="testAlertValue({{ inline_admin_form.pk_field.field.value }},$('#alertcondition_{{ inline_admin_form.pk_field.field.value }}_test_value').val());">Check Value</button>
               <div class="help">You should 'Save' any changes first.</div>
       </div>
     </div>
@@ -49,12 +49,11 @@
     return acc;
     }, {});
 
-  function testAlertValue(currentForm) {
-    var formData = new FormData(currentForm);
+  function testAlertValue(alert_id,test_value) {
     $.post( {
         url: "/test-alert-value/", 
-        data: {'sensor': formData.get('alertcondition_set-0-sensor'),
-               'test_value': formData.get('alertcondition_test_value')},
+        data: {'sensor': alert_id,
+               'test_value': test_value},
         headers: {'X-CSRFToken': cookies['csrftoken']}
         })
     .done(function( data ) {

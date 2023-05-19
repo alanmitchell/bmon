@@ -650,7 +650,12 @@ def map_json(request):
     else:
         bldgs = models.Building.objects.all()
 
+    # Add points for each building
     for bldg in bldgs:
+        # Check for alerting sensors
+        sensor_alerts = [(alert_condx.priority, alert_condx.last_status) for alert_condx in models.AlertCondition.objects.exclude(last_status=None).filter(sensor__pk__in=[sensor.pk for sensor in bldg.sensors.all()]).all()]
+ 
+        # Add the building feature to the map json
         ret['features'].append({"type": "Feature",
                                 "geometry": {"type": "Point",
                                              "coordinates": [bldg.longitude, bldg.latitude]
@@ -658,9 +663,27 @@ def map_json(request):
                                 "properties": {"facilityName": bldg.title,
                                                "facilityID": bldg.id,
                                                "message": "",
+                                               "alerts": sensor_alerts,
                                                "href": '{}?select_org={}&select_bldg={}'.format(request.build_absolute_uri('../reports/'), org_id, bldg.id)
                                                }
                                 })
+        
+        # Add additional points for sensors that have lat/longs
+        sensors = bldg.sensors.all().exclude(latitude__isnull=True).exclude(longitude__isnull=True)
+        for sensor in sensors:
+            sensor_alerts = [(alert_condx.priority, alert_condx.last_status) for alert_condx in models.AlertCondition.objects.exclude(last_status=None).filter(sensor__pk=sensor.pk).all()]
+            # Add the sensor location to the map json
+            ret['features'].append({"type": "Feature",
+                                    "geometry": {"type": "Point",
+                                                "coordinates": [sensor.longitude, sensor.latitude]
+                                                },
+                                    "properties": {"facilityName": sensor.title,
+                                                "facilityID": bldg.id,
+                                                "message": "",
+                                                "alerts": sensor_alerts,
+                                                "href": '{}?select_org={}&select_bldg={}&select_chart=2&select_sensor_multi={}'.format(request.build_absolute_uri('../reports/'), org_id, bldg.id,sensor.id)
+                                                }
+                                    })
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
@@ -927,9 +950,9 @@ def test_alert_notifications(request):
 def test_alert_value(request):
     """Test a value to see if it triggers an alert
     """
-    sensor_id = request.POST.get('sensor')
+    alert_id = request.POST.get('sensor')
     test_value = request.POST.get('test_value')
-    alert = models.AlertCondition.objects.filter(sensor=sensor_id)[0]
+    alert = models.AlertCondition.objects.get(pk=alert_id)
     result = alert.check_condition(reading_db=None, override_value=test_value)
     if result:
         subject, msg = result

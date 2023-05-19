@@ -71,6 +71,12 @@ class Sensor(models.Model):
 
     # Adds in a notes field to the Current sensors page.
     notes = models.TextField("Please enter descriptive notes about the sensor.", default="No sensor notes available.")
+
+    # Optional, Latitude of sensor location
+    latitude = models.FloatField(default=None,null=True,blank=True)
+
+    # Optional, Longitude of sensor location
+    longitude = models.FloatField(default=None,null=True,blank=True)
     
     # if True, this field is a calculated field and is not directly created from a sensor.
     is_calculated = models.BooleanField("Calculated Field", default=False)
@@ -768,6 +774,11 @@ class AlertCondition(models.Model):
     # interface.
     last_notified = models.FloatField(default=0.0)
 
+    # the most recent result message for the alert.
+    # This is filled out when alert conditions are evaluated and is not accessible in the Admin
+    # interface.
+    last_status = models.CharField(null=True, blank=True, default=None, max_length=255)
+
     def __str__(self):
         return '%s %s %s, %s in %s mode' % \
             (self.sensor.title, self.condition, self.test_value, self.only_if_bldg, self.only_if_bldg_mode)
@@ -818,103 +829,110 @@ class AlertCondition(models.Model):
         '''
 
         if not self.active:
-            return None   # condition not active
-
-        # Make a description of the sensor that includes the building(s) it is
-        # associated with.
-        bldgs = [btos.building.title for btos in BldgToSensor.objects.filter(sensor__pk=self.sensor.pk)]
-        bldgs_str = ', '.join(bldgs)
-        sensor_desc = '%s sensor in %s' % (self.sensor.title, bldgs_str)
-
-        # get the most current reading for the sensor (last_read), and
-        # also fill out a list of all the recent readings that need to
-        # be evaluated to determine if the alert condition is true (last_reads).
-        if not override_value is None:
-            last_read = {'ts': int(time.time()), 'val': float(override_value)}
-            last_reads = [last_read]
-        elif self.read_count==1:
-            last_read = self.sensor.last_read(reading_db)  # will be None if no readings
-            last_reads = [last_read] if last_read else []
+            has_alert = False   # condition not active
         else:
-            # last_read() method returns a list when read_count is > 1.
-            last_reads = self.sensor.last_read(reading_db, self.read_count)
-            last_read = last_reads[0] if len(last_reads) else None
+            # Make a description of the sensor that includes the building(s) it is
+            # associated with.
+            bldgs = [btos.building.title for btos in BldgToSensor.objects.filter(sensor__pk=self.sensor.pk)]
+            bldgs_str = ', '.join(bldgs)
+            sensor_desc = '%s sensor in %s' % (self.sensor.title, bldgs_str)
 
-        # start the subject
-        subject = '%s Priority Alert: ' % choice_text(self.priority, AlertCondition.ALERT_PRIORITY_CHOICES)
-
-        # if the condition test is for an inactive sensor, do that test now.
-        # Do not consider the building mode test for this test.
-        if self.condition=='inactive':
-            if self.sensor.is_active(reading_db):
-                # Sensor is active, no alert
-                return None
+            # get the most current reading for the sensor (last_read), and
+            # also fill out a list of all the recent readings that need to
+            # be evaluated to determine if the alert condition is true (last_reads).
+            if not override_value is None:
+                last_read = {'ts': int(time.time()), 'val': float(override_value)}
+                last_reads = [last_read]
+            elif self.read_count==1:
+                last_read = self.sensor.last_read(reading_db)  # will be None if no readings
+                last_reads = [last_read] if last_read else []
             else:
-                # Sensor is inactive
-                if last_read:
-                    msg = 'The last reading from the %s was %.1f hours ago.' % \
-                        ( sensor_desc, (time.time() - last_read['ts'])/3600.0 )
+                # last_read() method returns a list when read_count is > 1.
+                last_reads = self.sensor.last_read(reading_db, self.read_count)
+                last_read = last_reads[0] if len(last_reads) else None
+
+            # if the condition test is for an inactive sensor, do that test now.
+            # Do not consider the building mode test for this test.
+            if self.condition=='inactive':
+                if (not reading_db is None) and self.sensor.is_active(reading_db):
+                    # Sensor is active, no alert
+                    has_alert = False
                 else:
-                    msg = 'The %s has never posted a reading.' % sensor_desc
+                    # Sensor is inactive
+                    has_alert = True
 
-                # Check for user-entered message, & use it ahead of standard message.
-                if self.alert_message.strip():
-                    user_msg = self.alert_message.strip()
-                    if user_msg[-1] != '.':
-                        user_msg += '.'
-                    msg = '%s %s' % (user_msg, msg)
+                    if last_read:
+                        msg = 'The last reading from the %s was %.1f hours ago.' % \
+                            ( sensor_desc, (time.time() - last_read['ts'])/3600.0 )
+                    else:
+                        msg = 'The %s has never posted a reading.' % sensor_desc
 
-                subject += '%s Inactive' % sensor_desc
-                return subject, msg
+                    # Check for user-entered message, & use it ahead of standard message.
+                    if self.alert_message.strip():
+                        user_msg = self.alert_message.strip()
+                        if user_msg[-1] != '.':
+                            user_msg += '.'
+                        msg = '%s %s' % (user_msg, msg)
 
-        # If there are not enough readings for this sensor, return as the
-        # alert condition is not satisfied.
-        if len(last_reads) < self.read_count:
-            return None
+                    subject = '%s Inactive' % sensor_desc
 
-        # Loop through the requested number of last readings, testing whether
-        # the alert conditions are satisfied for all the readings.
-        # First see if there was a building mode test requested and test it.
-        if self.only_if_bldg is not None:
-            if self.only_if_bldg_mode is not None and (self.only_if_bldg.current_mode != self.only_if_bldg_mode):
+            elif len(last_reads) < self.read_count:
+                # If there are not enough readings for this sensor, return as the
+                # alert condition is not satisfied.
+                has_alert = False
+
+            elif (self.only_if_bldg is not None) and (self.only_if_bldg_mode is not None) and (self.only_if_bldg.current_mode != self.only_if_bldg_mode):
                 # Failed building mode test
-                return None
-            if self.only_if_bldg_status is not None and (self.only_if_bldg.current_status(last_reads[0]['ts']) != self.only_if_bldg_status):
+                has_alert = False
+
+            elif (self.only_if_bldg is not None) and (self.only_if_bldg_status is not None) and (self.only_if_bldg.current_status(last_reads[0]['ts']) != self.only_if_bldg_status):
                 # Failed building status test
-                return None
+                has_alert = False
 
-        # Alert condition must be true for each of the requested readings
-        for read in last_reads:
-            # Evaluate the numeric test condition
-            if not eval( '%s %s %s' % (read['val'], self.condition, self.test_value) ):
-                # Failed value test
-                return None
+            elif not all([eval( '%s %s %s' % (read['val'], self.condition, self.test_value) ) for read in last_reads]):
+                # Loop through the requested number of last readings, testing whether
+                # the alert conditions are satisfied for all the readings.
+                # Alert condition must be true for each of the requested readings
+                has_alert = False
 
-        # All of the alert conditions were satisfied,
-        # return a subject and message.
+            else:
+                # All of the alert conditions were satisfied,
+                # return a subject and message.
+                has_alert = True
 
-        # Get a formatting function for sensor values
-        formatter = self.sensor.format_func()
-        condition_text = choice_text(self.condition, AlertCondition.CONDITION_CHOICES)
-        subject += '%s is %s %s' % (sensor_desc, condition_text, formatter(self.test_value))
-        if self.alert_message.strip():
-            msg = self.alert_message.strip()
-            if msg[-1] != '.':
-                msg += '.'
-            msg = '%s The current sensor reading is %s %s.' % \
-                (msg, formatter(last_read['val']), self.sensor.unit.label)
+                # Get a formatting function for sensor values
+                formatter = self.sensor.format_func()
+                condition_text = choice_text(self.condition, AlertCondition.CONDITION_CHOICES)
+                subject = '%s is %s %s' % (sensor_desc, condition_text, formatter(self.test_value))
+                if self.alert_message.strip():
+                    msg = self.alert_message.strip()
+                    if msg[-1] != '.':
+                        msg += '.'
+                    msg = '%s The current sensor reading is %s %s.' % \
+                        (msg, formatter(last_read['val']), self.sensor.unit.label)
+                else:
+                    msg = 'The %s has a current reading of %s %s, which is %s %s %s.' % \
+                        (
+                        sensor_desc,
+                        formatter(last_read['val']),
+                        self.sensor.unit.label,
+                        condition_text,
+                        formatter(self.test_value),
+                        self.sensor.unit.label
+                        )
+                    
+        if has_alert:
+            current_status = subject
+            return_value = '%s Priority Alert: ' % choice_text(self.priority, AlertCondition.ALERT_PRIORITY_CHOICES) + subject, msg
         else:
-            msg = 'The %s has a current reading of %s %s, which is %s %s %s.' % \
-                (
-                sensor_desc,
-                formatter(last_read['val']),
-                self.sensor.unit.label,
-                condition_text,
-                formatter(self.test_value),
-                self.sensor.unit.label
-                )
+            current_status = None
+            return_value = None
 
-        return subject, msg
+        if self.last_status != current_status:
+            self.last_status = current_status
+            self.save()
+
+        return return_value
 
     def wait_satisfied(self):
         '''Returns True if there has been enough wait between the last notification
