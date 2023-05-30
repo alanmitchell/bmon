@@ -276,10 +276,10 @@ class Building(models.Model):
     title = models.CharField(max_length=80, unique=True)
 
     # Latitude of building
-    latitude = models.FloatField(default=62.0)
+    latitude = models.FloatField(default=61.13)
 
     # Longitude of building
-    longitude = models.FloatField(default=-161.0)
+    longitude = models.FloatField(default=-150.63)
 
     # Fields related to the Occupied Schedule of the Facility
 
