@@ -72,7 +72,10 @@ def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
             )
 
     elif data[0] == 7:
-        # decode the temperature/switch channels 1 - 15.
+        # Decoder for Resol solar controller.  See the data collection system here:
+        # https://github.com/alanmitchell/resol-to-lora
+        
+        # Decode the temperature/switch channels 1 - 15.
         # Each channel is a 2-byte signed integer; the first channel starts as data[1].
         # If the channel is a temperature sensor, the value is in tenths of deg C;
         # a value of 8888 indicates no sensor present; do not report this channel.
