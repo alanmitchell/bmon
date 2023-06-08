@@ -2,6 +2,7 @@
 """
 from typing import Any, List, Tuple
 import random
+from struct import unpack
 
 def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
     """Decodes the payload from a custom Sensor from Analysis North using the
@@ -70,6 +71,45 @@ def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
                 (f'count{ch}', ct)
             )
 
+    elif data[0] == 7:
+        # decode the temperature/switch channels 1 - 15.
+        # Each channel is a 2-byte signed integer; the first channel starts as data[1].
+        # If the channel is a temperature sensor, the value is in tenths of deg C;
+        # a value of 8888 indicates no sensor present; do not report this channel.
+        # If the channel is a switch, the value is 9999 if open and -9999 if close. Convert
+        # open to 0 and closed to 1.
+        for i in range(1, 16):
+            val = unpack('>h', data[i*2-1:i*2+1])[0]
+            if val != 8888:
+                field_id = f'ch{i:02d}'
+                if val == 9999:
+                    val = 0
+                elif val == -9999:
+                    val = 1
+                else:
+                    # value is a temperature in tenths deg C. Convert to deg F
+                    val = val * 0.18 + 32.0
+                fields.append(
+                    (field_id, val)
+                )
+
+        # Now the irradiation sensor, W / m2 are the units
+        val = unpack('>h', data[31:33])[0]
+        if val != 8888:
+            fields.append(
+                ('solar', val)
+            )
+
+        # Now the 14 relay values, which are packed into the bits of the last two bytes
+        # of data.
+        val = int.from_bytes(data[33:35], 'big')
+        for i in range(14):
+            relay_val = (val & (1 << i)) >> i
+            field_id = f'relay{i+1:02d}'
+            fields.append(
+                (field_id, relay_val)
+            )
+
     return fields
 
 if __name__ == "__main__":
@@ -78,6 +118,7 @@ if __name__ == "__main__":
         '0100000000',
         '0100010002',
         '02',
+        '07FFF400D9D8F1270F22B822B822B822B822B822B822B822B8270F270F270F00000000'
     )
     for dta in cases:
         res = decode_e5(bytes.fromhex(dta))
