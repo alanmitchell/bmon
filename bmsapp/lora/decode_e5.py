@@ -14,6 +14,13 @@ def decode_e5(data: bytes) -> List[Tuple[str, Any]]:
 
     fields = []
 
+    # fix special case of Resol controllers.  They sometimes report an extra Hex 0 at
+    # beginning and end of data payload.
+    hex_str = data.hex()
+    if len(hex_str) == 72 and hex_str[:3] == '007':
+        # trim off first and last hex digits
+        data = bytes.fromhex(hex_str[1:-1])
+
     if data[0] == 1:
         # list of power values
         val_ct = (len(data) - 1) // 2  #  of readings
@@ -121,7 +128,8 @@ if __name__ == "__main__":
         '0100000000',
         '0100010002',
         '02',
-        '07FFF400D9D8F1270F22B822B822B822B822B822B822B822B8270F270F270F00000000'
+        '07FFF400D9D8F1270F22B822B822B822B822B822B822B822B8270F270F270F00000000',
+        '00701C00209021000AE01670175023B023C012E020500FD22B800F8011C0119010996000'
     )
     for dta in cases:
         res = decode_e5(bytes.fromhex(dta))
