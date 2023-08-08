@@ -112,7 +112,6 @@ def getMesonetTimeseries(stnID, parameter, last_ts):
 
     results = []
     for dt in rrule(DAILY, dtstart=datetime.fromtimestamp(last_ts).date(), until=datetime.utcnow().date()):
-        # print(f'{dt.year} - {dt.month} - {dt.day} - {dt.hour}')
 
         params = {'output': 'csv',
                 'stn': stnID,
@@ -133,11 +132,9 @@ def getMesonetTimeseries(stnID, parameter, last_ts):
 
     df = pd.concat(results)
 
-    # print(df)
-
     df = df[df.Station_ID == stnID]
     df['date_time'] = pd.to_datetime(df['Date_Time']).values.astype(np.int64) // 10 ** 9
-    df['air_temp_set_1'] = df['air_temp_set_1'].astype(float)
+    df[parameter + '_set_1'] = df[parameter + '_set_1'].astype(float)
 
     df = df[df.date_time > last_ts]
 
