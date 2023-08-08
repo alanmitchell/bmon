@@ -57,7 +57,8 @@ class ExportData(basechart.BaseChart):
             st_ts, end_ts = self.get_ts_range()
             df_new = self.reading_db.dataframeForOneID(sensor.sensor_id, st_ts, end_ts, self.timezone)
             if not df_new.empty:
-                df_new = bmsapp.data_util.resample_timeseries(df_new, averaging_hours)
+                if averaging_hours > 0:
+                    df_new = bmsapp.data_util.resample_timeseries(df_new, averaging_hours)
                 df_new.drop('ts', axis=1, inplace=True) # drop the timestamp column
                 df_new.rename(columns = {'val': 'col%03d' % col}, inplace = True) # rename the value column
 
