@@ -13,6 +13,11 @@ from django.conf import settings
 from metar import Metar
 from .cache import Cache
 
+import pandas as pd
+import numpy as np
+from datetime import datetime
+from dateutil.rrule import rrule, DAILY
+
 # cache for storing NWS observations
 _nws_cache = Cache()
 
@@ -96,85 +101,44 @@ def getWUobservation(stnList):
     raise ValueError("No stations with data.")
 
 
-# cache for storing Mesonet observations
-_mesonet_cache = Cache()
-
-
-def getMesonetObservation(stnList):
-    """Returns a current weather observation (dictionary) retrieved from MesonetAPI.
-    See https://developers.synopticdata.com/mesonet/ for more information.
-
-    'stnList' is a list of stations. Results will be returned only from the first
-    valid station with current data..
-    """
-
-    for stn in stnList:
-        # ignore None stations
-        if stn is None:
-            continue
-
-        # retrieve from cache, if there.
-        obs = _mesonet_cache.get(stn)
-
-        if obs is None:
-            # not in cache; download from internet.
-            api_token = getattr(settings, 'BMSAPP_MESONET_API_TOKEN', None)
-            params = {'token': api_token,
-                      'stid': stn,
-                      'vars': 'air_temp,wind_speed,relative_humidity',
-                      'units': 'english',
-                      'status': 'active',
-                      'within': 60,
-                      'timeformat': '%s'
-                      }
-            query_string = urllib.parse.urlencode(params)
-            url = 'https://api.synopticdata.com/v2/stations/latest?' + query_string
-
-            if api_token:
-                # print('URL: {}'.format(url))
-                json_str = urllib.request.urlopen(url, timeout=7.0).read().decode('utf-8')
-                obs = json.loads(json_str)
-                _mesonet_cache.store(stn, obs)
-            else:
-                raise ValueError('No Mesonet API key in Settings File.')
-
-        if 'STATION' in obs:
-            return obs['STATION'][0]['OBSERVATIONS']
-
-    # No stations were successful
-    raise ValueError(obs['SUMMARY']['RESPONSE_MESSAGE'])
-
-
 def getMesonetTimeseries(stnID, parameter, last_ts):
-    """Returns weather observations (dictionary) retrieved from MesonetAPI.
-    See https://developers.synopticdata.com/mesonet/ for more information.
+    """Returns weather observations (dictionary) retrieved from mesowest.
 
     'stnID' is the Mesonet Station ID.
+    'parameter' might include: air_temp or wind_speed or wind_gust or solar_radiation
 
-    Returns a list of timestamps and values.
+    Returns a dictionary of of timestamp and value lists.
     """
-    api_token = getattr(settings, 'BMSAPP_MESONET_API_TOKEN', None)
-    params = {'token': api_token,
-              'stid': stnID,
-              'start': time.strftime(r'%Y%m%d%H%M', time.gmtime(last_ts + 1)),
-              'end': time.strftime(r'%Y%m%d%H%M', time.gmtime()),
-              'vars': parameter,
-              'hfmetars': 0,
-              'units': 'english',
-              'timeformat': '%s'
-              }
-    query_string = urllib.parse.urlencode(params)
-    url = 'https://api.synopticdata.com/v2/stations/timeseries?' + query_string
 
-    if api_token:
-        json_str = urllib.request.urlopen(url, timeout=7.0).read().decode('utf-8')
-        obs = json.loads(json_str)
-    else:
-        raise ValueError('No Mesonet API key in Settings File.')
+    results = []
+    for dt in rrule(DAILY, dtstart=datetime.fromtimestamp(last_ts).date(), until=datetime.utcnow().date()):
+        # print(f'{dt.year} - {dt.month} - {dt.day} - {dt.hour}')
 
-    if 'STATION' in obs:
-        return obs['STATION'][0]['OBSERVATIONS']
-    else:
-        print(url)
-        print(obs)
-        raise ValueError(obs['SUMMARY']['RESPONSE_MESSAGE'])
+        params = {'output': 'csv',
+                'stn': stnID,
+                'unit': 0,
+                'daycalendar':1,
+                'hours': 1,
+                'day1': dt.day,
+                'month1': dt.month,
+                'year1': dt.year,
+                'time': 'GMT',
+                'hour1': 23,
+                'var_0': parameter,
+                }
+        url = 'https://mesowest.utah.edu/cgi-bin/droman/download_api2_handler.cgi?' + urllib.parse.urlencode(params)
+
+        df = pd.read_csv(url,comment='#')
+        results.append(df)
+
+    df = pd.concat(results)
+
+    # print(df)
+
+    df = df[df.Station_ID == stnID]
+    df['date_time'] = pd.to_datetime(df['Date_Time']).values.astype(np.int64) // 10 ** 9
+    df['air_temp_set_1'] = df['air_temp_set_1'].astype(float)
+
+    df = df[df.date_time > last_ts]
+
+    return df[['date_time',parameter + '_set_1']].to_dict(orient='list')

@@ -137,23 +137,6 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         else:
             return [], []
 
-    def getLatestMesonetObservation(self, stnList, parameter, min_val=-float("inf"), max_val=float("inf")):
-        """** No parameters are sensor reading arrays **
-
-        Returns just one record of information, timestamped with the reading time
-        """
-        obs = internetwx.getMesonetObservation(stnList)
-
-        try:
-            observed_val = float(obs[parameter + '_value_1']['value'])
-            time_val = int(obs[parameter + '_value_1']['date_time'])
-            if observed_val >= min_val and observed_val <= max_val:
-                return [time_val], [observed_val]
-            else:
-                return [], []
-        except TypeError:
-            return [], []
-
     def getAllMesonetObservations(self, stnID, parameter, min_val=-float("inf"), max_val=float("inf"), request_interval_hours=2, since=None):
         """** No parameters are sensor reading arrays **
 
@@ -176,7 +159,7 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
             # constrain this value to greater or equal to 'reach_back'
             last_ts = max(last_ts, int(time.time() - self.reach_back))
 
-        # Get the observations from the MesonetAPI
+        # Get the observations from mesowest
         obs = internetwx.getMesonetTimeseries(stnID, parameter, last_ts)
 
         obs_dict = dict(zip(obs['date_time'], obs[parameter + '_set_1']))
@@ -191,22 +174,6 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
                 pass  # Ignore values with TypeErrors
 
         return time_vals, observed_vals
-
-    def getMesonetTemperature(self, stn, stn2=None):
-        """** No parameters are sensor reading arrays **
-
-        Returns a temperature (deg F) from a Mesonet station.
-        'stn' is the primary station to use.  'stn2' is a backup station.
-        """
-        return self.getLatestMesonetObservation([stn, stn2], 'air_temp', -120.0, 150.0)
-
-    def getMesonetWindSpeed(self, stn, stn2=None):
-        """** No parameters are sensor reading arrays **
-
-        Returns a wind speed (mph) from a Mesonet station.
-        'stn' is the primary station to use.  'stn2' is a backup station.
-        """
-        return self.getLatestMesonetObservation([stn, stn2], 'wind_speed', 0.0, 150.0)
 
     def getAllMesonetTemperature(self, stn, request_interval_hours=2, since=None):
         """** No parameters are sensor reading arrays **
