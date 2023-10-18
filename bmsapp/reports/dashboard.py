@@ -136,7 +136,7 @@ class Dashboard(basechart.BaseChart):
         else: 
             footer_title = ""
             
-        html = '''<h2 id="report_title">%s Dashboard</h2>
+        html = '''<h2 id="report_title" style="text-align:center;">%s Dashboard</h2>
         <div id="dashboard" style="background: #FFFFFF"></div>
         <div style="clear:both"></div>
         <h3>%s</h3>

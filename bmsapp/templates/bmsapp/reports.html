@@ -208,37 +208,40 @@
     <div id="results" style="min-height: 550px;">
     </div>
 
-    <!-- Button to Copy Link to Embed -->
-    <div class="d-flex justify-content-end">
-        <button type="button" class="btn btn-sm btn-primary" id="get_embed_link" data-toggle="modal" data-target="#copy_link">
-            Get Link for Custom Report
-        </button>
-    </div>
+</div>
+{% endblock %}
 
-    <!-- Patterned after "Live Demo" example at https://getbootstrap.com/docs/4.0/components/modal/ -->
-    <div class="modal fade" id="copy_link" tabindex="-1" role="dialog" aria-labelledby="copy_link_label" aria-hidden="true">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="copy_link_label">Copy Link to Embed</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                <p>
-                    Copy and paste this text to embed this view in a Custom Report or any web page:
-                </p>
-                <textarea id='embed_link' rows=7 style='width: 100%;font-size: 85%;resize: vertical'></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-primary" 
-                        onclick="$('#embed_link').select(); document.execCommand('copy')">
-                    Copy to Clipboard
-                </button>
-            </div>
-            </div>
+{% block after-results %}
+<!-- Button to Copy Link to Embed -->
+<div class="d-flex justify-content-end">
+    <button type="button" class="btn btn-sm btn-primary" id="get_embed_link" data-toggle="modal" data-target="#copy_link">
+        Get Link for Custom Report
+    </button>
+</div>
+
+<!-- Patterned after "Live Demo" example at https://getbootstrap.com/docs/4.0/components/modal/ -->
+<div class="modal fade" id="copy_link" tabindex="-1" role="dialog" aria-labelledby="copy_link_label" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title" id="copy_link_label">Copy Link to Embed</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body">
+            <p>
+                Copy and paste this text to embed this view in a Custom Report or any web page:
+            </p>
+            <textarea id='embed_link' rows=7 style='width: 100%;font-size: 85%;resize: vertical'></textarea>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary" 
+                    onclick="$('#embed_link').select(); document.execCommand('copy')">
+                Copy to Clipboard
+            </button>
+        </div>
         </div>
     </div>
 </div>

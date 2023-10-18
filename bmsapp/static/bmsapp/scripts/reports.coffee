@@ -27,20 +27,32 @@ serializedInputs = ->
 update_results = ->
   $("body").css "cursor", "wait"    # show hourglass
   
+  # if this is the Dashboard chart, put results in Full Width div
+  if $("#select_chart").val() == "0"
+    results_id = "results-full-width"
+    $("#results").hide()     # it has a minimum height, so we need to hide it.
+  else
+    results_id = "results"
+    $("#results").show()
+
   # get lingering tooltips from prior result.  Hide them.
-  $('#results [data-toggle="tooltip"]').tooltip('hide')   
+  # Also, empty the two different results divs.
+  $('#results [data-toggle="tooltip"]').tooltip('hide')
+  $('#results-full-width [data-toggle="tooltip"]').tooltip('hide')
+  $("#results").empty()
+  $("#results-full-width").empty()
 
   $.getJSON($("#BaseURL").text() + "reports/results/", serializedInputs()).done((results) -> 
     # load the returned HTML into the results div, but empty first to ensure
     # event handlers, etc. are removed
     $("body").css "cursor", "default"   # remove hourglass cursor
-    $("#results").empty()
-    $("#results").html results.html
 
-    $('#results [data-toggle="tooltip"]').tooltip()
+    $("##{results_id}").html results.html
+
+    $("#" + results_id + ' [data-toggle="tooltip"]').tooltip()
 
     # apply custom settings to bmon-sensor-id elements
-    $("#results .bmon-sensor-id")
+    $("#" + results_id + " .bmon-sensor-id")
         .attr("data-toggle","tooltip")
         .attr("data-original-title", "Click to copy Sensor ID to Clipboard")
         .css("cursor","pointer")
@@ -159,6 +171,7 @@ process_chart_change = ->
   # if manual recalc, then blank out the results area to clear our remnants
   # from last chart
   $("#results").empty() if _auto_recalc == false
+  $("#results-full-width").empty() if _auto_recalc == false
 
   # the chart type changed so indicated that inputs have changed
   inputs_changed()

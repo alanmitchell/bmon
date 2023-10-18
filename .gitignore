@@ -26,4 +26,3 @@ obj/
 *.config
 *.sln
 docs/build
-static/
