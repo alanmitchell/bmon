@@ -19,14 +19,24 @@ class BldgToSensorInline(admin.TabularInline):
     '''Used in Building change form.
     '''
     model = BldgToSensor
-    extra = 1
-    fields = ('sensor', 'edit_sensor', 'sensor_group', 'sort_order')
+    extra = 0
+    fields = ('show_sensor', 'edit_sensor', 'sensor_group', 'sort_order')
+
+    def show_sensor(self, instance):
+        return format_html('<p>{}</p>', instance.sensor)
+    show_sensor.short_description = 'Sensor'
 
     def edit_sensor(self, instance):
-        url = reverse('admin:bmsapp_sensor_change', args=(instance.sensor.pk,))
-        return format_html('<a href="{}">Edit this Sensor</a>', url)
+        if instance.pk:  # Check if the instance is already saved
+            url = reverse('admin:bmsapp_sensor_change', args=[instance.sensor.pk])
+            return format_html('<a href="{}">Edit this Sensor</a>', url)
+        return 'Save to edit'
+    edit_sensor.short_description = 'Edit Sensor'
 
-    readonly_fields = ('edit_sensor',)
+    readonly_fields = ('show_sensor', 'edit_sensor',)
+
+    def has_add_permission(self, request, obj=None):
+        return False
 
 
 class BldgToSensorInline2(admin.TabularInline):
@@ -61,7 +71,7 @@ class DashboardItemInline(admin.StackedInline):
 
 @admin.register(Building)
 class BuildingAdmin(admin.ModelAdmin):
-    inlines = (BldgToSensorInline, DashboardItemInline)
+    inlines = (DashboardItemInline, BldgToSensorInline)
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 6, 'cols':80})},
     }
