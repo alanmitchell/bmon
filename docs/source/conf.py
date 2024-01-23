@@ -1,6 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-#
 # bmon documentation build configuration file, created by
 # sphinx-quickstart on Thu May 11 14:56:44 2017.
 #
