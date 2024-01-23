@@ -425,4 +425,4 @@ Do not use the red Delete button in the lower left corner of the screen
 as that will delete the entire sensor, not just the association between
 the sensor and the building. This same general approach is used when
 deleting other list items like Alerts--check the Delete box for the
-Alert and then click the Save button for the Sensor.
+Alert, and then click the Save button for the Sensor.
