@@ -130,7 +130,7 @@ def decode(
                 fields = decode_dragino.decode_lsn50(payload)
         elif dev_id_lwr.startswith('rs485'):
             if port == 2:
-                fields = decode_modbus.decode(payload)
+                fields = decode_modbus.decode(payload, payload_fields)   # may need payload_fields
         elif dev_id_lwr.startswith('e5'):
             if port == 8:
                 fields = decode_e5.decode_e5(payload)

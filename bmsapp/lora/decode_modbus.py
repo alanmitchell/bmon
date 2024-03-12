@@ -4,20 +4,29 @@
 import struct
 from typing import Dict, Any
 
-def decode(data: bytes) -> Dict[str, Any]:
+def decode(data: bytes, payload_fields: Dict[str, Any]) -> Dict[str, Any]:
     # the first byte is the Payload version and indicates what type of MODBUS
     # device is connected to the Dragino converter.
-    if data[0] == 1:
+
+    # The high bit of the payload_version indicates whether the Activate button was
+    # pressed on the RS485-LN. Remove it to determine the payload version.
+    payload_version = data[0] & 0x7F
+
+    if payload_version == 1:
         # Spire T-Mag BTU meter
         return decode_tmag(data[1:])
     
-    elif data[0] == 2:
+    elif payload_version == 2:
         # Spire EF40 BTU Meter
         return decode_ef40(data[1:])
 
-    elif data[0] == 9:
+    elif payload_version == 9:
         # PZEM Power Sensor
         return decode_pzem(data[1:])
+    
+    elif payload_version == 99:
+        # already decoded payload
+        return payload_fields
 
 def float_inverse(byte_data: bytes) -> float:
     # Returns a float value from a 4-byte array 'byte_data', which is formatted
