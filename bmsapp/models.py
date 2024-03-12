@@ -702,6 +702,23 @@ class AlertRecipient(models.Model):
 
         return msgs_sent
 
+class AlertRecipientGroup(models.Model):
+    """Defines a group of Alert Recipients. These can be assigned to individual AlertConditions
+    and all of the recipients will be notified.
+    """
+    
+    # Name of the Alert Recipient group
+    title = models.CharField(max_length=80, unique=True)
+ 
+    # The Alert Recipients that are present in this group
+    recipients = models.ManyToManyField(AlertRecipient)
+
+    def __str__(self):
+        return self.title
+
+    class Meta:
+        ordering = ['title']
+
 
 class AlertCondition(models.Model):
     '''A sensor condition that should trigger an Alert to be sent to AlertRecipient's.
