@@ -624,6 +624,9 @@ class AlertRecipient(models.Model):
     # Name of recipient 
     name = models.CharField(max_length=50)
 
+    # Notes about Recipient
+    notes = models.TextField(blank=True)
+
     # Email notification fields
     notify_email = models.BooleanField("Send Email?", default=True)
     email_address = models.EmailField(max_length=100, blank=True)
@@ -710,6 +713,9 @@ class AlertRecipientGroup(models.Model):
     # Name of the Alert Recipient group
     title = models.CharField(max_length=80, unique=True)
  
+    # Notes about Recipient Group
+    notes = models.TextField(blank=True)
+
     # The Alert Recipients that are present in this group
     recipients = models.ManyToManyField(AlertRecipient)
 

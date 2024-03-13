@@ -261,14 +261,22 @@ class AlertRecipientAdmin(admin.ModelAdmin):
     search_fields = ['name', 'email_address', 'cell_number', 'pushover_id']
     fields = (
         ('active', 'name'), 
+        ('notes',),
         ('notify_email', 'email_address'), 
         ('notify_cell', 'cell_number', 'cell_sms_gateway'),
         ('notify_pushover', 'pushover_id')
     )
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':80})},
+    }
+
 
 @admin.register(AlertRecipientGroup)
 class AlertRecipientGroupAdmin(admin.ModelAdmin):
     filter_horizontal = ('recipients',)
+    formfield_overrides = {
+        models.TextField: {'widget': Textarea(attrs={'rows':2, 'cols':80})},
+    }
 
 @admin.register(PeriodicScript)
 class SensorAdmin(admin.ModelAdmin):
