@@ -5,7 +5,7 @@ This file configures the Admin interface, which allows for editing of the Models
 from bmsapp.models import Building, Sensor, SensorGroup, BldgToSensor, DashboardItem, Unit
 from bmsapp.models import MultiBuildingChart, ChartBuildingInfo, CustomReport
 from bmsapp.models import Organization, BuildingGroup, BuildingMode
-from bmsapp.models import AlertCondition, AlertRecipient, PeriodicScript
+from bmsapp.models import AlertCondition, AlertRecipient, AlertRecipientGroup, PeriodicScript
 from bmsapp.models import FuelRate, ElectricRate
 from django.contrib import admin
 from django.forms import TextInput, Textarea
@@ -102,7 +102,7 @@ class AlertAdminInline(admin.StackedInline):
     model = AlertCondition
     template = "admin/stacked_alerts.html"
     extra = 0
-    filter_horizontal = ('recipients',)
+    filter_horizontal = ('recipients', 'recipient_groups')
 
     fieldsets = (
         (None, {'fields': ( ('active', 'sensor'),
@@ -110,7 +110,8 @@ class AlertAdminInline(admin.StackedInline):
                             ('only_if_bldg', 'only_if_bldg_mode','only_if_bldg_status'),
                             ('alert_message',),
                             ('priority', 'wait_before_next'),
-                            ('recipients',)
+                            ('recipients',),
+                            ('recipient_groups',)
                           )}
         ),
     )
@@ -264,6 +265,10 @@ class AlertRecipientAdmin(admin.ModelAdmin):
         ('notify_cell', 'cell_number', 'cell_sms_gateway'),
         ('notify_pushover', 'pushover_id')
     )
+
+@admin.register(AlertRecipientGroup)
+class AlertRecipientGroupAdmin(admin.ModelAdmin):
+    filter_horizontal = ('recipients',)
 
 @admin.register(PeriodicScript)
 class SensorAdmin(admin.ModelAdmin):

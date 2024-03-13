@@ -786,6 +786,9 @@ class AlertCondition(models.Model):
     # the recipients who should receive this alert
     recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?', blank=True)
 
+    # The recipient groups who should receive this alert
+    recipient_groups = models.ManyToManyField(AlertRecipientGroup, verbose_name='Recipient Groups who should be notified', blank=True)
+
     # when the last notification of this alert condition was sent out, Unix timestamp.
     # This is filled out when alert conditions are evaluated and is not accessible in the Admin
     # interface.
@@ -814,15 +817,26 @@ class AlertCondition(models.Model):
                 subject_msg =  None
             else:
                 subject_msg = self.check_condition(reading_db)
+
             if subject_msg:
                 alert_count = 1
                 subject, msg = subject_msg
                 msg_count = 0  # tracks # of successful messages sent
-                for recip in self.recipients.all():
+
+                # create a list of recipients from the recipients and recipient groups
+                # associated with this alert.
+                recips = [r for r in self.recipients.all()]   # directly identified recipients
+                for grp in self.recipient_groups.all():
+                    for r in grp.recipients.all():
+                        recips.append(r)
+                
+                # convert list to a set, which filters out duplicates
+                for recip in set(recips):
                     try:
                         msg_count += recip.notify(subject, msg, self.priority)
                     except:
                         logger.exception('Error notifying recipient %s of an alert.' % recip)
+
                 if msg_count and (not testing):
                     # at least one message was sent so update the field tracking the timestamp
                     # of the last notification for this condition.
