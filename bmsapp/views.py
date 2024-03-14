@@ -857,30 +857,24 @@ def delete_sensor_values(request):
 def unassigned_sensors(request):
     """Shows sensors that are in the Reading Database but not assigned to a building.
     """
-    import time
-    st = time.time()
     db = bmsdata.BMSdata()
     sensors_in_db = set(db.sensor_id_list())
     sensors_in_gui = set([s.sensor_id for s in models.Sensor.objects.all()])
     unassigned = sensors_in_db - sensors_in_gui
     unassigned_recs = []
     for sens_id in unassigned:
-        sensor_info = {'id': sens_id, 'title': '',
-                       'cur_value': '', 'minutes_ago': ''}
+        sensor_info = {'id': sens_id, 'cur_value': '', 'minutes_ago': ''}
 
         last_read = db.last_read(sens_id)
         if last_read:
             val = last_read['val']
-            sensor_info['cur_value'] = '%.5g' % val if abs(
-                val) < 1e5 else str(val)
-            sensor_info['minutes_ago'] = '%.1f' % (
-                (time.time() - last_read['ts'])/60.0)
+            sensor_info['cur_value'] = '%.5g' % val if abs(val) < 1e5 else str(val)
+            sensor_info['minutes_ago'] = '%.1f' % ((time.time() - last_read['ts'])/60.0)
 
         unassigned_recs.append(sensor_info)
 
     ctx = base_context()
     ctx.update({'sensor_list': unassigned_recs})
-    print(f'Unassigned Sensor: {time.time() - st:.2f} seconds')
     return render_to_response('bmsapp/unassigned-sensors.html', ctx)
 
 

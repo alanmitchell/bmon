@@ -2,7 +2,7 @@
 
 {% block pagetitle %}Unassigned Sensors{% endblock %}
 
-{% block title %}Sensors not Assigned to a Building{% endblock %}
+{% block title %}Unassigned Sensors{% endblock %}
 
 {% block content %}
 
@@ -109,7 +109,6 @@
             <th  scope="col" class="text-center">Sensor ID</th>
             <th  scope="col" class="text-center">Last Reading</th>
             <th  scope="col" class="text-center">Minutes Ago</th>
-            <th  scope="col" class="text-center">Sensor Name, if available</th>
         </tr></thead>
         <tbody style="background-color: white">
         {% for sensor in sensor_list %}
@@ -118,7 +117,6 @@
                 <td class="bmon-sensor-id">{{ sensor.id }}</td>
                 <td class="text-right px-4">{{ sensor.cur_value }}</td>
                 <td>{{ sensor.minutes_ago }}</td>
-                <td>{{ sensor.title }}</td>
             </tr>
         {% endfor %}
         </tbody>
