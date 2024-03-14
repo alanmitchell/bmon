@@ -63,8 +63,10 @@ def run():
     suppress_errors(check_alerts.run)
 
     # run the daily status script 5 minutes after midnight each day
-    if hr == 0 and hr_div == 1:
-        suppress_errors(daily_status.run)
+    # ** Decided to eliminate this because it is CPU intensive and it is buried
+    # in the log file.
+    #if hr == 0 and hr_div == 1:
+    #    suppress_errors(daily_status.run)
 
     # run the Django DB backup every day
     if hr == 2 and hr_div == 6:
