@@ -7,6 +7,11 @@ from os.path import join, dirname, abspath
 # We need values from the user's settings file, so import it
 from . import settings
 
+# This needs to be high enough to support deleting a large number (all)
+# of the Unassigned Sensors.  For ANTHC in May 2024 that was 6,500.  If
+# you don't set this value, it defaults to 1,000.
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 15000
+
 # Name of this Django project.  Note that if you change this from bmon, you will also
 # have to change values in the manage.py, wsgi.py, and appache2/conf/httpd.conf files.
 BMSAPP_PROJ_NAME = 'bmon'
