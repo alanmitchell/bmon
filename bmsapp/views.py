@@ -885,16 +885,19 @@ def delete_unassigned_sensor_ids(request):
     try:
         row_ids = request.POST.getlist('row_ids[]')
         db = bmsdata.BMSdata()
+        delete_count = 0
         for sensor_id in row_ids:
-            db.cursor.execute(f'DROP TABLE [{sensor_id}]')
-            qs = models.Sensor.objects.filter(sensor_id=sensor_id)
-            if len(qs) > 0:
-                qs[0].delete()
+            try:
+                db.cursor.execute(f'DROP TABLE [{sensor_id}]')
+                db.remove_from_sensor_id_lists(sensor_id)
+                delete_count += 1
+            except:
+                pass
         db.conn.commit()
     except Exception as e:
         return HttpResponse(e, status=500)
-
-    return HttpResponse(f'Deleted {len(row_ids)} unassigned sensors')
+    
+    return HttpResponse(f'Deleted {delete_count} unassigned sensors')
 
 @login_required(login_url='../admin/login/')
 def alert_log(request):

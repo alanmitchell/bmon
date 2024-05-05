@@ -24,6 +24,20 @@ DEFAULT_DB = os.path.join(os.path.dirname(__file__), 'data', 'bms_data.sqlite')
 
 class BMSdata:
 
+    def add_to_sensor_id_lists(self, sensor_id):
+        """Add `sensor_id` to the two sets tracking sensor ids.
+        """
+        self.sensor_ids.add(sensor_id)
+        self.sensor_ids_lower.add(sensor_id.lower())
+
+    def remove_from_sensor_id_lists(self, sensor_id):
+        """ Remove `sensor_id` from the two sets tracking sensor ids.
+        """
+        if sensor_id in self.sensor_ids:
+            self.sensor_ids.remove(sensor_id)
+        if sensor_id.lower() in self.sensor_ids_lower:
+            self.sensor_ids_lower.remove(sensor_id.lower())
+
     def __init__(self, fname=DEFAULT_DB):
         """Creates the database object.
         fname: full path to SQLite database file. If the file is not present, 
@@ -32,7 +46,7 @@ class BMSdata:
 
         self.db_fname = fname   # save database filename.
 
-        self.conn = sqlite3.connect(fname)
+        self.conn = sqlite3.connect(self.db_fname)
 
         # use the SQLite Row row_factory for all Select queries
         self.conn.row_factory = sqlite3.Row
@@ -46,6 +60,9 @@ class BMSdata:
         # database.
         recs = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
         self.sensor_ids = set([rec['name'] for rec in recs])  # plus special tables
+
+        # because SQLite has case insensitive table names, make a sensor ID set with lower-case names
+        self.sensor_ids_lower = {tbl.lower() for tbl in self.sensor_ids}
         
         # Check to see if the table that stores last raw reading for cumulative
         # counter sensors exists.  If not, make it.  Make the value field a 
@@ -54,7 +71,7 @@ class BMSdata:
         if '_last_raw' not in self.sensor_ids:
             self.cursor.execute("CREATE TABLE [_last_raw] (id varchar(50) primary key, ts integer, val real)")
             self.conn.commit()
-            self.sensor_ids.add('_last_raw')
+            self.add_to_sensor_id_lists('_last_raw')
 
         # Check to see if the table that stores alert log records exists.
         # If not, make it.  Make the value field a 
@@ -63,10 +80,7 @@ class BMSdata:
         if '_alert_log' not in self.sensor_ids:
             self.cursor.execute("CREATE TABLE [_alert_log] (id varchar(50), ts integer, message varchar(255))")
             self.conn.commit()
-            self.sensor_ids.add('_alert_log')
-
-        # because SQLite has case insensitive table names, make a sensor ID set with lower-case names
-        self.sensor_ids_lower = {tbl.lower() for tbl in self.sensor_ids}
+            self.add_to_sensor_id_lists('_alert_log')
 
     def __del__(self):
         """Used to ensure that database is closed when this object is destroyed.
@@ -91,8 +105,7 @@ class BMSdata:
         """
         self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % sensor_id)
         self.conn.commit()
-        self.sensor_ids.add(sensor_id)
-        self.sensor_ids_lower.add(sensor_id.lower())
+        self.add_to_sensor_id_lists(sensor_id)
 
     def insert_reading(self, ts, id, val):
         """Inserts a record or records into the database.  'ts', 'id', and
@@ -181,7 +194,12 @@ class BMSdata:
         if not self.sensor_id_exists(sensor_id):
             return None
 
-        self.cursor.execute('SELECT * FROM [%s] ORDER BY ts DESC LIMIT %s' % (sensor_id, read_count))
+        try:
+            self.cursor.execute('SELECT * FROM [%s] ORDER BY ts DESC LIMIT %s' % (sensor_id, read_count))
+        except:
+            # just in case sensor_id list is wrong for some reason and query throws an error.
+            return None
+        
         if read_count==1:
             row = self.cursor.fetchone()
             return dict(row) if row else None
@@ -338,7 +356,7 @@ class BMSdata:
     def sensor_id_list(self):
         """Returns a list of Sensor IDs that are present in the Reading
         database.  The returned list is sorted by ID.  This includes unassigned sensors
-        (sensors that are in the Django Sensor object list.
+        (sensors that are not in the Django Sensor object list.
         """
         # Don't return IDs that start with underbar.
         id_list = [sens_id for sens_id in self.sensor_ids if sens_id[0]!='_']
