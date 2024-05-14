@@ -26,6 +26,9 @@ def run():
     total_true_alerts = 0
     
     for condx in AlertCondition.objects.all():
-        total_true_alerts += condx.handle(reading_db, logger)
+        # Only send alerts if there are buildings associated with the
+        # alert sensor.
+        if len(condx.sensor.building_set.all()) > 0:
+            total_true_alerts += condx.handle(reading_db, logger)
 
     return total_true_alerts
