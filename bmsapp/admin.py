@@ -305,6 +305,8 @@ from django.contrib.admin.models import LogEntry
 from django.utils.html import format_html
 
 class LogEntryAdmin(admin.ModelAdmin):
+    """This adds the Change Log to the Sys Admin interface, in read-only mode.
+    """
 
     # Disable addition, deletion, and changes
     def has_add_permission(self, request):
