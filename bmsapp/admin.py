@@ -300,3 +300,43 @@ class FuelRateAdmin(admin.ModelAdmin):
 @admin.register(ElectricRate)
 class ElectricRateAdmin(admin.ModelAdmin):
     list_display = ('title',)
+
+from django.contrib.admin.models import LogEntry
+from django.utils.html import format_html
+
+class LogEntryAdmin(admin.ModelAdmin):
+
+    # Disable addition, deletion, and changes
+    def has_add_permission(self, request):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
+
+    # Make all fields read-only
+    readonly_fields = [field.name for field in LogEntry._meta.fields]
+    
+    # Customize the list display to show relevant fields
+    list_display = ('action_time', 'user', 'content_type', 'object_link', 'action_flag', 'change_message')
+    
+    # Add filters for easier navigation
+    list_filter = ('action_time', 'user', 'content_type', 'action_flag')
+    
+    # Search functionality for LogEntry
+    search_fields = ['user__username', 'object_repr', 'change_message']
+    
+    # Method to create a link to the object
+    def object_link(self, obj):
+        if obj.content_type and obj.object_id:
+            link = reverse(f'admin:{obj.content_type.app_label}_{obj.content_type.model}_change', args=[obj.object_id])
+            return format_html('<a href="{}">{}</a>', link, obj.object_repr)
+        return obj.object_repr
+
+    object_link.admin_order_field = 'object_repr'
+    object_link.short_description = 'Object'
+
+# Register the LogEntry model with the custom admin class
+admin.site.register(LogEntry, LogEntryAdmin)
