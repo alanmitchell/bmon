@@ -789,6 +789,9 @@ class AlertCondition(models.Model):
     # determines delay before notifying again about this condition.  Expressed in hours.
     wait_before_next = models.FloatField('Hours to Wait before Notifying Again', default=4.0)
 
+    # determines how many days an alert will be sent if no new sensor readings have arrived.
+    alert_timeout = models.FloatField('# of Days to Alert without a Sensor Reading Update', default=30.0)
+
     # the recipients who should receive this alert
     recipients = models.ManyToManyField(AlertRecipient, verbose_name='Who should be notified?', blank=True)
 
@@ -821,6 +824,9 @@ class AlertCondition(models.Model):
             elif time.time() < (self.last_notified + self.wait_before_next * 3600.0):
                 # if the wait time has not been satisfied, don't notify
                 subject_msg =  None
+            elif time.time() - reading_db.last_read(self.sensor.sensor_id)['ts'] > self.alert_timeout * 24. * 3600.:
+                # an alert times out if the sensor reading hasn't been updated for self.alert_timeout days.
+                subject_msg = None
             else:
                 subject_msg = self.check_condition(reading_db)
 
@@ -849,7 +855,7 @@ class AlertCondition(models.Model):
                     self.last_notified = time.time()
                     self.save()
                     # store a log of the alert
-                    reading_db.log_alert(self.sensor.sensor_id,msg)
+                    reading_db.log_alert(self.sensor.sensor_id, msg)
 
         except:
             logger.exception('Error processing alert %s')

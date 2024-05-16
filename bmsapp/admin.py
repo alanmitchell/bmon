@@ -109,7 +109,7 @@ class AlertAdminInline(admin.StackedInline):
                             ('condition', 'test_value', 'read_count'),
                             ('only_if_bldg', 'only_if_bldg_mode','only_if_bldg_status'),
                             ('alert_message',),
-                            ('priority', 'wait_before_next'),
+                            ('priority', 'wait_before_next', 'alert_timeout'),
                             ('recipients',),
                             ('recipient_groups',)
                           )}
