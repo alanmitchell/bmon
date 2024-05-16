@@ -120,6 +120,11 @@ class AlertAdminInline(admin.StackedInline):
         models.TextField: {'widget': Textarea(attrs={'rows':3, 'cols':80})},
     }
 
+    def get_readonly_fields(self, request, obj=None):
+        if not request.user.is_superuser:
+            return ["alert_timeout"]  # Make 'alert_timeout' read-only for non-superusers
+        return []
+
 
 class BuildingSensorListFilter(admin.SimpleListFilter):
     '''List Filter used to select sensors belonging to a
