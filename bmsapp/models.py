@@ -757,7 +757,15 @@ class AlertCondition(models.Model):
         (2, '2 times'),
         (3, '3 times'),
         (4, '4 times'),
-        (5, '5 times')
+        (5, '5 times'),
+        (10, '10 times'),
+        (20, '20 times'),
+        (30, '30 times'),
+        (50, '50 times'),
+        (75, '75 times'),
+        (100, '100 times'),
+        (150, '150 times'),
+        (200, '200 times')
     )
     read_count = models.PositiveSmallIntegerField('Number of times Condition must occur before alerting',
                                                   default=1, choices=READ_COUNT_CHOICES)
