@@ -1,6 +1,9 @@
 ﻿##################################################
-# Django settings for BMON project               #
+# Django settings file template for BMON project #
 ##################################################
+# This template is used by the Github bmon-install project to create a 
+# settings.py file for BMON. See: https://github.com/alanmitchell/bmon-install.
+
 import logging
 
 # ----------------- Settings Specific to the Monitoring App ----------------------
@@ -25,6 +28,15 @@ BMSAPP_TITLE_TEXT = '{{ bmon_site_title }}'
 # Header that appears at the top of every page.  Can include HTML
 # and is placed inside a <div> tag with an CSS ID of 'header'.
 BMSAPP_HEADER = '{{ bmon_site_title }}'
+
+# The following fields are used to populate the Privacy Policy and Terms & Conditions page.
+TERMS_COMPANY_NAME = '{{ terms_company_name }}'
+TERMS_ADDRESS_1 = '{{ terms_address_1 }}'
+TERMS_ADDRESS_2 = '{{ terms_address_2 }}'
+TERMS_ADDRESS_3 = '{{ terms_address_3 }}'
+TERMS_EMAIL = '{{ terms_email }}'
+TERMS_BMON_URL = '{{ terms_bmon_url }}'
+TERMS_LEGAL_JURISDICTION = '{{ terms_legal_jurisdiction }}'
 
 # Information about the Navigation links that appear at the top of each web page.
 #     First item in tuple is Text that will be shown for the link.

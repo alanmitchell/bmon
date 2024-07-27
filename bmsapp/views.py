@@ -687,6 +687,22 @@ def map_json(request):
 
     return HttpResponse(json.dumps(ret), content_type="application/json")
 
+def policies(request):
+    """Generates the Privacy Policy and Terms & Conditions Page.
+    """
+
+    ctx = base_context()
+    ctx.update({
+        'company_name': settings.TERMS_COMPANY_NAME,
+        'address_1': settings.TERMS_ADDRESS_1,
+        'address_2': settings.TERMS_ADDRESS_2,
+        'address_3': settings.TERMS_ADDRESS_3,
+        'email': settings.TERMS_EMAIL,
+        'bmon_url': settings.TERMS_BMON_URL,
+        'legal_jurisdiction': settings.TERMS_LEGAL_JURISDICTION,
+    })
+
+    return render_to_response('bmsapp/policies.html', ctx)
 
 @login_required(login_url='../admin/login/')
 def ecobee_auth(request):

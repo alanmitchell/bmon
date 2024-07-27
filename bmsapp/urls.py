@@ -67,6 +67,9 @@ urlpatterns = [
     re_path(r'^api/v2/buildings/$', views_api_v2.buildings),
     re_path(r'^api/v2/organizations/$', views_api_v2.organizations),
 
+    # Privacy Policy and Terms & Conditions
+    re_path(r'^policies/$', views.policies),
+
     # catches URLs that don't match the above patterns.  Assumes they give a template name to render.
     re_path(r'^([^.]+)/$', views.wildcard, name='wildcard'),
 ]
