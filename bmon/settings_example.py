@@ -29,6 +29,29 @@ BMSAPP_TITLE_TEXT = '{{ bmon_site_title }}'
 # and is placed inside a <div> tag with an CSS ID of 'header'.
 BMSAPP_HEADER = '{{ bmon_site_title }}'
 
+# The following email settings need to be filled out for sending out email alerts from
+# the BMON app.
+# For an article on using Gmail settings:   https://data-flair.training/blogs/django-send-email/
+# For general Django documentation on these settings, see:
+# https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-EMAIL_HOST
+
+# the SMTP server used to send mail, 'smtp.webfaction.com' or the Webfaction hosting service
+EMAIL_USE_TLS = True
+EMAIL_HOST = '{{ email_smtp_host }}'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = '{{ email_username }}'
+EMAIL_HOST_PASSWORD = '{{ email_password }}'
+# this will be the FROM for alert messages
+DEFAULT_FROM_EMAIL = '{{ email_username }}'
+# this is the FROM for error messages
+SERVER_EMAIL = '{{ email_username }}'
+
+# A Twilio Account with a Messaging Service must be set up to allow for SMS Text
+# Alerts to be sent by BMON. Below is the needed information from the account:
+TWILIO_ACCOUNT_SID = '{{ twilio_account_sid }}'
+TWILIO_AUTH_TOKEN = '{{ twilio_auth_token }}'
+TWILIO_MSG_SERVICE_SID = '{{ twilio_msg_service_sid }}'   
+
 # The following fields are used to populate the Privacy Policy and Terms & Conditions page.
 TERMS_COMPANY_NAME = '{{ terms_company_name }}'
 TERMS_ADDRESS_1 = '{{ terms_address_1 }}'
@@ -132,23 +155,6 @@ LANGUAGE_CODE = 'en-us'
 ADMINS = (
     ('{{ admin_email_name }}', '{{ admin_email_address }}'),
 )
-
-# The following email settings need to be filled out for sending out alerts from
-# the BMON app.
-# For an article on using Gmail settings:   https://data-flair.training/blogs/django-send-email/
-# For general Django documentation on these settings, see:
-# https://docs.djangoproject.com/en/2.2/ref/settings/#std:setting-EMAIL_HOST
-
-# the SMTP server used to send mail, 'smtp.webfaction.com' or the Webfaction hosting service
-EMAIL_USE_TLS = True
-EMAIL_HOST = '{{ email_smtp_host }}'
-EMAIL_PORT = 587
-EMAIL_HOST_USER = '{{ email_username }}'
-EMAIL_HOST_PASSWORD = '{{ email_password }}'
-# this will be the FROM for alert messages
-DEFAULT_FROM_EMAIL = '{{ email_username }}'
-# this is the FROM for error messages
-SERVER_EMAIL = '{{ email_username }}'
 
 # If DEBUG=True, a detailed error traceback is displayed in the browser when an error
 # occurs.  This setting should be False for production use for security reasons, but if
