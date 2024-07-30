@@ -942,7 +942,7 @@ def test_alert_notifications(request):
     try:
         recipient = request.POST.get('recipient')
         recip = models.AlertRecipient.objects.filter(id=recipient)[0]
-        result = recip.notify(subject='BMON Test Alert', message='This is a test of a BMON notification that was sent manually by an administrator.', pushover_priority='0')
+        result = recip.notify(subject='BMON Test Alert', message=f'From {settings.BMSAPP_TITLE_TEXT}: This is a test of a BMON notification that was sent manually by an administrator.', pushover_priority='0')
         if result:
             return HttpResponse(f'The test notifications have been sent.')
         else:

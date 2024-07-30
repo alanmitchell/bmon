@@ -1,6 +1,7 @@
 ﻿import time
 import json
 import logging
+import re
 from django.db import models
 from django.core.validators import RegexValidator
 from django.conf import settings
@@ -11,7 +12,7 @@ import bmsapp.formatters
 import bmsapp.schedule
 from . import sms_gateways
 import yaml
-
+import twilio.rest
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -663,21 +664,48 @@ class AlertRecipient(models.Model):
 
         email_addrs = []
         if self.notify_email:
-            email_addrs.append(self.email_address)
-        if self.notify_cell:
-            email_addrs.append('%s@%s' % (self.cell_number, self.cell_sms_gateway))
-
-        if email_addrs:
             # The FROM email address
             from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', '')
             if from_email:
                 try:
-                    if send_mail(subject, message, from_email, email_addrs):
+                    if send_mail(subject, message, from_email, [self.email_address]):
                         msgs_sent += len(email_addrs)
                 except:
                     _logger.exception('Error sending mail to alert recipients.')
             else:
                 _logger.exception('No From Email address configured in Settings file.')
+
+        if self.notify_cell:
+            # Check for Twilio information
+            account_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', '')
+            auth_token = getattr(settings, 'TWILIO_AUTH_TOKEN', '')
+            messaging_sid = getattr(settings, 'TWILIO_MSG_SERVICE_SID', '')
+            if len(account_sid) and len(auth_token) and len(messaging_sid):
+                # There is Twilio account info
+
+                # clean up the cell phone number, leaving a country code if it is present
+                raw_cell = self.cell_number
+                if raw_cell.startswith('+'):
+                    cleaned_cell = '+' + re.sub(r'\D', '', raw_cell[1:])
+                else:
+                    cleaned_cell = re.sub(r'\D', '', raw_cell)
+                # if there is no country code, assume a US number
+                if not cleaned_cell.startswith('+'):
+                    cleaned_cell = '+1' + cleaned_cell
+
+                # Send the message
+                client = twilio.rest.Client(account_sid, auth_token)
+                message = client.messages.create(
+                    messaging_service_sid=messaging_sid,
+                    body=message + ' Reply STOP to unsubscribe. Msg&Data rates may apply.',
+                    to=cleaned_cell
+                )
+                msgs_sent += 1
+
+            else:
+                _logger.exception('No Twilio Account information in Settings file. Required for SMS Text alerts.')
+
+            email_addrs.append('%s@%s' % (self.cell_number, self.cell_sms_gateway))
 
         if self.notify_pushover:
             # Get the Pushover API key out of the settings file, setting it to None
@@ -973,6 +1001,8 @@ class AlertCondition(models.Model):
                         )
                     
         if has_alert:
+            # add the source of the Alert message to the message.
+            msg = f'From {settings.BMSAPP_TITLE_TEXT}: {msg}'
             current_status = subject
             return_value = '%s Priority Alert: ' % choice_text(self.priority, AlertCondition.ALERT_PRIORITY_CHOICES) + subject, msg
         else:
