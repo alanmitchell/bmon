@@ -680,7 +680,7 @@ class AlertRecipient(models.Model):
             account_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', '')
             auth_token = getattr(settings, 'TWILIO_AUTH_TOKEN', '')
             messaging_sid = getattr(settings, 'TWILIO_MSG_SERVICE_SID', '')
-            if len(account_sid) and len(auth_token) and len(messaging_sid):
+            if account_sid and auth_token and messaging_sid:
                 # There is Twilio account info
 
                 # clean up the cell phone number, leaving a country code if it is present
