@@ -3,6 +3,7 @@
 # applying migrations and copying static files to
 # the static serving application.
 git pull
+env/bin/python -m pip install --upgrade pip
 env/bin/pip install -r requirements.txt --upgrade
 env/bin/python manage.py migrate
 env/bin/python manage.py collectstatic --noinput
