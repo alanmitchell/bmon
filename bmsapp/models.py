@@ -697,10 +697,13 @@ class AlertRecipient(models.Model):
                 client = twilio.rest.Client(account_sid, auth_token)
                 message = client.messages.create(
                     messaging_service_sid=messaging_sid,
-                    body=message + ' Reply STOP to unsubscribe. Msg&Data rates may apply.',
+                    body=f'{message} Reply STOP to unsubscribe. Msg&Data rates may apply.',
                     to=cleaned_cell
                 )
-                msgs_sent += 1
+                if message.status == 'accepted':
+                    msgs_sent += 1
+                else:
+                    _logger.exception(f'SMS Alert not Accepted: {message}')
 
             else:
                 _logger.exception('No Twilio Account information in Settings file. Required for SMS Text alerts.')
