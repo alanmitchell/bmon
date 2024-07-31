@@ -19,7 +19,6 @@ pyasn1==0.4.8
 pycryptodomex==3.10.1
 pyserial==3.5
 pysmi==0.3.4
-pysnmp==4.4.12
 pyyaml==6.0
 requests==2.31.0
 selenium==3.141.0
