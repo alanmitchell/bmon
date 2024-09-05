@@ -662,14 +662,13 @@ class AlertRecipient(models.Model):
 
         msgs_sent = 0     # tracks successful messages sent.
 
-        email_addrs = []
         if self.notify_email:
             # The FROM email address
             from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', '')
             if from_email:
                 try:
                     if send_mail(subject, message, from_email, [self.email_address]):
-                        msgs_sent += len(email_addrs)
+                        msgs_sent += 1
                 except:
                     _logger.exception('Error sending mail to alert recipients.')
             else:
@@ -707,8 +706,6 @@ class AlertRecipient(models.Model):
 
             else:
                 _logger.exception('No Twilio Account information in Settings file. Required for SMS Text alerts.')
-
-            email_addrs.append('%s@%s' % (self.cell_number, self.cell_sms_gateway))
 
         if self.notify_pushover:
             # Get the Pushover API key out of the settings file, setting it to None
