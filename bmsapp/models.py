@@ -860,7 +860,7 @@ class AlertCondition(models.Model):
             elif time.time() < (self.last_notified + self.wait_before_next * 3600.0):
                 # if the wait time has not been satisfied, don't notify
                 subject_msg =  None
-            elif time.time() - reading_db.last_read(self.sensor.sensor_id)['ts'] > self.alert_timeout * 24. * 3600.:
+            elif reading_db.last_read(self.sensor.sensor_id) and (time.time() - reading_db.last_read(self.sensor.sensor_id)['ts'] > self.alert_timeout * 24. * 3600.):
                 # an alert times out if the sensor reading hasn't been updated for self.alert_timeout days.
                 subject_msg = None
             else:
