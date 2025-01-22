@@ -986,9 +986,10 @@ from django.http import JsonResponse
 
 # Example data – in a real app, you'd query your database
 data = [
-    {"id": 1, "name": "Alice", "age": 30},
-    {"id": 2, "name": "Bob", "age": 25},
-    {"id": 3, "name": "Charlie", "age": 35},
+    {"id": 1, "name": "Alice", "age": 30, "category": "North"},
+    {"id": 2, "name": "Bob", "age": 25, "category": "South"},
+    {"id": 3, "name": "Charlie", "age": 35, "category": "North"},
+    {"id": 4, "name": "Alan", "age": 40, "category": "West"},
 ]
 
 def get_my_data(request):

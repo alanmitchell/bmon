@@ -21,6 +21,9 @@
             {title: "Name", field: "name"},
             {title: "Age",  field: "age",  width: 100},
         ],
+        layout:"fitDataTable",
+        groupBy: "category",
+        groupStartOpen: false,
         // Use Ajax to fetch data from Django view
         ajaxURL: "{% url 'get_my_data' %}",
         ajaxConfig: {
