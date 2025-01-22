@@ -980,3 +980,29 @@ def wildcard(request, template_name):
 def password_change_done(request):
     return render_to_response('registration/password_change_done.html',
                               {'user': request.user})
+
+
+from django.http import JsonResponse
+
+# Example data – in a real app, you'd query your database
+data = [
+    {"id": 1, "name": "Alice", "age": 30},
+    {"id": 2, "name": "Bob", "age": 25},
+    {"id": 3, "name": "Charlie", "age": 35},
+]
+
+def get_my_data(request):
+    """
+    Return data as JSON that Tabulator will fetch via an Ajax call.
+    """
+    # If you were using a model, you might do something like:
+    # data = list(MyModel.objects.values())
+    return JsonResponse(data, safe=False)
+
+
+def play(request):
+    """
+    Render a simple template that includes the Tabulator JavaScript
+    and sets up the table.
+    """
+    return render(request, 'bmsapp/play.html', {})

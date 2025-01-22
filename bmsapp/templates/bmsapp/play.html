@@ -1,0 +1,38 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Tabulator{% endblock %}
+
+{% block title %}Tabulator Testing{% endblock %}
+
+{% block content %}
+
+<div id="example-table"></div>
+
+<!-- Tabulator JS -->
+<link href="https://unpkg.com/tabulator-tables@latest/dist/css/tabulator.min.css" rel="stylesheet">
+<script src="https://unpkg.com/tabulator-tables@latest/dist/js/tabulator.min.js"></script>
+
+<script>
+    // Initialize Tabulator on the DOM element with id="example-table"
+    var table = new Tabulator("#example-table", {
+        // Define table columns
+        columns: [
+            {title: "ID",   field: "id",   width: 75},
+            {title: "Name", field: "name"},
+            {title: "Age",  field: "age",  width: 100},
+        ],
+        // Use Ajax to fetch data from Django view
+        ajaxURL: "{% url 'get_my_data' %}",
+        ajaxConfig: {
+            method: "GET",
+        },
+        // ajaxAutoLoad: true,
+        // Optionally define how the data is loaded
+        // e.g., parse any custom structures, etc.
+        // ajaxResponse: function(url, params, response){
+        //     return response;
+        // },
+    });
+</script>
+
+{% endblock %}

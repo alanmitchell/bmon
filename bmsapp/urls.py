@@ -70,6 +70,10 @@ urlpatterns = [
     # Privacy Policy and Terms & Conditions
     re_path(r'^policies/$', views.policies),
 
+    re_path(r'^my-data/$', views.get_my_data, name='get_my_data'),
+    re_path(r'^play/$', views.play, name='play'),
+
     # catches URLs that don't match the above patterns.  Assumes they give a template name to render.
     re_path(r'^([^.]+)/$', views.wildcard, name='wildcard'),
+
 ]
