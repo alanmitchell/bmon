@@ -74,13 +74,45 @@ class BMSdata:
             self.add_to_sensor_id_lists('_last_raw')
 
         # Check to see if the table that stores alert log records exists.
-        # If not, make it.  Make the value field a 
-        # real instead of integer in case this table is needed for non counter
-        # sensors in the future.
+        # If not, make it.
         if '_alert_log' not in self.sensor_ids:
-            self.cursor.execute("CREATE TABLE [_alert_log] (id varchar(50), ts integer, message varchar(255))")
+            create_sql = """
+CREATE TABLE [_alert_log] (
+ts INTEGER,
+alert_id INTEGER,
+sensor_id VARCHAR(50),
+message VARCHAR(255),
+building VARCHAR(80),
+recipients VARCHAR(255)
+);
+"""
+            self.cursor.execute(create_sql)
             self.conn.commit()
             self.add_to_sensor_id_lists('_alert_log')
+
+        else:
+            # There is an alert log table, but it's structure may need to be modified.
+            # Get a list of the columns in the table.
+            columns_info = self.cursor.execute("PRAGMA table_info([_alert_log]);").fetchall()
+            column_names = [column[1] for column in columns_info]
+
+            # If the 'building' column is not present, then this structure needs updating.
+            if 'building' not in column_names:
+
+                # first, rename the 'id' column to 'sensor_id'. Renames only work with
+                # SQLite versions 3.25.0+ .
+                modify_sql = "ALTER TABLE [_alert_log] RENAME COLUMN id TO sensor_id"
+                self.cursor.execute(modify_sql)
+                
+                # Add the additional columns. SQLite only allows adding one column at a time.
+                modify_sql = "ALTER TABLE [_alert_log] ADD COLUMN alert_id INTEGER;"
+                self.cursor.execute(modify_sql)
+                modify_sql = "ALTER TABLE [_alert_log] ADD COLUMN building VARCHAR(80);"
+                self.cursor.execute(modify_sql)
+                modify_sql = "ALTER TABLE [_alert_log] ADD COLUMN recipients VARCHAR(255);"
+                self.cursor.execute(modify_sql)
+                
+                self.conn.commit()
 
     def __del__(self):
         """Used to ensure that database is closed when this object is destroyed.
@@ -362,11 +394,14 @@ class BMSdata:
         id_list = [sens_id for sens_id in self.sensor_ids if sens_id[0]!='_']
         return sorted(id_list)
 
-    def log_alert(self, sensor_id, message):
+    def log_alert(self, alert_pk, sensor_id, message, bldg_title, recipient_names):
         """Stores a log of an alert nofification
         """
         ts = int(time.time())
-        self.cursor.execute("INSERT INTO [_alert_log] (id, ts, message) VALUES (?, ?, ?)", (sensor_id, ts, message))
+        self.cursor.execute(
+            "INSERT INTO [_alert_log] (ts, alert_id, sensor_id, message, building, recipients) VALUES (?, ?, ?, ?, ?, ?)", 
+            (ts, alert_pk, sensor_id, message, bldg_title, recipient_names)
+            )
         self.conn.commit()
 
 

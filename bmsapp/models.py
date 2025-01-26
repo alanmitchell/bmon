@@ -878,10 +878,13 @@ class AlertCondition(models.Model):
                     for r in grp.recipients.all():
                         recips.append(r)
                 
-                # convert list to a set, which filters out duplicates
+                # convert list to a set, which filters out duplicates, and then notify.
+                # track the names of those successfully notified.
+                recips_notified = []
                 for recip in set(recips):
                     try:
                         msg_count += recip.notify(subject, msg, self.priority)
+                        recips_notified.append(recip.name)
                     except:
                         logger.exception('Error notifying recipient %s of an alert.' % recip)
 
@@ -890,8 +893,17 @@ class AlertCondition(models.Model):
                     # of the last notification for this condition.
                     self.last_notified = time.time()
                     self.save()
+
                     # store a log of the alert
-                    reading_db.log_alert(self.sensor.sensor_id, msg)
+
+                    # Determine the building associated with this sensor.
+                    b_to_s = BldgToSensor.objects.filter(sensor=self.sensor).first()
+                    bldg_title = b_to_s.building.title if b_to_s else ''
+
+                    # Make a string with all of the Alert Recipient names
+                    recips_str = ", ".join(recips_notified)
+
+                    reading_db.log_alert(self.pk, self.sensor.sensor_id, msg, bldg_title, recips_str)
 
         except:
             logger.exception('Error processing alert %s')

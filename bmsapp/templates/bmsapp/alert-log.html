@@ -63,9 +63,9 @@
         </tr></thead>
         <tbody style="background-color: white">
         {% for alert in alert_list %}
-            <tr id="{{ alert.id }}">
+            <tr id="{{ alert.sensor_id }}">
                 <td></td>
-                <td class="bmon-sensor-id">{{ alert.id }}</td>
+                <td class="bmon-sensor-id">{{ alert.sensor_id }}</td>
                 <td>{{ alert.when }}</td>
                 <td>{{ alert.message }}</td>
             </tr>
