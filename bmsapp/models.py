@@ -732,6 +732,20 @@ class AlertRecipient(models.Model):
                 _logger.exception('No Pushover API Token Key configured in Settings file.')
 
         return msgs_sent
+    
+    def msg_mode_summary(self):
+        """Returns a short string that identifies the types of message transmissions
+        enabled for this recipient.
+        """
+        modes = ''
+        if self.notify_email:
+            modes += 'E'
+        if self.notify_cell:
+            modes += 'T'
+        if self.notify_pushover:
+            modes += 'P'
+        return modes
+
 
 class AlertRecipientGroup(models.Model):
     """Defines a group of Alert Recipients. These can be assigned to individual AlertConditions
@@ -883,8 +897,12 @@ class AlertCondition(models.Model):
                 recips_notified = []
                 for recip in set(recips):
                     try:
-                        msg_count += recip.notify(subject, msg, self.priority)
-                        recips_notified.append(recip.name)
+                        msgs_sent = recip.notify(subject, msg, self.priority)
+                        msg_count += msgs_sent
+                        if msgs_sent:
+                            # only include recipient in recipient list if at least one message was sent
+                            recip_desc = f'{recip.name} {recip.msg_mode_summary()}'
+                            recips_notified.append(recip_desc)
                     except:
                         logger.exception('Error notifying recipient %s of an alert.' % recip)
 
