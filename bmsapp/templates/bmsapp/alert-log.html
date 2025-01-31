@@ -42,9 +42,19 @@
         {title: "Day", field: "day_string", visible: false},
         {title: "Building", field: "building", visible: false},
         {title: "Time", field: "time_string"}, 
-        {title: "Message", field: "message", width: 500},
-        {title: "Recipients", field: "recipients",  width: 300},
-        {title: "Sensor ID", field: "sensor_id", width: 150}
+        {title: "Message", field: "message", width: 400},
+        {title: "Recipients", field: "recipients",  width: 250},
+        {title: "Sensor Notes", field: "sensor_notes", width: 250},
+        {
+          title: "Edit", 
+          field: "edit_url", 
+          width: 65,
+          formatter: "link",
+          formatterParams: {
+            label: "Edit Sensor",
+            target: "_blank",
+          }
+        },
       ],
       layout:"fitDataTable",
       groupBy: ["day_string", "building"],

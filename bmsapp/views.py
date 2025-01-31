@@ -950,12 +950,26 @@ ORDER BY ts DESC
     db.cursor.execute(sql)
 
     # Only return some of the columns
-    keys_to_return = ('day_string', 'building', 'time_string', 'message', 'recipients', 'sensor_id')
+    keys_to_return = ('day_string', 'building', 'time_string', 'message', 'recipients')
     alert_list = []
     for row in db.cursor.fetchall():
+
         row_dict = dict(row)
         return_dict = {k: v for k, v in row_dict.items() if k in keys_to_return}
+
+        # determine if sensor is currently alarming
         return_dict['is_alarming'] = row_dict['alert_id'] in alarming_ids
+        
+        # find the Sensor object so notes and an editing URL can be made.
+        sensor_objs = models.Sensor.objects.filter(sensor_id=row_dict['sensor_id'])
+        if len(sensor_objs):
+            sensor = sensor_objs[0]
+            return_dict['edit_url'] = f'/admin/bmsapp/sensor/{sensor.pk}/change/'
+            return_dict['sensor_notes'] = sensor.notes
+        else:
+            return_dict['edit_url'] = ''
+            return_dict['sensor_notes'] = ''
+
         alert_list.append(return_dict)
 
     return JsonResponse(alert_list, safe=False)
