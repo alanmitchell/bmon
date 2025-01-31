@@ -60,7 +60,15 @@
       ajaxConfig: {method: "GET"},
 
     });
-</script>
 
+  // When the data has been processed (and groups are built), expand the first group
+  table.on("dataProcessed", function(){
+    let dayGroups = table.getGroups();   
+    if (dayGroups.length > 0) {
+      let firstGroup = dayGroups[0];
+      firstGroup.show();               // open the first top-level group
+    }
+  });    
+</script>
 
 {% endblock %}
