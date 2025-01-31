@@ -4,11 +4,12 @@ import logging
 import json
 import random
 import time
+from datetime import datetime, timedelta
 import xml.etree.ElementTree as ET
 
 import dateutil.parser
 
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render_to_response, redirect, render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
@@ -917,17 +918,47 @@ def delete_unassigned_sensor_ids(request):
 
 @login_required(login_url='../admin/login/')
 def alert_log(request):
-    """Shows a log of the last 3000 alerts in reverse chronological order.
+    """Shows a log of Alerts that have triggered.
+    """
+    ctx = base_context()
+    return render_to_response('bmsapp/alert-log.html', ctx)
+
+@login_required(login_url='../admin/login/')
+def alert_log_data(request):
+    """Returns the data for the Alert Log table.
     """
 
+    # Determine which Alerts are currently alarming.
+    alarming_ids = set()
+    for alert in models.AlertCondition.objects.all():
+        if alert.last_status:
+            alarming_ids.add(alert.pk)
+
+    # find the Unix timestamp for the start of the day 28 days ago.
+    # Get the current local time
+    now = datetime.now()
+    start_4wks_ago = datetime(now.year, now.month, now.day) - timedelta(days=28)
+    epoch_start_4wks_ago = int(time.mktime(start_4wks_ago.timetuple()))
+
     db = bmsdata.BMSdata()
+    sql = f"""
+SELECT *, strftime('%Y-%m-%d', ts, 'unixepoch', 'localtime') AS day_string,
+strftime('%H:%M:%S', ts, 'unixepoch', 'localtime') AS time_string
+FROM [_alert_log] WHERE ts > {epoch_start_4wks_ago}
+ORDER BY ts DESC
+"""
+    db.cursor.execute(sql)
 
-    db.cursor.execute(f'SELECT * FROM [_alert_log] ORDER BY ts DESC LIMIT 3000')
-    alert_list =  [{**x,'when':time.strftime('%Y-%m-%d %H:%M',time.localtime(x['ts']))} for x in [dict(r) for r in db.cursor.fetchall()]]
+    # Only return some of the columns
+    keys_to_return = ('day_string', 'building', 'time_string', 'message', 'recipients', 'sensor_id')
+    alert_list = []
+    for row in db.cursor.fetchall():
+        row_dict = dict(row)
+        return_dict = {k: v for k, v in row_dict.items() if k in keys_to_return}
+        return_dict['is_alarming'] = row_dict['alert_id'] in alarming_ids
+        alert_list.append(return_dict)
 
-    ctx = base_context()
-    ctx.update({'alert_list': alert_list})
-    return render_to_response('bmsapp/alert-log.html', ctx)
+    return JsonResponse(alert_list, safe=False)
 
 @login_required(login_url='../admin/login/')
 def backup_reading_db(request):
