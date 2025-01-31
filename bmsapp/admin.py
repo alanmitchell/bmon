@@ -261,8 +261,8 @@ class MultiBuildingChartAdmin(admin.ModelAdmin):
 @admin.register(AlertRecipient)
 class AlertRecipientAdmin(admin.ModelAdmin):
     change_form_template = 'admin/AlertRecipient_change_form.html'
-    list_display = ('name', 'active' )
-    list_editable= ('active',)
+    list_display = ('name', 'active', 'notify_email', 'email_address', 'notify_cell', 'cell_number')
+    list_editable= ('active', 'notify_email', 'email_address', 'notify_cell', 'cell_number')
     search_fields = ['name', 'email_address', 'cell_number', 'pushover_id']
     fields = (
         ('active', 'name'), 
