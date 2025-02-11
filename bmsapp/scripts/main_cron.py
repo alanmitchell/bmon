@@ -15,7 +15,6 @@ from . import backup_readingdb
 from . import check_alerts
 from . import run_periodic_scripts
 from . import terminate_old_cron
-import bmsapp.lora_diagnostics
 
 def suppress_errors(func):
     '''Runs the function 'func' and suppresses all errors.
@@ -69,10 +68,9 @@ def run():
     #if hr == 0 and hr_div == 1:
     #    suppress_errors(daily_status.run)
 
-    # run the Django DB backup every day. Also run the LoRa Diagnostic clean-up.
+    # run the Django DB backup every day.
     if hr == 2 and hr_div == 6:
         suppress_errors(backup_django_db.run)
-        suppress_errors(bmsapp.lora_diagnostics.delete_old_records)
 
     # run the sensor reading database backup every 3 days
     if (yr_day % 3) == 0 and hr == 2 and hr_div == 6:

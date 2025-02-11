@@ -10,10 +10,9 @@ from . import uplink_to_db
 
 # bring the key functions into the main package namespace.
 from .main import store_things_uplink_diagnostics
-from .db_sql import delete_old_records
 
 # symbols available when someone executes: from lora_diagnostics import *
-__all__ = ['store_things_uplink_diagnostics', 'delete_old_records']
+__all__ = ['store_things_uplink_diagnostics']
 
 
 # ----------------------------------------
