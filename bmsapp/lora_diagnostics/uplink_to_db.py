@@ -8,8 +8,10 @@ from .db_connect import get_rw_db_conn
 def check_for_complete_log_files():
     """Stores any complete uplink log files in the diagnostic database.
     """
-    conn = get_rw_db_conn()
-    if conn is None:
+    try:
+        conn = get_rw_db_conn()
+    except:
+        # more gentle error treatment; don't flood error log file.
         print('No database connection')
         return
 
