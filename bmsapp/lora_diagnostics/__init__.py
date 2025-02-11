@@ -37,8 +37,8 @@ def periodically_write_to_db():
 # But, we want only one thread to be started across all the possible BMON workers.
 # Use a file locking approach to enfore this.
 
-# make a lock file path based on the directory of this module.
-lock_file_path = Path("/tmp") / str(Path(__file__).parent).replace('/', '_')
+# make a lock file in this directory.
+lock_file_path = Path(__file__).parent / "db" / ".thingsdb.lock"
 fd = os.open(lock_file_path, os.O_CREAT | os.O_RDWR)
 
 try:
