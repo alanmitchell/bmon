@@ -11,6 +11,8 @@ from . import decode_dragino
 from . import decode_e5
 from . import decode_modbus
 
+from bmsapp.lora_diagnostics import store_things_uplink_diagnostics
+
 def decode(
         integration_payload: Dict[str, Any],
     ) -> Dict[str, Any]:
@@ -65,6 +67,13 @@ def decode(
     elif 'end_device_ids' in integration_payload:
         # Version 3 payload
         # For format info, see:  https://www.thethingsindustries.com/docs/reference/data-formats/
+
+        # store diagnostic data from the payload into the LoRa diagnostic database
+        try:
+            store_things_uplink_diagnostics(integration_payload)
+        except Exception as e:
+            print(f"Error storing LoRa Diagnostic info: {e}")
+
         device_id = integration_payload['end_device_ids']['device_id']
         device_eui = integration_payload['end_device_ids']['dev_eui']
         msg = integration_payload['uplink_message']  # shortcut to uplink message

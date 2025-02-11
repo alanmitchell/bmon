@@ -4,6 +4,12 @@ training.json
 env/
 static/
 settings.py
+
+/bmsapp/lora_diagnostics/db/things.db           
+/bmsapp/lora_diagnostics/db/bak/
+/bmsapp/lora_diagnostics/gtw-log/*.log*
+/bmsapp/lora_diagnostics/gtw-log/.__gtw.lock
+
 docs/source/_build/
 .vscode/
 *.sqlite
