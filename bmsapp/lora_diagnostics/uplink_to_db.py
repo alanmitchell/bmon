@@ -2,31 +2,13 @@
 to the database.
 """
 from pathlib import Path
-import time
 
-import duckdb
-
-def get_db_conn():
-    """Gets a connection to the diagnostic database, retrying if needed.
-    """
-    db_path = Path(__file__).parent / "db" / "things.db"
-    wait = 1.0     # seconds
-    retries = 3
-    for i in range(retries):
-        try:
-            conn = duckdb.connect(db_path)
-            return conn
-        except:
-            if i != retries - 1:
-                time.sleep(wait)
-                wait *= 2.0
-
-    return None
+from .db_connect import get_rw_db_conn
 
 def check_for_complete_log_files():
     """Stores any complete uplink log files in the diagnostic database.
     """
-    conn = get_db_conn()
+    conn = get_rw_db_conn()
     if conn is None:
         print('No database connection')
         return
