@@ -2,6 +2,8 @@
 import json
 import logging
 import re
+from pathlib import Path
+
 from django.db import models
 from django.core.validators import RegexValidator
 from django.conf import settings
@@ -16,6 +18,11 @@ import twilio.rest
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
+
+# returns the Path to the main Django SQLite database that holds the tables
+# for these models.
+def path_to_django_db():
+    return Path(__file__).parent.parent / 'bmon.sqlite'
 
 # Models for the BMS App
 
