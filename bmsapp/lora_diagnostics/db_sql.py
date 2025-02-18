@@ -26,6 +26,7 @@ def ro_query(sql):
 # This query assumes the main Django database is attached as "bmon" and
 # has been set to current use.
 sql_gtw_to_bldg = """
+-- Links device EUI (root of sensor_id) to the building its associated with
 WITH eui_to_bldg AS (
     SELECT str_split(sen.sensor_id, '_')[1] AS device_eui, bldg.title as building
     FROM bmsapp_bldgtosensor as btos
@@ -35,32 +36,59 @@ WITH eui_to_bldg AS (
         ON btos.building_id = bldg.id
 ),
 
+-- There are many records with the same device EUI; combine the associated
+-- buildings together into a list.
 eui_to_bldgs AS (
     SELECT device_eui, string_agg(DISTINCT building, ', ') AS building_list
     FROM eui_to_bldg
     GROUP BY device_eui    
 ),
 
-gtw_to_sensor AS (
-SELECT gateway_id, device_eui, signal_rssi
-FROM (
+-- Gets the most recent 1000 records for each gateway from the diagnostic database
+recent_gateway_records AS (
+WITH ranked_rows AS (
     SELECT
         gateway_id,
         device_eui,
         signal_rssi,
-        ROW_NUMBER() OVER (PARTITION BY gateway_id ORDER BY signal_rssi DESC) AS rn
+        ROW_NUMBER() OVER (
+            PARTITION BY gateway_id
+            ORDER BY ts DESC
+        ) AS rn
     FROM things.gateway
-    WHERE ts > now() - INTERVAL '14 days'
-        AND device_eui IN (SELECT DISTINCT device_eui FROM eui_to_bldg)
+)
+SELECT
+    gateway_id,
+    device_eui,
+    signal_rssi,
+FROM ranked_rows
+WHERE rn <= 1000
+),
+
+-- For each gateway, rank by largest signal strength and then
+-- select the top ranking record.
+gtw_to_strongest_sensor AS (
+SELECT gateway_id, device_eui
+FROM (
+    SELECT
+        gateway_id,
+        device_eui,
+        ROW_NUMBER() OVER (
+            PARTITION BY gateway_id 
+            ORDER BY signal_rssi DESC
+        ) AS rn
+    FROM recent_gateway_records
+    WHERE device_eui IN (SELECT DISTINCT device_eui FROM eui_to_bldg)
 )
 WHERE rn = 1
 ),
 
+-- Bring in the building list associated with this top ranking device
 gtw_to_bldg AS (
 SELECT gateway_id, building_list
-FROM gtw_to_sensor
+FROM gtw_to_strongest_sensor
 JOIN eui_to_bldgs
-    ON gtw_to_sensor.device_eui = eui_to_bldgs.device_eui
+    ON gtw_to_strongest_sensor.device_eui = eui_to_bldgs.device_eui
 )
 """
 
