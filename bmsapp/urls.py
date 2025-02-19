@@ -54,7 +54,8 @@ urlpatterns = [
     re_path(r'^test-alert-notifications/$', views.test_alert_notifications),
     re_path(r'^test-alert-value/$', views.test_alert_value),
     re_path(r'^alert-log/$', views.alert_log),
-    re_path(r'^lora-gateway-info/$', views.lora_gateway_info),
+    re_path(r'^inactive-gateways/$', views.inactive_lora_gateways),
+    re_path(r'^gateway-to-location/$', views.lora_gateway_to_location),
 
     # Views related to the API, version 1
     re_path(r'^api/v1/version/$', views_api_v1.api_version),

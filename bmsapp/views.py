@@ -972,9 +972,8 @@ ORDER BY ts DESC
 
 
 @login_required(login_url='../admin/login/')
-def lora_gateway_info(request):
-    """Shows information about the LoRaWAN gateways sending readings to this
-    application.
+def inactive_lora_gateways(request):
+    """Shows the LoRaWAN wireless sensor gateways that have not reported recently.
     """
 
     try:
@@ -990,18 +989,24 @@ def lora_gateway_info(request):
             [{'location': 'Error retrieving list.', 'time_since_readable': '', 'gateway_id': '' }]
         )
 
+    ctx = base_context()
+    ctx['data_inop'] = df_inop.to_json(orient='records')
+    return render_to_response('bmsapp/inactive-lora-gateways.html', ctx)
+
+@login_required(login_url='../admin/login/')
+def lora_gateway_to_location(request):
+    """Shows the Location of LoRaWAN wireless sensor gateways given the gateway's 
+    LoRaWAN ID.
+    """
     try:
         df_loc = gateway_location()
     except:
         df_loc = pd.DataFrame(
             [{'gateway_id': 'Error retrieving list.', 'location': ''}]
         )
-
     ctx = base_context()
-    ctx['data_inop'] = df_inop.to_json(orient='records')
     ctx['data_loc'] = df_loc.to_json(orient='records')
-
-    return render_to_response('bmsapp/lora-gateway-info.html', ctx)
+    return render_to_response('bmsapp/lora-gateway-to-location.html', ctx)
 
 @login_required(login_url='../admin/login/')
 def backup_reading_db(request):

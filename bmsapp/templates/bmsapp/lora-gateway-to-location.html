@@ -1,0 +1,41 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Gateway ID to Location{% endblock %}
+
+{% block title %}Location of LoRaWAN Wireless Sensor Gateways{% endblock %}
+
+{% block content %}
+
+<p>
+  This table maps Gateway IDs to Locations for LoRaWAN wireless sensor gateways
+  that receive signals from sensors on this BMON system.
+  The location is determined by
+  finding the sensor with the strongest signal for each gateway, and then showing
+  the building that the sensor resides in. Some of these gateways may not
+  be owned by the operator of this BMON system but are shown because they receive
+  transmissions from sensors on this system.
+</p>
+
+<div id="gateway-id-to-location-table"></div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Tabulator JS -->
+<link href="https://unpkg.com/tabulator-tables@latest/dist/css/tabulator.min.css" rel="stylesheet">
+<script src="https://unpkg.com/tabulator-tables@latest/dist/js/tabulator.min.js"></script>
+
+<script>
+  var tableIDtoLocation = new Tabulator("#gateway-id-to-location-table", {
+    data: JSON.parse('{{ data_loc|escapejs }}'),
+    // Define table columns
+    columns: [
+      {title: "Gateway ID", field: "gateway_id"},
+      {title: "Location", field: "location"},
+    ],
+    layout:"fitDataTable",
+  });
+</script>
+
+{% endblock %}

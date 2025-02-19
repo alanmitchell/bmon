@@ -1,0 +1,39 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Inactive Gateways{% endblock %}
+
+{% block title %}Inactive LoRaWAN Wireless Sensor Gateways{% endblock %}
+
+{% block content %}
+
+<p>This table shows LoRaWAN wireless sensor gateways that have not reported a 
+  sensor reading in the last hour or longer. Note that some of these gateways 
+  may not be owned by the operator of this BMON system;
+  the list will include 3rd party gateways that receive the signals
+  from sensors on this BMON system.
+</p>
+
+<div id="inactive-gateway-table"></div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Tabulator JS -->
+<link href="https://unpkg.com/tabulator-tables@latest/dist/css/tabulator.min.css" rel="stylesheet">
+<script src="https://unpkg.com/tabulator-tables@latest/dist/js/tabulator.min.js"></script>
+
+<script>
+  var tableInactive = new Tabulator("#inactive-gateway-table", {
+    data: JSON.parse('{{ data_inop|escapejs }}'),
+    // Define table columns
+    columns: [
+      {title: "Gateway Location", field: "location"},
+      {title: "Time since Last Report", field: "time_since_readable"},
+      {title: "Gateway ID", field: "gateway_id"},
+    ],
+    layout:"fitDataTable",
+  });
+</script>
+
+{% endblock %}
