@@ -40,11 +40,8 @@
 <script src="https://unpkg.com/tabulator-tables@latest/dist/js/tabulator.min.js"></script>
 
 <script>
-  var inactiveData =  JSON.parse('{{ data_inop|escapejs }}');
-  var locData = JSON.parse('{{ data_loc|escapejs }}');
-
   var tableInactive = new Tabulator("#inactive-gateway-table", {
-    data: inactiveData,
+    data: JSON.parse('{{ data_inop|escapejs }}'),
     // Define table columns
     columns: [
       {title: "Gateway Location", field: "location"},
@@ -55,7 +52,7 @@
   });
 
   var tableIDtoLocation = new Tabulator("#gateway-id-to-location-table", {
-    data: locData,
+    data: JSON.parse('{{ data_loc|escapejs }}'),
     // Define table columns
     columns: [
       {title: "Gateway ID", field: "gateway_id"},
@@ -63,7 +60,6 @@
     ],
     layout:"fitDataTable",
   });
-
 </script>
 
 {% endblock %}
