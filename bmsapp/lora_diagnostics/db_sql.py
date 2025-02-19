@@ -15,10 +15,13 @@ def ro_query(sql):
     if no connection possible.  Attaches the main Django database as "bmon" and
     makes it the current database.
     """
-    with get_read_only_db_conn() as conn:
-        conn.sql(f"ATTACH '{path_to_django_db()}' AS bmon (TYPE sqlite)")
-        conn.sql("USE bmon")
-        return conn.sql(sql).df()
+    try:
+        with get_read_only_db_conn() as conn:
+            conn.sql(f"ATTACH '{path_to_django_db()}' AS bmon (TYPE sqlite)")
+            conn.sql("USE bmon")
+            return conn.sql(sql).df()
+    except Exception as e:
+        print(e)
 
 # This query makes a With table available that has gateway_id matched
 # to a building (or buildings) holding the strongest signal sensor seen
@@ -26,7 +29,7 @@ def ro_query(sql):
 # This query assumes the main Django database is attached as "bmon" and
 # has been set to current use.
 sql_gtw_to_bldg = """
--- Links device EUI (root of sensor_id) to the building its associated with
+-- Links device EUI (root of sensor_id) to the building it's associated with
 WITH eui_to_bldg AS (
     SELECT str_split(sen.sensor_id, '_')[1] AS device_eui, bldg.title as building
     FROM bmsapp_bldgtosensor as btos
@@ -117,5 +120,6 @@ def gateway_location():
     through the gateway.
     """
     return ro_query(
-        sql_gtw_to_bldg + "SELECT gateway_id, building_list as location FROM gtw_to_bldg"
+        sql_gtw_to_bldg + \
+        "SELECT gateway_id, building_list as location FROM gtw_to_bldg ORDER BY gateway_id"
         )

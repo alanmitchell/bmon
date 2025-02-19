@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.templatetags.static import static
 from django.template import loader
+import pandas as pd
 
 from . import models
 from . import logging_setup
@@ -28,6 +29,7 @@ from bmsapp.periodic_scripts import ecobee
 import bmsapp.scripts.backup_readingdb
 from .lora import decoder
 from . import notehub
+from bmsapp.lora_diagnostics import inoperative_gateways, gateway_location
 
 # Make a logger for this module
 _logger = logging.getLogger('bms.' + __name__)
@@ -973,6 +975,38 @@ ORDER BY ts DESC
         alert_list.append(return_dict)
 
     return JsonResponse(alert_list, safe=False)
+
+@login_required(login_url='../admin/login/')
+def lora_gateway_info(request):
+    """Shows information about the LoRaWAN gateways sending readings to this
+    application.
+    """
+
+    try:
+        df_inop = inoperative_gateways(1.0)
+        # make a more readable column for the last report duration.
+        df_inop["time_since_readable"] = df_inop["time_since_last"].apply(
+            lambda td: f"{td.components.days} days {td.components.hours} hours" if td.components.days >=1 else \
+                f"{td.components.hours} hours {td.components.minutes} minutes"
+        )
+        df_inop.drop(columns=['time_since_last'])
+    except:
+        df_inop = pd.DataFrame(
+            [{'location': 'Error retrieving list.', 'time_since_readable': '', 'gateway_id': '' }]
+        )
+
+    try:
+        df_loc = gateway_location()
+    except:
+        df_loc = pd.DataFrame(
+            [{'gateway_id': 'Error retrieving list.', 'location': ''}]
+        )
+
+    ctx = base_context()
+    ctx['data_inop'] = df_inop.to_json(orient='records')
+    ctx['data_loc'] = df_loc.to_json(orient='records')
+
+    return render_to_response('bmsapp/lora-gateway-info.html', ctx)
 
 @login_required(login_url='../admin/login/')
 def backup_reading_db(request):

@@ -1,0 +1,69 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Gateway Info{% endblock %}
+
+{% block title %}LoRaWAN Gateway Information{% endblock %}
+
+{% block content %}
+
+<hr/>
+
+<h3>Inactive Gateways</h3>
+
+<p>LoRaWAN gateways that have not reported sensor readings in the last hour
+  or longer. Note that some of these gateways may not be owned by the BMON
+  operator; the list will include 3rd party gateways that receive the signals
+  from sensors on this BMON system.
+</p>
+
+<div id="inactive-gateway-table"></div>
+
+<hr/>
+
+<h3>Gateway ID mapped to Location</h3>
+
+<p>
+  This table shows the estimated location of each LoRaWAN gateway that receives
+  signals from sensors on this BMON system. The location is determined by
+  finding the sensor with the strongest signal for each gateway, and then showing
+  the building that the sensor resides in. 
+</p>
+
+<div id="gateway-id-to-location-table"></div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Tabulator JS -->
+<link href="https://unpkg.com/tabulator-tables@latest/dist/css/tabulator.min.css" rel="stylesheet">
+<script src="https://unpkg.com/tabulator-tables@latest/dist/js/tabulator.min.js"></script>
+
+<script>
+  var inactiveData =  JSON.parse('{{ data_inop|escapejs }}');
+  var locData = JSON.parse('{{ data_loc|escapejs }}');
+
+  var tableInactive = new Tabulator("#inactive-gateway-table", {
+    data: inactiveData,
+    // Define table columns
+    columns: [
+      {title: "Gateway Location", field: "location"},
+      {title: "Time since Last Report", field: "time_since_readable"},
+      {title: "Gateway ID", field: "gateway_id"},
+    ],
+    layout:"fitDataTable",
+  });
+
+  var tableIDtoLocation = new Tabulator("#gateway-id-to-location-table", {
+    data: locData,
+    // Define table columns
+    columns: [
+      {title: "Gateway ID", field: "gateway_id"},
+      {title: "Location", field: "location"},
+    ],
+    layout:"fitDataTable",
+  });
+
+</script>
+
+{% endblock %}

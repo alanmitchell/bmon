@@ -34,7 +34,7 @@ def get_read_only_db_conn():
     Different processes can have simultaneous read-only connections.
     """
     wait = 0.5     # seconds
-    retries = 3
+    retries = 5
     for i in range(retries):
         try:
             conn = duckdb.connect(db_path, read_only=True)

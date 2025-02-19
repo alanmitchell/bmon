@@ -36,40 +36,40 @@
 <script src="https://unpkg.com/tabulator-tables@latest/dist/js/tabulator.min.js"></script>
 
 <script>
-    var table = new Tabulator("#alert-table", {
-      // Define table columns
-      columns: [
-        {title: "Day", field: "day_string", visible: false},
-        {title: "Building", field: "building", visible: false},
-        {title: "Time", field: "time_string"}, 
-        {title: "Message", field: "message", width: 400},
-        {title: "Recipients", field: "recipients",  width: 250},
-        {title: "Sensor Notes", field: "sensor_notes", width: 250},
-        {
-          title: "Edit", 
-          field: "edit_url", 
-          width: 65,
-          formatter: "link",
-          formatterParams: {
-            label: "Edit Sensor",
-            target: "_blank",
-          }
-        },
-      ],
-      layout:"fitDataTable",
-      groupBy: ["day_string", "building"],
-      groupStartOpen: false,
-      rowFormatter: function(row) {
-        // row is a RowComponent
-        var data = row.getData();
-        if (data.is_alarming === true) {
-          row.getElement().style.backgroundColor = "#ff9999";
+  var table = new Tabulator("#alert-table", {
+    // Define table columns
+    columns: [
+      {title: "Day", field: "day_string", visible: false},
+      {title: "Building", field: "building", visible: false},
+      {title: "Time", field: "time_string"}, 
+      {title: "Message", field: "message", width: 400},
+      {title: "Recipients", field: "recipients",  width: 250},
+      {title: "Sensor Notes", field: "sensor_notes", width: 250},
+      {
+        title: "Edit", 
+        field: "edit_url", 
+        width: 65,
+        formatter: "link",
+        formatterParams: {
+          label: "Edit Sensor",
+          target: "_blank",
         }
       },
-      ajaxURL: "/alert-log-data/",
-      ajaxConfig: {method: "GET"},
+    ],
+    layout:"fitDataTable",
+    groupBy: ["day_string", "building"],
+    groupStartOpen: false,
+    rowFormatter: function(row) {
+      // row is a RowComponent
+      var data = row.getData();
+      if (data.is_alarming === true) {
+        row.getElement().style.backgroundColor = "#ff9999";
+      }
+    },
+    ajaxURL: "/alert-log-data/",
+    ajaxConfig: {method: "GET"},
 
-    });
+  });
 
   // When the data has been processed (and groups are built), expand the first group
   table.on("dataProcessed", function(){
