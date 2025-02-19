@@ -37,6 +37,7 @@
 
 <script>
   var table = new Tabulator("#alert-table", {
+    data: JSON.parse('{{ data_alerts|escapejs }}'),
     // Define table columns
     columns: [
       {title: "Day", field: "day_string", visible: false},
@@ -66,8 +67,6 @@
         row.getElement().style.backgroundColor = "#ff9999";
       }
     },
-    ajaxURL: "/alert-log-data/",
-    ajaxConfig: {method: "GET"},
 
   });
 

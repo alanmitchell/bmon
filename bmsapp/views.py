@@ -922,14 +922,6 @@ def delete_unassigned_sensor_ids(request):
 def alert_log(request):
     """Shows a log of Alerts that have triggered.
     """
-    ctx = base_context()
-    return render_to_response('bmsapp/alert-log.html', ctx)
-
-@login_required(login_url='../admin/login/')
-def alert_log_data(request):
-    """Returns the data for the Alert Log table.
-    """
-
     # Determine which Alerts are currently alarming.
     alarming_ids = set()
     for alert in models.AlertCondition.objects.all():
@@ -974,7 +966,10 @@ ORDER BY ts DESC
 
         alert_list.append(return_dict)
 
-    return JsonResponse(alert_list, safe=False)
+    ctx = base_context()
+    ctx['data_alerts'] = json.dumps(alert_list)
+    return render_to_response('bmsapp/alert-log.html', ctx)
+
 
 @login_required(login_url='../admin/login/')
 def lora_gateway_info(request):
