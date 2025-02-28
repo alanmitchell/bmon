@@ -17,6 +17,7 @@ from django.urls import reverse
 from django.conf import settings
 from django.templatetags.static import static
 from django.template import loader
+from django.db.models import Q
 import pandas as pd
 
 from . import models
@@ -656,7 +657,7 @@ def map_json(request):
     # Add points for each building
     for bldg in bldgs:
         # Check for alerting sensors
-        sensor_alerts = [(alert_condx.priority, alert_condx.last_status) for alert_condx in models.AlertCondition.objects.exclude(last_status=None).filter(sensor__pk__in=[sensor.pk for sensor in bldg.sensors.all()]).all()]
+        sensor_alerts = [(alert_condx.priority, alert_condx.last_status) for alert_condx in models.AlertCondition.objects.exclude(Q(last_status=None) | Q(active=False)).filter(sensor__pk__in=[sensor.pk for sensor in bldg.sensors.all()]).all()]
  
         # Add the building feature to the map json
         ret['features'].append({"type": "Feature",
