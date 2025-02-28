@@ -925,7 +925,7 @@ def alert_log(request):
     # Determine which Alerts are currently alarming.
     alarming_ids = set()
     for alert in models.AlertCondition.objects.all():
-        if alert.last_status:
+        if alert.last_status is not None and alert.active:
             alarming_ids.add(alert.pk)
 
     # find the Unix timestamp for the start of the day 28 days ago.
