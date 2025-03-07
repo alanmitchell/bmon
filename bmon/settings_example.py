@@ -29,6 +29,11 @@ BMSAPP_TITLE_TEXT = '{{ bmon_site_title }}'
 # and is placed inside a <div> tag with an CSS ID of 'header'.
 BMSAPP_HEADER = '{{ bmon_site_title }}'
 
+# Flag that determines whether the Building dots on the Maps page are
+# colored red if there are active alerts in the Building.  If True, the
+# dots for alerting buildings are colored red, instead of the normal blue.
+COLOR_ALERTING_BUILDINGS_ON_MAP = True
+
 # The following email settings need to be filled out for sending out email alerts from
 # the BMON app.
 # For an article on using Gmail settings:   https://data-flair.training/blogs/django-send-email/

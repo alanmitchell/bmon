@@ -32,6 +32,7 @@ urlpatterns = [
     re_path(r'^energy-reports/$', views.energy_reports),
     re_path(r'^custom-reports/$', views.custom_report_list),
     re_path(r'^custom-reports/(.+)$', views.custom_report),
+    re_path(r'^map/$', views.map),
     re_path(r'^show-log/$', views.show_log),
     re_path(r'^group-list/(\d+)/$', views.group_list),
     re_path(r'^bldg-list/(\d+)/(\d+)/$', views.bldg_list),

@@ -638,6 +638,16 @@ def show_video(request, filename, width, height):
     return render_to_response('bmsapp/video.html',
                               {'filename': filename, 'width': width, 'height': height, 'hide_back_link': hide_back_link})
 
+def map(request):
+    """Renders the Map page.
+    """
+    ctx = base_context()
+    ctx.update({
+        'color_dots': settings.COLOR_ALERTING_BUILDINGS_ON_MAP if hasattr(settings, 'COLOR_ALERTING_BUILDINGS_ON_MAP') else True,
+    })
+
+    return render_to_response('bmsapp/map.html', ctx)
+
 
 def map_json(request):
     """Returns the JSON data necessary to draw the Google map of the sites.

@@ -305,11 +305,15 @@
           var markerColor  = '#1866a7';
           if (site.properties.message.length > 0) {
             markerText = markerText + '\n' + site.properties.message;
+            {% if color_dots %}
             markerColor = 'red';
+            {% endif %}
           };
           if (site.properties.alerts.length > 0) {
             markerText = markerText + '\n' + site.properties.message;
+            {% if color_dots %}
             markerColor = 'red';
+            {% endif %}
           };
 
           const svg = window.btoa(`
@@ -348,7 +352,9 @@
                   // set color based on the alerts
                   var color = '#1866a7';
                   if (alerts.length > 0) {
+                    {% if color_dots %}
                     color = 'red'
+                    {% endif %}
                   }
 
                   // create svg url with fill color
