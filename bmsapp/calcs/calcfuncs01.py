@@ -5,6 +5,8 @@ import time
 import math
 from math import *      # make math functions available also without the math. qualifier
 import logging
+from datetime import datetime
+
 import pandas as pd
 import numpy as np
 import pytz
@@ -71,7 +73,12 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         Returns just one record of information, timestamped with the current time.
         """
         obs = internetwx.getWeatherObservation(stnCode)
-        return [int(time.time())], [obs.temp.value() * 1.8 + 32.0]
+        val = obs['properties']['temperature']['value']
+        if val is not None:
+            ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
+            return [int(ts)], [val * 1.8 + 32.0]
+        else:
+            return [], []
     
     def getInternetWindSpeed(self, stnCode):
         """** No parameters are sensor reading arrays **
@@ -80,7 +87,12 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         Returns just one record of information, timestamped with the current time.
         """
         obs = internetwx.getWeatherObservation(stnCode)
-        return [int(time.time())], [obs.wind_speed.value() * 1.1508]  # mph
+        val = obs['properties']['windSpeed']['value']
+        if val is not None:
+            ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
+            return [int(ts)], [val * 0.621371]      # mph
+        else:
+            return [], []
 
     def getInternetRH(self, stnCode):
         """** No parameters are sensor reading arrays **
@@ -90,11 +102,12 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         Returns just one record of information, timestamped with the current time.
         """
         obs = internetwx.getWeatherObservation(stnCode)
-        if obs.dewpt is not None and obs.temp is not None:
-            dewpt = obs.dewpt.value()
-            temp = obs.temp.value()
+        dewpt = obs['properties']['dewpoint']['value']
+        temp = obs['properties']['temperature']['value']
+        if dewpt is not None and temp is not None:
             RH = 100.0*(math.exp((17.625*dewpt)/(243.04+dewpt))/math.exp((17.625*temp)/(243.04+temp)))
-            return [int(time.time())], [RH]
+            ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
+            return [int(ts)], [RH]
         else:
             # not info info available for calculation.
             return [], []
@@ -106,8 +119,10 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
         Returns just one record of information, timestamped with the current time.
         """
         obs = internetwx.getWeatherObservation(stnCode)
-        if obs.dewpt is not None:
-            return [int(time.time())], [obs.dewpt.value() * 1.8 + 32.0]
+        val = obs['properties']['dewpoint']['value']
+        if val is not None:
+            ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
+            return [int(ts)], [val * 1.8 + 32.0]
         else:
             return [], []
 

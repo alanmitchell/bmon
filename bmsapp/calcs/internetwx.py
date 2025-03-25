@@ -4,67 +4,47 @@
 import urllib.request
 import urllib.error
 import urllib.parse
-import time
 import json
 import urllib.request
 import urllib.parse
 import urllib.error
 from django.conf import settings
-from metar import Metar
 from .cache import Cache
 
 import pandas as pd
 import numpy as np
 from datetime import datetime
 from dateutil.rrule import rrule, DAILY
+import requests
 
 # cache for storing NWS observations
 _nws_cache = Cache()
 
-
 def getWeatherObservation(stnCode):
-    """Returns a current weather observation from an NWS weather station, using the metar 
-    library to parse and hold the values.  Uses the 'metar' python library.
-
-    ** NOTE: It is possible to eliminate use of the metar python library by downloading
-       decoded observations.  The URL for decoded observations is:
-       http://tgftp.nws.noaa.gov/data/observations/metar/decoded/PANC.TXT
-       Notice that the 'TXT' is capitalized.  The format of the file is one item
-       per line.
+    """Returns a current weather observation from an NWS weather station, using the JSON
+    weather API provided by the National Weather Service.
     """
-
-    # This is URL where the raw METAR observations are kept.  A station code
-    # substitutes for the %s.
-    URL = 'http://tgftp.nws.noaa.gov/data/observations/metar/stations/%s.TXT'
-
     obs = _nws_cache.get(stnCode)   # try cache first
 
     if obs is None:
 
-        # try 2 times in case of download errors.
-        for i in range(2):
-            try:
-                read_str = urllib.request.urlopen(
-                    URL % stnCode, timeout=7.0).read().decode('utf-8')
-                break
-            except:
-                # wait before retrying
-                time.sleep(1)
+        headers = {
+            "User-Agent": "BMON (alan@analysisnorth.com)"
+        }
+        url = f"https://api.weather.gov/stations/{stnCode}/observations/latest"
 
-        if 'read_str' not in locals():
-            # retries must have failed if there is no 'read_str' variable.
+        response = requests.get(url, headers=headers)
+        if response.status_code == 200:
+            obs = response.json()
+            _nws_cache.store(stnCode, obs)
+        else:
             raise Exception('Could not access %s.' % stnCode)
-
-        # second line onward
-        obs = Metar.Metar('\n'.join(read_str.splitlines()[1:]))
-        _nws_cache.store(stnCode, obs)
 
     return obs
 
 
 # cache for storing Weather Underground observations
 _wu_cache = Cache()
-
 
 def getWUobservation(stnList):
     """Returns a current weather observation (dictionary) retrieved from weather underground.
