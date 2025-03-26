@@ -1,4 +1,4 @@
-certifi==2020.12.5
+certifi==2022.12.7
 chardet==4.0.0
 concurrent-log-handler==0.9.25
 django-extensions==3.1.1
