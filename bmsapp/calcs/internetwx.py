@@ -13,34 +13,42 @@ from .cache import Cache
 
 import pandas as pd
 import numpy as np
-from datetime import datetime
+from datetime import datetime, timezone
 from dateutil.rrule import rrule, DAILY
 import requests
 
 # cache for storing NWS observations
 _nws_cache = Cache()
 
-def getWeatherObservation(stnCode):
-    """Returns a current weather observation from an NWS weather station, using the JSON
-    weather API provided by the National Weather Service.
+def getWeatherObservations(stnCode, start_ts):
+    """Returns a list of weather observation from an NWS weather station, using the JSON
+    weather API provided by the National Weather Service. 'stnCode' is the NWS code of the
+    station desired. 'start_ts' is the Unix Epoch time stamp of the first reading to return;
+    all subsequent readings are also returned, subject to the NWS limit of 500 total readings, and
+    no readings earlier than one week ago.
     """
-    obs = _nws_cache.get(stnCode)   # try cache first
+    observations = _nws_cache.get(stnCode)   # try cache first
 
-    if obs is None:
+    if observations is None:
+
+        # make an iso date string for the start value
+        iso_start = datetime.fromtimestamp(start_ts, tz=timezone.utc).isoformat()
+        # form a query string to send this
+        qstring = urllib.parse.urlencode({'start': iso_start})
 
         headers = {
             "User-Agent": "BMON (alan@analysisnorth.com)"
         }
-        url = f"https://api.weather.gov/stations/{stnCode}/observations/latest"
+        url = f"https://api.weather.gov/stations/{stnCode}/observations?{qstring}"
 
         response = requests.get(url, headers=headers)
         if response.status_code == 200:
-            obs = response.json()
-            _nws_cache.store(stnCode, obs)
+            observations = response.json()["features"]
+            _nws_cache.store(stnCode, observations)
         else:
             raise Exception('Could not access %s.' % stnCode)
 
-    return obs
+    return observations
 
 
 # cache for storing Weather Underground observations

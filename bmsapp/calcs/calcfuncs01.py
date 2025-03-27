@@ -66,65 +66,90 @@ class CalcReadingFuncs_01(calcreadings.CalcReadingFuncs_base):
     # The functions below must return two items: a list (or numpy array) of timestamps
     # (Unix seconds) and a list/array of calculated values.
 
+    def getNWSobservations(self, stnCode):
+        """Returns a list of NWS observations for station 'stnCode' starting just past
+        the value in the BMON database for the calculated sensor. The reach-back time limit
+        is honored.
+        """
+        # determine the timestamp of the last entry in the database for this calculated field.
+        last_calc_rec = self.db.last_read(self.calc_id)
+        last_ts = last_calc_rec['ts'] if last_calc_rec else 0
+        # constrain this value to greater or equal to 'reach_back'
+        last_ts = max(last_ts, time.time() - self.reach_back)
+
+        return internetwx.getWeatherObservations(stnCode, int(last_ts) + 1)
+
     def getInternetTemp(self, stnCode):
         """** No parameters are sensor reading arrays **
 
-        Returns an outdoor dry-bulb temperature from an NWS weather station in degrees F.
-        Returns just one record of information, timestamped with the current time.
+        Returns outdoor dry-bulb temperatures from an NWS weather station in degrees F.
+        Observations start at the last observation in BMON, or reachback limit.
         """
-        obs = internetwx.getWeatherObservation(stnCode)
-        val = obs['properties']['temperature']['value']
-        if val is not None:
-            ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
-            return [int(ts)], [val * 1.8 + 32.0]
-        else:
-            return [], []
+        tss = []
+        vals = []
+        for obs in self.getNWSobservations(stnCode):
+            val = obs['properties']['temperature']['value']
+            if val is not None:
+                ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
+                tss.append(int(ts))
+                vals.append(val * 1.8 + 32.0)
+
+        return tss, vals
     
     def getInternetWindSpeed(self, stnCode):
         """** No parameters are sensor reading arrays **
 
-        Returns a wind speed in mph from an NWS weather station.
-        Returns just one record of information, timestamped with the current time.
+        Returns wind speeds in mph from an NWS weather station.
+        Observations start at the last observation in BMON, or reachback limit.
         """
-        obs = internetwx.getWeatherObservation(stnCode)
-        val = obs['properties']['windSpeed']['value']
-        if val is not None:
-            ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
-            return [int(ts)], [val * 0.621371]      # mph
-        else:
-            return [], []
+        tss = []
+        vals = []
+        for obs in self.getNWSobservations(stnCode):
+            val = obs['properties']['windSpeed']['value']
+            if val is not None:
+                ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
+                tss.append(int(ts))
+                vals.append(val * 0.621371)
+
+        return tss, vals
 
     def getInternetRH(self, stnCode):
         """** No parameters are sensor reading arrays **
 
-        Returns a Relative Humidity value in % (0 - 100) from an NWS
+        Returns Relative Humidity values in % (0 - 100) from an NWS
         weather station.  Uses the August-Roche-Magnus approximation.
-        Returns just one record of information, timestamped with the current time.
+        Observations start at the last observation in BMON, or reachback limit.
         """
-        obs = internetwx.getWeatherObservation(stnCode)
-        dewpt = obs['properties']['dewpoint']['value']
-        temp = obs['properties']['temperature']['value']
-        if dewpt is not None and temp is not None:
-            RH = 100.0*(math.exp((17.625*dewpt)/(243.04+dewpt))/math.exp((17.625*temp)/(243.04+temp)))
-            ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
-            return [int(ts)], [RH]
-        else:
-            # not info info available for calculation.
-            return [], []
+
+        tss = []
+        vals = []
+        for obs in self.getNWSobservations(stnCode):
+            dewpt = obs['properties']['dewpoint']['value']
+            temp = obs['properties']['temperature']['value']
+            if dewpt is not None and temp is not None:
+                RH = 100.0*(math.exp((17.625*dewpt)/(243.04+dewpt))/math.exp((17.625*temp)/(243.04+temp)))
+                ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
+                tss.append(int(ts))
+                vals.append(RH)
+
+        return tss, vals
 
     def getInternetDewpoint(self, stnCode):
         """** No parameters are sensor reading arrays **
 
-        Returns an outdoor Dewpoint temperature from an NWS weather station in degrees F.
-        Returns just one record of information, timestamped with the current time.
+        Returns outdoor Dewpoint temperatures from an NWS weather station in degrees F.
+        Observations start at the last observation in BMON, or reachback limit.
         """
-        obs = internetwx.getWeatherObservation(stnCode)
-        val = obs['properties']['dewpoint']['value']
-        if val is not None:
-            ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
-            return [int(ts)], [val * 1.8 + 32.0]
-        else:
-            return [], []
+        tss = []
+        vals = []
+        for obs in self.getNWSobservations(stnCode):
+            val = obs['properties']['dewpoint']['value']
+            if val is not None:
+                ts = datetime.fromisoformat(obs['properties']['timestamp']).timestamp()
+                tss.append(int(ts))
+                vals.append(val * 1.8 + 32.0)
+
+        return tss, vals
 
     def getWUtemperature(self, stn, stn2=None):
         """** No parameters are sensor reading arrays **
