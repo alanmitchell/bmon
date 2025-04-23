@@ -12,6 +12,7 @@ import requests
 import bmsapp.data_util
 import bmsapp.formatters
 import bmsapp.schedule
+from bmsapp.readingdb.bmsdata import BMSdata
 from . import sms_gateways
 import yaml
 import twilio.rest
@@ -162,6 +163,21 @@ class Sensor(models.Model):
             if subject_msg:
                 alerts.append(subject_msg)
         return alerts
+    
+    def new_reading(self, ts, val):
+        """This method is called after a new reading has been stored for this Sensor.
+        'ts' is the Unix Epoch timestamp of the new data, and 'val' is the value of the
+        new reading. One use of this method is to check any AlertConditions associated with this
+        Sensor.
+        """
+        # Check any Alerts for this Sensor
+        alerts = self.alertcondition_set.all()
+        # also, only process alerts if this Sensor is associated with a Building
+        if len(alerts) and len(self.building_set.all()):
+            reading_db = BMSdata()
+            for condx in alerts:
+                condx.handle(reading_db, _logger)
+
 
     def key_properties(self):
         """Returns a dictionary of important properties associated with this building.  Not all properties are 

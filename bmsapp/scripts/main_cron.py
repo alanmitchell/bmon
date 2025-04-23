@@ -58,9 +58,10 @@ def run():
     if hr_div in (3, 9):
         suppress_errors(calc_readings.run)
 
+    # Alert Checking now occurs when a new reading arrives for Sensor.
     # Alert checking occurs on every pass.  Run it after the calculated readings
     # so fresh readings are available.
-    suppress_errors(check_alerts.run)
+    # suppress_errors(check_alerts.run)
 
     # run the daily status script 5 minutes after midnight each day
     # ** Decided to eliminate this because it is CPU intensive and it is buried

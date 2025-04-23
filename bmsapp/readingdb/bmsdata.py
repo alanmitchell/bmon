@@ -10,6 +10,8 @@ import shutil
 import subprocess
 import glob
 import calendar
+import threading
+
 import pytz
 from dateutil import parser
 import pandas as pd
@@ -20,6 +22,25 @@ _logger = logging.getLogger('bms.' + __name__)
 
 # The path to the default Sqlite database used to store readings.
 DEFAULT_DB = os.path.join(os.path.dirname(__file__), 'data', 'bms_data.sqlite')
+
+def run_new_reading_hook(sensor_id, ts, val):
+    """This runs the "new reading" hook for a Sensor that has just received and stored a new
+    reading. This is run in a separate Thread due some slow processing that could occur.
+    'sensor_id' is the sensor_id of the sensor that just received the new reading. 'ts' is
+    the Unix Epoch timestamp of the new reading. 'val' is the value of the new reading.
+    """
+    from bmsapp.models import Sensor    # needed to import here to avoid circular import
+
+    try:
+        sensor = Sensor.objects.get(sensor_id=sensor_id)
+        t = threading.Thread(target=sensor.new_reading, args=(ts, val))
+        t.daemon = True
+        t.start()
+
+    except Sensor.DoesNotExist:
+        # this is an unassigned sensor, so no associated Sensor object
+        pass
+
 
 
 class BMSdata:
@@ -185,6 +206,7 @@ recipients VARCHAR(255)
                 if one_val is not None:    # don't store None values.
                     self.cursor.execute("INSERT INTO [%s] (ts, val) VALUES (?, ?)" % one_id, (one_ts, one_val))
                     success_count += 1
+                    run_new_reading_hook(one_id, one_ts, one_val)
                 else:
                     # No need for logger warning because one was generated earlier when
                     # the None value was created.
@@ -197,6 +219,7 @@ recipients VARCHAR(255)
                     # a debug message so that it doesn't overwhelm the log file.
                     _logger.debug('Reading already in DB, updated to: ts=%s, id=%s, val=%s' % (one_ts, one_id, one_val))
                     success_count += 1
+                    run_new_reading_hook(one_id, one_ts, one_val)
                 except:
                     rejected_count += 1
                     _logger.exception('Problem updating reading already in DB: ts=%s, id=%s, val=%s' % (one_ts, one_id, one_val))
