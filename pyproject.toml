@@ -2,7 +2,7 @@
 name = "BMON"
 version = "1.0.0"
 description = "BMON Building Monitoring System"
-requires-python = "~=3.13"
+requires-python = "~=3.11.1"
 dependencies = [
     "certifi~=2020.12",
     "chardet~=4.0",
