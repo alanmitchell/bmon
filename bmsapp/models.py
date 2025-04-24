@@ -662,7 +662,7 @@ class AlertRecipient(models.Model):
     cell_sms_gateway = models.CharField('Cell Phone Carrier', max_length=60, choices=sms_gateways.GATEWAYS, blank=True)
 
     # Pushover mobile app notification fields
-    notify_pushover = models.BooleanField("Send Pushover Notification?", default=True)
+    notify_pushover = models.BooleanField("Send Pushover Notification?", default=False)
     pushover_regex = RegexValidator(regex=r'^\w{30}$', message="Pushover ID should be exactly 30 characters long.")
     pushover_id = models.CharField('Pushover ID', validators=[pushover_regex], max_length=30, blank=True)
 
@@ -730,7 +730,7 @@ class AlertRecipient(models.Model):
             else:
                 _logger.exception('No Twilio Account information in Settings file. Required for SMS Text alerts.')
 
-        if self.notify_pushover:
+        if self.notify_pushover and len(self.pushover_id.strip()):
             # Get the Pushover API key out of the settings file, setting it to None
             # if it is not present in the file.
             pushover_api_key = getattr(settings, 'BMSAPP_PUSHOVER_APP_TOKEN', None)
