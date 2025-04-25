@@ -1,7 +1,9 @@
 #!/bin/bash
 # Commands that need to be run to upgrade to uv
 
-git pull
+# install uv
+curl -LsSf https://astral.sh/uv/install.sh | sh
+
 sudo systemctl stop bmon
 
 rm -rf env/
