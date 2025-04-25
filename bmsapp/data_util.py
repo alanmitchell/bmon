@@ -158,9 +158,9 @@ def weighted_resample_timeseries(pandas_dataframe, averaging, offset, interp_met
     # also create breaks that are shifted 1 day forward
     window_breaks_shifted = window_breaks.shift(freq='1D')
     window_breaks_shifted = window_breaks_shifted[window_breaks_shifted.index < pandas_dataframe.index.max()]
-    window_breaks = window_breaks.append(window_breaks_shifted[~window_breaks_shifted.index.isin(window_breaks.index)])
+    window_breaks = pd.concat([window_breaks, window_breaks_shifted[~window_breaks_shifted.index.isin(window_breaks.index)]])
 
-    df = pandas_dataframe.append(window_breaks[~window_breaks.index.isin(pandas_dataframe.index)]).sort_index()
+    df = pd.concat([pandas_dataframe, window_breaks[~window_breaks.index.isin(pandas_dataframe.index)]]).sort_index()
 
     # interpolate values
     if interp_method in ['backfill', 'bfill', 'pad', 'ffill']:
