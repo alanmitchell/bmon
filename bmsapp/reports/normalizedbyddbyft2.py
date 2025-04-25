@@ -73,7 +73,7 @@ class NormalizedByDDbyFt2(basechart.BaseChart):
             df_temp = self.reading_db.dataframeForOneID(bldg_params['id_out_temp'], st_ts, end_ts, self.timezone)
             if len(df_temp)==0:
                 continue
-            df_temp.drop('ts', 1, inplace=True)        # delete ts column
+            df_temp.drop('ts', axis=1, inplace=True)        # delete ts column
             df_temp.columns = ['temp']            # rename to temp
             df_temp = bmsapp.data_util.resample_timeseries(df_temp, 1)    # do one hour averaging
 
