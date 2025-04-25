@@ -299,7 +299,7 @@ def sensor_readings(request, sensor_id):
         times = df.index.strftime('%Y-%m-%d %H:%M:%S')
         if len(df)>0 and np.abs(df.val.values).max() < 100000.:
             # needed the "tolist()" method to get formatting correctly of rounded floats
-            values = np.char.mod('%.5g', df.val.values).astype(np.float).tolist()
+            values = np.char.mod('%.5g', df.val.values).astype(np.float64).tolist()
         else:
             values = df.val.values.tolist()
         all_readings = list(zip(times, values))
