@@ -74,7 +74,7 @@ class ExportData(basechart.BaseChart):
         
         # add any blank columns to the dataframe
         for col_name in blank_col_names:
-            df[col_name] = np.NaN
+            df[col_name] = np.nan
 
         # but now need sort the columns back to order they arrived
         df = df.sort_index(axis=1)

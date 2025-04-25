@@ -104,7 +104,7 @@ class CalculateReadings:
             # for the synchronized ts values.  Fill outside the interpolation
             # table with NaN's, because later data will be eventually arrive which 
             # will providea better interpolation.  These rows will get dropped below.
-            sync_vals = np.interp(sync_ts, ser_ts, ser_vals, left=np.NaN, right=np.NaN)
+            sync_vals = np.interp(sync_ts, ser_ts, ser_vals, left=np.nan, right=np.nan)
             
             # add these input values to our dictionary of input values
             input_series[inp_id] = sync_vals
