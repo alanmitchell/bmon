@@ -4,12 +4,14 @@ version = "1.0.0"
 description = "BMON Building Monitoring System"
 requires-python = "~=3.11.1"    # can't go higher than 3.11 with Django 2.x due to email sending error
 dependencies = [
+    "beautifulsoup4~=4.13",
     "concurrent-log-handler~=0.9",
     "django~=2.2",
     "django-extensions~=3.1",
     "django-lockdown~=4.0",
     "duckdb~=1.2",
     "gunicorn~=20.0",
+    "html5lib~=1.1",
     "legacy-cgi~=2.6", # needed by Django to replace deprecated cgi module
     "lxml~=5.4",
     "markdown~=3.3",
