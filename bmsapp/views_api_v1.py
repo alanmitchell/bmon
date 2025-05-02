@@ -294,7 +294,9 @@ def sensor_readings(request, sensor_id):
 
         # if averaging is requested, do it!
         if averaging:
-            df = df.resample(rule = averaging, loffset = label_offset, label = 'left').mean().dropna()
+            df = df.resample(rule = averaging, label = 'left').mean().dropna()
+            if label_offset:
+                df.index = df.index + pd.Timedelta(label_offset)
 
         times = df.index.strftime('%Y-%m-%d %H:%M:%S')
         if len(df)>0 and np.abs(df.val.values).max() < 100000.:
