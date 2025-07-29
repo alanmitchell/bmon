@@ -8,8 +8,10 @@ from bmsapp.models import Organization, BuildingGroup, BuildingMode
 from bmsapp.models import AlertCondition, AlertRecipient, AlertRecipientGroup, PeriodicScript
 from bmsapp.models import FuelRate, ElectricRate
 from django.contrib import admin
+from django.contrib import messages
 from django.forms import TextInput, Textarea
 from django.db import models
+from django.http import HttpResponse
 from django.utils.html import format_html
 from django.urls import reverse
 from django.utils.translation import ugettext_lazy as _
@@ -68,9 +70,51 @@ class DashboardItemInline(admin.StackedInline):
             kwargs["queryset"] = BldgToSensor.objects.filter(building__exact = request._obj_)
         return super(DashboardItemInline, self).formfield_for_foreignkey(db_field, request, **kwargs)
 
+def set_mode_to_summer(modeladmin, request, queryset):
+    try:
+        new_mode = BuildingMode.objects.get(name="Summer")
+    except BuildingMode.DoesNotExist:
+        messages.error(request, "The 'Summer' mode does not exist.")
+        return
+
+    updated = queryset.update(current_mode=new_mode)    
+    messages.success(request, f"{updated} buildings set to 'Summer' mode.")
+set_mode_to_summer.short_description = "Change selected Buildings to Summer Mode"
+
+def set_mode_to_winter(modeladmin, request, queryset):
+    try:
+        new_mode = BuildingMode.objects.get(name="Winter")
+    except BuildingMode.DoesNotExist:
+        messages.error(request, "The 'Winter' mode does not exist.")
+        return
+
+    updated = queryset.update(current_mode=new_mode)    
+    messages.success(request, f"{updated} buildings set to 'Winter' mode.")
+set_mode_to_winter.short_description = "Change selected Buildings to Winter Mode"
+
+class BuildingGroupListFilter(admin.SimpleListFilter):
+    title = 'Building Group'
+    parameter_name = 'building_group'
+
+    def lookups(self, request, model_admin):
+        groups = BuildingGroup.objects.all().order_by('sort_order', 'title')
+        return [(group.id, group.title) for group in groups]
+
+    def queryset(self, request, queryset):
+        if self.value():
+            try:
+                group = BuildingGroup.objects.get(id=self.value())
+                return queryset.filter(id__in=group.buildings.values_list('id', flat=True))
+            except BuildingGroup.DoesNotExist:
+                return queryset.none()
+        return queryset
 
 @admin.register(Building)
 class BuildingAdmin(admin.ModelAdmin):
+    list_display = ('title', 'current_mode')
+    list_editable = ('current_mode',)
+    list_filter = [BuildingGroupListFilter, 'current_mode']
+    actions = [set_mode_to_summer, set_mode_to_winter]
     inlines = (DashboardItemInline, BldgToSensorInline)
     formfield_overrides = {
         models.TextField: {'widget': Textarea(attrs={'rows': 6, 'cols':80})},
