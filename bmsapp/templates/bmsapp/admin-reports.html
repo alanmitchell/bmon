@@ -32,7 +32,11 @@
     <li><a href="{{ bmsapp_nav_link_base_url }}admin/">System Administration: Configure BMON System</a></li>
     <li><a href="{{ bmsapp_nav_link_base_url }}unassigned-sensors/">Unassigned Sensors: View and Delete</a></li>
     <li><a href="{{ bmsapp_nav_link_base_url }}sensor-data-utilities/">Sensor Data Utilities (Eliminate Bad Data, Merge Sensors)</a></li>
-    <li><a href="{{ bmsapp_nav_link_base_url }}alert-log/">Alert Log Reports</a></li>
+    <li>&nbsp;Alert Reports
+        <ul class="admin_tasks">
+            <li style="margin-top: 0px;"><a href="{{ bmsapp_nav_link_base_url }}alert-log/">Log of Triggered Alerts for Last 4 weeks</a></li>
+            <li style="margin-top: 0px;"><a href="{{ bmsapp_nav_link_base_url }}configured-alerts/">Configured Alerts by Building</a></li>
+        </ul>
     <li>&nbsp;LoRaWAN Wireless Sensor Gateway Diagnostic Reports
         <ul class="admin_tasks">
             <li style="margin-top: 0px;"><a href="{{ bmsapp_nav_link_base_url }}inactive-gateways/">Inactive Gateways</a></li>

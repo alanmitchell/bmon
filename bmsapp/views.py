@@ -981,6 +981,51 @@ ORDER BY ts DESC
     ctx['data_alerts'] = json.dumps(alert_list)
     return render_to_response('bmsapp/alert-log.html', ctx)
 
+@login_required(login_url='../admin/login/')
+def configured_alerts(request):
+    """Shows a report of the Alerts that have been configured for each building.
+    """
+    alert_list = []
+
+    for alert in models.AlertCondition.objects.all():
+
+        # make list of recipients, but only include those that are active
+        recips = [r for r in alert.recipients.all() if r.active]   # directly identified recipients
+        for grp in alert.recipient_groups.all():
+            for r in grp.recipients.all():
+                if r.active:
+                    recips.append(r)
+        # eliminate duplicates
+        recips = set(recips)
+        # make a comma-separated string including all recipients
+        recips_str = ', '.join([f'{r.name} {r.msg_mode_summary()}' for r in recips])
+
+        # make a separate entry for every building the Alert's sensor is associated 
+        # with; usually only one building.
+        for bldg in models.Building.objects.filter(bldgtosensor__sensor=alert.sensor):
+            alert_info = {
+                'building': bldg.title,
+                'alert_active': alert.active,
+                'alert_condx': str(alert),
+                'recipients': recips_str,
+                'sensor_notes': alert.sensor.notes,
+                'edit_url': f'/admin/bmsapp/sensor/{alert.sensor.pk}/change/'
+            }
+            alert_list.append(alert_info)
+    
+    # sort alerts in the order desired for display
+    alert_list.sort(key=lambda a: (a['building'], a['alert_active'], a['alert_condx']))
+
+    # Also determine the buildings that have no configured alerts.
+    all_bldgs = set([bldg.title for bldg in models.Building.objects.all()])
+    bldgs_with_alerts = set([a['building'] for a in alert_list])
+    bldgs_no_alerts = list(all_bldgs - bldgs_with_alerts)
+    bldgs_no_alerts.sort()
+    
+    ctx = base_context()
+    ctx['data_alerts'] = json.dumps(alert_list)
+    ctx['bldgs_no_alerts'] = bldgs_no_alerts
+    return render_to_response('bmsapp/configured-alerts.html', ctx)
 
 @login_required(login_url='../admin/login/')
 def inactive_lora_gateways(request):

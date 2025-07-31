@@ -1,0 +1,79 @@
+{% extends "bmsapp/base.html" %}
+
+{% block pagetitle %}Configured Alerts{% endblock %}
+
+{% block title %}Configured Alerts by Building{% endblock %}
+
+{% block content %}
+
+<style>
+/* Force text to wrap and allow the row to grow in height */
+.tabulator-cell {
+  white-space: normal !important;     /* allow multi-line wrapping */
+  overflow-wrap: break-word;          /* break long words if needed */
+  text-overflow: clip;                /* remove ellipsis (...) */
+  overflow: visible !important;       /* ensure wrapped text is visible */
+  height: auto !important;            /* allow row to auto-size */
+}
+
+.tabulator-row {
+  height: auto !important;            /* row also grows with content */
+}
+</style>
+
+{% if bldgs_no_alerts %}
+  <h5>First, Buildings with No Configured Alerts</h5>
+  <p>
+  {% for bldg in bldgs_no_alerts %}
+    {{ bldg }}<br/>
+  {% endfor %}
+  </p>
+  <hr>
+{% endif %}
+
+<h5>Buildings with Alerts</h5>
+
+<p>Suffixes after Recipient names indicate how they are notified: E: Email, T: Text Message, P: Pushover.
+Only active recipients are shown.
+</p>
+
+<div id="alert-table"></div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<!-- Tabulator JS -->
+<link href="https://unpkg.com/tabulator-tables@latest/dist/css/tabulator.min.css" rel="stylesheet">
+<script src="https://unpkg.com/tabulator-tables@latest/dist/js/tabulator.min.js"></script>
+
+<script>
+  var table = new Tabulator("#alert-table", {
+    data: JSON.parse('{{ data_alerts|escapejs }}'),
+    // Define table columns
+    columns: [
+      {title: "Building", field: "building", visible: false},
+      {title: "Active?", field: "alert_active", formatter: "tickCross"},
+      {title: "Condition", field: "alert_condx"},
+      {title: "Recipients", field: "recipients",  width: 250},
+      {title: "Sensor Notes", field: "sensor_notes", width: 400},
+      {
+        title: "Edit", 
+        field: "edit_url", 
+        width: 65,
+        formatter: "link",
+        formatterParams: {
+          label: "Edit Sensor",
+          target: "_blank",
+        }
+      },
+    ],
+    layout:"fitDataTable",
+    groupBy: ["building"],
+    groupStartOpen: false,
+
+  });
+   
+</script>
+
+{% endblock %}

@@ -882,8 +882,11 @@ class AlertCondition(models.Model):
     last_status = models.CharField(null=True, blank=True, default=None, max_length=255)
 
     def __str__(self):
-        return '%s %s %s, %s in %s mode' % \
-            (self.sensor.title, self.condition, self.test_value, self.only_if_bldg, self.only_if_bldg_mode)
+        desc = '%s %s %s' % \
+            (self.sensor.title, self.condition, self.test_value)
+        if self.only_if_bldg_mode:
+            desc += ', %s in %s mode' % (self.only_if_bldg, self.only_if_bldg_mode)
+        return desc
 
     def handle(self, reading_db, logger, testing = False):
         '''This method handles an alert condition, notifying recipients if needed.
