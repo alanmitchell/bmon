@@ -100,15 +100,12 @@ def inoperative_gateways(time_cutoff_hours: float):
     sensor reading in the last 'time_cutoff_hours' hours. Gateway location,
     the time since last report, and the gateway ID are columns in the DataFrame.
     """
-    df = ro_query(sql_gtw_to_bldg + f"""
+    df = ro_query(f"""
     SELECT 
-        building_list as location, 
+        things.gateway.gateway_id,
         now() - max(ts) AS time_since_last, 
-        things.gateway.gateway_id 
     FROM things.gateway
-    LEFT JOIN gtw_to_bldg
-        ON things.gateway.gateway_id =  gtw_to_bldg.gateway_id
-    GROUP BY things.gateway.gateway_id, location
+    GROUP BY things.gateway.gateway_id
     HAVING time_since_last > INTERVAL '{time_cutoff_hours} hours'
     ORDER BY time_since_last DESC;
     """)

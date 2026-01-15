@@ -28,9 +28,8 @@
     data: JSON.parse('{{ data_inop|escapejs }}'),
     // Define table columns
     columns: [
-      {title: "Gateway Location", field: "location"},
-      {title: "Time since Last Report", field: "time_since_readable"},
       {title: "Gateway ID", field: "gateway_id"},
+      {title: "Time since Last Report", field: "time_since_readable"},
     ],
     layout:"fitDataTable",
   });
