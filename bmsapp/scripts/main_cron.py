@@ -69,8 +69,9 @@ def run():
     #if hr == 0 and hr_div == 1:
     #    suppress_errors(daily_status.run)
 
-    # run the Django DB backup every day.
-    if hr == 2 and hr_div == 6:
+    # run the Django DB backup twice a day, after points in the day when there was
+    # likely to be configuration activity.
+    if (hr, hr_div) in ((12, 5), (18, 5)):
         suppress_errors(backup_django_db.run)
 
     # run the sensor reading database backup every 3 days
