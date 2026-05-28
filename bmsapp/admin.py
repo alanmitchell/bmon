@@ -365,7 +365,7 @@ class LogEntryAdmin(admin.ModelAdmin):
         return False
 
     def has_delete_permission(self, request, obj=None):
-        return False
+        return request.user.is_superuser
 
     # Make all fields read-only
     readonly_fields = [field.name for field in LogEntry._meta.fields]
@@ -400,10 +400,17 @@ admin.site.unregister(User)
 @admin.register(User)
 class RestrictedUserAdmin(UserAdmin):
 
+    def save_model(self, request, obj, form, change):
+        if not change:
+            # New Users should be able to log into the Admin site. That's the only
+            # reason to be a User.
+            obj.is_staff = True
+        super().save_model(request, obj, form, change)
+
     def get_readonly_fields(self, request, obj=None):
         readonly = list(super().get_readonly_fields(request, obj))
         if not request.user.is_superuser:
-            readonly += ['is_staff', 'is_superuser']
+            readonly += ['is_superuser']
         return readonly
 
     def formfield_for_manytomany(self, db_field, request, **kwargs):
