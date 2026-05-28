@@ -391,3 +391,41 @@ class LogEntryAdmin(admin.ModelAdmin):
 
 # Register the LogEntry model with the custom admin class
 admin.site.register(LogEntry, LogEntryAdmin)
+
+from django.contrib.auth.admin import UserAdmin
+from django.contrib.auth.models import User
+
+admin.site.unregister(User)
+
+@admin.register(User)
+class RestrictedUserAdmin(UserAdmin):
+
+    def get_readonly_fields(self, request, obj=None):
+        readonly = list(super().get_readonly_fields(request, obj))
+        if not request.user.is_superuser:
+            readonly += ['is_staff', 'is_superuser']
+        return readonly
+
+    def formfield_for_manytomany(self, db_field, request, **kwargs):
+        if not request.user.is_superuser:
+            if db_field.name == 'groups':
+                kwargs['queryset'] = request.user.groups.all()
+            elif db_field.name == 'user_permissions':
+                kwargs['queryset'] = request.user.user_permissions.all()
+        return super().formfield_for_manytomany(db_field, request, **kwargs)
+
+    def save_related(self, request, form, formsets, change):
+        if request.user.is_superuser or form.instance.pk is None:
+            super().save_related(request, form, formsets, change)
+            return
+
+        target_user = form.instance
+        preserved_groups = set(target_user.groups.all()) - set(request.user.groups.all())
+        preserved_perms = set(target_user.user_permissions.all()) - set(request.user.user_permissions.all())
+
+        super().save_related(request, form, formsets, change)
+
+        if preserved_groups:
+            target_user.groups.add(*preserved_groups)
+        if preserved_perms:
+            target_user.user_permissions.add(*preserved_perms)
