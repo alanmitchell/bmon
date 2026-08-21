@@ -11,7 +11,7 @@ from bmsapp import views_api_v2
 # Could work on simplifying many of these by using the new "path" function
 urlpatterns = [
     # URL for Building list
-    re_path(r'^communities/$', views.communities, name='communities'),
+    re_path(r'^buildings/$', views.buildings, name='buildings'),
     # URL to store one reading into database
     re_path(r'^readingdb/reading/(\w+)/store/$', views.store_reading),
     # URL to store multiple readings into database

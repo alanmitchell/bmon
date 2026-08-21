@@ -50,7 +50,7 @@ TMPL_CONTEXT = {'bmsapp_title_text': getattr(settings, 'BMSAPP_TITLE_TEXT', 'Fac
                 }
 
 
-def communities(request):
+def buildings(request):
    org_id = int(request.GET.get('select_org','0'))
    buildings = view_util.buildings_for_organization(org_id).order_by('title')
    grouped = defaultdict(list)
@@ -61,7 +61,7 @@ def communities(request):
    ctx.update(
        {'grouped': dict(grouped)}
    )
-   return render_to_response('bmsapp/communities.html', ctx)
+   return render_to_response('bmsapp/buildings.html', ctx)
 
 def base_context():
     '''

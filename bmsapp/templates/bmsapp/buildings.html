@@ -1,15 +1,15 @@
 {% extends "bmsapp/base.html" %}
 {% load staticfiles %}
 
-{% block pagetitle %}Communities{% endblock %}
+{% block pagetitle %}Buildings{% endblock %}
 
-{% block this_nav_link %}link_communities{% endblock %}
+{% block this_nav_link %}link_buildings{% endblock %}
 
-{% block title %}Communities A-Z{% endblock %}
+{% block title %}Buildings A-Z{% endblock %}
 
 {% block content %}
 
-<input type="text" id="search_input" placeholder="Search communities..." >
+<input type="text" id="search_input" placeholder="Search buildings..." >
 
 <script>
 document.getElementById("search_input").addEventListener("keyup", function() {
