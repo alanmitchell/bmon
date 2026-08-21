@@ -9,7 +9,7 @@
 
 {% block content %}
 
-<input type="text" id="search_input" placeholder="Search buildings..." >
+<input type="text" id="search_input" placeholder="Search buildings..." autofocus>
 
 <script>
 document.getElementById("search_input").addEventListener("keyup", function() {
@@ -35,6 +35,8 @@ document.getElementById("search_input").addEventListener("keyup", function() {
 });
 
 $(function () {
+    $("#search_input").focus();
+
     $("#select_org").change(function () {
         location.reload(true);
     });
