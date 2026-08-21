@@ -1,0 +1,56 @@
+{% extends "bmsapp/base.html" %}
+{% load staticfiles %}
+
+{% block pagetitle %}Communities{% endblock %}
+
+{% block this_nav_link %}link_communities{% endblock %}
+
+{% block title %}Communities A-Z{% endblock %}
+
+{% block content %}
+
+<input type="text" id="search_input" placeholder="Search communities..." >
+
+<script>
+document.getElementById("search_input").addEventListener("keyup", function() {
+
+    var query = document.getElementById("search_input").value.toLowerCase();
+    var links = document.querySelectorAll("#building_list li a");
+
+    links.forEach(function(link) {
+        if (link.innerText.toLowerCase().includes(query)) {
+            link.parentElement.style.display = "";
+        } else {
+            link.parentElement.style.display = "none";
+        }
+    });
+
+    document.querySelectorAll("#building_list h3").forEach(function(header) {
+        var letter = header.dataset.letter;
+        var visibleItems = document.querySelectorAll(
+            '#building_list li[data-letter="' + letter + '"]:not([style*="display: none"])'
+        );
+        header.style.display = visibleItems.length > 0 ? "" : "none";
+    });
+});
+
+$(function () {
+    $("#select_org").change(function () {
+        location.reload(true);
+    });
+});
+
+</script>
+
+<ul id="building_list">
+{% for letter, bldgs in grouped.items %}
+    <h3 data-letter="{{ letter }}">{{ letter }}</h3>
+    {% for bldg in bldgs %}
+       <li data-letter="{{ letter }}"><a href="/reports/?select_bldg={{ bldg.id }}&select_chart=1" style="font-size: 18px;">{{ bldg.title }}</a></li>
+    {% endfor %}
+{% endfor %}
+</ul>
+
+{% endblock %}
+
+

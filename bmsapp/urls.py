@@ -10,6 +10,8 @@ from bmsapp import views_api_v2
 
 # Could work on simplifying many of these by using the new "path" function
 urlpatterns = [
+    # URL for Building list
+    re_path(r'^communities/$', views.communities, name='communities'),
     # URL to store one reading into database
     re_path(r'^readingdb/reading/(\w+)/store/$', views.store_reading),
     # URL to store multiple readings into database
@@ -43,7 +45,7 @@ urlpatterns = [
             views.show_video, name='show-video'),
     re_path(r'^make-store-key/$', views.make_store_key),
     re_path(r'^ecobee-auth/$', views.ecobee_auth),
-    
+
     re_path(r'^unassigned-sensors/$', views.unassigned_sensors),
     re_path(r'^unassigned-sensors/delete_ids/$',
             views.delete_unassigned_sensor_ids),

@@ -77,6 +77,7 @@ TERMS_LEGAL_JURISDICTION = '{{ terms_legal_jurisdiction }}'
 #     The third item (optional) is True if this item should be the default index page for
 #         the application.
 BMSAPP_NAV_LINKS = (('Map', 'map'),
+                    ('Communities','communities'),
                     ('Graphs', 'reports', True),
                     ('Energy Reports', 'energy-reports'),
                     ('Custom Reports', 'custom-reports'),

@@ -20,6 +20,8 @@ from django.template import loader
 from django.db.models import Q
 import pandas as pd
 
+
+from collections import defaultdict
 from . import models
 from . import logging_setup
 from . import view_util
@@ -47,6 +49,19 @@ TMPL_CONTEXT = {'bmsapp_title_text': getattr(settings, 'BMSAPP_TITLE_TEXT', 'Fac
                 'version_date': view_util.version_date_string(),
                 }
 
+
+def communities(request):
+   org_id = int(request.GET.get('select_org','0'))
+   buildings = view_util.buildings_for_organization(org_id).order_by('title')
+   grouped = defaultdict(list)
+   for bldg in buildings:
+       letter = bldg.title[0]
+       grouped[letter].append(bldg)
+   ctx = base_context()
+   ctx.update(
+       {'grouped': dict(grouped)}
+   )
+   return render_to_response('bmsapp/communities.html', ctx)
 
 def base_context():
     '''
@@ -450,7 +465,7 @@ def store_readings_beaded(request):
             lin = lines[end]
             if len(lin) and lin[0] == '<':
                 break
-   
+
         xml_doc = ''.join(lines[st:end+1])
 
         root = ET.fromstring(xml_doc)
@@ -668,7 +683,7 @@ def map_json(request):
     for bldg in bldgs:
         # Check for alerting sensors
         sensor_alerts = [(alert_condx.priority, alert_condx.last_status) for alert_condx in models.AlertCondition.objects.exclude(Q(last_status=None) | Q(active=False)).filter(sensor__pk__in=[sensor.pk for sensor in bldg.sensors.all()]).all()]
- 
+
         # Add the building feature to the map json
         ret['features'].append({"type": "Feature",
                                 "geometry": {"type": "Point",
@@ -681,7 +696,7 @@ def map_json(request):
                                                "href": '{}?select_org={}&select_bldg={}'.format(request.build_absolute_uri('../reports/'), org_id, bldg.id)
                                                }
                                 })
-        
+
         # Add additional points for sensors that have lat/longs
         sensors = bldg.sensors.all().exclude(latitude__isnull=True).exclude(longitude__isnull=True)
         for sensor in sensors:
@@ -926,7 +941,7 @@ def delete_unassigned_sensor_ids(request):
         db.conn.commit()
     except Exception as e:
         return HttpResponse(e, status=500)
-    
+
     return HttpResponse(f'Deleted {delete_count} unassigned sensors')
 
 @login_required(login_url='../admin/login/')
@@ -964,7 +979,7 @@ ORDER BY ts DESC
 
         # determine if sensor is currently alarming
         return_dict['is_alarming'] = row_dict['alert_id'] in alarming_ids
-        
+
         # find the Sensor object so notes and an editing URL can be made.
         sensor_objs = models.Sensor.objects.filter(sensor_id=row_dict['sensor_id'])
         if len(sensor_objs):
@@ -1012,7 +1027,7 @@ def configured_alerts(request):
                 'edit_url': f'/admin/bmsapp/sensor/{alert.sensor.pk}/change/'
             }
             alert_list.append(alert_info)
-    
+
     # sort alerts in the order desired for display
     alert_list.sort(key=lambda a: (a['building'], a['alert_active'], a['alert_condx']))
 
@@ -1021,7 +1036,7 @@ def configured_alerts(request):
     bldgs_with_alerts = set([a['building'] for a in alert_list])
     bldgs_no_alerts = list(all_bldgs - bldgs_with_alerts)
     bldgs_no_alerts.sort()
-    
+
     ctx = base_context()
     ctx['data_alerts'] = json.dumps(alert_list)
     ctx['bldgs_no_alerts'] = bldgs_no_alerts
@@ -1107,7 +1122,7 @@ def wildcard(request, template_name):
         template = loader.get_template('bmsapp/%s.html' % template_name)
     except:
         return HttpResponse('Template %s does not exist.' % template_name)
-    
+
     return HttpResponse(template.render(base_context(), request))
 
 
