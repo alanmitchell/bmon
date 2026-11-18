@@ -14,7 +14,7 @@ from .store import LOG_DIR
 
 def parse_uplink(msg: dict) -> list:
     """Returns one CSV line for each gateway that received the Things v3 uplink
-    message 'msg'. The fields are in the order of store.COLUMNS. None of the
+    message 'msg'. The fields are in the order of store.LOG_FIELDS. None of the
     values can contain a comma, so no quoting is needed.
     """
     ids = msg["end_device_ids"]

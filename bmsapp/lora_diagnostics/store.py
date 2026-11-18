@@ -35,22 +35,34 @@ DJANGO_DB_PATH = PACKAGE_DIR.parent.parent / "bmon.sqlite"
 # Days of data to keep.
 RETENTION_DAYS = 90
 
-# Column names and DuckDB types of the gateway data, in CSV log file order.
-# Log lines written before the last three columns existed have only 7 fields;
-# those columns must stay at the end so such lines load with NULLs.
+# Column names and DuckDB types of the gateway data, in the order they are
+# stored in the Parquet files (and so returned by SELECT *).
 COLUMNS = {
     "ts": "TIMESTAMPTZ",           # when the Things network received the uplink
     "device_eui": "VARCHAR",
-    "frame_counter": "INTEGER",
-    "gateway_id": "VARCHAR",
-    "signal_snr": "FLOAT",
-    "signal_rssi": "SMALLINT",
-    "data_rate": "VARCHAR",        # e.g. SF7BW125
     "device_id": "VARCHAR",
     "application_id": "VARCHAR",
     "frm_payload": "VARCHAR",      # base64 text, as sent by the Things network
+    "frame_counter": "INTEGER",
+    "data_rate": "VARCHAR",        # e.g. SF7BW125
+    "gateway_id": "VARCHAR",
+    "signal_snr": "FLOAT",
+    "signal_rssi": "SMALLINT",
 }
-LEGACY_COLUMN_COUNT = 7
+
+# The order of the fields in a CSV log line, which differs from the order
+# above. Log lines written before the last three fields existed have only 7
+# fields, so new fields must always be added at the end of this list.
+LOG_FIELDS = [
+    "ts", "device_eui", "frame_counter", "gateway_id", "signal_snr", "signal_rssi",
+    "data_rate", "device_id", "application_id", "frm_payload",
+]
+
+# The columns of the 'gateway' table in the DuckDB database used before Parquet.
+LEGACY_DB_COLUMNS = LOG_FIELDS[:7]
+
+# COLUMNS as a SQL select list, to read data from any source in store order.
+COLUMN_LIST = ", ".join(COLUMNS)
 
 
 # ------------------------------ Reading ------------------------------
@@ -119,9 +131,11 @@ def migrate_legacy_db():
             "SELECT count(*) FROM information_schema.tables WHERE table_name = 'gateway'"
         ).fetchone()[0]
         if has_table:
-            new_cols = list(COLUMNS)[LEGACY_COLUMN_COUNT:]
-            null_cols = ", ".join(f"NULL::{COLUMNS[c]} AS {c}" for c in new_cols)
-            source = f"(SELECT *, {null_cols} FROM gateway)"
+            # the columns that the old database lacks are filled with NULLs
+            select_list = ", ".join(
+                c if c in LEGACY_DB_COLUMNS else f"NULL::{t} AS {c}" for c, t in COLUMNS.items()
+            )
+            source = f"(SELECT {select_list} FROM gateway)"
             cutoff = datetime.now(timezone.utc).date() - timedelta(days=RETENTION_DAYS)
             days = conn.execute(
                 "SELECT DISTINCT ts::DATE FROM gateway WHERE ts::DATE >= ? ORDER BY 1", [cutoff]
@@ -153,10 +167,10 @@ def _load_log_files(log_files):
                 # auto_detect must be off: DuckDB's format sniffer rejects a
                 # file that mixes 7-field and 10-field lines.
                 conn.execute(
-                    "INSERT INTO incoming SELECT * FROM read_csv(?, auto_detect=false, "
+                    f"INSERT INTO incoming SELECT {COLUMN_LIST} FROM read_csv(?, auto_detect=false, "
                     "header=false, delim=',', quote='', escape='', columns=?, "
                     "null_padding=true)",
-                    [str(path), COLUMNS],
+                    [str(path), {name: COLUMNS[name] for name in LOG_FIELDS}],
                 )
                 loaded.append(path)
             except Exception as e:
@@ -170,10 +184,10 @@ def _load_log_files(log_files):
             "SELECT DISTINCT ts::DATE FROM incoming WHERE ts IS NOT NULL ORDER BY 1"
         ).fetchall()
         for (day,) in days:
-            sql = f"SELECT * FROM incoming WHERE {_day_filter(day)}"
+            sql = f"SELECT {COLUMN_LIST} FROM incoming WHERE {_day_filter(day)}"
             day_file = GATEWAY_DIR / f"{day}.parquet"
             if day_file.exists():
-                sql += f" UNION ALL SELECT * FROM read_parquet('{day_file}')"
+                sql += f" UNION ALL SELECT {COLUMN_LIST} FROM read_parquet('{day_file}')"
             # DISTINCT means that reloading a log file (e.g. after a crash
             # between writing the day file and deleting the log) adds nothing.
             _write_day_file(conn, day, f"SELECT DISTINCT * FROM ({sql})")

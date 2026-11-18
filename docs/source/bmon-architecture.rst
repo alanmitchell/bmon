@@ -272,10 +272,10 @@ handled by the ``bmsapp/lora_diagnostics`` package:
   ``bmsapp/lora_diagnostics/db/gateway/``. 90 days of data are kept.
 * ``queries.py`` holds the queries behind the two reports.
 
-The columns are ``ts``, ``device_eui``, ``frame_counter``, ``gateway_id``,
-``signal_snr``, ``signal_rssi``, ``data_rate``, ``device_id``, ``application_id``
-and ``frm_payload`` (the base64 payload text). The last three are empty for data
-recorded before they were added.
+The columns are ``ts``, ``device_eui``, ``device_id``, ``application_id``,
+``frm_payload`` (the base64 payload text), ``frame_counter``, ``data_rate``,
+``gateway_id``, ``signal_snr`` and ``signal_rssi``. ``device_id``, ``application_id``
+and ``frm_payload`` are empty for data recorded before they were added.
 
 Because the store is plain Parquet files that are always replaced atomically,
 any number of other programs can read the data at any time, for as long as they

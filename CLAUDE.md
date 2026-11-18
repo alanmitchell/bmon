@@ -59,7 +59,7 @@ Flow: view → `bmsapp/storereads.py` (validates store key, applies **transform 
 
 ### LoRa gateway diagnostics
 
-`bmsapp/lora_diagnostics/` records, for each Things v3 uplink, which gateways heard it (called from `lora/decoder.py`). Flow: `uplink_log.py` appends CSV lines to a 5-minute rotating log in `gtw-log/` → `store.ingest()` (run from `main_cron`) merges completed logs into one Parquet file per UTC day in `db/gateway/` (atomic replace, 90-day retention) → `queries.py` serves the two gateway report views through an in-memory DuckDB connection (`store.connect()`). There is no database file and readers take no locks, so external tools may read the Parquet files at any time. New columns must be appended to the end of `store.COLUMNS`.
+`bmsapp/lora_diagnostics/` records, for each Things v3 uplink, which gateways heard it (called from `lora/decoder.py`). Flow: `uplink_log.py` appends CSV lines to a 5-minute rotating log in `gtw-log/` → `store.ingest()` (run from `main_cron`) merges completed logs into one Parquet file per UTC day in `db/gateway/` (atomic replace, 90-day retention) → `queries.py` serves the two gateway report views through an in-memory DuckDB connection (`store.connect()`). There is no database file and readers take no locks, so external tools may read the Parquet files at any time. `store.COLUMNS` sets the Parquet column order; `store.LOG_FIELDS` is the CSV log line order, and new fields must be appended to its end.
 
 ### Cron / scheduled work
 
