@@ -33,7 +33,7 @@ LEGACY_DB_PATH = PACKAGE_DIR / "db" / "things.db"   # the DuckDB file used befor
 DJANGO_DB_PATH = PACKAGE_DIR.parent.parent / "bmon.sqlite"
 
 # Days of data to keep.
-RETENTION_DAYS = 90
+RETENTION_DAYS = 365
 
 # Column names and DuckDB types of the gateway data, in the order they are
 # stored in the Parquet files (and so returned by SELECT *).
