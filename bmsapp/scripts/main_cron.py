@@ -13,6 +13,7 @@ from . import daily_status
 from . import backup_django_db
 from . import backup_readingdb
 from . import check_alerts
+from . import lora_diagnostics_ingest
 from . import run_periodic_scripts
 from . import terminate_old_cron
 
@@ -49,6 +50,10 @@ def run():
     # old ones.
     if hr_div == 2:
         suppress_errors(terminate_old_cron.run)
+
+    # move completed LoRa gateway diagnostic logs into their data store. Done
+    # before the periodic scripts because those can take a long time.
+    suppress_errors(lora_diagnostics_ingest.run)
 
     # run periodic scripts.  They all run on some multiple of five minutes.
     suppress_errors(run_periodic_scripts.run)

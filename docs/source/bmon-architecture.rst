@@ -246,6 +246,7 @@ This cron job:
 * creates calculated reading values and stores Internet weather data in the reading database every half hour, 
 * checks for active Alert Conditions every five minutes, 
 * creates a daily status line in the log file indicating how many sensor readings were stored in the database during the past day (viewable by browsing to ``<Domain URL>/show_log``), 
+* moves LoRaWAN gateway diagnostic data into its data store every five minutes (see the next section),
 * creates a backup of the main Django database every day, and 
 * creates a backup of the reading database every three days.
 
@@ -255,6 +256,46 @@ using the `Django Extensions runscript feature <http://django-extensions.readthe
 This runscript command allows the scripts to operate within the Django
 context, having full access to Django models and the settings file, for
 example.
+
+LoRaWAN Gateway Diagnostic Data
+-------------------------------
+
+For sensors reporting through the Things Network, BMON records which
+gateways received each sensor transmission and at what signal strength.
+This data drives the "Inactive Gateways" and "Gateway to Location" reports and is
+handled by the ``bmsapp/lora_diagnostics`` package:
+
+* ``uplink_log.py`` writes one CSV line per receiving gateway to a log file in
+  ``bmsapp/lora_diagnostics/gtw-log/``; a new log file is started every five minutes.
+* ``store.py`` moves completed log files into the data store when the main cron job
+  runs. The store is a directory of Parquet files, one per UTC day, in
+  ``bmsapp/lora_diagnostics/db/gateway/``. 90 days of data are kept.
+* ``queries.py`` holds the queries behind the two reports.
+
+The columns are ``ts``, ``device_eui``, ``frame_counter``, ``gateway_id``,
+``signal_snr``, ``signal_rssi``, ``data_rate``, ``device_id``, ``application_id``
+and ``frm_payload`` (the base64 payload text). The last three are empty for data
+recorded before they were added.
+
+Because the store is plain Parquet files that are always replaced atomically,
+any number of other programs can read the data at any time, for as long as they
+like, without interfering with BMON. For example, from the
+`DuckDB <https://duckdb.org>`_ command line client (adjust the path for your install):
+
+::
+
+    CREATE VIEW gateway AS
+        SELECT * FROM read_parquet('/path/to/bmon/bmsapp/lora_diagnostics/db/gateway/*.parquet');
+    SELECT gateway_id, count(*) FROM gateway GROUP BY ALL ORDER BY 2 DESC;
+
+A Python script can read the files the same way with the ``duckdb`` package. If the
+script runs in the BMON environment (with ``DJANGO_SETTINGS_MODULE=bmon.settings``),
+``bmsapp.lora_diagnostics.connect()`` returns a DuckDB connection that already has
+the ``gateway`` view defined.
+
+Installs that predate the Parquet store kept this data in a DuckDB database file,
+``db/things.db``. It is converted automatically the first time the cron job runs
+after the update and renamed to ``things.db.migrated``, which can then be deleted.
 
 --------------
 

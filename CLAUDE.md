@@ -57,9 +57,13 @@ Flow: view → `bmsapp/storereads.py` (validates store key, applies **transform 
 
 **New-reading hook:** after a reading is stored, `run_new_reading_hook` (in `bmsdata.py`) spawns a daemon thread calling `Sensor.new_reading()`, which is where **alert checking** now happens (alerts are checked per-incoming-reading, not on the cron pass — see the comments in `main_cron.py`).
 
+### LoRa gateway diagnostics
+
+`bmsapp/lora_diagnostics/` records, for each Things v3 uplink, which gateways heard it (called from `lora/decoder.py`). Flow: `uplink_log.py` appends CSV lines to a 5-minute rotating log in `gtw-log/` → `store.ingest()` (run from `main_cron`) merges completed logs into one Parquet file per UTC day in `db/gateway/` (atomic replace, 90-day retention) → `queries.py` serves the two gateway report views through an in-memory DuckDB connection (`store.connect()`). There is no database file and readers take no locks, so external tools may read the Parquet files at any time. New columns must be appended to the end of `store.COLUMNS`.
+
 ### Cron / scheduled work
 
-`bmsapp/scripts/main_cron.py` is run by an OS cron job every 5 minutes and dispatches sub-tasks based on the hour / 5-minute slot: `run_periodic_scripts`, `calc_readings` (calculated fields), DB backups (`backup_django_db`, `backup_readingdb`), and `terminate_old_cron`. Each is wrapped in `suppress_errors`. Scripts live in `bmsapp/scripts/`.
+`bmsapp/scripts/main_cron.py` is run by an OS cron job every 5 minutes and dispatches sub-tasks based on the hour / 5-minute slot: `lora_diagnostics_ingest`, `run_periodic_scripts`, `calc_readings` (calculated fields), DB backups (`backup_django_db`, `backup_readingdb`), and `terminate_old_cron`. Each is wrapped in `suppress_errors`. Scripts live in `bmsapp/scripts/`.
 
 ### Periodic scripts (external data collection)
 
