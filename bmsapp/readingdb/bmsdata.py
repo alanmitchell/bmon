@@ -11,6 +11,7 @@ import subprocess
 import glob
 import calendar
 import threading
+from concurrent.futures import ThreadPoolExecutor
 
 import pytz
 from dateutil import parser
@@ -23,6 +24,111 @@ _logger = logging.getLogger('bms.' + __name__)
 # The path to the default Sqlite database used to store readings.
 DEFAULT_DB = os.path.join(os.path.dirname(__file__), 'data', 'bms_data.sqlite')
 
+# ---------------------------------------------------------------------------
+# Process-level and thread-level state shared by all BMSdata objects.
+#
+# Creating a new SQLite connection is cheap, but the first query on a new
+# connection makes SQLite parse the definition of every table in the database.
+# The reading database has one table per sensor, so that parse is expensive
+# (tens of milliseconds with ~10,000 sensors). To avoid paying that cost for
+# every BMSdata object:
+#
+#   * Each thread keeps one open connection per database file and every
+#     BMSdata object created on that thread uses it (SQLite connections cannot
+#     be shared across threads).
+#   * The set of table names (sensor IDs) is cached once per process and is
+#     only reloaded when SQLite's schema version changes, which is how table
+#     additions/deletions made by other processes are detected.
+
+# Holds the 'conns' dictionary for each thread: database path -> connection.
+_thread_local = threading.local()
+
+# Maps database path -> _SchemaCache object for this process.
+_schema_caches = {}
+_schema_caches_lock = threading.Lock()
+
+# Tables that are not sensor reading tables as far as sensor_id_exists() is concerned.
+_NON_SENSOR_TABLES = ('_last_raw', '_junk')
+
+
+class _SchemaCache:
+    """Process-wide information about the tables in one reading database file.
+    The ID sets are frozensets that are replaced, never modified, so a thread
+    can safely iterate one while another thread is updating the cache.
+    """
+    def __init__(self):
+        self.lock = threading.RLock()
+        self.version = None              # SQLite schema version the ID sets were loaded at
+        self.sensor_ids = frozenset()    # all table names, including special tables
+        self.sensor_ids_lower = frozenset()   # lower case version of the above
+        self.setup_done = False          # True once the special tables have been checked
+
+
+def _get_schema_cache(db_path):
+    """Returns the _SchemaCache object for the database file at 'db_path'.
+    """
+    with _schema_caches_lock:
+        cache = _schema_caches.get(db_path)
+        if cache is None:
+            cache = _schema_caches[db_path] = _SchemaCache()
+        return cache
+
+
+def _get_connection(db_path):
+    """Returns the SQLite connection that the current thread uses for the
+    database file at 'db_path', creating it if this is the first use.
+    """
+    conns = getattr(_thread_local, 'conns', None)
+    if conns is None:
+        conns = _thread_local.conns = {}
+    conn = conns.get(db_path)
+    if conn is None:
+        conn = sqlite3.connect(db_path)
+        # use the SQLite Row row_factory for all Select queries
+        conn.row_factory = sqlite3.Row
+        conns[db_path] = conn
+    return conn
+
+
+def release_thread_connections(**kwargs):
+    """Rolls back any uncommitted transaction on the current thread's reading
+    database connections. Because connections stay open, a write that was
+    interrupted by an error would otherwise keep the database write-locked.
+    This is connected to Django's request_finished signal below, and is also
+    called after each new-reading hook.
+    """
+    for conn in getattr(_thread_local, 'conns', {}).values():
+        try:
+            if conn.in_transaction:
+                conn.rollback()
+        except Exception:
+            _logger.exception('Error rolling back reading database transaction.')
+
+
+try:
+    from django.core.signals import request_finished
+    request_finished.connect(release_thread_connections)
+except ImportError:
+    # Django is not available; nothing to connect to.
+    pass
+
+
+# The "new reading" hooks run on this small pool of long-lived threads so that
+# each thread's reading database connection is reused from one hook to the next.
+_hook_executor = ThreadPoolExecutor(max_workers=4, thread_name_prefix='bmon-hook')
+
+
+def _run_sensor_hook(sensor, ts, val):
+    """Runs in a hook thread: calls the new_reading() method of 'sensor'.
+    """
+    try:
+        sensor.new_reading(ts, val)
+    except Exception:
+        _logger.exception('Error in new reading hook for sensor %s' % sensor.sensor_id)
+    finally:
+        release_thread_connections()
+
+
 def run_new_reading_hook(sensor_id, ts, val):
     """This runs the "new reading" hook for a Sensor that has just received and stored a new
     reading. This is run in a separate Thread due some slow processing that could occur.
@@ -33,9 +139,7 @@ def run_new_reading_hook(sensor_id, ts, val):
 
     try:
         sensor = Sensor.objects.get(sensor_id=sensor_id)
-        t = threading.Thread(target=sensor.new_reading, args=(ts, val))
-        t.daemon = True
-        t.start()
+        _hook_executor.submit(_run_sensor_hook, sensor, ts, val)
 
     except Sensor.DoesNotExist:
         # this is an unassigned sensor, so no associated Sensor object
@@ -45,60 +149,109 @@ def run_new_reading_hook(sensor_id, ts, val):
 
 class BMSdata:
 
+    @property
+    def sensor_ids(self):
+        """The set of all table names in the database: sensor IDs plus the special
+        tables with names starting with underbar. Shared by all BMSdata objects
+        in this process.
+        """
+        return self._cache.sensor_ids
+
+    @property
+    def sensor_ids_lower(self):
+        """Lower case version of 'sensor_ids', needed because SQLite table names
+        are case insensitive.
+        """
+        return self._cache.sensor_ids_lower
+
     def add_to_sensor_id_lists(self, sensor_id):
         """Add `sensor_id` to the two sets tracking sensor ids.
         """
-        self.sensor_ids.add(sensor_id)
-        self.sensor_ids_lower.add(sensor_id.lower())
+        cache = self._cache
+        with cache.lock:
+            cache.sensor_ids = cache.sensor_ids | {sensor_id}
+            cache.sensor_ids_lower = cache.sensor_ids_lower | {sensor_id.lower()}
 
     def remove_from_sensor_id_lists(self, sensor_id):
         """ Remove `sensor_id` from the two sets tracking sensor ids.
         """
-        if sensor_id in self.sensor_ids:
-            self.sensor_ids.remove(sensor_id)
-        if sensor_id.lower() in self.sensor_ids_lower:
-            self.sensor_ids_lower.remove(sensor_id.lower())
+        cache = self._cache
+        with cache.lock:
+            cache.sensor_ids = cache.sensor_ids - {sensor_id}
+            cache.sensor_ids_lower = cache.sensor_ids_lower - {sensor_id.lower()}
 
     def __init__(self, fname=DEFAULT_DB):
         """Creates the database object.
         fname: full path to SQLite database file. If the file is not present, 
             it will be created.
+
+        This is called for every incoming sensor reading, so it needs to be fast.
+        The database connection and the set of sensor IDs are shared with other
+        BMSdata objects (see comments at the top of this module); the only work
+        normally done here is a check of the SQLite schema version.
         """
 
         self.db_fname = fname   # save database filename.
+        db_path = os.path.abspath(fname)
 
-        self.conn = sqlite3.connect(self.db_fname)
-
-        # use the SQLite Row row_factory for all Select queries
-        self.conn.row_factory = sqlite3.Row
+        # the connection is shared by all BMSdata objects on this thread.
+        self.conn = _get_connection(db_path)
 
         # now create a cursor object
         self.cursor = self.conn.cursor()
-        
-        # make a set list of all of the tables (sensor IDs + special tables
-        # with names starting with underbar) in the database, so
-        # that it is fast to determine whether a sensor exists in the current
-        # database.
-        recs = self.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
-        self.sensor_ids = set([rec['name'] for rec in recs])  # plus special tables
 
-        # because SQLite has case insensitive table names, make a sensor ID set with lower-case names
-        self.sensor_ids_lower = {tbl.lower() for tbl in self.sensor_ids}
-        
-        # Check to see if the table that stores last raw reading for cumulative
-        # counter sensors exists.  If not, make it.  Make the value field a 
-        # real instead of integer in case this table is needed for non counter
-        # sensors in the future.
-        if '_last_raw' not in self.sensor_ids:
-            self.cursor.execute("CREATE TABLE [_last_raw] (id varchar(50) primary key, ts integer, val real)")
-            self.conn.commit()
-            self.add_to_sensor_id_lists('_last_raw')
+        # the table name sets are shared by all BMSdata objects in this process.
+        self._cache = _get_schema_cache(db_path)
+        self._sync_sensor_ids()
 
-        # Check to see if the table that stores alert log records exists.
-        # If not, make it.
-        if '_alert_log' not in self.sensor_ids:
-            create_sql = """
-CREATE TABLE [_alert_log] (
+        if not self._cache.setup_done:
+            self._setup_special_tables()
+
+    def _sync_sensor_ids(self, force=False):
+        """Reloads the set of table names (sensor IDs + special tables with names
+        starting with underbar) if tables have been added to or removed from the
+        database since the set was last loaded, or if 'force' is True. Having the
+        set makes it fast to determine whether a sensor exists in the database.
+        """
+        cache = self._cache
+
+        # SQLite increments the schema version whenever any connection, in this
+        # or another process, changes the database schema.
+        version = self.conn.execute('PRAGMA schema_version').fetchone()[0]
+        if force or version != cache.version:
+            recs = self.conn.execute("SELECT name FROM sqlite_master WHERE type='table'").fetchall()
+            sensor_ids = frozenset(rec[0] for rec in recs)
+            # because SQLite has case insensitive table names, make a sensor ID set with lower-case names
+            sensor_ids_lower = frozenset(tbl.lower() for tbl in sensor_ids)
+            with cache.lock:
+                cache.sensor_ids = sensor_ids
+                cache.sensor_ids_lower = sensor_ids_lower
+                # 'version' was read before the table list, so if the schema changed in
+                # between, the next check will see a mismatch and reload again.
+                cache.version = version
+
+    def _setup_special_tables(self):
+        """Makes sure the special tables (not sensor reading tables) are present
+        and have the current structure. Only runs once per process for each database file.
+        """
+        cache = self._cache
+        with cache.lock:
+            if cache.setup_done:
+                return
+
+            # Check to see if the table that stores last raw reading for cumulative
+            # counter sensors exists.  If not, make it.  Make the value field a 
+            # real instead of integer in case this table is needed for non counter
+            # sensors in the future.
+            if '_last_raw' not in cache.sensor_ids:
+                self.cursor.execute("CREATE TABLE IF NOT EXISTS [_last_raw] (id varchar(50) primary key, ts integer, val real)")
+                self.conn.commit()
+
+            # Check to see if the table that stores alert log records exists.
+            # If not, make it.
+            if '_alert_log' not in cache.sensor_ids:
+                create_sql = """
+CREATE TABLE IF NOT EXISTS [_alert_log] (
 ts INTEGER,
 alert_id INTEGER,
 sensor_id VARCHAR(50),
@@ -107,56 +260,64 @@ building VARCHAR(80),
 recipients VARCHAR(255)
 );
 """
-            self.cursor.execute(create_sql)
-            self.conn.commit()
-            self.add_to_sensor_id_lists('_alert_log')
-
-        else:
-            # There is an alert log table, but it's structure may need to be modified.
-            # Get a list of the columns in the table.
-            columns_info = self.cursor.execute("PRAGMA table_info([_alert_log]);").fetchall()
-            column_names = [column[1] for column in columns_info]
-
-            # If the 'building' column is not present, then this structure needs updating.
-            if 'building' not in column_names:
-
-                # first, rename the 'id' column to 'sensor_id'. Renames only work with
-                # SQLite versions 3.25.0+ .
-                modify_sql = "ALTER TABLE [_alert_log] RENAME COLUMN id TO sensor_id"
-                self.cursor.execute(modify_sql)
-                
-                # Add the additional columns. SQLite only allows adding one column at a time.
-                modify_sql = "ALTER TABLE [_alert_log] ADD COLUMN alert_id INTEGER;"
-                self.cursor.execute(modify_sql)
-                modify_sql = "ALTER TABLE [_alert_log] ADD COLUMN building VARCHAR(80);"
-                self.cursor.execute(modify_sql)
-                modify_sql = "ALTER TABLE [_alert_log] ADD COLUMN recipients VARCHAR(255);"
-                self.cursor.execute(modify_sql)
-                
+                self.cursor.execute(create_sql)
                 self.conn.commit()
 
-    def __del__(self):
-        """Used to ensure that database is closed when this object is destroyed.
-        """
-        self.close()
-        
+            else:
+                # There is an alert log table, but it's structure may need to be modified.
+                # Get a list of the columns in the table.
+                columns_info = self.cursor.execute("PRAGMA table_info([_alert_log]);").fetchall()
+                column_names = [column[1] for column in columns_info]
+
+                # If the 'building' column is not present, then this structure needs updating.
+                if 'building' not in column_names:
+
+                    # first, rename the 'id' column to 'sensor_id'. Renames only work with
+                    # SQLite versions 3.25.0+ .
+                    modify_sql = "ALTER TABLE [_alert_log] RENAME COLUMN id TO sensor_id"
+                    self.cursor.execute(modify_sql)
+                    
+                    # Add the additional columns. SQLite only allows adding one column at a time.
+                    modify_sql = "ALTER TABLE [_alert_log] ADD COLUMN alert_id INTEGER;"
+                    self.cursor.execute(modify_sql)
+                    modify_sql = "ALTER TABLE [_alert_log] ADD COLUMN building VARCHAR(80);"
+                    self.cursor.execute(modify_sql)
+                    modify_sql = "ALTER TABLE [_alert_log] ADD COLUMN recipients VARCHAR(255);"
+                    self.cursor.execute(modify_sql)
+                    
+                    self.conn.commit()
+
+            # pick up any tables created above.
+            self._sync_sensor_ids()
+            cache.setup_done = True
+
     def close(self):
-        """Closes this database object.  This is called in the destructor for this object.
+        """Call when finished with this database object. The underlying connection
+        is shared with other BMSdata objects on this thread, so it stays open; only this
+        object's cursor is closed, and any uncommitted changes are rolled back.
         """
-        self.conn.close()
+        try:
+            self.cursor.close()
+            if self.conn.in_transaction:
+                self.conn.rollback()
+        except sqlite3.Error:
+            pass
 
     def sensor_id_exists(self, sensor_id):
         """Returns True if 'sensor_id' exists in the reading database, False
-        otherwise.  SQLite has case insensitive table names, no need to check
-        lower case version of the ID name.
+        otherwise.  SQLite has case insensitive table names, so the check is
+        done against the lower case version of the ID name.
         """
-        return (sensor_id.lower() in self.sensor_ids_lower - {'_last_raw', '_junk'})
+        sensor_id = sensor_id.lower()
+        return sensor_id in self.sensor_ids_lower and sensor_id not in _NON_SENSOR_TABLES
 
     def add_sensor_table(self, sensor_id):
         """Adds a table to hold readings from a sensor with the id 'sensor_id'.  Also
         adds the id to the set that holds sensor ids.
         """
-        self.cursor.execute("CREATE TABLE [%s] (ts integer primary key, val real)" % sensor_id)
+        # Another process may have created the table since the sensor ID set was
+        # loaded, so use IF NOT EXISTS.
+        self.cursor.execute("CREATE TABLE IF NOT EXISTS [%s] (ts integer primary key, val real)" % sensor_id)
         self.conn.commit()
         self.add_to_sensor_id_lists(sensor_id)
 

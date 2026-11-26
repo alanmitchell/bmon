@@ -47,7 +47,7 @@ When adding a setting that all installs need, add it to `settings_common.py` (or
 This is the most important structural fact. BMON uses **two SQLite databases** that must not be confused:
 
 1. **Config DB** (`bmon.sqlite`) — standard Django ORM. Holds configuration: `Building`, `Sensor`, `BldgToSensor`, `AlertCondition`, `DashboardItem`, `PeriodicScript`, `Organization`, etc. All in `bmsapp/models.py`.
-2. **Reading DB** (`bmsapp/readingdb/data/bms_data.sqlite`) — the actual time-series sensor readings, accessed **not** through the ORM but through the custom `BMSdata` class in `bmsapp/readingdb/bmsdata.py` (raw `sqlite3`, one table per sensor id). Anything reading or writing sensor values goes through a `BMSdata` instance.
+2. **Reading DB** (`bmsapp/readingdb/data/bms_data.sqlite`) — the actual time-series sensor readings, accessed **not** through the ORM but through the custom `BMSdata` class in `bmsapp/readingdb/bmsdata.py` (raw `sqlite3`, one table per sensor id). Anything reading or writing sensor values goes through a `BMSdata` instance. Creating one is cheap: instances on the same thread share one persistent SQLite connection, and the set of sensor-table names is cached per process and reloaded only when `PRAGMA schema_version` changes (opening a fresh connection costs ~30 ms because SQLite must parse thousands of table definitions). So `close()` does not close the connection, and code using `db.cursor` directly must commit or the write lock is held until the request ends.
 
 ### Data ingress path
 
@@ -55,7 +55,7 @@ Sensor gateways POST readings to `store_reading*` views (`bmsapp/views.py`), rou
 
 Flow: view → `bmsapp/storereads.py` (validates store key, applies **transform functions**) → `BMSdata.insert_reading()`. LoRaWAN payloads are decoded first by `bmsapp/lora/decoder.py` (per-manufacturer decoders: `decode_elsys.py`, `decode_dragino.py`, `decode_e5.py`, `decode_modbus.py`).
 
-**New-reading hook:** after a reading is stored, `run_new_reading_hook` (in `bmsdata.py`) spawns a daemon thread calling `Sensor.new_reading()`, which is where **alert checking** now happens (alerts are checked per-incoming-reading, not on the cron pass — see the comments in `main_cron.py`).
+**New-reading hook:** after a reading is stored, `run_new_reading_hook` (in `bmsdata.py`) submits `Sensor.new_reading()` to a small thread pool (so hook threads keep their reading-DB connections), which is where **alert checking** now happens (alerts are checked per-incoming-reading, not on the cron pass — see the comments in `main_cron.py`).
 
 ### LoRa gateway diagnostics
 
